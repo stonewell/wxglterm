@@ -14,41 +14,5 @@ IF(NOT CMAKE_BUILD_TYPE)
   #SET(CMAKE_BUILD_TYPE "MINSIZEREL")
 ENDIF()
 
-FIND_PACKAGE(pybind11 REQUIRED)
-
-FIND_PACKAGE(PythonLibs 3 REQUIRED)
-
-FIND_PACKAGE(wxWidgets 3 REQUIRED
-  std
-  richtext
-  )
-
-INCLUDE_DIRECTORIES("${pybind11_INCLUDE_DIRS}"
-	"${PYTHON_INCLUDE_DIRS}")
-
-FILE(GLOB wxglterm_ui_src
-    "src/*.h"
-    "src/*.cpp"
-    )
-
-ADD_DEFINITIONS(-Wall
-    )
-
-ADD_LIBRARY(wxglterm_ui SHARED ${wxglterm_ui_src})
-
-SET_TARGET_PROPERTIES(wxglterm_ui PROPERTIES
-    PREFIX "${PYTHON_MODULE_PREFIX}"
-    SUFFIX "${PYTHON_MODULE_EXTENSION}"
-    )
-
-TARGET_COMPILE_DEFINITIONS(wxglterm_ui PRIVATE
-    ${wxWidgets_DEFINITIONS}
-    )
-TARGET_INCLUDE_DIRECTORIES(wxglterm_ui PRIVATE
-    ${wxWidgets_INCLUDE_DIRS}
-    )
-TARGET_LINK_LIBRARIES(wxglterm_ui
-	${pybind11_LIBRARIES}
-	${wxWidgets_LIBRARIES}
-	${PYTHON_LIBRARIES}
-	)
+ADD_SUBDIRECTORY(src/interface)
+ADD_SUBDIRECTORY(src/ui)

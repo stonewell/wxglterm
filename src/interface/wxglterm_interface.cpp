@@ -7,7 +7,7 @@ char const* yay()
 
 namespace py = pybind11;
 
-PYBIND11_MODULE(wxglterm_ui, m)
+PYBIND11_MODULE(wxglterm_interface, m)
 {
   m.def("yay", &yay);
 }
