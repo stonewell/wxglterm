@@ -1,12 +1,13 @@
-#include <boost/python.hpp>
+#include <pybind11/pybind11.h>
 
 char const* yay()
 {
   return "Yay!";
 }
 
-BOOST_PYTHON_MODULE(wxglterm_ui)
+namespace py = pybind11;
+
+PYBIND11_MODULE(wxglterm_ui, m)
 {
-  using namespace boost::python;
-  def("yay", yay);
+  m.def("yay", &yay);
 }
