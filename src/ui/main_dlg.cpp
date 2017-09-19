@@ -139,7 +139,7 @@ MainDialog::MainDialog(const wxString & title)
 
 }
 
-void MainDialog::OnUpdatePreview(wxCommandEvent & event)
+void MainDialog::OnUpdatePreview(wxCommandEvent & /*event*/)
 {
     UpdatePreview(m_tcFolder->GetValue(),
                   m_cbIncludeSubDir->GetValue(),
@@ -188,10 +188,10 @@ void MainDialog::OnButtonClick(wxCommandEvent & event)
 }
 
 bool MainDialog::UpdatePreview(const wxString & folder,
-                               bool includeSubDir,
-                               bool useWildcard,
-                               const wxString & srcPattern,
-                               const wxString & dstPattern)
+                               bool /*includeSubDir*/,
+                               bool /*useWildcard*/,
+                               const wxString & /*srcPattern*/,
+                               const wxString & /*dstPattern*/)
 {
     if (!wxDirExists(folder))
     {
@@ -209,7 +209,7 @@ bool MainDialog::UpdatePreview(const wxString & folder,
     return true;
 }
 
-void MainDialog::OnWindowMove(wxMoveEvent & event)
+void MainDialog::OnWindowMove(wxMoveEvent & /*event*/)
 {
     UpdateLogWindow();
 }

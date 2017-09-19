@@ -2,6 +2,8 @@
 
 #include <pybind11/pybind11.h>
 
+#include "py_plugin_manager.h"
+
 #include "py_term_buffer.h"
 #include "py_term_ui.h"
 #include "py_term_network.h"
@@ -53,4 +55,9 @@ PYBIND11_MODULE(wxglterm_interface, m)
             .def("get_term_buffer", &TermContext::GetTermBuffer)
             .def("get_term_ui", &TermContext::GetTermUI)
             .def("get_term_network", &TermContext::GetTermNetwork);
+
+    py::class_<PluginManager, PyPluginManager<>> plugin_manager(m, "PluginManager");
+    plugin_manager.def(py::init<>())
+            .def("register_plugin", (void(PluginManager::*)(Plugin*))&PluginManager::RegisterPlugin)
+            .def("register_plugin", (void(PluginManager::*)(const char*))&PluginManager::RegisterPlugin);
 }

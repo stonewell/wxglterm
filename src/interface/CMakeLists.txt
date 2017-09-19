@@ -1,13 +1,6 @@
-FIND_PACKAGE(pybind11 REQUIRED)
-
-FIND_PACKAGE(PythonLibs 3 REQUIRED)
-
 FILE(GLOB wxglterm_interface_src
     "*.h"
     "*.cpp"
-    )
-
-ADD_DEFINITIONS(-Wall
     )
 
 ADD_LIBRARY(wxglterm_interface SHARED ${wxglterm_interface_src})
