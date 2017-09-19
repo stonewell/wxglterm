@@ -11,10 +11,17 @@ namespace py = pybind11;
 
 void print_plugin_info(Plugin * plugin)
 {
-    std::cerr << "Name:" << plugin->GetName()
-              << ", Description:" << plugin->GetDescription()
-              << ", Version:" << plugin->GetVersion()
+    TermNetwork * term_network = dynamic_cast<TermNetwork *>(plugin);
+
+    std::cerr << "Name:" << term_network->GetName()
+              << ", Description:" << term_network->GetDescription()
+              << ", Version:" << term_network->GetVersion()
               << std::endl;
+
+    if (term_network)
+    {
+        term_network->Disconnect();
+    }
 }
 
 PYBIND11_MODULE(wxglterm_interface, m)

@@ -1,11 +1,12 @@
-from wxglterm_interface import Plugin, TermBuffer, print_plugin_info
+from wxglterm_interface import Plugin, TermBuffer, print_plugin_info, TermNetwork
 
-class PluginBase(Plugin):
-    def __init__(self, name, desc, version):
-        super(PluginBase, self).__init__()
+class MyPluginBase(Plugin):
+    def __init__(self, name, desc, version, **kw):
+        Plugin.__init__(self)
         self._name = name
         self._desc = desc
         self._version = version
+        print("1", kw)
 
     def get_name(self):
         return self._name
@@ -16,17 +17,23 @@ class PluginBase(Plugin):
     def get_version(self):
         return self._version
 
+class MixinTermBuffer(TermNetwork):
+    def __init__(self, **kw):
+        TermNetwork.__init__(self)
+        print("2", kw)
 
-class MyTermBuffer(PluginBase, TermBuffer):
+    def disconnect(self):
+        print("disconnect")
+
+class MyTermBuffer(MixinTermBuffer, MyPluginBase):
     def __init__(self):
-        PluginBase.__init__(self, name="MyTermBuffer",
+        MixinTermBuffer.__init__(self)
+        MyPluginBase.__init__(self, name="MyTermBuffer",
                          desc="It is a python test",
                          version=1)
 
-    def get_name(self):
-        return "hahahahhaha"
 
 my_term_buffer = MyTermBuffer()
 print(my_term_buffer.get_name())
 
-print_plugin_info(MyTermBuffer())
+print_plugin_info(my_term_buffer)
