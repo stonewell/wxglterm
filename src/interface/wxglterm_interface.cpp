@@ -1,6 +1,7 @@
 #include <iostream>
 
 #include <pybind11/pybind11.h>
+#include <pybind11/embed.h>
 
 #include "py_plugin_manager.h"
 
@@ -9,15 +10,17 @@
 #include "py_term_network.h"
 #include "py_term_context.h"
 
+#include "wxglterm_interface.h"
+
 namespace py = pybind11;
 
 void print_plugin_info(Plugin * plugin)
 {
     TermNetwork * term_network = dynamic_cast<TermNetwork *>(plugin);
 
-    std::cerr << "Name:" << term_network->GetName()
-              << ", Description:" << term_network->GetDescription()
-              << ", Version:" << term_network->GetVersion()
+    std::cerr << "Name:" << plugin->GetName()
+              << ", Description:" << plugin->GetDescription()
+              << ", Version:" << plugin->GetVersion()
               << std::endl;
 
     if (term_network)
@@ -26,7 +29,7 @@ void print_plugin_info(Plugin * plugin)
     }
 }
 
-PYBIND11_MODULE(wxglterm_interface, m)
+PYBIND11_EMBEDDED_MODULE(wxglterm_interface, m)
 {
     m.def("print_plugin_info", &print_plugin_info);
 
@@ -60,4 +63,11 @@ PYBIND11_MODULE(wxglterm_interface, m)
     plugin_manager.def(py::init<>())
             .def("register_plugin", (void(PluginManager::*)(Plugin*))&PluginManager::RegisterPlugin)
             .def("register_plugin", (void(PluginManager::*)(const char*))&PluginManager::RegisterPlugin);
+}
+
+void init_wxglterm_interface_module()
+{
+    auto py_module1 = py::module::import("wxglterm_interface");
+
+    py::print(py_module1);
 }

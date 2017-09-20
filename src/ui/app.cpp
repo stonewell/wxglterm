@@ -3,10 +3,9 @@
 #include "main_dlg.h"
 
 #include "controller.h"
+#include "wxglterm_interface.h"
 
 namespace py = pybind11;
-
-PYBIND11_PLUGIN_IMPL(wxglterm_interface);
 
 IMPLEMENT_APP(BatchRenameApp)
 
@@ -14,9 +13,9 @@ bool BatchRenameApp::OnInit()
 {
     guard = std::make_shared<py::scoped_interpreter>();
 
-    PyInit_wxglterm_interface();
+    init_wxglterm_interface_module();
 
-    auto plugin_manager = LoadAllPlugins(".");
+    auto plugin_manager = LoadAllPlugins("../pysrc/test");
 
     MainDialog * mainDlg = new MainDialog(wxT("Batch Rename Files"));
     mainDlg->Show(true);

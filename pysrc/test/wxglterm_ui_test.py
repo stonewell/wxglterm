@@ -37,3 +37,6 @@ my_term_buffer = MyTermBuffer()
 print(my_term_buffer.get_name())
 
 print_plugin_info(my_term_buffer)
+
+def register_plugins(pm):
+    pm.register_plugin(my_term_buffer)
