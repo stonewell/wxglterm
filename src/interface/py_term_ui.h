@@ -6,7 +6,7 @@
 template<class TermUIBase = TermUI>
 class PyTermUI : public PyPlugin<TermUIBase> {
 public:
-    using TermUIBase::TermUIBase;
+    using PyPlugin<TermUIBase>::PyPlugin;
 
     void Refresh() override {
         PYBIND11_OVERLOAD_PURE_NAME(void, TermUIBase, "refresh", Refresh, );

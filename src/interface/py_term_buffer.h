@@ -6,5 +6,5 @@
 template<class TermBufferBase = TermBuffer>
 class PyTermBuffer : public PyPlugin<TermBufferBase> {
 public:
-    using TermBufferBase::TermBufferBase;
+    using PyPlugin<TermBufferBase>::PyPlugin;
 };

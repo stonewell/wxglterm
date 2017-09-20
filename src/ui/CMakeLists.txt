@@ -21,8 +21,8 @@ TARGET_INCLUDE_DIRECTORIES(wxglterm PRIVATE
     "../interface"
     )
 TARGET_LINK_LIBRARIES(wxglterm
+  controller
   ${wxWidgets_LIBRARIES}
   ${pybind11_LIBRARIES}
   ${PYTHON_LIBRARIES}
-  controller
   )

@@ -6,7 +6,7 @@
 template<class TermContextBase = TermContext>
 class PyTermContext : public PyContext<TermContextBase> {
 public:
-    using TermContextBase::TermContextBase;
+    using PyContext<TermContextBase>::PyContext;
 
 public:
     TermBuffer * GetTermBuffer() const override {

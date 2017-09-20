@@ -6,7 +6,7 @@
 template<class TermNetworkBase = TermNetwork>
 class PyTermNetwork : public PyPlugin<TermNetworkBase> {
 public:
-    using TermNetworkBase::TermNetworkBase;
+    using PyPlugin<TermNetworkBase>::PyPlugin;
 
 public:
     void Disconnect() override {
