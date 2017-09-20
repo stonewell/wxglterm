@@ -1,5 +1,4 @@
 #include <pybind11/embed.h>
-
 #include "app.h"
 #include "main_dlg.h"
 
@@ -13,7 +12,7 @@ IMPLEMENT_APP(BatchRenameApp)
 
 bool BatchRenameApp::OnInit()
 {
-    py::scoped_interpreter guard{};
+    guard = std::make_shared<py::scoped_interpreter>();
 
     PyInit_wxglterm_interface();
 

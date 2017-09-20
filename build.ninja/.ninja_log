@@ -1,0 +1,13 @@
+# ninja log v5
+2	567	0	src/controller/CMakeFiles/controller.dir/plugin_manager_impl.cpp.o	3b06ea27d7572cf7
+1	2689	0	src/controller/CMakeFiles/controller.dir/controller.cpp.o	1dfe8af969e7f1e9
+2690	2731	0	src/controller/libcontroller.a	11c8df8f2088274d
+3	3759	0	src/ui/CMakeFiles/wxglterm.dir/main_dlg.cpp.o	e317e9a6861085a8
+1	3935	0	src/interface/CMakeFiles/wxglterm_interface.dir/wxglterm_interface.cpp.o	918525b138b98efc
+0	3944	0	src/interface/CMakeFiles/wxglterm_interface_static.dir/wxglterm_interface.cpp.o	56ca517686d01a72
+3944	3985	0	src/interface/libwxglterm_interface_static.a	f66a5ea36acce7dc
+3935	3994	0	src/interface/wxglterm_interface.cpython-36m-darwin.so	272a0ae642611845
+3	4544	0	src/ui/CMakeFiles/wxglterm.dir/app.cpp.o	b3b5363536217008
+4544	4701	0	src/ui/wxglterm	4e9d32fbd04bcb93
+3	3799	0	src/ui/CMakeFiles/wxglterm.dir/app.cpp.o	b3b5363536217008
+3799	3978	0	src/ui/wxglterm	4e9d32fbd04bcb93
