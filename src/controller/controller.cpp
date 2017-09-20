@@ -13,10 +13,7 @@ std::shared_ptr<PluginManager> LoadAllPlugins(const char * plugin_path)
 
     py::dict locals;
 
-    py::print(py::cast(plugin_path));
-    py::print(py::cast(plugin_manager));
-
-    locals["plugin_manager"] = py::cast(plugin_manager);
+    locals["plugin_manager"] = plugin_manager;
     locals["plugin_path"]    = py::cast(plugin_path);
 
     py::eval<py::eval_statements>(
@@ -24,13 +21,10 @@ std::shared_ptr<PluginManager> LoadAllPlugins(const char * plugin_path)
         "  import os\n"
         "  import glob\n"
         "  for f in glob.glob(os.path.join(p, '*.*')):\n"
-        "    print(f)\n"
-        "f=load_all_plugins",
+        "    pm.register_plugin(f)\n"
+        "load_all_plugins(plugin_manager, plugin_path)",
         py::globals(),
         locals);
-
-    py::print(locals["f"]);
-    locals["f"].cast<py::function>()(py::cast(plugin_manager), plugin_path);
 
     return plugin_manager;
 }
