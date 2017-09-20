@@ -7,18 +7,16 @@
 
 namespace py = pybind11;
 
-PYBIND11_EMBEDDED_MODULE(plugin_manager, m) {
-    m.def("load", [](int i, int j) {
-        return i + j;
-    });
-}
-
 std::shared_ptr<PluginManager> LoadAllPlugins(const char * plugin_path)
 {
     std::shared_ptr<PluginManager> plugin_manager { new PluginManagerImpl() };
 
     py::dict locals;
-    //locals["plugin_manager"] = pm;
+
+    py::print(py::cast(plugin_path));
+    py::print(py::cast(plugin_manager));
+
+    locals["plugin_manager"] = py::cast(plugin_manager);
     locals["plugin_path"]    = py::cast(plugin_path);
 
     py::eval<py::eval_statements>(
@@ -32,7 +30,7 @@ std::shared_ptr<PluginManager> LoadAllPlugins(const char * plugin_path)
         locals);
 
     py::print(locals["f"]);
-    locals["f"].cast<py::function>()(new PluginManagerImpl(), plugin_path);
+    locals["f"].cast<py::function>()(py::cast(plugin_manager), plugin_path);
 
     return plugin_manager;
 }

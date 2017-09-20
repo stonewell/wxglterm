@@ -22,6 +22,7 @@ TARGET_INCLUDE_DIRECTORIES(wxglterm PRIVATE
     )
 TARGET_LINK_LIBRARIES(wxglterm
   controller
+  wxglterm_interface_static
   ${wxWidgets_LIBRARIES}
   ${pybind11_LIBRARIES}
   ${PYTHON_LIBRARIES}

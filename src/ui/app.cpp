@@ -7,11 +7,15 @@
 
 namespace py = pybind11;
 
+PYBIND11_PLUGIN_IMPL(wxglterm_interface);
+
 IMPLEMENT_APP(BatchRenameApp)
 
 bool BatchRenameApp::OnInit()
 {
     py::scoped_interpreter guard{};
+
+    PyInit_wxglterm_interface();
 
     auto plugin_manager = LoadAllPlugins(".");
 

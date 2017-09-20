@@ -4,6 +4,7 @@ FILE(GLOB wxglterm_interface_src
     )
 
 ADD_LIBRARY(wxglterm_interface SHARED ${wxglterm_interface_src})
+ADD_LIBRARY(wxglterm_interface_static ${wxglterm_interface_src})
 
 SET_TARGET_PROPERTIES(wxglterm_interface PROPERTIES
     PREFIX "${PYTHON_MODULE_PREFIX}"
@@ -11,6 +12,11 @@ SET_TARGET_PROPERTIES(wxglterm_interface PROPERTIES
     )
 
 TARGET_INCLUDE_DIRECTORIES(wxglterm_interface PRIVATE
+  "${pybind11_INCLUDE_DIRS}"
+  "${PYTHON_INCLUDE_DIRS}"
+  )
+
+TARGET_INCLUDE_DIRECTORIES(wxglterm_interface_static PRIVATE
   "${pybind11_INCLUDE_DIRS}"
   "${PYTHON_INCLUDE_DIRS}"
   )
