@@ -17,9 +17,9 @@ class MyPluginBase(Plugin):
     def get_version(self):
         return self._version
 
-class MixinTermBuffer(TermNetwork):
+class MixinTermBuffer(TermBuffer):
     def __init__(self, **kw):
-        TermNetwork.__init__(self)
+        TermBuffer.__init__(self)
         print("2", kw)
 
     def disconnect(self):

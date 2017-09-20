@@ -1,6 +1,8 @@
 #include <iostream>
-#include <string.h>
 #include <string>
+#include <exception>
+
+#include <string.h>
 
 #include <pybind11/embed.h>
 namespace py = pybind11;
@@ -46,6 +48,15 @@ void PluginManagerImpl::RegisterPlugin(const char * plugin_file_path)
             try
             {
                 LoadPythonPlugin(plugin_file_path);
+            }
+            catch(std::exception & e)
+            {
+                std::cerr << "!!load python plugin from file:"
+                          << plugin_file_path
+                          << " failed!"
+                          << std::endl
+                          << e.what()
+                          << std::endl;
             }
             catch(...)
             {
