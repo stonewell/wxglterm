@@ -4,16 +4,21 @@
 
 #include "controller.h"
 #include "wxglterm_interface.h"
+#include "app_config_impl.h"
+
+#include <iostream>
 
 namespace py = pybind11;
 
-IMPLEMENT_APP(BatchRenameApp)
+IMPLEMENT_APP(wxGLTermApp)
 
-bool BatchRenameApp::OnInit()
+bool wxGLTermApp::OnInit()
 {
-    guard = std::make_shared<py::scoped_interpreter>();
+    m_PyInterpreter = std::make_shared<py::scoped_interpreter>();
 
     init_wxglterm_interface_module();
+
+    g_AppConfig->LoadFromFile("wxglterm.json");
 
     auto plugin_manager = LoadAllPlugins("../pysrc/test");
 
@@ -21,4 +26,11 @@ bool BatchRenameApp::OnInit()
     mainDlg->Show(true);
 
     return true;
+}
+
+int wxGLTermApp::OnExit()
+{
+    //must dealloc the python objects before interpreter shutdown
+    g_AppConfig.reset((AppConfig*)nullptr);
+    return wxApp::OnExit();
 }

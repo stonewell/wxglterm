@@ -3,11 +3,12 @@
 #include <wx/wx.h>
 #include <memory>
 
-class BatchRenameApp : public wxApp
+class wxGLTermApp : public wxApp
 {
-  public:
+public:
     virtual bool OnInit();
 
+    virtual int OnExit();
 private:
-    std::shared_ptr<void> guard;
+    std::shared_ptr<void> m_PyInterpreter;
 };

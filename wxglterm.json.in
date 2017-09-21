@@ -1,0 +1,6 @@
+{
+    "plugins_dir":"plugins",
+    "termcap_dir":"/home/user/pymterm/data",
+    "use_system_ssh_config":true,
+    "use_ssh_config":"global_ssh_config_file_path"
+}

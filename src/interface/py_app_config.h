@@ -8,8 +8,8 @@ public:
     using AppConfigBase::AppConfigBase;
 
 public:
-    const char * GetEntry(const char * path, const char * default_value) override {
-        PYBIND11_OVERLOAD_PURE_NAME(const char *, AppConfigBase, "get_entry", GetEntry, path, default_value);
+    std::string GetEntry(const char * path, const char * default_value) override {
+        PYBIND11_OVERLOAD_PURE_NAME(std::string, AppConfigBase, "get_entry", GetEntry, path, default_value);
     }
 
     int64_t GetEntryInt64(const char * path, int64_t default_value) override {

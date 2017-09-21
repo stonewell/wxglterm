@@ -36,6 +36,8 @@ FIND_PACKAGE(wxWidgets 3 REQUIRED
   richtext
   )
 
+configure_file(wxglterm.json.in wxglterm.json)
+
 ADD_SUBDIRECTORY(src/interface)
 ADD_SUBDIRECTORY(src/controller)
 ADD_SUBDIRECTORY(src/ui)

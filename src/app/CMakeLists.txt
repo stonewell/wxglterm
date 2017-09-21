@@ -3,7 +3,12 @@ FILE(GLOB wxglterm_src
     "*.cpp"
     )
 
-ADD_EXECUTABLE(wxglterm ${wxglterm_src})
+  ADD_CUSTOM_COMMAND(OUTPUT app_config.inc
+    COMMAND ${PYTHON_EXECUTABLE} ${CMAKE_CURRENT_SOURCE_DIR}/../../utils/pystmt_generator/pystmt_generator.py -i ${CMAKE_CURRENT_SOURCE_DIR}/app_config.py -o app_config.inc
+    DEPENDS ${CMAKE_CURRENT_SOURCE_DIR}/app_config.py ${CMAKE_CURRENT_SOURCE_DIR}/../../utils/pystmt_generator/pystmt_generator.py
+    )
+
+ADD_EXECUTABLE(wxglterm ${wxglterm_src} app_config.inc)
 
 TARGET_COMPILE_DEFINITIONS(wxglterm PRIVATE
     ${wxWidgets_DEFINITIONS}
@@ -15,6 +20,7 @@ TARGET_INCLUDE_DIRECTORIES(wxglterm PRIVATE
     "../controller"
     "../interface"
     "../ui"
+    ${CMAKE_CURRENT_BINARY_DIR}
     )
 TARGET_LINK_LIBRARIES(wxglterm
   wxglterm_ui
