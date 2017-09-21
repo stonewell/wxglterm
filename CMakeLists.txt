@@ -31,6 +31,12 @@ FIND_PACKAGE(pybind11 REQUIRED)
 
 FIND_PACKAGE(PythonLibs 3 REQUIRED)
 
+FIND_PACKAGE(wxWidgets 3 REQUIRED
+  std
+  richtext
+  )
+
 ADD_SUBDIRECTORY(src/interface)
 ADD_SUBDIRECTORY(src/controller)
 ADD_SUBDIRECTORY(src/ui)
+ADD_SUBDIRECTORY(src/app)

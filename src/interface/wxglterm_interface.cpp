@@ -1,7 +1,10 @@
 #include <iostream>
 
+#ifdef WXGLTERM_DYNAMIC_INTERFACE
 #include <pybind11/pybind11.h>
+#else
 #include <pybind11/embed.h>
+#endif
 
 #include "py_plugin_manager.h"
 
@@ -9,6 +12,10 @@
 #include "py_term_ui.h"
 #include "py_term_network.h"
 #include "py_term_context.h"
+
+#include "py_multiple_instance_plugin.h"
+
+#include "py_app_config.h"
 
 #include "wxglterm_interface.h"
 
@@ -29,7 +36,11 @@ void print_plugin_info(Plugin * plugin)
     }
 }
 
+#ifdef WXGLTERM_DYNAMIC_INTERFACE
+PYBIND11_MODULE(wxglterm_interface, m)
+#else
 PYBIND11_EMBEDDED_MODULE(wxglterm_interface, m)
+#endif
 {
     m.def("print_plugin_info", &print_plugin_info);
 
@@ -38,6 +49,10 @@ PYBIND11_EMBEDDED_MODULE(wxglterm_interface, m)
             .def("get_name", &Plugin::GetName)
             .def("get_description", &Plugin::GetDescription)
             .def("get_version", &Plugin::GetVersion);
+
+    py::class_<MultipleInstancePlugin, PyMultipleInstancePlugin<>> multiple_instance_plugin(m, "MultipleInstancePlugin");
+    multiple_instance_plugin.def(py::init<>())
+            .def("new_instance", &MultipleInstancePlugin::NewInstance);
 
     py::class_<Context, PyContext<>> context(m, "Context");
     context.def(py::init<>());
@@ -63,6 +78,14 @@ PYBIND11_EMBEDDED_MODULE(wxglterm_interface, m)
     plugin_manager.def(py::init<>())
             .def("register_plugin", (void(PluginManager::*)(Plugin*))&PluginManager::RegisterPlugin)
             .def("register_plugin", (void(PluginManager::*)(const char*))&PluginManager::RegisterPlugin);
+
+    py::class_<AppConfig, PyAppConfig<>, std::shared_ptr<AppConfig>> app_config(m, "AppConfig");
+    app_config.def(py::init<>())
+            .def("get_entry", &AppConfig::GetEntry)
+            .def("get_entry_int64", &AppConfig::GetEntryInt64)
+            .def("get_entry_uint64", &AppConfig::GetEntryUInt64)
+            .def("get_entry_bool", &AppConfig::GetEntryBool)
+            .def("load_from_file", &AppConfig::LoadFromFile);
 }
 
 void init_wxglterm_interface_module()

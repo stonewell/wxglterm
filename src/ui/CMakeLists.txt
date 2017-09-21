@@ -1,29 +1,17 @@
-FIND_PACKAGE(wxWidgets 3 REQUIRED
-  std
-  richtext
-  )
-
-FILE(GLOB wxglterm_src
+FILE(GLOB wxglterm_ui_src
     "*.h"
     "*.cpp"
     )
 
-ADD_EXECUTABLE(wxglterm ${wxglterm_src})
+ADD_LIBRARY(wxglterm_ui ${wxglterm_ui_src})
 
-TARGET_COMPILE_DEFINITIONS(wxglterm PRIVATE
+TARGET_COMPILE_DEFINITIONS(wxglterm_ui PRIVATE
     ${wxWidgets_DEFINITIONS}
     )
-TARGET_INCLUDE_DIRECTORIES(wxglterm PRIVATE
+TARGET_INCLUDE_DIRECTORIES(wxglterm_ui PRIVATE
     ${wxWidgets_INCLUDE_DIRS}
     "${pybind11_INCLUDE_DIRS}"
     "${PYTHON_INCLUDE_DIRS}"
     "../controller"
     "../interface"
     )
-TARGET_LINK_LIBRARIES(wxglterm
-  controller
-  wxglterm_interface_static
-  ${wxWidgets_LIBRARIES}
-  ${pybind11_LIBRARIES}
-  ${PYTHON_LIBRARIES}
-  )
