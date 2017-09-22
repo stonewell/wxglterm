@@ -4,9 +4,9 @@
 #include "py_plugin.h"
 
 template<class MultipleInstancePluginBase = MultipleInstancePlugin>
-class PyMultipleInstancePlugin : public PyPlugin<MultipleInstancePluginBase> {
+class PyMultipleInstancePlugin : public virtual PyPlugin<MultipleInstancePluginBase> {
 public:
-    using MultipleInstancePluginBase::MultipleInstancePluginBase;
+    using PyPlugin<MultipleInstancePluginBase>::PyPlugin;
 
 public:
     MultipleInstancePluginBase * NewInstance() override {

@@ -50,7 +50,7 @@ PYBIND11_EMBEDDED_MODULE(wxglterm_interface, m)
             .def("get_description", &Plugin::GetDescription)
             .def("get_version", &Plugin::GetVersion);
 
-    py::class_<MultipleInstancePlugin, PyMultipleInstancePlugin<>> multiple_instance_plugin(m, "MultipleInstancePlugin");
+    py::class_<MultipleInstancePlugin, PyMultipleInstancePlugin<>> multiple_instance_plugin(m, "MultipleInstancePlugin", plugin);
     multiple_instance_plugin.def(py::init<>())
             .def("new_instance", &MultipleInstancePlugin::NewInstance);
 
