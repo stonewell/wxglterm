@@ -24,7 +24,7 @@ public:
 private:
     void ResetDefaults();
 
-    bool m_Loaded;
+    bool m_bLoaded;
     py::object m_AppConfig;
 };
 
@@ -37,22 +37,22 @@ AppConfigImpl::AppConfigImpl()
 
 std::string AppConfigImpl::GetEntry(const char * path, const char * default_value)
 {
-    return m_AppConfig.attr("get")(path, py::cast(default_value)).cast<std::string>();
+    return m_bLoaded ? m_AppConfig.attr("get")(path, py::cast(default_value)).cast<std::string>() : default_value;
 }
 
 int64_t AppConfigImpl::GetEntryInt64(const char * path, int64_t default_value)
 {
-    return m_AppConfig.attr("get")(path, py::cast(default_value)).cast<int64_t>();
+    return m_bLoaded ? m_AppConfig.attr("get")(path, py::cast(default_value)).cast<int64_t>() : default_value;
 }
 
 uint64_t AppConfigImpl::GetEntryUInt64(const char * path, uint64_t default_value)
 {
-    return m_AppConfig.attr("get")(path, py::cast(default_value)).cast<uint64_t>();
+    return m_bLoaded ? m_AppConfig.attr("get")(path, py::cast(default_value)).cast<uint64_t>() : default_value;
 }
 
 bool AppConfigImpl::GetEntryBool(const char * path, bool default_value)
 {
-    return m_AppConfig.attr("get")(path, py::cast(default_value)).cast<bool>();
+    return m_bLoaded ? m_AppConfig.attr("get")(path, py::cast(default_value)).cast<bool>() : default_value;
 }
 
 
@@ -68,7 +68,7 @@ bool AppConfigImpl::LoadFromFile(const char * file_path)
                                            "app_config",
                                            "app_config.py").attr("load_config")(file_path);
 
-        m_Loaded = true;
+        m_bLoaded = true;
     }
     catch(std::exception & e)
     {
@@ -78,7 +78,7 @@ bool AppConfigImpl::LoadFromFile(const char * file_path)
                   << std::endl
                   << e.what()
                   << std::endl;
-        m_Loaded = false;
+        m_bLoaded = false;
     }
     catch(...)
     {
@@ -87,16 +87,16 @@ bool AppConfigImpl::LoadFromFile(const char * file_path)
                   << " failed!"
                   << std::endl;
         PyErr_Print();
-        m_Loaded = false;
+        m_bLoaded = false;
     }
 
-    return m_Loaded;
+    return m_bLoaded;
 }
 
 
 void AppConfigImpl::ResetDefaults()
 {
-    m_Loaded = false;
+    m_bLoaded = false;
 }
 
 #pragma GCC visibility pop
