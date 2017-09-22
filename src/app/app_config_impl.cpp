@@ -2,9 +2,10 @@
 #include <iostream>
 #include <string>
 
-#include "app_config_impl.h"
-
 namespace py = pybind11;
+
+#include "app_config_impl.h"
+#include "load_module.h"
 
 #pragma GCC visibility push(hidden)
 class AppConfigImpl : public virtual AppConfig {
@@ -59,21 +60,13 @@ bool AppConfigImpl::LoadFromFile(const char * file_path)
 {
     try
     {
-        py::dict locals;
-
-        locals["config_path"]    = py::cast(file_path);
-
-        py::object result = py::eval<py::eval_statements>(
+        const char *module_content =
 #include "app_config.inc"
-            "if not os.path.exists(config_path):\n"
-            "    raise ValueError('unable to find the config file:{}'.format(config_path))\n"
-            "with open(config_path) as f:\n"
-            "    app_config = DictQuery(json.load(f))\n"
-            ,
-            py::globals(),
-            locals);
+                ;
 
-        m_AppConfig = locals["app_config"];
+        m_AppConfig = LoadModuleFromString(module_content,
+                                           "app_config",
+                                           "app_config.py").attr("load_config")(file_path);
 
         m_Loaded = true;
     }

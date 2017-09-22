@@ -19,3 +19,10 @@ class DictQuery(dict):
                 break;
 
         return val
+
+def load_config(config_path):
+    if not os.path.exists(config_path):
+        raise ValueError('unable to find the config file:{}'.format(config_path))
+
+    with open(config_path) as f:
+        return DictQuery(json.load(f))

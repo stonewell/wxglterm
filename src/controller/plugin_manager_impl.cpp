@@ -9,6 +9,7 @@ namespace py = pybind11;
 
 #include "plugin_manager_impl.h"
 #include "wxglterm_interface.h"
+#include "load_module.h"
 
 #define FUNC_REGISTER_PLUGINS "register_plugins"
 
@@ -76,18 +77,7 @@ void PluginManagerImpl::LoadPythonPlugin(const char * plugin_file_path)
               << plugin_file_path
               << std::endl;
 
-    py::dict locals;
-    locals["path"]        = py::cast(plugin_file_path);
-
-    py::eval<py::eval_statements>(            // tell eval we're passing multiple statements
-        "import imp\n"
-        "import os\n"
-        "module_name = os.path.basename(path)[:-3]\n"
-        "new_module = imp.load_module(module_name, open(path), path, ('py', 'U', imp.PY_SOURCE))\n",
-        py::globals(),
-        locals);
-
-    auto py_module = locals["new_module"];
+    auto py_module = LoadModuleFromFile(plugin_file_path);
     py::print(py_module);
 
     if (py::hasattr(py_module, FUNC_REGISTER_PLUGINS))

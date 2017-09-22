@@ -20,12 +20,14 @@ TARGET_INCLUDE_DIRECTORIES(wxglterm PRIVATE
     "../controller"
     "../interface"
     "../ui"
+    "../utils"
     ${CMAKE_CURRENT_BINARY_DIR}
     )
 TARGET_LINK_LIBRARIES(wxglterm
   wxglterm_ui
   controller
   wxglterm_interface_static
+  utils
   ${wxWidgets_LIBRARIES}
   ${pybind11_LIBRARIES}
   ${PYTHON_LIBRARIES}
