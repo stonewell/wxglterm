@@ -11,4 +11,5 @@ public:
     virtual int OnExit();
 private:
     std::shared_ptr<void> m_PyInterpreter;
+    void DoInit();
 };
