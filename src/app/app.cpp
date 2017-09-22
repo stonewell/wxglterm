@@ -20,12 +20,20 @@ bool wxGLTermApp::OnInit()
 
     g_AppConfig->LoadFromFile("wxglterm.json");
 
-    std::cout << "termcap_dir:" << g_AppConfig->GetEntry("termcap_dir", "NOT FOUND!!!")
+    std::cout << "termcap_dir:"
+              << g_AppConfig->GetEntry("termcap_dir", "NOT FOUND!!!")
+              << ","
+              << g_AppConfig->GetEntry("/termcap_dir", "NOT FOUND!!! with path start with /")
               << std::endl
               << "use_system_ssh_config:" << g_AppConfig->GetEntryBool("use_system_ssh_config", false)
               << std::endl;
 
-    auto plugin_manager = LoadAllPlugins("../pysrc/test");
+    std::string plugins_dir = g_AppConfig->GetEntry("plugins_dir", "NOT FOUND!!!");
+
+    py::object sys_m = py::module::import("sys");
+    sys_m.attr("path").attr("append")(plugins_dir);
+
+    auto plugin_manager = LoadAllPlugins(plugins_dir.c_str());
 
     MainDialog * mainDlg = new MainDialog(wxT("Batch Rename Files"));
     mainDlg->Show(true);

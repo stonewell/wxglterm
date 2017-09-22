@@ -7,6 +7,9 @@ class DictQuery(dict):
         val = None
 
         for key in keys:
+            #skip empty keys for // and path start with /
+            if len(key) == 0:
+                continue
             if val:
                 if isinstance(val, list):
                     val = [ v.get(key, default) if v else None for v in val]
