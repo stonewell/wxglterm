@@ -1,14 +1,17 @@
 #pragma once
 
-#include "py_plugin.h"
+#include "py_multiple_instance_plugin.h"
 #include "term_ui.h"
 
 template<class TermUIBase = TermUI>
-class PyTermUI : public PyPlugin<TermUIBase> {
+class PyTermUI : public PyMultipleInstancePlugin<TermUIBase> {
 public:
-    using PyPlugin<TermUIBase>::PyPlugin;
+    using PyMultipleInstancePlugin<TermUIBase>::PyMultipleInstancePlugin;
 
     void Refresh() override {
         PYBIND11_OVERLOAD_PURE_NAME(void, TermUIBase, "refresh", Refresh, );
+    }
+    void Show() override {
+        PYBIND11_OVERLOAD_PURE_NAME(void, TermUIBase, "show", Refresh, );
     }
 };

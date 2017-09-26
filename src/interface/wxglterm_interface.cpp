@@ -60,9 +60,10 @@ PYBIND11_EMBEDDED_MODULE(wxglterm_interface, m)
     py::class_<TermBuffer, PyTermBuffer<>> term_buffer(m, "TermBuffer", plugin);
     term_buffer.def(py::init<>());
 
-    py::class_<TermUI, PyTermUI<>> term_ui(m, "TermUI", plugin);
+    py::class_<TermUI, PyTermUI<>> term_ui(m, "TermUI", multiple_instance_plugin);
     term_ui.def(py::init<>())
-            .def("refresh", &TermUI::Refresh);
+            .def("refresh", &TermUI::Refresh)
+            .def("show", &TermUI::Show);
 
     py::class_<TermNetwork, PyTermNetwork<>> term_network(m, "TermNetwork", plugin);
     term_network.def(py::init<>())
@@ -77,7 +78,12 @@ PYBIND11_EMBEDDED_MODULE(wxglterm_interface, m)
     py::class_<PluginManager, PyPluginManager<>, std::shared_ptr<PluginManager>> plugin_manager(m, "PluginManager");
     plugin_manager.def(py::init<>())
             .def("register_plugin", (void(PluginManager::*)(Plugin*))&PluginManager::RegisterPlugin)
-            .def("register_plugin", (void(PluginManager::*)(const char*))&PluginManager::RegisterPlugin);
+            .def("register_plugin", (void(PluginManager::*)(const char*))&PluginManager::RegisterPlugin)
+            .def("get_plugin", &PluginManager::GetPlugin);
+
+    py::enum_<PluginManager::VersionCodeEnum>(plugin_manager, "VersionCode")
+            .value("Latest", PluginManager::VersionCodeEnum::Latest)
+            .export_values();
 
     py::class_<AppConfig, PyAppConfig<>, std::shared_ptr<AppConfig>> app_config(m, "AppConfig");
     app_config.def(py::init<>())

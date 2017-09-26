@@ -1,8 +1,9 @@
 #pragma once
 
-#include "plugin.h"
+#include "multiple_instance_plugin.h"
 
-class TermUI : public virtual Plugin {
+class TermUI : public virtual MultipleInstancePlugin {
 public:
     virtual void Refresh() = 0;
+    virtual void Show() = 0;
 };

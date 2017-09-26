@@ -2,6 +2,10 @@
 
 #include <wx/wx.h>
 #include <memory>
+#include <list>
+
+#include "term_ui.h"
+#include "plugin_manager.h"
 
 class wxGLTermApp : public wxApp
 {
@@ -9,7 +13,15 @@ public:
     virtual bool OnInit();
 
     virtual int OnExit();
+
 private:
+    using term_ui_list_t = std::list<std::shared_ptr<TermUI>>;
+
     std::shared_ptr<void> m_PyInterpreter;
-    void DoInit();
+    term_ui_list_t m_TermUIList;
+    std::shared_ptr<PluginManager> m_PluginManager;
+
+    bool DoInit();
+    void Cleanup();
+    std::shared_ptr<TermUI> CreateTermUI();
 };

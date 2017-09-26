@@ -89,3 +89,11 @@ void PluginManagerImpl::LoadPythonPlugin(const char * plugin_file_path)
         py_register_plugins_func(dynamic_cast<PluginManager*>(this));
     }
 }
+
+Plugin * PluginManagerImpl::GetPlugin(const char * plugin_name, uint64_t plugin_version_code)
+{
+    (void)plugin_name;
+    (void)plugin_version_code;
+
+    return nullptr;
+}

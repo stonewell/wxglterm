@@ -1,6 +1,7 @@
 #pragma once
 
 #include "plugin_manager.h"
+#include "plugin.h"
 
 template<class PluginManagerBase = PluginManager>
 class PyPluginManager : public PluginManagerBase {
@@ -22,5 +23,14 @@ public:
                                     "register_plugin",
                                     RegisterPlugin,
                                     plugin_file_path);
+    }
+
+    Plugin * GetPlugin(const char * plugin_name, uint64_t plugin_version_code) override {
+        PYBIND11_OVERLOAD_PURE_NAME(Plugin *,
+                                    PluginManagerBase,
+                                    "get_plugin",
+                                    GetPlugin,
+                                    plugin_name,
+                                    plugin_version_code);
     }
 };
