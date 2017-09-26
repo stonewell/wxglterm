@@ -92,8 +92,16 @@ void PluginManagerImpl::LoadPythonPlugin(const char * plugin_file_path)
 
 Plugin * PluginManagerImpl::GetPlugin(const char * plugin_name, uint64_t plugin_version_code)
 {
-    (void)plugin_name;
-    (void)plugin_version_code;
+    std::cerr << "get plugin:"
+              << plugin_name
+              << ", with version:";
+    if (plugin_version_code == static_cast<uint64_t>(PluginManager::Latest))
+    {
+        std::cerr << "Latest";
+    }
+    else
+        std::cerr << plugin_version_code;
 
+    std::cerr << std::endl;
     return nullptr;
 }

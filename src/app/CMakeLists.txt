@@ -23,9 +23,11 @@ TARGET_INCLUDE_DIRECTORIES(wxglterm PRIVATE
   "../interface"
   "../ui"
   "../utils"
+  "../plugins"
   ${CMAKE_CURRENT_BINARY_DIR}
   )
 TARGET_LINK_LIBRARIES(wxglterm
+  plugins
   wxglterm_ui
   controller
   wxglterm_interface_static

@@ -4,11 +4,12 @@
 #include <wx/stdpaths.h>
 
 #include "app.h"
-#include "main_dlg.h"
 
 #include "controller.h"
 #include "wxglterm_interface.h"
 #include "app_config_impl.h"
+
+#include "default_term_ui.h"
 
 #include <iostream>
 namespace py = pybind11;
@@ -86,6 +87,8 @@ bool wxGLTermApp::DoInit()
 
     m_PluginManager.swap(plugin_manager);
 
+    InitDefaultPlugins();
+
     auto term_ui = CreateTermUI();
 
     if (term_ui)
@@ -122,4 +125,9 @@ std::shared_ptr<TermUI> wxGLTermApp::CreateTermUI()
     }
 
     return std::shared_ptr<TermUI>{dynamic_cast<TermUI*>(plugin_term_ui->NewInstance())};
+}
+
+void wxGLTermApp::InitDefaultPlugins()
+{
+    m_PluginManager->RegisterPlugin(CreateDefaultTermUI());
 }

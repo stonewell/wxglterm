@@ -23,5 +23,6 @@ private:
 
     bool DoInit();
     void Cleanup();
+    void InitDefaultPlugins();
     std::shared_ptr<TermUI> CreateTermUI();
 };
