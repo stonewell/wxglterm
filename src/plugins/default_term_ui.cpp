@@ -8,17 +8,22 @@ class DefaultTermUI : public virtual PluginBase, public virtual TermUI {
 public:
     DefaultTermUI() :
         PluginBase("term_ui", "default terminal ui plugin", 0)
-        , m_MainDlg(wxT("wxGLTerm"))
+        , m_MainDlg(nullptr)
     {
     }
 
     virtual ~DefaultTermUI() = default;
 
     void Refresh() override {
+        if (!m_MainDlg)
+            return;
     }
 
     void Show() override {
-        m_MainDlg.Show(true);
+        if (!m_MainDlg)
+            m_MainDlg = new MainDialog(wxT("wxGLTerm"));
+
+        m_MainDlg->Show(true);
     }
 
     MultipleInstancePlugin * NewInstance() override {
@@ -26,7 +31,7 @@ public:
     }
 
 private:
-    MainDialog m_MainDlg;
+    MainDialog * m_MainDlg;
 };
 
 TermUI * CreateDefaultTermUI()
