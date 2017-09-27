@@ -6,7 +6,7 @@ namespace py = pybind11;
 
 #include "load_module.h"
 
-py::object LoadModuleFromFile(const char * file_path)
+py::object LoadPyModuleFromFile(const char * file_path)
 {
     py::dict locals;
     locals["path"]  = py::cast(file_path);
@@ -24,7 +24,7 @@ py::object LoadModuleFromFile(const char * file_path)
     return py_module;
 }
 
-py::object LoadModuleFromString(const char * content, const char * module_name, const char * module_file)
+py::object LoadPyModuleFromString(const char * content, const char * module_name, const char * module_file)
 {
     py::dict locals;
 

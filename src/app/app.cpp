@@ -116,7 +116,7 @@ std::shared_ptr<TermUI> wxGLTermApp::CreateTermUI()
     std::string ui_plugin_name = g_AppConfig->GetEntry("plugins/ui/name", "term_ui");
     uint64_t ui_plugin_version = g_AppConfig->GetEntryUInt64("plugins/ui/version", PluginManager::Latest);
 
-    TermUI * plugin_term_ui = dynamic_cast<TermUI*>(m_PluginManager->GetPlugin(ui_plugin_name.c_str(), ui_plugin_version));
+    auto plugin_term_ui = std::dynamic_pointer_cast<TermUI>(m_PluginManager->GetPlugin(ui_plugin_name.c_str(), ui_plugin_version));
 
     if (!plugin_term_ui)
     {
@@ -124,10 +124,10 @@ std::shared_ptr<TermUI> wxGLTermApp::CreateTermUI()
         return std::shared_ptr<TermUI>{};
     }
 
-    return std::shared_ptr<TermUI>{dynamic_cast<TermUI*>(plugin_term_ui->NewInstance())};
+    return std::dynamic_pointer_cast<TermUI>(plugin_term_ui->NewInstance());
 }
 
 void wxGLTermApp::InitDefaultPlugins()
 {
-    m_PluginManager->RegisterPlugin(CreateDefaultTermUI());
+    m_PluginManager->RegisterPlugin(std::shared_ptr<Plugin>{CreateDefaultTermUI()});
 }

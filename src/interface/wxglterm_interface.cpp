@@ -44,32 +44,32 @@ PYBIND11_EMBEDDED_MODULE(wxglterm_interface, m)
 {
     m.def("print_plugin_info", &print_plugin_info);
 
-    py::class_<Plugin, PyPlugin<>> plugin(m, "Plugin");
+    py::class_<Plugin, PyPlugin<>, std::shared_ptr<Plugin>> plugin(m, "Plugin");
     plugin.def(py::init<>())
             .def("get_name", &Plugin::GetName)
             .def("get_description", &Plugin::GetDescription)
             .def("get_version", &Plugin::GetVersion);
 
-    py::class_<MultipleInstancePlugin, PyMultipleInstancePlugin<>> multiple_instance_plugin(m, "MultipleInstancePlugin", plugin);
+    py::class_<MultipleInstancePlugin, PyMultipleInstancePlugin<>, std::shared_ptr<MultipleInstancePlugin>> multiple_instance_plugin(m, "MultipleInstancePlugin", plugin);
     multiple_instance_plugin.def(py::init<>())
             .def("new_instance", &MultipleInstancePlugin::NewInstance);
 
-    py::class_<Context, PyContext<>> context(m, "Context");
+    py::class_<Context, PyContext<>, std::shared_ptr<Context>> context(m, "Context");
     context.def(py::init<>());
 
-    py::class_<TermBuffer, PyTermBuffer<>> term_buffer(m, "TermBuffer", plugin);
+    py::class_<TermBuffer, PyTermBuffer<>, std::shared_ptr<TermBuffer>> term_buffer(m, "TermBuffer", plugin);
     term_buffer.def(py::init<>());
 
-    py::class_<TermUI, PyTermUI<>> term_ui(m, "TermUI", multiple_instance_plugin);
+    py::class_<TermUI, PyTermUI<>, std::shared_ptr<TermUI>> term_ui(m, "TermUI", multiple_instance_plugin);
     term_ui.def(py::init<>())
             .def("refresh", &TermUI::Refresh)
             .def("show", &TermUI::Show);
 
-    py::class_<TermNetwork, PyTermNetwork<>> term_network(m, "TermNetwork", plugin);
+    py::class_<TermNetwork, PyTermNetwork<>, std::shared_ptr<TermNetwork>> term_network(m, "TermNetwork", plugin);
     term_network.def(py::init<>())
             .def("disconnect", &TermNetwork::Disconnect);
 
-    py::class_<TermContext, PyTermContext<>> term_context(m, "TermContext", context);
+    py::class_<TermContext, PyTermContext<>, std::shared_ptr<TermContext>> term_context(m, "TermContext", context);
     term_context.def(py::init<>())
             .def("get_term_buffer", &TermContext::GetTermBuffer)
             .def("get_term_ui", &TermContext::GetTermUI)
@@ -77,7 +77,7 @@ PYBIND11_EMBEDDED_MODULE(wxglterm_interface, m)
 
     py::class_<PluginManager, PyPluginManager<>, std::shared_ptr<PluginManager>> plugin_manager(m, "PluginManager");
     plugin_manager.def(py::init<>())
-            .def("register_plugin", (void(PluginManager::*)(Plugin*))&PluginManager::RegisterPlugin)
+            .def("register_plugin", (void(PluginManager::*)(std::shared_ptr<Plugin>))&PluginManager::RegisterPlugin)
             .def("register_plugin", (void(PluginManager::*)(const char*))&PluginManager::RegisterPlugin)
             .def("get_plugin", &PluginManager::GetPlugin);
 

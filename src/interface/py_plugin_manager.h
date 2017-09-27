@@ -9,7 +9,7 @@ public:
     using PluginManagerBase::PluginManagerBase;
 
 public:
-    void RegisterPlugin(Plugin * plugin) override {
+    void RegisterPlugin(std::shared_ptr<Plugin> plugin) override {
         PYBIND11_OVERLOAD_PURE_NAME(void,
                                     PluginManagerBase,
                                     "register_plugin",
@@ -25,8 +25,8 @@ public:
                                     plugin_file_path);
     }
 
-    Plugin * GetPlugin(const char * plugin_name, uint64_t plugin_version_code) override {
-        PYBIND11_OVERLOAD_PURE_NAME(Plugin *,
+    std::shared_ptr<Plugin> GetPlugin(const char * plugin_name, uint64_t plugin_version_code) override {
+        PYBIND11_OVERLOAD_PURE_NAME(std::shared_ptr<Plugin>,
                                     PluginManagerBase,
                                     "get_plugin",
                                     GetPlugin,

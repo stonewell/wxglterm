@@ -64,9 +64,10 @@ bool AppConfigImpl::LoadFromFile(const char * file_path)
 #include "app_config.inc"
                 ;
 
-        m_AppConfig = LoadModuleFromString(module_content,
-                                           "app_config",
-                                           "app_config.py").attr("load_config")(file_path);
+        m_AppConfig =
+                LoadPyModuleFromString(module_content,
+                                       "app_config",
+                                       "app_config.py").attr("load_config")(file_path);
 
         m_bLoaded = true;
     }

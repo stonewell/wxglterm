@@ -9,13 +9,13 @@ public:
     using PyContext<TermContextBase>::PyContext;
 
 public:
-    TermBuffer * GetTermBuffer() const override {
-        PYBIND11_OVERLOAD_PURE_NAME(TermBuffer *, TermContextBase, "get_term_buffer", GetTermBuffer);
+    std::shared_ptr<TermBuffer> GetTermBuffer() const override {
+        PYBIND11_OVERLOAD_PURE_NAME(std::shared_ptr<TermBuffer>, TermContextBase, "get_term_buffer", GetTermBuffer);
     }
-    TermUI * GetTermUI() const override {
-        PYBIND11_OVERLOAD_PURE_NAME(TermUI *, TermContextBase, "get_term_ui", GetTermUI);
+    std::shared_ptr<TermUI> GetTermUI() const override {
+        PYBIND11_OVERLOAD_PURE_NAME(std::shared_ptr<TermUI>, TermContextBase, "get_term_ui", GetTermUI);
     }
-    TermNetwork * GetTermNetwork() const override {
-        PYBIND11_OVERLOAD_PURE_NAME(TermNetwork *, TermContextBase, "get_term_network", GetTermNetwork);
+    std::shared_ptr<TermNetwork> GetTermNetwork() const override {
+        PYBIND11_OVERLOAD_PURE_NAME(std::shared_ptr<TermNetwork>, TermContextBase, "get_term_network", GetTermNetwork);
     }
 };

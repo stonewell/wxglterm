@@ -26,8 +26,8 @@ public:
         m_MainDlg->Show(true);
     }
 
-    MultipleInstancePlugin * NewInstance() override {
-        return new DefaultTermUI();
+    std::shared_ptr<MultipleInstancePlugin> NewInstance() override {
+        return std::shared_ptr<MultipleInstancePlugin>{new DefaultTermUI()};
     }
 
 private:
