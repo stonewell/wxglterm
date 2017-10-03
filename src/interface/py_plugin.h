@@ -3,7 +3,7 @@
 #include "plugin.h"
 
 template<class PluginBase = Plugin>
-class PyPlugin : public PluginBase {
+class PyPlugin : public virtual PluginBase {
 public:
     using PluginBase::PluginBase;
 

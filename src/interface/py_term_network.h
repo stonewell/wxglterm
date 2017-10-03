@@ -4,7 +4,7 @@
 #include "term_network.h"
 
 template<class TermNetworkBase = TermNetwork>
-class PyTermNetwork : public PyPlugin<TermNetworkBase> {
+class PyTermNetwork : public virtual PyPlugin<TermNetworkBase> {
 public:
     using PyPlugin<TermNetworkBase>::PyPlugin;
 

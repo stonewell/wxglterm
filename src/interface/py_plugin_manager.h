@@ -4,7 +4,7 @@
 #include "plugin.h"
 
 template<class PluginManagerBase = PluginManager>
-class PyPluginManager : public PluginManagerBase {
+class PyPluginManager : public virtual PluginManagerBase {
 public:
     using PluginManagerBase::PluginManagerBase;
 

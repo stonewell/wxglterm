@@ -4,7 +4,7 @@
 #include "term_ui.h"
 
 template<class TermUIBase = TermUI>
-class PyTermUI : public PyMultipleInstancePlugin<TermUIBase> {
+class PyTermUI : public virtual PyMultipleInstancePlugin<TermUIBase> {
 public:
     using PyMultipleInstancePlugin<TermUIBase>::PyMultipleInstancePlugin;
 

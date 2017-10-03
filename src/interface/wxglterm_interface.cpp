@@ -8,6 +8,8 @@
 
 #include "py_plugin_manager.h"
 
+#include "py_term_line.h"
+#include "py_term_cell.h"
 #include "py_term_buffer.h"
 #include "py_term_ui.h"
 #include "py_term_network.h"
@@ -57,8 +59,34 @@ PYBIND11_EMBEDDED_MODULE(wxglterm_interface, m)
     py::class_<Context, PyContext<>, std::shared_ptr<Context>> context(m, "Context");
     context.def(py::init<>());
 
-    py::class_<TermBuffer, PyTermBuffer<>, std::shared_ptr<TermBuffer>> term_buffer(m, "TermBuffer", plugin);
-    term_buffer.def(py::init<>());
+    py::class_<TermBuffer, PyTermBuffer<>, std::shared_ptr<TermBuffer>> term_buffer(m, "TermBuffer", multiple_instance_plugin);
+    term_buffer.def(py::init<>())
+            .def("init", &TermBuffer::Init)
+            .def("resize", &TermBuffer::Resize)
+            .def("get_rows", &TermBuffer::GetRows)
+            .def("get_cols", &TermBuffer::GetCols)
+            .def("get_row", &TermBuffer::GetRow)
+            .def("get_col", &TermBuffer::GetCol)
+            .def("get_line", &TermBuffer::GetLine)
+            .def("get_cell", &TermBuffer::GetCell)
+            .def("get_cur_line", &TermBuffer::GetCurLine)
+            .def("get_cur_cell", &TermBuffer::GetCurCell)
+            ;
+
+    py::class_<TermLine, PyTermLine<>, std::shared_ptr<TermLine>> term_line(m, "TermLine", plugin);
+    term_line.def(py::init<>())
+            .def("init", &TermLine::Init)
+            .def("resize", &TermLine::Resize)
+            .def("get_cell", &TermLine::GetCell)
+            ;
+
+    py::class_<TermCell, PyTermCell<>, std::shared_ptr<TermCell>> term_cell(m, "TermCell", plugin);
+    term_cell.def(py::init<>())
+            .def_property("char", &TermCell::GetChar, &TermCell::SetChar)
+            .def_property("fore_color_idx", &TermCell::GetForeColorIndex, &TermCell::SetForeColorIndex)
+            .def_property("back_color_idx", &TermCell::GetBackColorIndex, &TermCell::SetBackColorIndex)
+            .def_property("mode", &TermCell::GetMode, &TermCell::SetMode)
+            ;
 
     py::class_<TermUI, PyTermUI<>, std::shared_ptr<TermUI>> term_ui(m, "TermUI", multiple_instance_plugin);
     term_ui.def(py::init<>())

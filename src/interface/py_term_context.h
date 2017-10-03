@@ -4,7 +4,7 @@
 #include "term_context.h"
 
 template<class TermContextBase = TermContext>
-class PyTermContext : public PyContext<TermContextBase> {
+class PyTermContext : public virtual PyContext<TermContextBase> {
 public:
     using PyContext<TermContextBase>::PyContext;
 
