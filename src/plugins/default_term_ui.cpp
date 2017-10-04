@@ -7,7 +7,7 @@
 class DefaultTermUI : public virtual PluginBase, public virtual TermUI {
 public:
     DefaultTermUI() :
-        PluginBase("term_ui", "default terminal ui plugin", 0)
+        PluginBase("default_term_ui", "default terminal ui plugin", 0)
         , m_MainDlg(nullptr)
     {
     }

@@ -2,14 +2,14 @@
     "plugins":{
 	"dir":"plugins",
 	"ui":{
-	    "name":"term_ui"
+	    "name":"default_term_ui"
 	},
 	"network":{
 	    "name":"term_network",
 	    "version":1
 	},
 	"buffer":{
-	    "name":"term_buffer"
+	    "name":"default_term_buffer"
 	},
 	"data_handler":{
 	    "name":"term_data_handler"
