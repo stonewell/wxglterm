@@ -61,7 +61,6 @@ PYBIND11_EMBEDDED_MODULE(wxglterm_interface, m)
 
     py::class_<TermBuffer, PyTermBuffer<>, std::shared_ptr<TermBuffer>> term_buffer(m, "TermBuffer", multiple_instance_plugin);
     term_buffer.def(py::init<>())
-            .def("init", &TermBuffer::Init)
             .def("resize", &TermBuffer::Resize)
             .def("get_rows", &TermBuffer::GetRows)
             .def("get_cols", &TermBuffer::GetCols)
@@ -71,11 +70,13 @@ PYBIND11_EMBEDDED_MODULE(wxglterm_interface, m)
             .def("get_cell", &TermBuffer::GetCell)
             .def("get_cur_line", &TermBuffer::GetCurLine)
             .def("get_cur_cell", &TermBuffer::GetCurCell)
+            .def("scroll_buffer", &TermBuffer::ScrollBuffer)
+            .def_property("scroll_region_begin", &TermBuffer::GetScrollRegionBegin, &TermBuffer::SetScrollRegionBegin)
+            .def_property("scroll_region_end", &TermBuffer::GetScrollRegionEnd, &TermBuffer::SetScrollRegionEnd)
             ;
 
     py::class_<TermLine, PyTermLine<>, std::shared_ptr<TermLine>> term_line(m, "TermLine", plugin);
     term_line.def(py::init<>())
-            .def("init", &TermLine::Init)
             .def("resize", &TermLine::Resize)
             .def("get_cell", &TermLine::GetCell)
             ;
@@ -87,6 +88,10 @@ PYBIND11_EMBEDDED_MODULE(wxglterm_interface, m)
             .def_property("back_color_idx", &TermCell::GetBackColorIndex, &TermCell::SetBackColorIndex)
             .def_property("mode", &TermCell::GetMode, &TermCell::SetMode)
             ;
+
+    py::enum_<TermCell::ColorIndexEnum>(term_cell, "ColorIndex")
+            .value("DefaultColorIndex", TermCell::ColorIndexEnum::DefaultColorIndex)
+            .export_values();
 
     py::class_<TermUI, PyTermUI<>, std::shared_ptr<TermUI>> term_ui(m, "TermUI", multiple_instance_plugin);
     term_ui.def(py::init<>())

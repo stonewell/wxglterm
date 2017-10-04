@@ -15,16 +15,16 @@ public:
         PYBIND11_OVERLOAD_PURE_NAME(void, TermCellBase, "set_char", SetChar, c);
     }
 
-    uint8_t GetForeColorIndex() const override {
-        PYBIND11_OVERLOAD_PURE_NAME(uint8_t, TermCellBase, "get_fore_color_idx", GetForeColorIndex, );
+    uint16_t GetForeColorIndex() const override {
+        PYBIND11_OVERLOAD_PURE_NAME(uint16_t, TermCellBase, "get_fore_color_idx", GetForeColorIndex, );
     }
-    void SetForeColorIndex(uint8_t idx) override {
+    void SetForeColorIndex(uint16_t idx) override {
         PYBIND11_OVERLOAD_PURE_NAME(void, TermCellBase, "set_fore_color_idx", SetForeColorIndex, idx);
     }
-    uint8_t GetBackColorIndex() const override {
-        PYBIND11_OVERLOAD_PURE_NAME(uint8_t, TermCellBase, "get_back_color_idx", GetBackColorIndex, );
+    uint16_t GetBackColorIndex() const override {
+        PYBIND11_OVERLOAD_PURE_NAME(uint16_t, TermCellBase, "get_back_color_idx", GetBackColorIndex, );
     }
-    void SetBackColorIndex(uint8_t idx) override {
+    void SetBackColorIndex(uint16_t idx) override {
         PYBIND11_OVERLOAD_PURE_NAME(void, TermCellBase, "set_back_color_idx", SetBackColorIndex, idx);
     }
 

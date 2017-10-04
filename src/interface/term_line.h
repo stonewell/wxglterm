@@ -5,7 +5,6 @@
 
 class TermLine : public virtual Plugin {
 public:
-    virtual void Init(uint32_t col) = 0;
     virtual void Resize(uint32_t col) = 0;
 
     virtual TermCellPtr GetCell(uint32_t col) = 0;

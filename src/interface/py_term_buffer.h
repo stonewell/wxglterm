@@ -8,10 +8,6 @@ class PyTermBuffer : public virtual PyMultipleInstancePlugin<TermBufferBase> {
 public:
     using PyMultipleInstancePlugin<TermBufferBase>::PyMultipleInstancePlugin;
 
-    void Init(uint32_t row, uint32_t col) override {
-        PYBIND11_OVERLOAD_PURE_NAME(void, TermBufferBase, "init", Init, row, col);
-    }
-
     void Resize(uint32_t row, uint32_t col) override {
         PYBIND11_OVERLOAD_PURE_NAME(void, TermBufferBase, "resize", resize, row, col);
     }
@@ -40,5 +36,20 @@ public:
     }
     TermCellPtr GetCurCell() override {
         PYBIND11_OVERLOAD_PURE_NAME(TermCellPtr, TermBufferBase, "get_cur_cell", GetCurCell,);
+    }
+    uint32_t GetScrollRegionBegin() const override {
+        PYBIND11_OVERLOAD_PURE_NAME(uint32_t, TermBufferBase, "get_scroll_region_begin", GetScrollRegionBegin,);
+    }
+    uint32_t GetScrollRegionEnd() const override {
+        PYBIND11_OVERLOAD_PURE_NAME(uint32_t, TermBufferBase, "get_scroll_region_end", GetScrollRegionEnd,);
+    }
+    void SetScrollRegionBegin(uint32_t begin) override {
+        PYBIND11_OVERLOAD_PURE_NAME(void, TermBufferBase, "set_scroll_region_begin", SetScrollRegionBegin, begin);
+    }
+    void SetScrollRegionEnd(uint32_t end) override {
+        PYBIND11_OVERLOAD_PURE_NAME(void, TermBufferBase, "set_scroll_region_end", SetScrollRegionEnd, end);
+    }
+    void ScrollBuffer(int32_t scroll_offset) override {
+        PYBIND11_OVERLOAD_PURE_NAME(void, TermBufferBase, "scroll_buffer", ScrollBuffer, scroll_offset);
     }
 };
