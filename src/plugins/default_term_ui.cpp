@@ -34,9 +34,7 @@ private:
     MainDialog * m_MainDlg;
 };
 
-TermUI * CreateDefaultTermUI()
+TermUIPtr CreateDefaultTermUI()
 {
-    TermUI * termUI{ new DefaultTermUI()};
-
-    return termUI;
+    return TermUIPtr{ new DefaultTermUI()};
 }

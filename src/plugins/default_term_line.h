@@ -2,4 +2,4 @@
 
 #include "term_line.h"
 
-TermLinePtr CreateTermLine();
+TermLinePtr CreateDefaultTermLine();

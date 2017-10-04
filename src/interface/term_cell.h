@@ -1,6 +1,7 @@
 #pragma once
 
 #include "plugin.h"
+#include <memory>
 
 class TermCell : public virtual Plugin {
 public:

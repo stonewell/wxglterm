@@ -1,6 +1,8 @@
 #include "plugin_base.h"
 
 #include "default_term_buffer.h"
+#include "default_term_line.h"
+
 #include <vector>
 
 class DefaultTermBuffer : public virtual PluginBase, public virtual TermBuffer {
@@ -95,6 +97,15 @@ public:
         }
 
         if (scroll_offset < 0) {
+            m_Lines.erase(b_it, b_it - scroll_offset);
+
+            for(int i=0;i < -scroll_offset;i++)
+                m_Lines.insert(e_it, CreateDefaultTermLine());
+        } else if (scroll_offset > 0) {
+            m_Lines.erase(e_it - scroll_offset, e_it);
+
+            for(int i=0;i < scroll_offset;i++)
+                m_Lines.insert(b_it, CreateDefaultTermLine());
         }
     }
 private:
@@ -109,3 +120,7 @@ private:
 
     std::vector<TermLinePtr> m_Lines;
 };
+
+TermBufferPtr CreateDefaultTermBuffer() {
+    return TermBufferPtr { new DefaultTermBuffer() };
+}

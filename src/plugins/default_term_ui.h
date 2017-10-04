@@ -2,4 +2,4 @@
 
 #include "term_ui.h"
 
-TermUI * CreateDefaultTermUI();
+TermUIPtr CreateDefaultTermUI();

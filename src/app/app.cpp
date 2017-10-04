@@ -10,6 +10,7 @@
 #include "app_config_impl.h"
 
 #include "default_term_ui.h"
+#include "default_term_buffer.h"
 
 #include <iostream>
 namespace py = pybind11;
@@ -129,5 +130,6 @@ std::shared_ptr<TermUI> wxGLTermApp::CreateTermUI()
 
 void wxGLTermApp::InitDefaultPlugins()
 {
-    m_PluginManager->RegisterPlugin(std::shared_ptr<Plugin>{CreateDefaultTermUI()});
+    m_PluginManager->RegisterPlugin(std::dynamic_pointer_cast<Plugin>(CreateDefaultTermUI()));
+    m_PluginManager->RegisterPlugin(std::dynamic_pointer_cast<Plugin>(CreateDefaultTermBuffer()));
 }
