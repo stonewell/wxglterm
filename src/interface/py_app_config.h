@@ -27,4 +27,8 @@ public:
     bool LoadFromFile(const char * file_path) override {
         PYBIND11_OVERLOAD_PURE_NAME(bool, AppConfigBase, "load_from_file", LoadFromFile, file_path);
     }
+
+    bool LoadFromString(const char * data) override {
+        PYBIND11_OVERLOAD_PURE_NAME(bool, AppConfigBase, "load_from_string", LoadFromString, data);
+    }
 };

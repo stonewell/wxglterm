@@ -3,6 +3,8 @@
 #include <string>
 
 #include "plugin.h"
+#include "context.h"
+#include "app_config.h"
 
 class PluginBase : public virtual Plugin {
 public:
@@ -21,8 +23,17 @@ public:
         return m_Version;
     }
 
+    void InitPlugin(ContextPtr context,
+                    AppConfigPtr plugin_config) override {
+        m_Context = context;
+        m_PluginConfig = plugin_config;
+    }
 private:
     std::string m_Name;
     std::string m_Description;
     uint32_t m_Version;
+
+protected:
+    ContextPtr m_Context;
+    AppConfigPtr m_PluginConfig;
 };

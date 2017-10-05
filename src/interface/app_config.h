@@ -14,4 +14,5 @@ public:
     virtual bool GetEntryBool(const char * path, bool default_value) = 0;
 
     virtual bool LoadFromFile(const char * file_path) = 0;
+    virtual bool LoadFromString(const char * data) = 0;
 };

@@ -9,6 +9,8 @@
 #include "wxglterm_interface.h"
 #include "app_config_impl.h"
 
+#include "term_context.h"
+
 #include "default_term_ui.h"
 #include "default_term_buffer.h"
 
@@ -94,7 +96,8 @@ bool wxGLTermApp::DoInit()
 
     InitDefaultPlugins();
 
-    auto term_ui = CreateTermUI();
+    auto term_context = CreateTermContext();
+    auto term_ui = CreateTermUI(term_context);
 
     if (term_ui)
     {
@@ -109,26 +112,52 @@ bool wxGLTermApp::DoInit()
     }
 }
 
-std::shared_ptr<TermUI> wxGLTermApp::CreateTermUI()
+TermUIPtr wxGLTermApp::CreateTermUI(TermContextPtr term_context)
 {
-    std::string ui_plugin_name = g_AppConfig->GetEntry("plugins/ui/name", "term_ui");
+    std::string ui_plugin_name = g_AppConfig->GetEntry("plugins/ui/name", "default_term_ui");
     uint64_t ui_plugin_version = g_AppConfig->GetEntryUInt64("plugins/ui/version", PluginManager::Latest);
+    std::string ui_plugin_config = g_AppConfig->GetEntry("plugins/ui/config", "{}");
 
     auto plugin_term_ui = std::dynamic_pointer_cast<TermUI>(m_PluginManager->GetPlugin(ui_plugin_name.c_str(), ui_plugin_version));
 
     if (!plugin_term_ui)
     {
         //TODO: error or create default
-        return std::shared_ptr<TermUI>{};
+        return TermUIPtr{};
     }
 
-    return std::move(std::dynamic_pointer_cast<TermUI>(plugin_term_ui->NewInstance()));
+    auto new_instance = plugin_term_ui->NewInstance();
+    auto new_instance_config = CreateAppConfigFromString(ui_plugin_config.c_str());
+
+    new_instance->InitPlugin(std::dynamic_pointer_cast<Context>(term_context),
+                             new_instance_config);
+
+    return std::move(std::dynamic_pointer_cast<TermUI>(new_instance));
 }
 
 void wxGLTermApp::InitDefaultPlugins()
 {
     m_PluginManager->RegisterPlugin(std::dynamic_pointer_cast<Plugin>(CreateDefaultTermUI()));
     m_PluginManager->RegisterPlugin(std::dynamic_pointer_cast<Plugin>(CreateDefaultTermBuffer()));
+}
+
+TermContextPtr wxGLTermApp::CreateTermContext()
+{
+    std::string context_plugin_name = g_AppConfig->GetEntry("plugins/context/name", "default_term_context");
+    uint64_t context_plugin_version = g_AppConfig->GetEntryUInt64("plugins/context/version", PluginManager::Latest);
+    std::string context_plugin_config = g_AppConfig->GetEntry("plugins/context/config", "{}");
+
+    auto plugin_term_context = std::dynamic_pointer_cast<TermContext>(m_PluginManager->GetPlugin(context_plugin_name.c_str(), context_plugin_version));
+
+    if (!plugin_term_context)
+    {
+        //TODO: error or create default
+        return TermContextPtr{};
+    }
+
+    auto new_instance = plugin_term_context->NewInstance();
+
+    return std::move(std::dynamic_pointer_cast<TermContext>(new_instance));
 }
 
 int main(int argc, char ** argv) {

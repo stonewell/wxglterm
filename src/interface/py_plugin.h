@@ -17,4 +17,8 @@ public:
     uint32_t GetVersion() override {
         PYBIND11_OVERLOAD_PURE_NAME(uint32_t, PluginBase, "get_version", GetVersion, );
     }
+    void InitPlugin(ContextPtr context,
+                    AppConfigPtr plugin_config) override {
+        PYBIND11_OVERLOAD_PURE_NAME(void, PluginBase, "init_plugin", InitPlugin, context, plugin_config);
+    }
 };

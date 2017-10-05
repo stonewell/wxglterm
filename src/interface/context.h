@@ -1,6 +1,8 @@
 #pragma once
 
-class Context {
+#include "multiple_instance_plugin.h"
+
+class Context : public virtual MultipleInstancePlugin {
 public:
     Context() = default;
     virtual ~Context() = default;

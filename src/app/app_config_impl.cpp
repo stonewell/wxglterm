@@ -20,6 +20,7 @@ public:
     virtual bool GetEntryBool(const char * path, bool default_value) override;
 
     virtual bool LoadFromFile(const char * file_path) override;
+    virtual bool LoadFromString(const char * data) override;
 
 private:
     void ResetDefaults();
@@ -100,4 +101,57 @@ void AppConfigImpl::ResetDefaults()
     m_bLoaded = false;
 }
 
+bool AppConfigImpl::LoadFromString(const char * data)
+{
+    try
+    {
+        const char *module_content =
+#include "app_config.inc"
+                ;
+
+        m_AppConfig =
+                LoadPyModuleFromString(module_content,
+                                       "app_config",
+                                       "app_config.py").attr("load_config_from_string")(data);
+
+        m_bLoaded = true;
+    }
+    catch(std::exception & e)
+    {
+        std::cerr << "load configuration from string:"
+                  << data
+                  << " failed!"
+                  << std::endl
+                  << e.what()
+                  << std::endl;
+        m_bLoaded = false;
+    }
+    catch(...)
+    {
+        std::cerr << "load configuration from string:"
+                  << data
+                  << " failed!"
+                  << std::endl;
+        PyErr_Print();
+        m_bLoaded = false;
+    }
+
+    return m_bLoaded;
+}
+
+std::shared_ptr<AppConfig> CreateAppConfigFromString(const char * data)
+{
+    std::shared_ptr<AppConfig> config {new AppConfigImpl() };
+    config->LoadFromString(data);
+
+    return config;
+}
+
+std::shared_ptr<AppConfig> CreateAppConfigFromFile(const char * file_path)
+{
+    std::shared_ptr<AppConfig> config {new AppConfigImpl() };
+    config->LoadFromFile(file_path);
+
+    return config;
+}
 #pragma GCC visibility pop

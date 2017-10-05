@@ -15,3 +15,7 @@ class TermPluginBase(Plugin):
 
     def get_version(self):
         return self._version
+
+    def init_plugin(self, context, plugin_config):
+        self.context = context
+        self.plugin_config = plugin_config

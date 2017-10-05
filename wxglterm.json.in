@@ -5,14 +5,19 @@
 	    "name":"default_term_ui"
 	},
 	"network":{
-	    "name":"term_network",
-	    "version":1
+	    "name":"term_network_use_file",
+	    "config":{
+		"file":""
+	    }
 	},
 	"buffer":{
 	    "name":"default_term_buffer"
 	},
 	"data_handler":{
 	    "name":"term_data_handler"
+	},
+	"context":{
+	    "name":"default_term_context"
 	}
     },
 

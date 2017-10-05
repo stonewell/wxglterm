@@ -14,8 +14,12 @@ py::object LoadPyModuleFromFile(const char * file_path)
     py::eval<py::eval_statements>(            // tell eval we're passing multiple statements
         "import imp\n"
         "import os\n"
+        "import sys\n"
         "module_name = os.path.basename(path)[:-3]\n"
-        "new_module = imp.load_module(module_name, open(path), path, ('py', 'U', imp.PY_SOURCE))\n",
+        "try:\n"
+        "  new_module = sys.modules[module_name]\n"
+        "except KeyError:\n"
+        "  new_module = imp.load_module(module_name, open(path), path, ('py', 'U', imp.PY_SOURCE))\n",
         py::globals(),
         locals);
 

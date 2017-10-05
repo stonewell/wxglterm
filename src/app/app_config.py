@@ -29,3 +29,6 @@ def load_config(config_path):
 
     with open(config_path) as f:
         return DictQuery(json.load(f))
+
+def load_config_from_string(data):
+    return DictQuery(json.loads(data))

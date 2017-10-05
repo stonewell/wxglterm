@@ -1,31 +1,21 @@
 from wxglterm_interface import Plugin, print_plugin_info, TermUI
-from term_plugin_base import TermPluginBase
+from multiple_instance_plugin_base import MultipleInstancePluginBase
 from utils.term_utils import test_util
 
 import tkinter
 import sys
 
-g_term_ui = []
-
-class DefaultTkTermUI(TermPluginBase, TermUI):
+class DefaultTkTermUI(MultipleInstancePluginBase, TermUI):
     def __init__(self):
-        TermPluginBase.__init__(self, name="default_term_ui",
-                         desc="It is a python version term default_term_ui",
-                                version=1)
+        MultipleInstancePluginBase.__init__(self, name="default_term_ui",
+                                            desc="It is a python version term default_term_ui",
+                                            version=1)
         TermUI.__init__(self)
 
-        sys.argv = ['']
+        if not hasattr(sys, 'argv') or len(sys.argv) == 0:
+            sys.argv = ['']
 
-        print(dir(TermUI))
-        print(dir(self))
         self.top = None
-
-    def new_instance(self):
-        print("default tk term ui new instance")
-        new_instance = DefaultTkTermUI()
-        g_term_ui.append(new_instance)
-
-        return new_instance
 
     def refresh(self):
         pass
@@ -42,5 +32,4 @@ class DefaultTkTermUI(TermPluginBase, TermUI):
         return 0;
 
 def register_plugins(pm):
-    g_term_ui.append(DefaultTkTermUI())
-    pm.register_plugin(g_term_ui[0])
+    pm.register_plugin(DefaultTkTermUI().new_instance())

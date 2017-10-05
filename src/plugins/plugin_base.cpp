@@ -4,5 +4,7 @@ PluginBase::PluginBase(const char * name, const char * description, uint32_t ver
     m_Name(name)
     , m_Description(description)
     , m_Version(version)
+    , m_Context{}
+    , m_PluginConfig{}
 {
 }

@@ -50,13 +50,15 @@ PYBIND11_EMBEDDED_MODULE(wxglterm_interface, m)
     plugin.def(py::init<>())
             .def("get_name", &Plugin::GetName)
             .def("get_description", &Plugin::GetDescription)
-            .def("get_version", &Plugin::GetVersion);
+            .def("get_version", &Plugin::GetVersion)
+            .def("init_plugin", &Plugin::InitPlugin)
+            ;
 
     py::class_<MultipleInstancePlugin, PyMultipleInstancePlugin<>, std::shared_ptr<MultipleInstancePlugin>> multiple_instance_plugin(m, "MultipleInstancePlugin", plugin);
     multiple_instance_plugin.def(py::init<>())
             .def("new_instance", &MultipleInstancePlugin::NewInstance);
 
-    py::class_<Context, PyContext<>, std::shared_ptr<Context>> context(m, "Context");
+    py::class_<Context, PyContext<>, std::shared_ptr<Context>> context(m, "Context", multiple_instance_plugin);
     context.def(py::init<>());
 
     py::class_<TermBuffer, PyTermBuffer<>, std::shared_ptr<TermBuffer>> term_buffer(m, "TermBuffer", multiple_instance_plugin);
@@ -129,7 +131,9 @@ PYBIND11_EMBEDDED_MODULE(wxglterm_interface, m)
             .def("get_entry_int64", &AppConfig::GetEntryInt64)
             .def("get_entry_uint64", &AppConfig::GetEntryUInt64)
             .def("get_entry_bool", &AppConfig::GetEntryBool)
-            .def("load_from_file", &AppConfig::LoadFromFile);
+            .def("load_from_file", &AppConfig::LoadFromFile)
+            .def("load_from_string", &AppConfig::LoadFromString)
+            ;
 }
 
 void init_wxglterm_interface_module()
