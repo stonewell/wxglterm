@@ -11,7 +11,8 @@ public:
     void Refresh() override {
         PYBIND11_OVERLOAD_PURE_NAME(void, TermUIBase, "refresh", Refresh, );
     }
+
     void Show() override {
-        PYBIND11_OVERLOAD_PURE_NAME(void, TermUIBase, "show", Refresh, );
+        PYBIND11_OVERLOAD_PURE_NAME(void, TermUIBase, "show", Show, );
     }
 };

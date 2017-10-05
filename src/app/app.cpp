@@ -30,6 +30,7 @@ bool wxGLTermApp::OnInit()
                   << std::endl
                   << e.what()
                   << std::endl;
+        PyErr_Print();
     }
     catch(...)
     {
@@ -125,7 +126,7 @@ std::shared_ptr<TermUI> wxGLTermApp::CreateTermUI()
         return std::shared_ptr<TermUI>{};
     }
 
-    return std::dynamic_pointer_cast<TermUI>(plugin_term_ui->NewInstance());
+    return std::move(std::dynamic_pointer_cast<TermUI>(plugin_term_ui->NewInstance()));
 }
 
 void wxGLTermApp::InitDefaultPlugins()
