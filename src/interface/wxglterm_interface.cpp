@@ -6,14 +6,14 @@
 #include <pybind11/embed.h>
 #endif
 
-#include "py_plugin_manager.h"
-
-#include "py_term_line.h"
 #include "py_term_cell.h"
+#include "py_term_line.h"
 #include "py_term_buffer.h"
 #include "py_term_ui.h"
 #include "py_term_network.h"
 #include "py_term_context.h"
+
+#include "py_plugin_manager.h"
 
 #include "py_multiple_instance_plugin.h"
 
@@ -108,7 +108,10 @@ PYBIND11_EMBEDDED_MODULE(wxglterm_interface, m)
     term_context.def(py::init<>())
             .def("get_term_buffer", &TermContext::GetTermBuffer)
             .def("get_term_ui", &TermContext::GetTermUI)
-            .def("get_term_network", &TermContext::GetTermNetwork);
+            .def("get_term_network", &TermContext::GetTermNetwork)
+            .def("set_term_buffer", &TermContext::SetTermBuffer)
+            .def("set_term_ui", &TermContext::SetTermUI)
+            .def("set_term_network", &TermContext::SetTermNetwork);
 
     py::class_<PluginManager, PyPluginManager<>, std::shared_ptr<PluginManager>> plugin_manager(m, "PluginManager");
     plugin_manager.def(py::init<>())

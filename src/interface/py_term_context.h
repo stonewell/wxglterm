@@ -9,13 +9,26 @@ public:
     using PyContext<TermContextBase>::PyContext;
 
 public:
-    std::shared_ptr<TermBuffer> GetTermBuffer() const override {
-        PYBIND11_OVERLOAD_PURE_NAME(std::shared_ptr<TermBuffer>, TermContextBase, "get_term_buffer", GetTermBuffer);
+    TermBufferPtr GetTermBuffer() const override {
+        PYBIND11_OVERLOAD_PURE_NAME(TermBufferPtr, TermContextBase, "get_term_buffer", GetTermBuffer);
     }
-    std::shared_ptr<TermUI> GetTermUI() const override {
-        PYBIND11_OVERLOAD_PURE_NAME(std::shared_ptr<TermUI>, TermContextBase, "get_term_ui", GetTermUI);
+
+    void SetTermBuffer(TermBufferPtr term_buffer) override {
+        PYBIND11_OVERLOAD_PURE_NAME(void, TermContextBase, "set_term_buffer", SetTermBuffer, term_buffer);
     }
-    std::shared_ptr<TermNetwork> GetTermNetwork() const override {
-        PYBIND11_OVERLOAD_PURE_NAME(std::shared_ptr<TermNetwork>, TermContextBase, "get_term_network", GetTermNetwork);
+
+    TermUIPtr GetTermUI() const override {
+        PYBIND11_OVERLOAD_PURE_NAME(TermUIPtr, TermContextBase, "get_term_ui", GetTermUI);
+    }
+    void SetTermUI(TermUIPtr term_ui) override {
+        PYBIND11_OVERLOAD_PURE_NAME(void, TermContextBase, "set_term_ui", SetTermUI, term_ui);
+    }
+
+    TermNetworkPtr GetTermNetwork() const override {
+        PYBIND11_OVERLOAD_PURE_NAME(TermNetworkPtr, TermContextBase, "get_term_network", GetTermNetwork);
+    }
+
+    void SetTermNetwork(TermNetworkPtr term_network) override {
+        PYBIND11_OVERLOAD_PURE_NAME(void, TermContextBase, "set_term_network", SetTermNetwork, term_network);
     }
 };

@@ -1,7 +1,6 @@
 #pragma once
 
 #include "plugin.h"
-#include "term_cell.h"
 
 class TermLine : public virtual Plugin {
 public:
@@ -9,5 +8,3 @@ public:
 
     virtual TermCellPtr GetCell(uint32_t col) = 0;
 };
-
-using TermLinePtr = std::shared_ptr<TermLine>;

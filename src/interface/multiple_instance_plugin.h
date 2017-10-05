@@ -1,7 +1,6 @@
 #pragma once
 
 #include "plugin.h"
-#include <memory>
 
 class MultipleInstancePlugin : public virtual Plugin {
 public:
@@ -9,5 +8,5 @@ public:
     virtual ~MultipleInstancePlugin() = default;
 
 public:
-    virtual std::shared_ptr<MultipleInstancePlugin> NewInstance() = 0;
+    virtual MultipleInstancePluginPtr NewInstance() = 0;
 };

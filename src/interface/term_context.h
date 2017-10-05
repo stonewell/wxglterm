@@ -1,11 +1,8 @@
 #pragma once
 
 #include "context.h"
-#include <memory>
 
-class TermBuffer;
-class TermUI;
-class TermNetwork;
+#include "term_handles.h"
 
 class TermContext : public virtual Context {
 public:
@@ -13,7 +10,10 @@ public:
     virtual ~TermContext() = default;
 
 public:
-    virtual std::shared_ptr<TermBuffer> GetTermBuffer() const = 0;
-    virtual std::shared_ptr<TermUI> GetTermUI() const = 0;
-    virtual std::shared_ptr<TermNetwork> GetTermNetwork() const = 0;
+    virtual TermBufferPtr GetTermBuffer() const = 0;
+    virtual void SetTermBuffer(TermBufferPtr term_buffer) = 0;
+    virtual TermUIPtr GetTermUI() const = 0;
+    virtual void SetTermUI(TermUIPtr term_ui) = 0;
+    virtual TermNetworkPtr GetTermNetwork() const = 0;
+    virtual void SetTermNetwork(TermNetworkPtr term_network) = 0;
 };

@@ -9,7 +9,10 @@ public:
     using PyPlugin<MultipleInstancePluginBase>::PyPlugin;
 
 public:
-    std::shared_ptr<MultipleInstancePlugin> NewInstance() override {
-        PYBIND11_OVERLOAD_PURE_NAME(std::shared_ptr<MultipleInstancePlugin>, MultipleInstancePluginBase, "new_instance", NewInstance, );
+    MultipleInstancePluginPtr NewInstance() override {
+        PYBIND11_OVERLOAD_PURE_NAME(MultipleInstancePluginPtr,
+                                    MultipleInstancePluginBase,
+                                    "new_instance",
+                                    NewInstance, );
     }
 };

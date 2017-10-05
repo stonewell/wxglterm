@@ -1,7 +1,6 @@
 #pragma once
 
 #include "multiple_instance_plugin.h"
-#include <memory>
 
 class TermUI : public virtual MultipleInstancePlugin {
 public:
@@ -9,5 +8,3 @@ public:
     virtual void Show() = 0;
     virtual int32_t StartMainUILoop() = 0;
 };
-
-using TermUIPtr = std::shared_ptr<TermUI>;

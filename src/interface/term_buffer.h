@@ -25,5 +25,3 @@ public:
 
     virtual void ScrollBuffer(int32_t offset) = 0;
 };
-
-using TermBufferPtr = std::shared_ptr<TermBuffer>;

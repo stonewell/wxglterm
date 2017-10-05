@@ -1,7 +1,6 @@
 #pragma once
 
 #include "plugin.h"
-#include <memory>
 
 class TermCell : public virtual Plugin {
 public:
@@ -20,5 +19,3 @@ public:
     virtual uint16_t GetMode() const = 0;
     virtual void SetMode(uint16_t m) = 0;
 };
-
-using TermCellPtr = std::shared_ptr<TermCell>;

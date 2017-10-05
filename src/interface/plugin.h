@@ -1,5 +1,7 @@
 #pragma once
 
+#include "term_handles.h"
+
 class Plugin {
 public:
     Plugin() = default;
