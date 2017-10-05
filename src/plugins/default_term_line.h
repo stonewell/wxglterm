@@ -2,4 +2,5 @@
 
 #include "term_line.h"
 
-TermLinePtr CreateDefaultTermLine();
+class TermBuffer;
+TermLinePtr CreateDefaultTermLine(TermBuffer * term_buffer);

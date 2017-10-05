@@ -48,8 +48,16 @@ public:
     }
 
     TermLinePtr GetLine(uint32_t row) override {
-        if (row < m_Rows)
-            return m_Lines[row];
+        if (row < GetRows()) {
+            auto line =  m_Lines[row];
+            if (!line) {
+                line = CreateDefaultTermLine(this);
+                line->Resize(GetCols());
+                m_Lines[row] = line;
+            }
+
+            return line;
+        }
 
         return TermLinePtr{};
     }
@@ -64,11 +72,11 @@ public:
     }
 
     TermLinePtr GetCurLine() override {
-        return GetLine(m_CurRow);
+        return GetLine(GetRow());
     }
 
     TermCellPtr GetCurCell() override {
-        return GetCell(m_CurRow, m_CurCol);
+        return GetCell(GetRow(), GetCol());
     }
 
     uint32_t GetScrollRegionBegin() const override {
@@ -99,13 +107,19 @@ public:
         if (scroll_offset < 0) {
             m_Lines.erase(b_it, b_it - scroll_offset);
 
-            for(int i=0;i < -scroll_offset;i++)
-                m_Lines.insert(e_it, CreateDefaultTermLine());
+            for(int i=0;i < -scroll_offset;i++) {
+                auto term_line = CreateDefaultTermLine(this);
+                term_line->Resize(GetCols());
+                m_Lines.insert(e_it, term_line);
+            }
         } else if (scroll_offset > 0) {
             m_Lines.erase(e_it - scroll_offset, e_it);
 
-            for(int i=0;i < scroll_offset;i++)
-                m_Lines.insert(b_it, CreateDefaultTermLine());
+            for(int i=0;i < scroll_offset;i++) {
+                auto term_line = CreateDefaultTermLine(this);
+                term_line->Resize(GetCols());
+                m_Lines.insert(b_it, term_line);
+            }
         }
     }
 private:
