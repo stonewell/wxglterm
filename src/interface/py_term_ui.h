@@ -15,4 +15,8 @@ public:
     void Show() override {
         PYBIND11_OVERLOAD_PURE_NAME(void, TermUIBase, "show", Show, );
     }
+
+    int32_t StartMainUILoop() {
+        PYBIND11_OVERLOAD_PURE_NAME(int32_t, TermUIBase, "start_main_ui_loop", StartMainUILoop, );
+    }
 };

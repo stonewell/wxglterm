@@ -7,6 +7,7 @@ class TermUI : public virtual MultipleInstancePlugin {
 public:
     virtual void Refresh() = 0;
     virtual void Show() = 0;
+    virtual int32_t StartMainUILoop() = 0;
 };
 
 using TermUIPtr = std::shared_ptr<TermUI>;

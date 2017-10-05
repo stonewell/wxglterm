@@ -15,9 +15,12 @@
 #include <iostream>
 namespace py = pybind11;
 
-IMPLEMENT_APP(wxGLTermApp)
+wxGLTermApp::~wxGLTermApp()
+{
+    Cleanup();
+}
 
-bool wxGLTermApp::OnInit()
+bool wxGLTermApp::Run(int /*argc*/, char ** /*argv*/)
 {
     bool result = false;
     try
@@ -96,21 +99,14 @@ bool wxGLTermApp::DoInit()
     if (term_ui)
     {
         m_TermUIList.push_back(term_ui);
-        term_ui->Show();
 
+        term_ui->StartMainUILoop();
         return true;
     }
     else
     {
         return false;
     }
-}
-
-int wxGLTermApp::OnExit()
-{
-    //must dealloc the python objects before interpreter shutdown
-    Cleanup();
-    return wxApp::OnExit();
 }
 
 std::shared_ptr<TermUI> wxGLTermApp::CreateTermUI()
@@ -133,4 +129,11 @@ void wxGLTermApp::InitDefaultPlugins()
 {
     m_PluginManager->RegisterPlugin(std::dynamic_pointer_cast<Plugin>(CreateDefaultTermUI()));
     m_PluginManager->RegisterPlugin(std::dynamic_pointer_cast<Plugin>(CreateDefaultTermBuffer()));
+}
+
+int main(int argc, char ** argv) {
+    wxGLTermApp app;
+
+    app.Run(argc, argv);
+    return 0;
 }

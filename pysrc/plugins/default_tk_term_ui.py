@@ -18,6 +18,7 @@ class DefaultTkTermUI(TermPluginBase, TermUI):
 
         print(dir(TermUI))
         print(dir(self))
+        self.top = None
 
     def new_instance(self):
         print("default tk term ui new instance")
@@ -31,8 +32,15 @@ class DefaultTkTermUI(TermPluginBase, TermUI):
 
     def show(self):
         self.top = tkinter.Tk()
+
+    def start_main_ui_loop(self):
+        if not self.top:
+            self.top = tkinter.Tk()
+
         self.top.mainloop()
+
+        return 0;
 
 def register_plugins(pm):
     g_term_ui.append(DefaultTkTermUI())
-    #pm.register_plugin(g_term_ui[0])
+    pm.register_plugin(g_term_ui[0])

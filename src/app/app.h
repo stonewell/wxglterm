@@ -7,12 +7,11 @@
 #include "term_ui.h"
 #include "plugin_manager.h"
 
-class wxGLTermApp : public wxApp
+class wxGLTermApp
 {
 public:
-    virtual bool OnInit();
-
-    virtual int OnExit();
+    bool Run(int argc, char ** argv);
+    virtual ~wxGLTermApp();
 
 private:
     using term_ui_list_t = std::list<std::shared_ptr<TermUI>>;

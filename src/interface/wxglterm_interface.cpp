@@ -96,7 +96,9 @@ PYBIND11_EMBEDDED_MODULE(wxglterm_interface, m)
     py::class_<TermUI, PyTermUI<>, std::shared_ptr<TermUI>> term_ui(m, "TermUI", multiple_instance_plugin);
     term_ui.def(py::init<>())
             .def("refresh", &TermUI::Refresh)
-            .def("show", &TermUI::Show);
+            .def("show", &TermUI::Show)
+            .def("start_main_ui_loop", &TermUI::StartMainUILoop)
+            ;
 
     py::class_<TermNetwork, PyTermNetwork<>, std::shared_ptr<TermNetwork>> term_network(m, "TermNetwork", plugin);
     term_network.def(py::init<>())
