@@ -11,7 +11,7 @@ class DefaultTkTermUI(TermPluginBase, TermUI):
     def __init__(self):
         TermPluginBase.__init__(self, name="default_term_ui",
                          desc="It is a python version term default_term_ui",
-                         version=1)
+                                version=1)
         TermUI.__init__(self)
 
         sys.argv = ['']
@@ -35,4 +35,4 @@ class DefaultTkTermUI(TermPluginBase, TermUI):
 
 def register_plugins(pm):
     g_term_ui.append(DefaultTkTermUI())
-    pm.register_plugin(g_term_ui[0])
+    #pm.register_plugin(g_term_ui[0])
