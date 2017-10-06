@@ -99,11 +99,13 @@ bool wxGLTermApp::DoInit()
     InitDefaultPlugins();
 
     auto term_context = CreateTermContext();
+    term_context->SetAppConfig(g_AppConfig);
+
     auto term_ui = CreateTermUI(term_context);
     auto term_network = CreateTermNetwork(term_context);
     auto term_data_handler = CreateTermDataHandler(term_context);
 
-    if (term_ui && term_network)
+    if (term_context && term_ui && term_network && term_data_handler)
     {
         term_context->SetTermUI(term_ui);
         term_context->SetTermNetwork(term_network);

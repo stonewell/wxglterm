@@ -8,5 +8,6 @@ public:
     virtual ~Context() = default;
 
 public:
-
+    virtual AppConfigPtr GetAppConfig() const = 0;
+    virtual void SetAppConfig(AppConfigPtr app_config) = 0;
 };

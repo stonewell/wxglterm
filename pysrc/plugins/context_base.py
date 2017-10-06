@@ -7,3 +7,10 @@ class ContextBase(MultipleInstancePluginBase, Context):
                                             desc=desc,
                                             version=version)
         Context.__init__(self)
+        self.app_config = None
+
+    def get_app_config(self):
+        return self.app_config
+
+    def set_app_config(self, app_config):
+        self.app_config = app_config

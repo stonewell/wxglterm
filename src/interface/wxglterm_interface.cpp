@@ -53,7 +53,10 @@ PYBIND11_EMBEDDED_MODULE(wxglterm_interface, m)
             .def("new_instance", &MultipleInstancePlugin::NewInstance);
 
     py::class_<Context, PyContext<>, std::shared_ptr<Context>> context(m, "Context", multiple_instance_plugin);
-    context.def(py::init<>());
+    context.def(py::init<>())
+            .def("get_app_config", &Context::GetAppConfig)
+            .def("set_app_config", &Context::SetAppConfig)
+            ;
 
     py::class_<TermBuffer, PyTermBuffer<>, std::shared_ptr<TermBuffer>> term_buffer(m, "TermBuffer", multiple_instance_plugin);
     term_buffer.def(py::init<>())

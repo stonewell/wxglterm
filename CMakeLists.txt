@@ -46,3 +46,13 @@ ADD_SUBDIRECTORY(src/ui)
 ADD_SUBDIRECTORY(src/utils)
 ADD_SUBDIRECTORY(src/plugins)
 ADD_SUBDIRECTORY(src/app)
+
+ADD_CUSTOM_COMMAND(OUTPUT ${CMAKE_BINARY_DIR}/termdata.stamp
+  COMMAND
+  ${CMAKE_COMMAND} -E copy_directory ${CMAKE_SOURCE_DIR}/data ${CMAKE_BINARY_DIR}/data
+  COMMENT
+  "Copying term data..."
+  VERBATIM
+  )
+
+ADD_CUSTOM_TARGET(copy_term_data ALL DEPENDS ${CMAKE_BINARY_DIR}/termdata.stamp wxglterm)
