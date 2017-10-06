@@ -11,6 +11,7 @@ class DefaultTermContext(ContextBase, TermContext):
         self.term_buffer = None
         self.term_ui = None
         self.term_network = None
+        self.term_data_handler = None
 
     def get_term_buffer(self):
         return self.term_buffer
@@ -29,6 +30,12 @@ class DefaultTermContext(ContextBase, TermContext):
 
     def set_term_network(self, term_network):
         self.term_network = term_network
+
+    def get_term_data_handler(self):
+        return self.term_data_handler
+
+    def set_term_data_handler(self, term_data_handler):
+        self.term_data_handler = term_data_handler
 
 def register_plugins(pm):
     ni = DefaultTermContext().new_instance()

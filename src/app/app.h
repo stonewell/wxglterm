@@ -26,4 +26,5 @@ private:
     TermUIPtr CreateTermUI(TermContextPtr term_context);
     TermContextPtr CreateTermContext();
     TermNetworkPtr CreateTermNetwork(TermContextPtr term_context);
+    TermDataHandlerPtr CreateTermDataHandler(TermContextPtr term_context);
 };

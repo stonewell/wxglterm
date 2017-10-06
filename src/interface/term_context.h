@@ -16,4 +16,6 @@ public:
     virtual void SetTermUI(TermUIPtr term_ui) = 0;
     virtual TermNetworkPtr GetTermNetwork() const = 0;
     virtual void SetTermNetwork(TermNetworkPtr term_network) = 0;
+    virtual TermDataHandlerPtr GetTermDataHandler() const = 0;
+    virtual void SetTermDataHandler(TermDataHandlerPtr term_data_handler) = 0;
 };

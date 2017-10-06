@@ -18,3 +18,4 @@ DECL_SHARED_PTR(TermNetwork);
 DECL_SHARED_PTR(TermCell);
 DECL_SHARED_PTR(TermBuffer);
 DECL_SHARED_PTR(AppConfig);
+DECL_SHARED_PTR(TermDataHandler);

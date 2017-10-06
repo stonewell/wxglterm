@@ -11,6 +11,7 @@
 #include "py_term_buffer.h"
 #include "py_term_ui.h"
 #include "py_term_network.h"
+#include "py_term_data_handler.h"
 #include "py_term_context.h"
 
 #include "py_plugin_manager.h"
@@ -115,6 +116,8 @@ PYBIND11_EMBEDDED_MODULE(wxglterm_interface, m)
             .def("set_term_buffer", &TermContext::SetTermBuffer)
             .def("set_term_ui", &TermContext::SetTermUI)
             .def("set_term_network", &TermContext::SetTermNetwork)
+            .def("get_term_data_handler", &TermContext::GetTermDataHandler)
+            .def("set_term_data_handler", &TermContext::SetTermDataHandler)
             ;
 
     py::class_<PluginManager, PyPluginManager<>, std::shared_ptr<PluginManager>> plugin_manager(m, "PluginManager");
@@ -135,6 +138,10 @@ PYBIND11_EMBEDDED_MODULE(wxglterm_interface, m)
             .def("get_entry_bool", &AppConfig::GetEntryBool)
             .def("load_from_file", &AppConfig::LoadFromFile)
             .def("load_from_string", &AppConfig::LoadFromString)
+            ;
+    py::class_<TermDataHandler, PyTermDataHandler<>, std::shared_ptr<TermDataHandler>> term_data_handler(m, "TermDataHandler", multiple_instance_plugin);
+    term_data_handler.def(py::init<>())
+            .def("on_data", &TermDataHandler::OnData)
             ;
 }
 

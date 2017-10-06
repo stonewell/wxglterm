@@ -11,6 +11,7 @@
 
 #include "term_context.h"
 #include "term_network.h"
+#include "term_data_handler.h"
 
 #include "default_term_ui.h"
 #include "default_term_buffer.h"
@@ -100,11 +101,13 @@ bool wxGLTermApp::DoInit()
     auto term_context = CreateTermContext();
     auto term_ui = CreateTermUI(term_context);
     auto term_network = CreateTermNetwork(term_context);
+    auto term_data_handler = CreateTermDataHandler(term_context);
 
     if (term_ui && term_network)
     {
         term_context->SetTermUI(term_ui);
         term_context->SetTermNetwork(term_network);
+        term_context->SetTermDataHandler(term_data_handler);
 
         term_network->Connect("", 0, "", "");
         m_TermUIList.push_back(term_ui);
@@ -172,7 +175,7 @@ TermContextPtr wxGLTermApp::CreateTermContext()
 
 TermNetworkPtr wxGLTermApp::CreateTermNetwork(TermContextPtr term_context)
 {
-    std::string plugin_name = g_AppConfig->GetEntry("plugins/network/name", "default_term_nextwork");
+    std::string plugin_name = g_AppConfig->GetEntry("plugins/network/name", "default_term_network");
     uint64_t plugin_version = g_AppConfig->GetEntryUInt64("plugins/network/version", PluginManager::Latest);
     std::string plugin_config = g_AppConfig->GetEntry("plugins/network/config", "{}");
 
@@ -195,6 +198,33 @@ TermNetworkPtr wxGLTermApp::CreateTermNetwork(TermContextPtr term_context)
                              new_instance_config);
 
     return std::dynamic_pointer_cast<TermNetwork>(new_instance);
+}
+
+TermDataHandlerPtr wxGLTermApp::CreateTermDataHandler(TermContextPtr term_context)
+{
+    std::string plugin_name = g_AppConfig->GetEntry("plugins/data_handler/name", "default_term_data_handler");
+    uint64_t plugin_version = g_AppConfig->GetEntryUInt64("plugins/data_handler/version", PluginManager::Latest);
+    std::string plugin_config = g_AppConfig->GetEntry("plugins/data_handler/config", "{}");
+
+    std::cout << "data_handler plugin config:"
+              << plugin_config
+              << std::endl;
+
+    auto plugin = std::dynamic_pointer_cast<TermDataHandler>(m_PluginManager->GetPlugin(plugin_name.c_str(), plugin_version));
+
+    if (!plugin)
+    {
+        //TODO: error or create default
+        return TermDataHandlerPtr{};
+    }
+
+    auto new_instance = plugin->NewInstance();
+    auto new_instance_config = CreateAppConfigFromString(plugin_config.c_str());
+
+    new_instance->InitPlugin(std::dynamic_pointer_cast<Context>(term_context),
+                             new_instance_config);
+
+    return std::dynamic_pointer_cast<TermDataHandler>(new_instance);
 }
 
 int main(int argc, char ** argv) {

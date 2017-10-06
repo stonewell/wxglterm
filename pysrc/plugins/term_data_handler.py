@@ -1,18 +1,14 @@
-from wxglterm_interface import Plugin, print_plugin_info
-from term_plugin_base import TermPluginBase
+from wxglterm_interface import Plugin, print_plugin_info, TermDataHandler
+from multiple_instance_plugin_base import MultipleInstancePluginBase
 from utils.term_utils import test_util
 
-class TermDataHandler(TermPluginBase):
+class DefaultTermDataHandler(MultipleInstancePluginBase, TermDataHandler):
     def __init__(self):
-        TermPluginBase.__init__(self, name="TermDataHandler",
+        MultipleInstancePluginBase.__init__(self, name="default_term_data_handler",
                          desc="It is a python version term data handler",
                          version=1)
+        TermDataHandler.__init__(self)
 
-
-g_term_data_handler = TermDataHandler()
-
-print_plugin_info(g_term_data_handler)
-test_util()
 
 def register_plugins(pm):
-    pm.register_plugin(g_term_data_handler)
+    pm.register_plugin(DefaultTermDataHandler().new_instance())

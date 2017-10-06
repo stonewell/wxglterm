@@ -14,7 +14,7 @@
 	    "name":"default_term_buffer"
 	},
 	"data_handler":{
-	    "name":"term_data_handler"
+	    "name":"default_term_data_handler"
 	},
 	"context":{
 	    "name":"default_term_context"
