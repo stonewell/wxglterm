@@ -142,7 +142,7 @@ TermUIPtr wxGLTermApp::CreateTermUI(TermContextPtr term_context)
     new_instance->InitPlugin(std::dynamic_pointer_cast<Context>(term_context),
                              new_instance_config);
 
-    return std::move(std::dynamic_pointer_cast<TermUI>(new_instance));
+    return std::dynamic_pointer_cast<TermUI>(new_instance);
 }
 
 void wxGLTermApp::InitDefaultPlugins()
@@ -167,7 +167,7 @@ TermContextPtr wxGLTermApp::CreateTermContext()
 
     auto new_instance = plugin_term_context->NewInstance();
 
-    return std::move(std::dynamic_pointer_cast<TermContext>(new_instance));
+    return std::dynamic_pointer_cast<TermContext>(new_instance);
 }
 
 TermNetworkPtr wxGLTermApp::CreateTermNetwork(TermContextPtr term_context)
@@ -194,7 +194,7 @@ TermNetworkPtr wxGLTermApp::CreateTermNetwork(TermContextPtr term_context)
     new_instance->InitPlugin(std::dynamic_pointer_cast<Context>(term_context),
                              new_instance_config);
 
-    return std::move(std::dynamic_pointer_cast<TermNetwork>(new_instance));
+    return std::dynamic_pointer_cast<TermNetwork>(new_instance);
 }
 
 int main(int argc, char ** argv) {

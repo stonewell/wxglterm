@@ -9,6 +9,7 @@ public:
         PluginBase("default_term_cell", "default terminal cell plugin", 0)
         , m_TermLine(term_line)
     {
+        (void)m_TermLine;
     }
 
     wchar_t GetChar() const {
