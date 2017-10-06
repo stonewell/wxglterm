@@ -21,6 +21,8 @@ class DictQuery(dict):
             if not val:
                 break;
 
+        if isinstance(val, list) or isinstance(val, dict):
+            return json.dumps(val)
         return val
 
 def load_config(config_path):

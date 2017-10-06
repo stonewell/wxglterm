@@ -40,7 +40,11 @@ py::object LoadPyModuleFromString(const char * content, const char * module_name
         "import imp\n"
         "import os\n"
         "import io\n"
-        "new_module = imp.load_module(module_name, io.StringIO(module_content), module_file, ('py', 'U', imp.PY_SOURCE))\n",
+        "import sys\n"
+        "try:\n"
+        "  new_module = sys.modules[module_name]\n"
+        "except KeyError:\n"
+        "  new_module = imp.load_module(module_name, io.StringIO(module_content), module_file, ('py', 'U', imp.PY_SOURCE))\n",
         py::globals(),
         locals);
 

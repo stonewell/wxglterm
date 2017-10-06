@@ -10,6 +10,7 @@
 #include "app_config_impl.h"
 
 #include "term_context.h"
+#include "term_network.h"
 
 #include "default_term_ui.h"
 #include "default_term_buffer.h"
@@ -98,9 +99,14 @@ bool wxGLTermApp::DoInit()
 
     auto term_context = CreateTermContext();
     auto term_ui = CreateTermUI(term_context);
+    auto term_network = CreateTermNetwork(term_context);
 
-    if (term_ui)
+    if (term_ui && term_network)
     {
+        term_context->SetTermUI(term_ui);
+        term_context->SetTermNetwork(term_network);
+
+        term_network->Connect("", 0, "", "");
         m_TermUIList.push_back(term_ui);
 
         term_ui->StartMainUILoop();
@@ -125,6 +131,10 @@ TermUIPtr wxGLTermApp::CreateTermUI(TermContextPtr term_context)
         //TODO: error or create default
         return TermUIPtr{};
     }
+
+    std::cout << "ui plugin config:"
+              << ui_plugin_config
+              << std::endl;
 
     auto new_instance = plugin_term_ui->NewInstance();
     auto new_instance_config = CreateAppConfigFromString(ui_plugin_config.c_str());
@@ -158,6 +168,33 @@ TermContextPtr wxGLTermApp::CreateTermContext()
     auto new_instance = plugin_term_context->NewInstance();
 
     return std::move(std::dynamic_pointer_cast<TermContext>(new_instance));
+}
+
+TermNetworkPtr wxGLTermApp::CreateTermNetwork(TermContextPtr term_context)
+{
+    std::string plugin_name = g_AppConfig->GetEntry("plugins/network/name", "default_term_nextwork");
+    uint64_t plugin_version = g_AppConfig->GetEntryUInt64("plugins/network/version", PluginManager::Latest);
+    std::string plugin_config = g_AppConfig->GetEntry("plugins/network/config", "{}");
+
+    std::cout << "network plugin config:"
+              << plugin_config
+              << std::endl;
+
+    auto plugin = std::dynamic_pointer_cast<TermNetwork>(m_PluginManager->GetPlugin(plugin_name.c_str(), plugin_version));
+
+    if (!plugin)
+    {
+        //TODO: error or create default
+        return TermNetworkPtr{};
+    }
+
+    auto new_instance = plugin->NewInstance();
+    auto new_instance_config = CreateAppConfigFromString(plugin_config.c_str());
+
+    new_instance->InitPlugin(std::dynamic_pointer_cast<Context>(term_context),
+                             new_instance_config);
+
+    return std::move(std::dynamic_pointer_cast<TermNetwork>(new_instance));
 }
 
 int main(int argc, char ** argv) {

@@ -25,4 +25,5 @@ private:
     void InitDefaultPlugins();
     TermUIPtr CreateTermUI(TermContextPtr term_context);
     TermContextPtr CreateTermContext();
+    TermNetworkPtr CreateTermNetwork(TermContextPtr term_context);
 };

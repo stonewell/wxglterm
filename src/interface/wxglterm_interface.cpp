@@ -25,17 +25,10 @@ namespace py = pybind11;
 
 void print_plugin_info(Plugin * plugin)
 {
-    TermNetwork * term_network = dynamic_cast<TermNetwork *>(plugin);
-
     std::cerr << "Name:" << plugin->GetName()
               << ", Description:" << plugin->GetDescription()
               << ", Version:" << plugin->GetVersion()
               << std::endl;
-
-    if (term_network)
-    {
-        term_network->Disconnect();
-    }
 }
 
 #ifdef WXGLTERM_DYNAMIC_INTERFACE
@@ -73,8 +66,10 @@ PYBIND11_EMBEDDED_MODULE(wxglterm_interface, m)
             .def("get_cur_line", &TermBuffer::GetCurLine)
             .def("get_cur_cell", &TermBuffer::GetCurCell)
             .def("scroll_buffer", &TermBuffer::ScrollBuffer)
-            .def_property("scroll_region_begin", &TermBuffer::GetScrollRegionBegin, &TermBuffer::SetScrollRegionBegin)
-            .def_property("scroll_region_end", &TermBuffer::GetScrollRegionEnd, &TermBuffer::SetScrollRegionEnd)
+            .def("get_scroll_region_begin", &TermBuffer::GetScrollRegionBegin)
+            .def("set_scroll_region_begin", &TermBuffer::SetScrollRegionBegin)
+            .def("get_scroll_region_end", &TermBuffer::GetScrollRegionEnd)
+            .def("get_scroll_region_end", &TermBuffer::SetScrollRegionEnd)
             ;
 
     py::class_<TermLine, PyTermLine<>, std::shared_ptr<TermLine>> term_line(m, "TermLine", plugin);
@@ -85,10 +80,14 @@ PYBIND11_EMBEDDED_MODULE(wxglterm_interface, m)
 
     py::class_<TermCell, PyTermCell<>, std::shared_ptr<TermCell>> term_cell(m, "TermCell", plugin);
     term_cell.def(py::init<>())
-            .def_property("char", &TermCell::GetChar, &TermCell::SetChar)
-            .def_property("fore_color_idx", &TermCell::GetForeColorIndex, &TermCell::SetForeColorIndex)
-            .def_property("back_color_idx", &TermCell::GetBackColorIndex, &TermCell::SetBackColorIndex)
-            .def_property("mode", &TermCell::GetMode, &TermCell::SetMode)
+            .def("get_char", &TermCell::GetChar)
+            .def("set_char", &TermCell::SetChar)
+            .def("get_fore_color_idx", &TermCell::GetForeColorIndex)
+            .def("set_fore_color_idx", &TermCell::SetForeColorIndex)
+            .def("get_back_color_idx", &TermCell::GetBackColorIndex)
+            .def("set_back_color_idx", &TermCell::SetBackColorIndex)
+            .def("get_mode", &TermCell::GetMode)
+            .def("set_mode", &TermCell::SetMode)
             ;
 
     py::enum_<TermCell::ColorIndexEnum>(term_cell, "ColorIndex")
@@ -102,9 +101,11 @@ PYBIND11_EMBEDDED_MODULE(wxglterm_interface, m)
             .def("start_main_ui_loop", &TermUI::StartMainUILoop)
             ;
 
-    py::class_<TermNetwork, PyTermNetwork<>, std::shared_ptr<TermNetwork>> term_network(m, "TermNetwork", plugin);
+    py::class_<TermNetwork, PyTermNetwork<>, std::shared_ptr<TermNetwork>> term_network(m, "TermNetwork", multiple_instance_plugin);
     term_network.def(py::init<>())
-            .def("disconnect", &TermNetwork::Disconnect);
+            .def("disconnect", &TermNetwork::Disconnect)
+            .def("connect", &TermNetwork::Connect)
+            ;
 
     py::class_<TermContext, PyTermContext<>, std::shared_ptr<TermContext>> term_context(m, "TermContext", context);
     term_context.def(py::init<>())
@@ -113,7 +114,8 @@ PYBIND11_EMBEDDED_MODULE(wxglterm_interface, m)
             .def("get_term_network", &TermContext::GetTermNetwork)
             .def("set_term_buffer", &TermContext::SetTermBuffer)
             .def("set_term_ui", &TermContext::SetTermUI)
-            .def("set_term_network", &TermContext::SetTermNetwork);
+            .def("set_term_network", &TermContext::SetTermNetwork)
+            ;
 
     py::class_<PluginManager, PyPluginManager<>, std::shared_ptr<PluginManager>> plugin_manager(m, "PluginManager");
     plugin_manager.def(py::init<>())
