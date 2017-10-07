@@ -9,7 +9,7 @@ class DefaultTermContext(ContextBase, TermContext):
         TermContext.__init__(self)
 
         self.term_buffer = None
-        self.term_ui = None
+        self.term_window = None
         self.term_network = None
         self.term_data_handler = None
 
@@ -19,11 +19,11 @@ class DefaultTermContext(ContextBase, TermContext):
     def set_term_buffer(self, term_buffer):
         self.term_buffer = term_buffer
 
-    def get_term_ui(self):
-        return self.term_ui
+    def get_term_window(self):
+        return self.term_window
 
-    def set_term_ui(self, term_ui):
-        self.term_ui = term_ui
+    def set_term_window(self, term_window):
+        self.term_window = term_window
 
     def get_term_network(self):
         return self.term_network

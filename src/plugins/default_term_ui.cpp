@@ -1,36 +1,29 @@
 #include "plugin_base.h"
 
 #include "default_term_ui.h"
+#include "term_window.h"
 
 #include "main_dlg.h"
-
-static
-TermUI * g_MainUI = nullptr;
 
 class __wxGLTermApp : public wxApp {
 public:
     virtual bool OnInit() {
-        if (!g_MainUI)
-            return false;
-
-        g_MainUI->Show();
-
         return true;
     }
 };
 
 wxIMPLEMENT_APP_NO_MAIN(__wxGLTermApp);
 
-class DefaultTermUI : public virtual PluginBase, public virtual TermUI {
+class DefaultTermWindow : public virtual PluginBase, public virtual TermWindow {
 public:
-    DefaultTermUI() :
-        PluginBase("default_term_ui", "default terminal ui plugin", 0)
-        , m_MainDlg(nullptr)
-    {
+    DefaultTermWindow() :
+        PluginBase("default_term_window", "default terminal window plugin", 0)
+        , m_MainDlg(nullptr) {
     }
 
-    virtual ~DefaultTermUI() = default;
+    virtual ~DefaultTermWindow() = default;
 
+public:
     void Refresh() override {
         if (!m_MainDlg)
             return;
@@ -43,19 +36,28 @@ public:
         m_MainDlg->Show(true);
     }
 
-    std::shared_ptr<MultipleInstancePlugin> NewInstance() override {
-        return std::shared_ptr<MultipleInstancePlugin>{new DefaultTermUI()};
+private:
+    MainDialog * m_MainDlg;
+};
+
+class DefaultTermUI : public virtual PluginBase, public virtual TermUI {
+public:
+    DefaultTermUI() :
+        PluginBase("default_term_ui", "default terminal ui plugin", 0)
+    {
+    }
+
+    virtual ~DefaultTermUI() = default;
+
+    TermWindowPtr CreateWindow() {
+        return TermWindowPtr { new DefaultTermWindow() };
     }
 
     int32_t StartMainUILoop() {
         int argc = 0;
 
-        g_MainUI = this;
-
         return wxEntry(argc, (char **)nullptr);
     }
-private:
-    MainDialog * m_MainDlg;
 };
 
 TermUIPtr CreateDefaultTermUI()

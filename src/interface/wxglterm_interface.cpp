@@ -9,6 +9,7 @@
 #include "py_term_cell.h"
 #include "py_term_line.h"
 #include "py_term_buffer.h"
+#include "py_term_window.h"
 #include "py_term_ui.h"
 #include "py_term_network.h"
 #include "py_term_data_handler.h"
@@ -98,11 +99,16 @@ PYBIND11_EMBEDDED_MODULE(wxglterm_interface, m)
             .value("DefaultColorIndex", TermCell::ColorIndexEnum::DefaultColorIndex)
             .export_values();
 
-    py::class_<TermUI, PyTermUI<>, std::shared_ptr<TermUI>> term_ui(m, "TermUI", multiple_instance_plugin);
+    py::class_<TermUI, PyTermUI<>, std::shared_ptr<TermUI>> term_ui(m, "TermUI", plugin);
     term_ui.def(py::init<>())
-            .def("refresh", &TermUI::Refresh)
-            .def("show", &TermUI::Show)
             .def("start_main_ui_loop", &TermUI::StartMainUILoop)
+            .def("create_window", &TermUI::CreateWindow)
+            ;
+
+    py::class_<TermWindow, PyTermWindow<>, std::shared_ptr<TermWindow>> term_window(m, "TermWindow", plugin);
+    term_window.def(py::init<>())
+            .def("refresh", &TermWindow::Refresh)
+            .def("show", &TermWindow::Show)
             ;
 
     py::class_<TermNetwork, PyTermNetwork<>, std::shared_ptr<TermNetwork>> term_network(m, "TermNetwork", multiple_instance_plugin);
@@ -114,10 +120,10 @@ PYBIND11_EMBEDDED_MODULE(wxglterm_interface, m)
     py::class_<TermContext, PyTermContext<>, std::shared_ptr<TermContext>> term_context(m, "TermContext", context);
     term_context.def(py::init<>())
             .def("get_term_buffer", &TermContext::GetTermBuffer)
-            .def("get_term_ui", &TermContext::GetTermUI)
+            .def("get_term_window", &TermContext::GetTermWindow)
             .def("get_term_network", &TermContext::GetTermNetwork)
             .def("set_term_buffer", &TermContext::SetTermBuffer)
-            .def("set_term_ui", &TermContext::SetTermUI)
+            .def("set_term_window", &TermContext::SetTermWindow)
             .def("set_term_network", &TermContext::SetTermNetwork)
             .def("get_term_data_handler", &TermContext::GetTermDataHandler)
             .def("set_term_data_handler", &TermContext::SetTermDataHandler)

@@ -1,22 +1,18 @@
 #pragma once
 
-#include "py_multiple_instance_plugin.h"
+#include "py_plugin.h"
 #include "term_ui.h"
 
 template<class TermUIBase = TermUI>
-class PyTermUI : public virtual PyMultipleInstancePlugin<TermUIBase> {
+class PyTermUI : public virtual PyPlugin<TermUIBase> {
 public:
-    using PyMultipleInstancePlugin<TermUIBase>::PyMultipleInstancePlugin;
+    using PyPlugin<TermUIBase>::PyPlugin;
 
-    void Refresh() override {
-        PYBIND11_OVERLOAD_PURE_NAME(void, TermUIBase, "refresh", Refresh, );
-    }
-
-    void Show() override {
-        PYBIND11_OVERLOAD_PURE_NAME(void, TermUIBase, "show", Show, );
-    }
-
-    int32_t StartMainUILoop() {
+    int32_t StartMainUILoop() override {
         PYBIND11_OVERLOAD_PURE_NAME(int32_t, TermUIBase, "start_main_ui_loop", StartMainUILoop, );
+    }
+
+    TermWindowPtr CreateWindow() override {
+        PYBIND11_OVERLOAD_PURE_NAME(TermWindowPtr, TermUIBase, "create_window", CreateWindow, );
     }
 };

@@ -1,20 +1,17 @@
-from wxglterm_interface import Plugin, print_plugin_info, TermUI
-from multiple_instance_plugin_base import MultipleInstancePluginBase
+from wxglterm_interface import Plugin, print_plugin_info, TermUI, TermWindow
+from term_plugin_base import TermPluginBase
 from utils.term_utils import test_util
 
 import tkinter
 import sys
 
-class DefaultTkTermUI(MultipleInstancePluginBase, TermUI):
+class DefaultTkTermWindow(TermPluginBase, TermWindow):
     def __init__(self):
-        MultipleInstancePluginBase.__init__(self, name="default_term_ui",
-                                            desc="It is a python version term default_term_ui",
-                                            version=1)
-        TermUI.__init__(self)
-
-        if not hasattr(sys, 'argv') or len(sys.argv) == 0:
-            sys.argv = ['']
-
+        TermPluginBase.__init__(self,
+                            name="default_term_window",
+                            desc="It is a python version term default_term_ui",
+                            version=1)
+        TermWindow.__init__(self)
         self.top = None
 
     def refresh(self):
@@ -22,6 +19,26 @@ class DefaultTkTermUI(MultipleInstancePluginBase, TermUI):
 
     def show(self):
         self.top = tkinter.Tk()
+
+class DefaultTkTermUI(TermPluginBase, TermUI):
+    def __init__(self):
+        TermPluginBase.__init__(self,
+                            name="default_term_ui",
+                            desc="It is a python version term default_term_ui",
+                            version=1)
+        TermUI.__init__(self)
+
+        if not hasattr(sys, 'argv') or len(sys.argv) == 0:
+            sys.argv = ['']
+
+        self.top = None
+        self._windows = []
+
+    def create_window(self):
+        w = DefaultTkTermWindow()
+
+        self._windows.append(w)
+        return w
 
     def start_main_ui_loop(self):
         if not self.top:
@@ -31,5 +48,7 @@ class DefaultTkTermUI(MultipleInstancePluginBase, TermUI):
 
         return 0;
 
+g_term_ui = DefaultTkTermUI()
+
 def register_plugins(pm):
-    pm.register_plugin(DefaultTkTermUI().new_instance())
+    pm.register_plugin(g_term_ui)

@@ -17,11 +17,11 @@ public:
         PYBIND11_OVERLOAD_PURE_NAME(void, TermContextBase, "set_term_buffer", SetTermBuffer, term_buffer);
     }
 
-    TermUIPtr GetTermUI() const override {
-        PYBIND11_OVERLOAD_PURE_NAME(TermUIPtr, TermContextBase, "get_term_ui", GetTermUI, );
+    TermWindowPtr GetTermWindow() const override {
+        PYBIND11_OVERLOAD_PURE_NAME(TermWindowPtr, TermContextBase, "get_term_window", GetTermWindow, );
     }
-    void SetTermUI(TermUIPtr term_ui) override {
-        PYBIND11_OVERLOAD_PURE_NAME(void, TermContextBase, "set_term_ui", SetTermUI, term_ui);
+    void SetTermWindow(TermWindowPtr term_window) override {
+        PYBIND11_OVERLOAD_PURE_NAME(void, TermContextBase, "set_term_window", SetTermWindow, term_window);
     }
 
     TermNetworkPtr GetTermNetwork() const override {

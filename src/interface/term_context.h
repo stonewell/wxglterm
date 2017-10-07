@@ -12,8 +12,8 @@ public:
 public:
     virtual TermBufferPtr GetTermBuffer() const = 0;
     virtual void SetTermBuffer(TermBufferPtr term_buffer) = 0;
-    virtual TermUIPtr GetTermUI() const = 0;
-    virtual void SetTermUI(TermUIPtr term_ui) = 0;
+    virtual TermWindowPtr GetTermWindow() const = 0;
+    virtual void SetTermWindow(TermWindowPtr term_window) = 0;
     virtual TermNetworkPtr GetTermNetwork() const = 0;
     virtual void SetTermNetwork(TermNetworkPtr term_network) = 0;
     virtual TermDataHandlerPtr GetTermDataHandler() const = 0;

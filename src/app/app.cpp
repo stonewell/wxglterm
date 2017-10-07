@@ -107,7 +107,7 @@ bool wxGLTermApp::DoInit()
 
     if (term_context && term_ui && term_network && term_data_handler)
     {
-        term_context->SetTermUI(term_ui);
+        term_context->SetTermWindow(term_ui->CreateWindow());
         term_context->SetTermNetwork(term_network);
         term_context->SetTermDataHandler(term_data_handler);
 
@@ -141,13 +141,12 @@ TermUIPtr wxGLTermApp::CreateTermUI(TermContextPtr term_context)
               << ui_plugin_config
               << std::endl;
 
-    auto new_instance = plugin_term_ui->NewInstance();
     auto new_instance_config = CreateAppConfigFromString(ui_plugin_config.c_str());
 
-    new_instance->InitPlugin(std::dynamic_pointer_cast<Context>(term_context),
+    plugin_term_ui->InitPlugin(std::dynamic_pointer_cast<Context>(term_context),
                              new_instance_config);
 
-    return std::dynamic_pointer_cast<TermUI>(new_instance);
+    return plugin_term_ui;
 }
 
 void wxGLTermApp::InitDefaultPlugins()
