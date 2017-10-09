@@ -77,18 +77,31 @@ bool wxGLTermApp::DoInit()
 
     wxFileName f(wxStandardPaths::Get().GetExecutablePath());
     f.AppendDir("plugins");
-    std::string appPath(f.GetPath());
+    std::string pluginPath(f.GetPath());
 
-    std::cout << "app path:" << appPath << std::endl;
+    wxFileName f2(wxStandardPaths::Get().GetExecutablePath());
+    f2.AppendDir("libs");
+    std::string libsPath(f2.GetPath());
 
-    std::string plugins_dir = g_AppConfig->GetEntry("plugins/dir", appPath.c_str());
+    std::cout << "app path:"
+              << pluginPath
+              << ", libs:"
+              << libsPath
+              << std::endl;
+
+    std::string plugins_dir = g_AppConfig->GetEntry("plugins/dir", pluginPath.c_str());
+    std::string python_lib_dir = g_AppConfig->GetEntry("plugins/python_lib", libsPath.c_str());
 
     py::object sys_m = py::module::import("sys");
-    sys_m.attr("path").attr("append")(appPath);
+    sys_m.attr("path").attr("append")(pluginPath);
+    sys_m.attr("path").attr("append")(libsPath);
 
-    auto plugin_manager = LoadAllPlugins(appPath.c_str());
+    if (python_lib_dir != libsPath)
+        sys_m.attr("path").attr("append")(python_lib_dir);
 
-    if (plugins_dir != appPath)
+    auto plugin_manager = LoadAllPlugins(pluginPath.c_str());
+
+    if (plugins_dir != pluginPath)
     {
         sys_m.attr("path").attr("append")(py::cast(plugins_dir));
         LoadAllPlugins(plugin_manager, plugins_dir.c_str());

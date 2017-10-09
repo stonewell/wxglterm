@@ -1,6 +1,7 @@
 {
     "plugins":{
 	"dir":"plugins",
+	"python_lib":"libs",
 	"ui":{
 	    "name":"default_term_ui"
 	},

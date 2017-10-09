@@ -50,6 +50,8 @@ ADD_SUBDIRECTORY(src/app)
 ADD_CUSTOM_COMMAND(OUTPUT ${CMAKE_BINARY_DIR}/termdata.stamp
   COMMAND
   ${CMAKE_COMMAND} -E copy_directory ${CMAKE_SOURCE_DIR}/data ${CMAKE_BINARY_DIR}/data
+  COMMAND
+  ${CMAKE_COMMAND} -E copy_directory ${CMAKE_SOURCE_DIR}/pysrc/libs ${CMAKE_BINARY_DIR}/libs
   COMMENT
   "Copying term data..."
   VERBATIM
