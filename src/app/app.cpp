@@ -13,6 +13,8 @@
 #include "term_network.h"
 #include "term_data_handler.h"
 
+#include "task.h"
+
 #include "default_term_ui.h"
 #include "default_term_buffer.h"
 
@@ -127,6 +129,10 @@ bool wxGLTermApp::DoInit()
         term_network->Connect("", 0, "", "");
         m_TermUIList.push_back(term_ui);
 
+        auto mainwnd_task = CreateShowContextWindowTask(term_context);
+
+        term_ui->ScheduleTask(mainwnd_task, 5, false);
+
         term_ui->StartMainUILoop();
         return true;
     }
@@ -239,6 +245,17 @@ TermDataHandlerPtr wxGLTermApp::CreateTermDataHandler(TermContextPtr term_contex
                              new_instance_config);
 
     return std::dynamic_pointer_cast<TermDataHandler>(new_instance);
+}
+
+TaskPtr wxGLTermApp::CreateShowContextWindowTask(TermContextPtr term_context)
+{
+    auto new_instance = ::CreateShowContextWindowTask();
+    auto new_instance_config = CreateAppConfigFromString("{}");
+
+    new_instance->InitPlugin(std::dynamic_pointer_cast<Context>(term_context),
+                             new_instance_config);
+
+    return new_instance;
 }
 
 int main(int argc, char ** argv) {

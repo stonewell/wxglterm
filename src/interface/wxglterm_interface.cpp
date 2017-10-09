@@ -10,6 +10,7 @@
 #include "py_term_line.h"
 #include "py_term_buffer.h"
 #include "py_term_window.h"
+#include "py_task.h"
 #include "py_term_ui.h"
 #include "py_term_network.h"
 #include "py_term_data_handler.h"
@@ -103,6 +104,7 @@ PYBIND11_EMBEDDED_MODULE(wxglterm_interface, m)
     term_ui.def(py::init<>())
             .def("start_main_ui_loop", &TermUI::StartMainUILoop)
             .def("create_window", &TermUI::CreateWindow)
+            .def("schedule_task", &TermUI::ScheduleTask)
             ;
 
     py::class_<TermWindow, PyTermWindow<>, std::shared_ptr<TermWindow>> term_window(m, "TermWindow", plugin);
@@ -151,6 +153,13 @@ PYBIND11_EMBEDDED_MODULE(wxglterm_interface, m)
     py::class_<TermDataHandler, PyTermDataHandler<>, std::shared_ptr<TermDataHandler>> term_data_handler(m, "TermDataHandler", multiple_instance_plugin);
     term_data_handler.def(py::init<>())
             .def("on_data", &TermDataHandler::OnData)
+            ;
+
+    py::class_<Task, PyTask<>, std::shared_ptr<Task>> task(m, "Task", plugin);
+    task.def(py::init<>())
+            .def("run", &Task::Run)
+            .def("cancel", &Task::Cancel)
+            .def("is_cancelled", &Task::IsCancelled)
             ;
 }
 

@@ -48,6 +48,9 @@ class DefaultTkTermUI(TermPluginBase, TermUI):
 
         return 0;
 
+    def schedule_task(self, task, miliseconds, repeated):
+        pass
+
 g_term_ui = DefaultTkTermUI()
 
 def register_plugins(pm):

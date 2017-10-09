@@ -27,4 +27,6 @@ private:
     TermContextPtr CreateTermContext();
     TermNetworkPtr CreateTermNetwork(TermContextPtr term_context);
     TermDataHandlerPtr CreateTermDataHandler(TermContextPtr term_context);
+    TaskPtr CreateShowContextWindowTask(TermContextPtr term_context);
+
 };

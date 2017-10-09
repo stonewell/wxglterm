@@ -2,6 +2,8 @@
 
 #include "default_term_ui.h"
 #include "term_window.h"
+#include "task.h"
+#include "term_context.h"
 
 #include "main_dlg.h"
 
@@ -10,6 +12,28 @@ public:
     virtual bool OnInit() {
         return true;
     }
+};
+
+class __wxGLTimer : public wxTimer {
+public:
+    __wxGLTimer(TaskPtr task, int miliseconds):
+        m_Task(task)
+        , m_Interval(miliseconds)
+    {
+    }
+
+    virtual ~__wxGLTimer() = default;
+
+public:
+    virtual void Notify() {
+        if (m_Task && !m_Task->IsCancelled()) {
+            m_Task->Run();
+        }
+    }
+
+private:
+    TaskPtr m_Task;
+    int m_Interval;
 };
 
 wxIMPLEMENT_APP_NO_MAIN(__wxGLTermApp);
@@ -58,9 +82,51 @@ public:
 
         return wxEntry(argc, (char **)nullptr);
     }
+
+    bool ScheduleTask(TaskPtr task, int miliseconds, bool repeated) {
+        auto timer = new __wxGLTimer(task, miliseconds);
+        return timer->Start(miliseconds, !repeated);
+    }
+};
+
+class __ShowContextWindowTask : public virtual PluginBase, public virtual Task {
+public:
+    __ShowContextWindowTask() :
+        PluginBase("default_main_wnd_task", "default task show main window", 0)
+        , m_Cancelled(false)
+    {
+    }
+
+    virtual ~__ShowContextWindowTask() = default;
+
+public:
+    void Run() override {
+        if (m_Cancelled)
+            return;
+
+        auto mainWnd = std::dynamic_pointer_cast<TermContext>(m_Context)->GetTermWindow();
+        mainWnd->Show();
+    }
+
+    void Cancel() override {
+        m_Cancelled = true;
+    }
+
+    bool IsCancelled() override {
+        return m_Cancelled;
+    }
+
+private:
+    bool m_Cancelled;
 };
 
 TermUIPtr CreateDefaultTermUI()
 {
+    if (!wxApp::GetInstance())
+        wxCreateApp();
     return TermUIPtr{ new DefaultTermUI()};
+}
+
+TaskPtr CreateShowContextWindowTask() {
+    return TaskPtr { new __ShowContextWindowTask() };
 }

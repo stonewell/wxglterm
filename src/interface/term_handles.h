@@ -20,3 +20,4 @@ DECL_SHARED_PTR(TermBuffer);
 DECL_SHARED_PTR(AppConfig);
 DECL_SHARED_PTR(TermDataHandler);
 DECL_SHARED_PTR(TermWindow);
+DECL_SHARED_PTR(Task);
