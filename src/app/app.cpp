@@ -172,6 +172,7 @@ void wxGLTermApp::InitDefaultPlugins()
 {
     m_PluginManager->RegisterPlugin(std::dynamic_pointer_cast<Plugin>(CreateDefaultTermUI()));
     m_PluginManager->RegisterPlugin(std::dynamic_pointer_cast<Plugin>(CreateDefaultTermBuffer()));
+    m_PluginManager->RegisterPlugin(std::dynamic_pointer_cast<Plugin>(::CreateShowContextWindowTask()));
 }
 
 TermContextPtr wxGLTermApp::CreateTermContext()
@@ -249,13 +250,29 @@ TermDataHandlerPtr wxGLTermApp::CreateTermDataHandler(TermContextPtr term_contex
 
 TaskPtr wxGLTermApp::CreateShowContextWindowTask(TermContextPtr term_context)
 {
-    auto new_instance = ::CreateShowContextWindowTask();
-    auto new_instance_config = CreateAppConfigFromString("{}");
+    std::string plugin_name = g_AppConfig->GetEntry("plugins/show_context_window_task/name", "show_context_window_task");
+    uint64_t plugin_version = g_AppConfig->GetEntryUInt64("plugins/show_context_window_task/version", PluginManager::Latest);
+    std::string plugin_config = g_AppConfig->GetEntry("plugins/show_context_window_task/config", "{}");
+
+    std::cout << "show_context_window task plugin config:"
+              << plugin_config
+              << std::endl;
+
+    auto plugin = std::dynamic_pointer_cast<Task>(m_PluginManager->GetPlugin(plugin_name.c_str(), plugin_version));
+
+    if (!plugin)
+    {
+        //TODO: error or create default
+        return TaskPtr{};
+    }
+
+    auto new_instance = plugin->NewInstance();
+    auto new_instance_config = CreateAppConfigFromString(plugin_config.c_str());
 
     new_instance->InitPlugin(std::dynamic_pointer_cast<Context>(term_context),
                              new_instance_config);
 
-    return new_instance;
+    return std::dynamic_pointer_cast<Task>(new_instance);
 }
 
 int main(int argc, char ** argv) {

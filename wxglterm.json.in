@@ -19,6 +19,9 @@
 	},
 	"context":{
 	    "name":"default_term_context"
+	},
+	"show_context_window_task":{
+	    "name":"show_context_window_task"
 	}
     },
 

@@ -155,7 +155,7 @@ PYBIND11_EMBEDDED_MODULE(wxglterm_interface, m)
             .def("on_data", &TermDataHandler::OnData)
             ;
 
-    py::class_<Task, PyTask<>, std::shared_ptr<Task>> task(m, "Task", plugin);
+    py::class_<Task, PyTask<>, std::shared_ptr<Task>> task(m, "Task", multiple_instance_plugin);
     task.def(py::init<>())
             .def("run", &Task::Run)
             .def("cancel", &Task::Cancel)

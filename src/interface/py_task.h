@@ -1,12 +1,12 @@
 #pragma once
 
-#include "py_plugin.h"
+#include "py_multiple_instance_plugin.h"
 #include "task.h"
 
 template<class TaskBase = Task>
-class PyTask : public virtual PyPlugin<TaskBase> {
+class PyTask : public virtual PyMultipleInstancePlugin<TaskBase> {
 public:
-    using PyPlugin<TaskBase>::PyPlugin;
+    using PyMultipleInstancePlugin<TaskBase>::PyMultipleInstancePlugin;
 
     void Run() override {
         PYBIND11_OVERLOAD_PURE_NAME(void, TaskBase, "run", Run, );

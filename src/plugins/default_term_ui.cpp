@@ -93,7 +93,7 @@ public:
 class __ShowContextWindowTask : public virtual PluginBase, public virtual Task {
 public:
     __ShowContextWindowTask() :
-        PluginBase("default_main_wnd_task", "default task show main window", 0)
+        PluginBase("show_context_window_task", "default task show main window", 0)
         , m_Cancelled(false)
     {
     }
@@ -115,6 +115,10 @@ public:
 
     bool IsCancelled() override {
         return m_Cancelled;
+    }
+
+    MultipleInstancePluginPtr NewInstance() override{
+        return MultipleInstancePluginPtr { new __ShowContextWindowTask() };
     }
 
 private:
