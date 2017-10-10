@@ -20,6 +20,7 @@ public:
         m_Task(task)
         , m_Interval(miliseconds)
     {
+        (void)m_Interval;
     }
 
     virtual ~__wxGLTimer() = default;
