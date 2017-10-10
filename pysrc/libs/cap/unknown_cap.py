@@ -3,7 +3,7 @@ import logging
 
 def handle(term, context, cap_turple):
     cap_name, increase_params = cap_turple
-    
+
     if hasattr(term, cap_name):
         if increase_params:
             for idx in range(len(context.params)):

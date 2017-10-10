@@ -31,6 +31,7 @@ class DefaultTermDataHandler(MultipleInstancePluginBase, TermDataHandler):
             self.cap_str += self.__load_cap_str__('xterm-256color')
 
         self.cap = term.parse_termdata.parse_cap(self.cap_str)
+
         self._parse_context = term.parse_termdata.ControlDataParserContext()
         self.state = self.cap.control_data_start_state
         self.control_data = []
@@ -75,7 +76,7 @@ class DefaultTermDataHandler(MultipleInstancePluginBase, TermDataHandler):
         cap_turple = self.state.get_cap(self._parse_context.params)
 
         if cap_turple:
-            self.on_control_data(cap_turple)
+            self.__on_control_data(cap_turple)
 
             if len(self._cap_state_stack) > 0:
                 self.state, self._parse_context.params, self.control_data = self._cap_state_stack.pop()
@@ -110,6 +111,7 @@ class DefaultTermDataHandler(MultipleInstancePluginBase, TermDataHandler):
         next_state = None
 
         for c in data:
+            c = chr(c)
             next_state = self.state.handle(self._parse_context, c)
 
             if not next_state or self.state.get_cap(self._parse_context.params):
@@ -122,7 +124,7 @@ class DefaultTermDataHandler(MultipleInstancePluginBase, TermDataHandler):
                     self.state = next_state
                     self.control_data.append(c if not c == '\x1B' else '\\E')
                 else:
-                    self.output_data(c)
+                    self.__output_data(c)
 
                 continue
 
