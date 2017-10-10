@@ -10,7 +10,9 @@ import cap.cap_manager
 import term.parse_termdata
 import term.read_termdata
 
-class DefaultTermDataHandler(MultipleInstancePluginBase, TermDataHandler):
+from term.term_cap_handler import TermCapHandler
+
+class DefaultTermDataHandler(MultipleInstancePluginBase, TermDataHandler, TermCapHandler):
     def __init__(self):
         MultipleInstancePluginBase.__init__(self, name="default_term_data_handler",
                          desc="It is a python version term data handler",
