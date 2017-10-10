@@ -2,7 +2,37 @@ import os
 import logging
 
 
+LOGGER = logging.getLogger('TermCapHandler')
+
 class TermCapHandler(object):
+    def set_cur_col(self, col):
+        pass
+
+    def get_cur_col(self):
+        pass
+
+    def set_cur_row(self, row):
+        pass
+
+    def get_cur_row(self):
+        pass
+
+    def get_cur_line(self):
+        pass
+
+    def send_data(self, data):
+        pass
+
+    def get_cursor(self):
+        return (self.get_cur_col(), self.get_cur_row())
+
+    def set_cursor(self, col, row):
+        self.set_cur_col(col)
+        self.set_cur_row(row)
+
+    def refresh_display(self):
+        logging.error('refresh terminal not implmented')
+
     def cursor_right(self, context):
         self.parm_right_cursor(context)
 
@@ -16,7 +46,7 @@ class TermCapHandler(object):
         self.parm_up_cursor(context)
 
     def carriage_return(self, context):
-        self.col = 0
+        self.set_cur_col(0)
         self.refresh_display()
 
     def set_foreground(self, light, color_idx):
@@ -41,7 +71,7 @@ class TermCapHandler(object):
     def clr_eol(self, context):
         line = self.get_cur_line()
 
-        begin = self.col
+        begin = self.get_cur_col()
         if line.get_cell(begin).get_char() == '\000':
             begin -= 1
 
@@ -53,7 +83,7 @@ class TermCapHandler(object):
     def clr_bol(self, context):
         line = self.get_cur_line()
 
-        end = self.col
+        end = self.get_cur_col()
         if end + 1 < line.cell_count() and line.get_cell(end + 1).get_char() == '\000':
             end = end + 1
 
@@ -64,7 +94,7 @@ class TermCapHandler(object):
 
     def delete_chars(self, count, overwrite = False):
         line = self.get_cur_line()
-        begin = self.col
+        begin = self.get_cur_col()
 
         if line.get_cell(begin).get_char() == '\000':
             begin -= 1
@@ -79,11 +109,8 @@ class TermCapHandler(object):
 
         self.refresh_display()
 
-    def refresh_display(self):
-        logging.error('refresh terminal not implmented')
-
     def meta_on(self, context):
-        if self.cfg.debug:
+        if shelf.cfg.debug:
             LOGGER.debug('meta_on')
 
     def set_attributes(self, mode, f_color_idx, b_color_idx):
@@ -106,34 +133,34 @@ class TermCapHandler(object):
                 self.cur_line_option.unset_mode(TextMode.REVERSE)
         elif mode == 0:
             self.cur_line_option.reset_mode()
-            if self.cfg.debug:
+            if self.is_debug():
                 LOGGER.debug('reset mode')
 
         if f_color_idx >= 0:
             self.cur_line_option.set_fg_idx(f_color_idx)
-            if self.cfg.debug:
+            if self.is_debug():
                 LOGGER.debug('set fore color:{} {} {}, cur_option:{}'.format(f_color_idx, ' at ', self.get_cursor(), self.cur_line_option))
         elif f_color_idx == -1:
             #reset fore color
             self.cur_line_option.reset_fg_idx()
-            if self.cfg.debug:
+            if self.is_debug():
                 LOGGER.debug('reset fore color:{} {} {}, cur_option:{}'.format(f_color_idx, ' at ', self.get_cursor(), self.cur_line_option))
 
         if b_color_idx >= 0:
-            if self.cfg.debug:
+            if self.is_debug():
                 LOGGER.debug('set back color:{} {} {}, cur_option:{}'.format(b_color_idx, ' at ', self.get_cursor(), self.cur_line_option))
             self.cur_line_option.set_bg_idx(b_color_idx)
         elif b_color_idx == -1:
             #reset back color
-            if self.cfg.debug:
+            if self.is_debug():
                 LOGGER.debug('reset back color:{} {} {}, cur_option:{}'.format(b_color_idx, ' at ', self.get_cursor(), self.cur_line_option))
             self.cur_line_option.reset_bg_idx()
 
-        if self.cfg.debug:
+        if self.is_debug():
             LOGGER.debug('set attribute:{}'.format(self.cur_line_option))
 
     def cursor_address(self, context):
-        if self.cfg.debug:
+        if self.is_debug():
             LOGGER.debug('cursor address:{}'.format(context.params))
         self.set_cursor(context.params[1], context.params[0])
 
@@ -153,11 +180,11 @@ class TermCapHandler(object):
             if len(context.params) == 0 or context.params[0] == 0:
                 self.clr_eol(context)
 
-                begin = self.row + 1
+                begin = self.get_cur_row() + 1
             elif context.params[0] == 1:
                 self.clr_bol(context)
 
-                end = self.row
+                end = self.get_cur_row()
 
         for row in range(begin, end):
             line = self.get_line(row)
@@ -169,7 +196,7 @@ class TermCapHandler(object):
 
     def parm_right_cursor(self, context):
         #same as xterm, if cursor out of screen, moving start from last col
-        col = self.col
+        col = self.get_cur_col()
 
         if col >= self.get_cols():
             col = self.get_cols() - 1
@@ -179,12 +206,12 @@ class TermCapHandler(object):
         if col > self.get_cols():
             col = self.get_cols() - 1
 
-        self.col = col
+        self.set_cur_col(col)
         self.refresh_display()
 
     def parm_left_cursor(self, context):
         #same as xterm, if cursor out of screen, moving start from last col
-        col = self.col
+        col = self.get_cur_col()
         if col >= self.get_cols():
             col = self.get_cols() - 1
 
@@ -192,11 +219,11 @@ class TermCapHandler(object):
         if col < 0:
             col = 0
 
-        self.col = col
+        self.set_cur_col(col)
         self.refresh_display()
 
     def client_report_version(self, context):
-        self.session.send('\033[>0;136;0c')
+        self.send_data('\033[>0;136;0c')
 
     def user7(self, context):
         if (context.params[0] == 6):
@@ -206,9 +233,9 @@ class TermCapHandler(object):
                 begin, end = self.get_scroll_region()
                 row -= begin
 
-            self.session.send(''.join(['\x1B[', str(row + 1), ';', str(col + 1), 'R']))
+            self.send_data(''.join(['\x1B[', str(row + 1), ';', str(col + 1), 'R']))
         elif context.params[0] == 5:
-            self.session.send('\033[0n')
+            self.send_data('\033[0n')
 
     def clear_tab(self, context):
         action = 0
@@ -252,7 +279,7 @@ class TermCapHandler(object):
         self.parm_delete_line(context)
 
     def parm_delete_line(self, context):
-        if self.cfg.debug:
+        if self.is_debug():
             begin, end = self.get_scroll_region()
             LOGGER.debug('delete line:{} begin={} end={}'.format(context.params, begin, end))
 
@@ -263,7 +290,7 @@ class TermCapHandler(object):
         self.refresh_display()
 
     def change_scroll_region(self, context):
-        if self.cfg.debug:
+        if self.is_debug():
             LOGGER.debug('change scroll region:{} rows={}'.format(context.params, self.get_rows()))
         if len(context.params) == 0:
             self._screen_buffer.set_scrolling_region(None)
@@ -273,14 +300,14 @@ class TermCapHandler(object):
         self.refresh_display()
 
     def change_scroll_region_from_start(self, context):
-        if self.cfg.debug:
+        if self.is_debug():
             LOGGER.debug('change scroll region from start:{} rows={}'.format(context.params, self.get_rows()))
         self.set_scroll_region(0, context.params[0])
         self.cursor_home(None)
         self.refresh_display()
 
     def change_scroll_region_to_end(self, context):
-        if self.cfg.debug:
+        if self.is_debug():
             LOGGER.debug('change scroll region to end:{} rows={}'.format(context.params, self.get_rows()))
         self.set_scroll_region(context.params[0], self.get_rows() - 1)
         self.cursor_home(None)
@@ -290,7 +317,7 @@ class TermCapHandler(object):
         self.parm_insert_line(context)
 
     def parm_insert_line(self, context):
-        if self.cfg.debug:
+        if self.is_debug():
             begin, end = self.get_scroll_region()
             LOGGER.debug('insert line:{} begin={} end={}'.format(context.params, begin, end))
 
@@ -303,14 +330,14 @@ class TermCapHandler(object):
     def request_background_color(self, context):
         rbg_response = '\033]11;rgb:%04x/%04x/%04x/%04x\007' % (self.cfg.default_background_color[0], self.cfg.default_background_color[1], self.cfg.default_background_color[2], self.cfg.default_background_color[3])
 
-        if self.cfg.debug:
+        if self.is_debug():
             LOGGER.debug("response background color request:{}".format(rbg_response.replace('\033', '\\E')))
-        self.session.send(rbg_response)
+        self.send_data(rbg_response)
 
     def user9(self, context):
-        if self.cfg.debug:
+        if self.is_debug():
             LOGGER.debug('response terminal type:{} {}'.format(context.params, self.cap.cmds['user8'].cap_value))
-        self.session.send(self.cap.cmds['user8'].cap_value)
+        self.send_data(self.cap.cmds['user8'].cap_value)
 
     def enter_reverse_mode(self, context):
         self.cur_line_option.set_mode(TextMode.REVERSE)
@@ -341,16 +368,16 @@ class TermCapHandler(object):
 
     def enter_bold_mode(self, context):
         self.cur_line_option.set_mode(TextMode.BOLD)
-        if self.cfg.debug:
+        if self.is_debug():
             LOGGER.debug('set bold mode:attr={}'.format(self.cur_line_option))
 
     def keypad_xmit(self, context):
-        if self.cfg.debug:
+        if self.is_debug():
             LOGGER.debug('keypad transmit mode')
         self.keypad_transmit_mode = True
 
     def keypad_local(self, context):
-        if self.cfg.debug:
+        if self.is_debug():
             LOGGER.debug('keypad local mode')
         self.keypad_transmit_mode = False
 
@@ -386,7 +413,7 @@ class TermCapHandler(object):
 
         count = context.params[0] if context and context.params and len(context.params) > 0 else 1
 
-        if self.cfg.debug:
+        if self.is_debug():
             LOGGER.debug('before parm down cursor:{} {} {} {}'.format(begin, end, self.row, count))
         for i in range(count):
             self.get_cur_line()
@@ -399,7 +426,7 @@ class TermCapHandler(object):
 
             self.get_cur_line()
 
-        if self.cfg.debug:
+        if self.is_debug():
             LOGGER.debug('after parm down cursor:{} {} {} {}'.format(begin, end, self.row, count))
 
         if do_refresh:
@@ -408,12 +435,12 @@ class TermCapHandler(object):
     def exit_alt_charset_mode(self, context):
         self.charset_modes_translate[0] = None
         self.exit_standout_mode(context)
-        if self.cfg.debug:
+        if self.is_debug():
             LOGGER.debug('exit alt:{} {}'.format(' at ', self.get_cursor()))
 
     def enter_alt_charset_mode(self, context):
         self.charset_modes_translate[0] = translate_char
-        if self.cfg.debug:
+        if self.is_debug():
             LOGGER.debug('enter alt:{} {}'.format(' at ', self.get_cursor()))
 
     def enter_alt_charset_mode_british(self, context):
@@ -438,7 +465,7 @@ class TermCapHandler(object):
         self.refresh_display()
 
     def enable_mode(self, context):
-        if self.cfg.debug:
+        if self.is_debug():
             LOGGER.debug('enable mode:{}'.format(context.params))
 
         mode = context.params[0]
@@ -464,7 +491,7 @@ class TermCapHandler(object):
             LOGGER.warning('not implemented enable mode:{}'.format(context.params))
 
     def disable_mode(self, context):
-        if self.cfg.debug:
+        if self.is_debug():
             LOGGER.debug('disable mode:{}'.format(context.params))
 
         mode = context.params[0]
@@ -499,7 +526,7 @@ class TermCapHandler(object):
 
         count = context.params[0] if context and context.params and len(context.params) > 0 else 1
 
-        if self.cfg.debug:
+        if self.is_debug():
             LOGGER.debug('before parm up cursor:{} {} {} {}'.format(begin, end, self.row, count))
         for i in range(count):
             self.get_cur_line()
@@ -511,13 +538,13 @@ class TermCapHandler(object):
 
             self.get_cur_line()
 
-        if self.cfg.debug:
+        if self.is_debug():
             LOGGER.debug('after parm up cursor:{} {} {} {}'.format(begin, end, self.row, count))
         if do_refresh:
             self.refresh_display()
 
     def send_primary_device_attributes(self, context):
-        self.session.send('\033[?62;c')
+        self.send_data('\033[?62;c')
 
     def screen_alignment_test(self, context):
         self.save_cursor(context)
