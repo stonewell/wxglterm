@@ -8,34 +8,40 @@ class DefaultTermContext(ContextBase, TermContext):
                              version=1)
         TermContext.__init__(self)
 
-        self.term_buffer = None
-        self.term_window = None
-        self.term_network = None
-        self.term_data_handler = None
+        self._term_buffer = None
+        self._term_window = None
+        self._term_network = None
+        self._term_data_handler = None
 
     def get_term_buffer(self):
-        return self.term_buffer
+        return self._term_buffer
 
     def set_term_buffer(self, term_buffer):
-        self.term_buffer = term_buffer
+        self._term_buffer = term_buffer
 
     def get_term_window(self):
-        return self.term_window
+        return self._term_window
 
     def set_term_window(self, term_window):
-        self.term_window = term_window
+        self._term_window = term_window
 
     def get_term_network(self):
-        return self.term_network
+        return self._term_network
 
     def set_term_network(self, term_network):
-        self.term_network = term_network
+        self._term_network = term_network
 
     def get_term_data_handler(self):
-        return self.term_data_handler
+        return self._term_data_handler
 
     def set_term_data_handler(self, term_data_handler):
-        self.term_data_handler = term_data_handler
+        self._term_data_handler = term_data_handler
+
+    term_buffer = property(get_term_buffer, set_term_buffer)
+    term_window = property(get_term_window, set_term_window)
+    term_network = property(get_term_network, set_term_network)
+    term_data_handler = property(get_term_data_handler, set_term_data_handler)
+
 
 def register_plugins(pm):
     ni = DefaultTermContext().new_instance()

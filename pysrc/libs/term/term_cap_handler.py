@@ -9,13 +9,17 @@ class TermCapHandler(object):
         pass
 
     def get_cur_col(self):
-        pass
+        return 0
+
+    col = property(get_cur_col, set_cur_col)
 
     def set_cur_row(self, row):
         pass
 
     def get_cur_row(self):
-        pass
+        return 0
+
+    row = property(get_cur_row, set_cur_row)
 
     def get_cur_line(self):
         pass
@@ -24,14 +28,27 @@ class TermCapHandler(object):
         pass
 
     def get_cursor(self):
-        return (self.get_cur_col(), self.get_cur_row())
+        return (self.col, self.row)
 
     def set_cursor(self, col, row):
         self.set_cur_col(col)
         self.set_cur_row(row)
 
+    cursor = property(get_cursor, set_cursor)
+
     def refresh_display(self):
         logging.error('refresh terminal not implmented')
+
+    def get_scroll_region(self):
+        return (0, 0)
+
+    def set_scroll_region(self, begin, end):
+        pass
+
+    scroll_region = property(get_scroll_region, set_scroll_region)
+
+    def is_debug(self):
+        return False
 
     def cursor_right(self, context):
         self.parm_right_cursor(context)
@@ -71,7 +88,7 @@ class TermCapHandler(object):
     def clr_eol(self, context):
         line = self.get_cur_line()
 
-        begin = self.get_cur_col()
+        begin = self.col
         if line.get_cell(begin).get_char() == '\000':
             begin -= 1
 
@@ -83,7 +100,7 @@ class TermCapHandler(object):
     def clr_bol(self, context):
         line = self.get_cur_line()
 
-        end = self.get_cur_col()
+        end = self.col
         if end + 1 < line.cell_count() and line.get_cell(end + 1).get_char() == '\000':
             end = end + 1
 
@@ -94,7 +111,7 @@ class TermCapHandler(object):
 
     def delete_chars(self, count, overwrite = False):
         line = self.get_cur_line()
-        begin = self.get_cur_col()
+        begin = self.col
 
         if line.get_cell(begin).get_char() == '\000':
             begin -= 1
@@ -180,11 +197,11 @@ class TermCapHandler(object):
             if len(context.params) == 0 or context.params[0] == 0:
                 self.clr_eol(context)
 
-                begin = self.get_cur_row() + 1
+                begin = self.row + 1
             elif context.params[0] == 1:
                 self.clr_bol(context)
 
-                end = self.get_cur_row()
+                end = self.row
 
         for row in range(begin, end):
             line = self.get_line(row)
@@ -196,7 +213,7 @@ class TermCapHandler(object):
 
     def parm_right_cursor(self, context):
         #same as xterm, if cursor out of screen, moving start from last col
-        col = self.get_cur_col()
+        col = self.col
 
         if col >= self.get_cols():
             col = self.get_cols() - 1
@@ -211,7 +228,7 @@ class TermCapHandler(object):
 
     def parm_left_cursor(self, context):
         #same as xterm, if cursor out of screen, moving start from last col
-        col = self.get_cur_col()
+        col = self.col
         if col >= self.get_cols():
             col = self.get_cols() - 1
 
@@ -560,3 +577,6 @@ class TermCapHandler(object):
 
         self.restore_cursor(context)
         self.refresh_display()
+
+    def enter_status_line(self, mode, enter):
+        pass
