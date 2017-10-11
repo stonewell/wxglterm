@@ -2,6 +2,7 @@
 
 #include "default_term_buffer.h"
 #include "default_term_line.h"
+#include "default_term_cell.h"
 
 #include <vector>
 
@@ -15,6 +16,11 @@ public:
         , m_CurCol(0)
         , m_ScrollRegionBegin(0)
         , m_ScrollRegionEnd(0)
+        , m_Lines()
+        , m_DefaultChar(' ')
+        , m_DefaultForeColorIndex(TermCell::DefaultColorIndex)
+        , m_DefaultBackColorIndex(TermCell::DefaultColorIndex)
+        , m_DefaultMode(0)
     {
     }
 
@@ -28,6 +34,7 @@ public:
         m_Rows = row;
         m_Cols = col;
 
+        printf("--- Rows:%d, cols=%d\n", m_Rows, m_Cols);
         m_Lines.resize(m_Rows);
     }
 
@@ -55,6 +62,7 @@ public:
     }
 
     TermLinePtr GetLine(uint32_t row) override {
+        printf("Get Line:%d, rows=%d\n", row, m_Rows);
         if (row < GetRows()) {
             auto line =  m_Lines[row];
             if (!line) {
@@ -141,17 +149,36 @@ public:
     }
 
     void SetCellDefaults(wchar_t c,
-                                 uint32_t fore_color_idx,
-                                 uint32_t back_color_idx,
-                                 uint32_t mode) override {
-        (void)c;
-        (void)fore_color_idx;
-        (void)back_color_idx;
-        (void)mode;
+                         uint16_t fore_color_idx,
+                         uint16_t back_color_idx,
+                         uint16_t mode) override {
+        m_DefaultChar = c;
+        m_DefaultForeColorIndex = fore_color_idx;
+        m_DefaultBackColorIndex = back_color_idx;
+        m_DefaultMode = mode;
     }
 
     TermCellPtr CreateCellWithDefaults() override {
-        return TermCellPtr{};
+        TermCellPtr cell = CreateDefaultTermCell(nullptr);
+
+        cell->SetChar(m_DefaultChar);
+        cell->SetForeColorIndex(m_DefaultForeColorIndex);
+        cell->SetBackColorIndex(m_DefaultBackColorIndex);
+        cell->SetMode(m_DefaultMode);
+
+        return cell;
+    }
+
+    void SetSelection(TermSelectionPtr selection) override {
+        (void)selection;
+    }
+
+    TermSelectionPtr GetSelection() override {
+        return TermSelectionPtr{};
+    }
+
+    void ClearSelection() override {
+        ;
     }
 private:
     uint32_t m_Rows;
@@ -164,6 +191,11 @@ private:
     uint32_t m_ScrollRegionEnd;
 
     std::vector<TermLinePtr> m_Lines;
+
+    wchar_t m_DefaultChar;
+    uint16_t m_DefaultForeColorIndex;
+    uint16_t m_DefaultBackColorIndex;
+    uint16_t m_DefaultMode;
 };
 
 TermBufferPtr CreateDefaultTermBuffer() {

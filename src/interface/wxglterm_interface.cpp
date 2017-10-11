@@ -8,6 +8,7 @@
 
 #include "py_term_cell.h"
 #include "py_term_line.h"
+#include "py_term_selection.h"
 #include "py_term_buffer.h"
 #include "py_term_window.h"
 #include "py_task.h"
@@ -77,6 +78,8 @@ PYBIND11_EMBEDDED_MODULE(wxglterm_interface, m)
             .def("insert_lines", &TermBuffer::InsertLines)
             .def("set_cell_defaults", &TermBuffer::SetCellDefaults)
             .def("create_cell_with_defaults", &TermBuffer::CreateCellWithDefaults)
+            .def_property("selection", &TermBuffer::GetSelection, &TermBuffer::SetSelection)
+            .def("clear_selection", &TermBuffer::ClearSelection)
             ;
 
     py::class_<TermLine, PyTermLine<>, std::shared_ptr<TermLine>> term_line(m, "TermLine", plugin);
@@ -91,10 +94,28 @@ PYBIND11_EMBEDDED_MODULE(wxglterm_interface, m)
             .def_property("fore_color_idx", &TermCell::GetForeColorIndex, &TermCell::SetForeColorIndex)
             .def_property("back_color_idx", &TermCell::GetBackColorIndex, &TermCell::SetBackColorIndex)
             .def_property("mode", &TermCell::GetMode, &TermCell::SetMode)
+            .def("add_mode", &TermCell::AddMode)
+            .def("remove_mode", &TermCell::RemoveMode)
+            .def("reset", &TermCell::Reset)
+            ;
+    py::class_<TermSelection, PyTermSelection<>, std::shared_ptr<TermSelection>> term_selection(m, "TermSelection", plugin);
+    term_selection.def(py::init<>())
+            .def_property("row_begin", &TermSelection::GetRowBegin, &TermSelection::SetRowBegin)
+            .def_property("col_begin", &TermSelection::GetColBegin, &TermSelection::SetColBegin)
+            .def_property("row_end", &TermSelection::GetRowEnd, &TermSelection::SetRowEnd)
+            .def_property("col_end", &TermSelection::GetColEnd, &TermSelection::SetColEnd)
             ;
 
     py::enum_<TermCell::ColorIndexEnum>(term_cell, "ColorIndex")
             .value("DefaultColorIndex", TermCell::ColorIndexEnum::DefaultColorIndex)
+            .export_values();
+    py::enum_<TermCell::TextModeEnum>(term_cell, "TextMode")
+            .value("Stdout", TermCell::TextModeEnum::Stdout)
+            .value("Reverse", TermCell::TextModeEnum::Stdout)
+            .value("Selection", TermCell::TextModeEnum::Selection)
+            .value("Cursor", TermCell::TextModeEnum::Cursor)
+            .value("Bold", TermCell::TextModeEnum::Bold)
+            .value("Dim", TermCell::TextModeEnum::Dim)
             .export_values();
 
     py::class_<TermUI, PyTermUI<>, std::shared_ptr<TermUI>> term_ui(m, "TermUI", plugin);

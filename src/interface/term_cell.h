@@ -8,6 +8,15 @@ public:
         DefaultColorIndex = 256,
     };
 
+    enum TextModeEnum {
+        Stdout = 0,
+        Reverse = 1,
+        Selection = 2,
+        Cursor = 3,
+        Bold = 4,
+        Dim = 5,
+    };
+
     virtual wchar_t GetChar() const = 0;
     virtual void SetChar(wchar_t c) = 0;
 
@@ -18,4 +27,8 @@ public:
 
     virtual uint16_t GetMode() const = 0;
     virtual void SetMode(uint16_t m) = 0;
+    virtual void AddMode(uint16_t m) = 0;
+    virtual void RemoveMode(uint16_t m) = 0;
+
+    virtual void Reset(TermCellPtr cell) = 0;
 };

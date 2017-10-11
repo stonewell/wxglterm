@@ -65,13 +65,25 @@ public:
         PYBIND11_OVERLOAD_PURE_NAME(void, TermBufferBase, "insert_lines", ScrollBuffer, begin, count);
     }
     void SetCellDefaults(wchar_t c,
-                         uint32_t fore_color_idx,
-                         uint32_t back_color_idx,
-                         uint32_t mode) override {
+                         uint16_t fore_color_idx,
+                         uint16_t back_color_idx,
+                         uint16_t mode) override {
         PYBIND11_OVERLOAD_PURE_NAME(void, TermBufferBase, "set_cell_defaults", SetCellDefaults, c, fore_color_idx, back_color_idx, mode);
     }
 
     TermCellPtr CreateCellWithDefaults() override {
         PYBIND11_OVERLOAD_PURE_NAME(TermCellPtr, TermBufferBase, "create_cell_with_defaults", CreateCellWithDefaults, );
+    }
+
+    void SetSelection(TermSelectionPtr selection) override {
+        PYBIND11_OVERLOAD_PURE_NAME(void, TermBufferBase, "set_selection", SetSelection, selection );
+    }
+
+    TermSelectionPtr GetSelection() override {
+        PYBIND11_OVERLOAD_PURE_NAME(TermSelectionPtr, TermBufferBase, "get_selection", GetSelection, );
+    }
+
+    void ClearSelection() override {
+        PYBIND11_OVERLOAD_PURE_NAME(void, TermBufferBase, "clear_selection", ClearSelection, );
     }
 };

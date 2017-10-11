@@ -121,8 +121,9 @@ bool wxGLTermApp::DoInit()
     auto term_data_handler = CreateTermDataHandler(term_context);
     auto term_buffer = CreateTermBuffer(term_context);
 
-    if (term_context && term_ui && term_network && term_data_handler)
+    if (term_context && term_ui && term_network && term_data_handler && term_buffer)
     {
+        term_buffer->Resize(25, 80);
         term_context->SetTermWindow(term_ui->CreateWindow());
         term_context->SetTermNetwork(term_network);
         term_context->SetTermDataHandler(term_data_handler);

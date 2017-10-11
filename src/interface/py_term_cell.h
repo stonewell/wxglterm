@@ -34,4 +34,14 @@ public:
     void SetMode(uint16_t m) override {
         PYBIND11_OVERLOAD_PURE_NAME(void, TermCellBase, "set_mode", SetMode, m);
     }
+    void AddMode(uint16_t m) override {
+        PYBIND11_OVERLOAD_PURE_NAME(void, TermCellBase, "add_mode", AddMode, m);
+    }
+    void RemoveMode(uint16_t m) override {
+        PYBIND11_OVERLOAD_PURE_NAME(void, TermCellBase, "remove_mode", RemoveMode, m);
+    }
+
+    void Reset(TermCellPtr cell) override {
+        PYBIND11_OVERLOAD_PURE_NAME(void, TermCellBase, "reset", Reset, cell);
+    }
 };

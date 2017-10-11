@@ -2,12 +2,14 @@
 
 #include "default_term_cell.h"
 #include <vector>
+#include <bitset>
 
 class DefaultTermCell : public virtual PluginBase, public virtual TermCell {
 public:
     DefaultTermCell(TermLine * term_line) :
         PluginBase("default_term_cell", "default terminal cell plugin", 0)
         , m_TermLine(term_line)
+        , m_Mode{0}
     {
         (void)m_TermLine;
     }
@@ -34,20 +36,33 @@ public:
     }
 
     uint16_t GetMode() const override {
-        return m_Mode;
+        return (uint16_t)m_Mode.to_ulong();
     }
 
     void SetMode(uint16_t m) override {
-        m_Mode = m;
+        m_Mode = std::bitset<16>(m);
     }
 
+    void AddMode(uint16_t m) override {
+        m_Mode.set(m);
+    }
+    void RemoveMode(uint16_t m) override {
+        m_Mode.reset(m);
+    }
+
+    void Reset(TermCellPtr cell) override {
+        m_Char = cell->GetChar();
+        m_ForeColorIdx = cell->GetForeColorIndex();
+        m_BackColorIdx = cell->GetBackColorIndex();
+        m_Mode = cell->GetMode();
+    }
 private:
     TermLine * m_TermLine;
 
     wchar_t m_Char;
     uint16_t m_ForeColorIdx;
     uint16_t m_BackColorIdx;
-    uint16_t m_Mode;
+    std::bitset<16> m_Mode;
 };
 
 TermCellPtr CreateDefaultTermCell(TermLine * line)

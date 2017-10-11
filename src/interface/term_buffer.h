@@ -31,8 +31,12 @@ public:
     virtual void InsertLines(uint32_t begin, uint32_t count) = 0;
 
     virtual void SetCellDefaults(wchar_t c,
-                                 uint32_t fore_color_idx,
-                                 uint32_t back_color_idx,
-                                 uint32_t mode) = 0;
+                                 uint16_t fore_color_idx,
+                                 uint16_t back_color_idx,
+                                 uint16_t mode) = 0;
     virtual TermCellPtr CreateCellWithDefaults() = 0;
+
+    virtual void SetSelection(TermSelectionPtr selection) = 0;
+    virtual TermSelectionPtr GetSelection() = 0;
+    virtual void ClearSelection() = 0;
 };
