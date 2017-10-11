@@ -95,6 +95,16 @@ public:
         m_ScrollRegionEnd = end;
     }
 
+    void DeleteLines(uint32_t begin, uint32_t count) override {
+        (void)begin;
+        (void)count;
+    }
+
+    void InsertLines(uint32_t begin, uint32_t count) override {
+        (void)begin;
+        (void)count;
+    }
+
     void ScrollBuffer(int32_t scroll_offset) override {
         std::vector<TermLinePtr>::iterator b_it = m_Lines.begin(),
                 e_it = m_Lines.end();

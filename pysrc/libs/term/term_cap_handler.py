@@ -302,7 +302,7 @@ class TermCapHandler(object):
 
         c_to_delete = context.params[0] if len(context.params) > 0 else 1
 
-        self._screen_buffer.delete_lines(self.row, c_to_delete)
+        self.plugin_context.term_buffer.delete_lines(self.row, c_to_delete)
 
         self.refresh_display()
 
@@ -310,7 +310,7 @@ class TermCapHandler(object):
         if self.is_debug():
             LOGGER.debug('change scroll region:{} rows={}'.format(context.params, self.get_rows()))
         if len(context.params) == 0:
-            self._screen_buffer.set_scrolling_region(None)
+            self.set_scrolling_region(None, None)
         else:
             self.set_scroll_region(context.params[0], context.params[1])
         self.cursor_home(None)
@@ -340,7 +340,7 @@ class TermCapHandler(object):
 
         c_to_insert = context.params[0] if len(context.params) > 0 else 1
 
-        self._screen_buffer.insert_lines(self.row, c_to_insert)
+        self.plugin_context.term_buffer.insert_lines(self.row, c_to_insert)
 
         self.refresh_display()
 
@@ -366,17 +366,17 @@ class TermCapHandler(object):
 
     def enter_ca_mode(self, context):
         self.saved_screen_buffer, self.saved_col, self.saved_row, self.saved_cur_line_option = \
-          self._screen_buffer, self.col, self.row, self.cur_line_option
-        self._screen_buffer, self.col, self.row, self.cur_line_option = \
+          self.plugin_context.term_buffer, self.col, self.row, self.cur_line_option
+        self.plugin_context.term_buffer, self.col, self.row, self.cur_line_option = \
           ScreenBuffer(), 0, 0, get_default_text_attribute()
-        self._screen_buffer.resize_buffer(self.get_rows(), self.get_cols())
-        self._screen_buffer.clear_selection()
+        self.plugin_context.term_buffer.resize_buffer(self.get_rows(), self.get_cols())
+        self.plugin_context.term_buffer.clear_selection()
         self.refresh_display()
 
     def exit_ca_mode(self, context):
-        self._screen_buffer, self.col, self.row, self.cur_line_option = \
+        self.plugin_context.term_buffer, self.col, self.row, self.cur_line_option = \
             self.saved_screen_buffer, self.saved_col, self.saved_row, self.saved_cur_line_option
-        self._screen_buffer.clear_selection()
+        self.plugin_context.term_buffer.clear_selection()
         self.refresh_display()
 
     def key_shome(self, context):
@@ -437,7 +437,7 @@ class TermCapHandler(object):
 
 
             if do_scroll and self.row == end:
-                self._screen_buffer.scroll_up()
+                self.plugin_context.term_buffer.scroll_up()
             elif self.row < end:
                 self.row += 1
 
@@ -549,7 +549,7 @@ class TermCapHandler(object):
             self.get_cur_line()
 
             if do_scroll and self.row == begin:
-                self._screen_buffer.scroll_down()
+                self.plugin_context.term_buffer.scroll_down()
             elif self.row > begin:
                 self.row -= 1
 

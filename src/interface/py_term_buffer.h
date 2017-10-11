@@ -52,4 +52,10 @@ public:
     void ScrollBuffer(int32_t scroll_offset) override {
         PYBIND11_OVERLOAD_PURE_NAME(void, TermBufferBase, "scroll_buffer", ScrollBuffer, scroll_offset);
     }
+    void DeleteLines(uint32_t begin, uint32_t count) override {
+        PYBIND11_OVERLOAD_PURE_NAME(void, TermBufferBase, "delete_lines", ScrollBuffer, begin, count);
+    }
+    void InsertLines(uint32_t begin, uint32_t count) override {
+        PYBIND11_OVERLOAD_PURE_NAME(void, TermBufferBase, "insert_lines", ScrollBuffer, begin, count);
+    }
 };

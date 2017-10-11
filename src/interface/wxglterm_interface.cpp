@@ -76,6 +76,8 @@ PYBIND11_EMBEDDED_MODULE(wxglterm_interface, m)
             .def("set_scroll_region_begin", &TermBuffer::SetScrollRegionBegin)
             .def("get_scroll_region_end", &TermBuffer::GetScrollRegionEnd)
             .def("get_scroll_region_end", &TermBuffer::SetScrollRegionEnd)
+            .def("delete_lines", &TermBuffer::DeleteLines)
+            .def("insert_lines", &TermBuffer::InsertLines)
             ;
 
     py::class_<TermLine, PyTermLine<>, std::shared_ptr<TermLine>> term_line(m, "TermLine", plugin);

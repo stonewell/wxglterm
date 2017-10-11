@@ -24,4 +24,6 @@ public:
     virtual void SetScrollRegionEnd(uint32_t end) = 0;
 
     virtual void ScrollBuffer(int32_t offset) = 0;
+    virtual void DeleteLines(uint32_t begin, uint32_t count) = 0;
+    virtual void InsertLines(uint32_t begin, uint32_t count) = 0;
 };
