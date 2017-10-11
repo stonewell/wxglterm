@@ -20,8 +20,8 @@ public:
 
     virtual ~DefaultTermBuffer() = default;
 
-    std::shared_ptr<MultipleInstancePlugin> NewInstance() override {
-        return std::shared_ptr<MultipleInstancePlugin>{new DefaultTermBuffer()};
+    MultipleInstancePluginPtr NewInstance() override {
+        return MultipleInstancePluginPtr{new DefaultTermBuffer()};
     }
 
     void Resize(uint32_t row, uint32_t col) override {

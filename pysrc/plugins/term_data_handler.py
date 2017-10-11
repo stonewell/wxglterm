@@ -18,6 +18,7 @@ class DefaultTermDataHandler(MultipleInstancePluginBase, TermDataHandler, TermCa
                          desc="It is a python version term data handler",
                          version=1)
         TermDataHandler.__init__(self)
+        TermCapHandler.__init__(self)
 
     def init_plugin(self, context, plugin_config):
         MultipleInstancePluginBase.init_plugin(self, context, plugin_config)

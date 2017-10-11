@@ -119,12 +119,14 @@ bool wxGLTermApp::DoInit()
     auto term_ui = CreateTermUI(term_context);
     auto term_network = CreateTermNetwork(term_context);
     auto term_data_handler = CreateTermDataHandler(term_context);
+    auto term_buffer = CreateTermBuffer(term_context);
 
     if (term_context && term_ui && term_network && term_data_handler)
     {
         term_context->SetTermWindow(term_ui->CreateWindow());
         term_context->SetTermNetwork(term_network);
         term_context->SetTermDataHandler(term_data_handler);
+        term_context->SetTermBuffer(term_buffer);
 
         term_network->Connect("", 0, "", "");
         m_TermUIList.push_back(term_ui);
@@ -219,6 +221,33 @@ TermNetworkPtr wxGLTermApp::CreateTermNetwork(TermContextPtr term_context)
                              new_instance_config);
 
     return std::dynamic_pointer_cast<TermNetwork>(new_instance);
+}
+
+TermBufferPtr wxGLTermApp::CreateTermBuffer(TermContextPtr term_context)
+{
+    std::string plugin_name = g_AppConfig->GetEntry("plugins/buffer/name", "default_term_buffer");
+    uint64_t plugin_version = g_AppConfig->GetEntryUInt64("plugins/buffer/version", PluginManager::Latest);
+    std::string plugin_config = g_AppConfig->GetEntry("plugins/buffer/config", "{}");
+
+    std::cout << "buffer plugin config:"
+              << plugin_config
+              << std::endl;
+
+    auto plugin = std::dynamic_pointer_cast<TermBuffer>(m_PluginManager->GetPlugin(plugin_name.c_str(), plugin_version));
+
+    if (!plugin)
+    {
+        //TODO: error or create default
+        return TermBufferPtr{};
+    }
+
+    auto new_instance = plugin->NewInstance();
+    auto new_instance_config = CreateAppConfigFromString(plugin_config.c_str());
+
+    new_instance->InitPlugin(std::dynamic_pointer_cast<Context>(term_context),
+                             new_instance_config);
+
+    return std::dynamic_pointer_cast<TermBuffer>(new_instance);
 }
 
 TermDataHandlerPtr wxGLTermApp::CreateTermDataHandler(TermContextPtr term_context)

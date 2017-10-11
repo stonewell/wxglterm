@@ -5,6 +5,19 @@ import logging
 LOGGER = logging.getLogger('TermCapHandler')
 
 class TermCapHandler(object):
+    def __init__(self):
+        self._cur_cell = self.create_default_cell()
+        self.charset_modes_translate = [None, None]
+
+    def create_default_cell(self):
+        pass
+
+    def get_rows(self):
+        return 0
+
+    def get_cols(self):
+        return 0
+
     def set_cur_col(self, col):
         pass
 
@@ -73,15 +86,13 @@ class TermCapHandler(object):
         self.set_attributes(1 if light else -1, -2, color_idx)
 
     def origin_pair(self):
-        self.cur_line_option.reset_mode()
-        self.cur_line_option.reset_fg_idx()
-        self.cur_line_option.reset_bg_idx()
+        self._cur_cell = self.create_default_cell()
 
     def clr_line(self, context):
         line = self.get_cur_line()
 
         for cell in line.get_cells():
-            cell.reset(self.cur_line_option)
+            cell.reset(self._cur_cell)
 
         self.refresh_display()
 
@@ -93,7 +104,7 @@ class TermCapHandler(object):
             begin -= 1
 
         for i in range(begin, line.cell_count()):
-            line.get_cell(i).reset(self.cur_line_option)
+            line.get_cell(i).reset(self._cur_cell)
 
         self.refresh_display()
 
@@ -105,7 +116,7 @@ class TermCapHandler(object):
             end = end + 1
 
         for i in range(end + 1):
-            line.get_cell(i).reset(self.cur_line_option)
+            line.get_cell(i).reset(self._cur_cell)
 
         self.refresh_display()
 
@@ -122,7 +133,7 @@ class TermCapHandler(object):
             if not overwrite and i + count < line.cell_count():
                 line.get_cell(i).copy(line.get_cell(i + count))
             else:
-                line.get_cell(i).reset(self.cur_line_option)
+                line.get_cell(i).reset(self._cur_cell)
 
         self.refresh_display()
 
@@ -138,43 +149,43 @@ class TermCapHandler(object):
 
         if (mode > 0):
             if mode & (1 << 1):
-                self.cur_line_option.set_mode(TextMode.BOLD)
+                self._cur_cell.set_mode(TextMode.BOLD)
             if mode & (1 << 2):
-                self.cur_line_option.set_mode(TextMode.DIM)
+                self._cur_cell.set_mode(TextMode.DIM)
             if mode & (1 << 7):
-                self.cur_line_option.set_mode(TextMode.REVERSE)
+                self._cur_cell.set_mode(TextMode.REVERSE)
             if mode & (1 << 21) or mode & (1 << 22):
-                self.cur_line_option.unset_mode(TextMode.BOLD)
-                self.cur_line_option.unset_mode(TextMode.DIM)
+                self._cur_cell.unset_mode(TextMode.BOLD)
+                self._cur_cell.unset_mode(TextMode.DIM)
             if mode & (1 << 27):
-                self.cur_line_option.unset_mode(TextMode.REVERSE)
+                self._cur_cell.unset_mode(TextMode.REVERSE)
         elif mode == 0:
-            self.cur_line_option.reset_mode()
+            self._cur_cell.reset_mode()
             if self.is_debug():
                 LOGGER.debug('reset mode')
 
         if f_color_idx >= 0:
-            self.cur_line_option.set_fg_idx(f_color_idx)
+            self._cur_cell.set_fg_idx(f_color_idx)
             if self.is_debug():
-                LOGGER.debug('set fore color:{} {} {}, cur_option:{}'.format(f_color_idx, ' at ', self.get_cursor(), self.cur_line_option))
+                LOGGER.debug('set fore color:{} {} {}, cur_option:{}'.format(f_color_idx, ' at ', self.get_cursor(), self._cur_cell))
         elif f_color_idx == -1:
             #reset fore color
-            self.cur_line_option.reset_fg_idx()
+            self._cur_cell.reset_fg_idx()
             if self.is_debug():
-                LOGGER.debug('reset fore color:{} {} {}, cur_option:{}'.format(f_color_idx, ' at ', self.get_cursor(), self.cur_line_option))
+                LOGGER.debug('reset fore color:{} {} {}, cur_option:{}'.format(f_color_idx, ' at ', self.get_cursor(), self._cur_cell))
 
         if b_color_idx >= 0:
             if self.is_debug():
-                LOGGER.debug('set back color:{} {} {}, cur_option:{}'.format(b_color_idx, ' at ', self.get_cursor(), self.cur_line_option))
-            self.cur_line_option.set_bg_idx(b_color_idx)
+                LOGGER.debug('set back color:{} {} {}, cur_option:{}'.format(b_color_idx, ' at ', self.get_cursor(), self._cur_cell))
+            self._cur_cell.set_bg_idx(b_color_idx)
         elif b_color_idx == -1:
             #reset back color
             if self.is_debug():
-                LOGGER.debug('reset back color:{} {} {}, cur_option:{}'.format(b_color_idx, ' at ', self.get_cursor(), self.cur_line_option))
-            self.cur_line_option.reset_bg_idx()
+                LOGGER.debug('reset back color:{} {} {}, cur_option:{}'.format(b_color_idx, ' at ', self.get_cursor(), self._cur_cell))
+            self._cur_cell.reset_bg_idx()
 
         if self.is_debug():
-            LOGGER.debug('set attribute:{}'.format(self.cur_line_option))
+            LOGGER.debug('set attribute:{}'.format(self._cur_cell))
 
     def cursor_address(self, context):
         if self.is_debug():
@@ -207,7 +218,7 @@ class TermCapHandler(object):
             line = self.get_line(row)
 
             for cell in line.get_cells():
-                cell.reset(self.cur_line_option)
+                cell.reset(self._cur_cell)
 
         self.refresh_display()
 
@@ -357,26 +368,26 @@ class TermCapHandler(object):
         self.send_data(self.cap.cmds['user8'].cap_value)
 
     def enter_reverse_mode(self, context):
-        self.cur_line_option.set_mode(TextMode.REVERSE)
+        self._cur_cell.set_mode(TextMode.REVERSE)
         self.refresh_display()
 
     def exit_standout_mode(self, context):
-        self.cur_line_option.reset_mode()
+        self._cur_cell.reset_mode()
         self.refresh_display()
 
     def enter_ca_mode(self, context):
-        self.saved_screen_buffer, self.saved_col, self.saved_row, self.saved_cur_line_option = \
-          self.plugin_context.term_buffer, self.col, self.row, self.cur_line_option
-        self.plugin_context.term_buffer, self.col, self.row, self.cur_line_option = \
-          ScreenBuffer(), 0, 0, get_default_text_attribute()
-        self.plugin_context.term_buffer.resize_buffer(self.get_rows(), self.get_cols())
-        self.plugin_context.term_buffer.clear_selection()
+        self.saved_screen_buffer, self.saved_col, self.saved_row, self.saved_cur_cell = \
+          self.plugin_context.term_buffer, self.col, self.row, self._cur_cell
+        self.plugin_context.term_buffer, self.col, self.row, self._cur_cell = \
+          self.plugin_context.term_buffer.new_instance(), 0, 0, self.create_default_cell()
+        self.plugin_context.term_buffer.resize(self.get_rows(), self.get_cols())
+        #self.plugin_context.term_buffer.clear_selection()
         self.refresh_display()
 
     def exit_ca_mode(self, context):
-        self.plugin_context.term_buffer, self.col, self.row, self.cur_line_option = \
-            self.saved_screen_buffer, self.saved_col, self.saved_row, self.saved_cur_line_option
-        self.plugin_context.term_buffer.clear_selection()
+        self.plugin_context.term_buffer, self.col, self.row, self._cur_cell = \
+            self.saved_screen_buffer, self.saved_col, self.saved_row, self.saved_cur_cell
+        #self.plugin_context.term_buffer.clear_selection()
         self.refresh_display()
 
     def key_shome(self, context):
@@ -384,9 +395,9 @@ class TermCapHandler(object):
         self.refresh_display()
 
     def enter_bold_mode(self, context):
-        self.cur_line_option.set_mode(TextMode.BOLD)
+        self._cur_cell.set_mode(TextMode.BOLD)
         if self.is_debug():
-            LOGGER.debug('set bold mode:attr={}'.format(self.cur_line_option))
+            LOGGER.debug('set bold mode:attr={}'.format(self._cur_cell))
 
     def keypad_xmit(self, context):
         if self.is_debug():
