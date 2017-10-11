@@ -56,28 +56,27 @@ PYBIND11_EMBEDDED_MODULE(wxglterm_interface, m)
 
     py::class_<Context, PyContext<>, std::shared_ptr<Context>> context(m, "Context", multiple_instance_plugin);
     context.def(py::init<>())
-            .def("get_app_config", &Context::GetAppConfig)
-            .def("set_app_config", &Context::SetAppConfig)
+            .def_property("app_config", &Context::GetAppConfig, &Context::SetAppConfig)
             ;
 
     py::class_<TermBuffer, PyTermBuffer<>, std::shared_ptr<TermBuffer>> term_buffer(m, "TermBuffer", multiple_instance_plugin);
     term_buffer.def(py::init<>())
             .def("resize", &TermBuffer::Resize)
-            .def("get_rows", &TermBuffer::GetRows)
-            .def("get_cols", &TermBuffer::GetCols)
-            .def("get_row", &TermBuffer::GetRow)
-            .def("get_col", &TermBuffer::GetCol)
+            .def_property_readonly("rows", &TermBuffer::GetRows)
+            .def_property_readonly("cols", &TermBuffer::GetCols)
+            .def_property("row", &TermBuffer::GetRow, &TermBuffer::SetRow)
+            .def_property("col", &TermBuffer::GetCol, &TermBuffer::SetCol)
             .def("get_line", &TermBuffer::GetLine)
             .def("get_cell", &TermBuffer::GetCell)
-            .def("get_cur_line", &TermBuffer::GetCurLine)
-            .def("get_cur_cell", &TermBuffer::GetCurCell)
+            .def_property_readonly("cur_line", &TermBuffer::GetCurLine)
+            .def_property_readonly("cur_cell", &TermBuffer::GetCurCell)
             .def("scroll_buffer", &TermBuffer::ScrollBuffer)
-            .def("get_scroll_region_begin", &TermBuffer::GetScrollRegionBegin)
-            .def("set_scroll_region_begin", &TermBuffer::SetScrollRegionBegin)
-            .def("get_scroll_region_end", &TermBuffer::GetScrollRegionEnd)
-            .def("get_scroll_region_end", &TermBuffer::SetScrollRegionEnd)
+            .def_property("scroll_region_begin", &TermBuffer::GetScrollRegionBegin, &TermBuffer::SetScrollRegionBegin)
+            .def_property("scroll_region_end", &TermBuffer::GetScrollRegionEnd, &TermBuffer::SetScrollRegionEnd)
             .def("delete_lines", &TermBuffer::DeleteLines)
             .def("insert_lines", &TermBuffer::InsertLines)
+            .def("set_cell_defaults", &TermBuffer::SetCellDefaults)
+            .def("create_cell_with_defaults", &TermBuffer::CreateCellWithDefaults)
             ;
 
     py::class_<TermLine, PyTermLine<>, std::shared_ptr<TermLine>> term_line(m, "TermLine", plugin);
@@ -88,14 +87,10 @@ PYBIND11_EMBEDDED_MODULE(wxglterm_interface, m)
 
     py::class_<TermCell, PyTermCell<>, std::shared_ptr<TermCell>> term_cell(m, "TermCell", plugin);
     term_cell.def(py::init<>())
-            .def("get_char", &TermCell::GetChar)
-            .def("set_char", &TermCell::SetChar)
-            .def("get_fore_color_idx", &TermCell::GetForeColorIndex)
-            .def("set_fore_color_idx", &TermCell::SetForeColorIndex)
-            .def("get_back_color_idx", &TermCell::GetBackColorIndex)
-            .def("set_back_color_idx", &TermCell::SetBackColorIndex)
-            .def("get_mode", &TermCell::GetMode)
-            .def("set_mode", &TermCell::SetMode)
+            .def_property("char", &TermCell::GetChar, &TermCell::SetChar)
+            .def_property("fore_color_idx", &TermCell::GetForeColorIndex, &TermCell::SetForeColorIndex)
+            .def_property("back_color_idx", &TermCell::GetBackColorIndex, &TermCell::SetBackColorIndex)
+            .def_property("mode", &TermCell::GetMode, &TermCell::SetMode)
             ;
 
     py::enum_<TermCell::ColorIndexEnum>(term_cell, "ColorIndex")
@@ -123,14 +118,10 @@ PYBIND11_EMBEDDED_MODULE(wxglterm_interface, m)
 
     py::class_<TermContext, PyTermContext<>, std::shared_ptr<TermContext>> term_context(m, "TermContext", context);
     term_context.def(py::init<>())
-            .def("get_term_buffer", &TermContext::GetTermBuffer)
-            .def("get_term_window", &TermContext::GetTermWindow)
-            .def("get_term_network", &TermContext::GetTermNetwork)
-            .def("set_term_buffer", &TermContext::SetTermBuffer)
-            .def("set_term_window", &TermContext::SetTermWindow)
-            .def("set_term_network", &TermContext::SetTermNetwork)
-            .def("get_term_data_handler", &TermContext::GetTermDataHandler)
-            .def("set_term_data_handler", &TermContext::SetTermDataHandler)
+            .def_property("term_buffer", &TermContext::GetTermBuffer, &TermContext::SetTermBuffer)
+            .def_property("term_window", &TermContext::GetTermWindow, &TermContext::SetTermWindow)
+            .def_property("term_network", &TermContext::GetTermNetwork, &TermContext::SetTermNetwork)
+            .def_property("term_data_handler", &TermContext::GetTermDataHandler, &TermContext::SetTermDataHandler)
             ;
 
     py::class_<PluginManager, PyPluginManager<>, std::shared_ptr<PluginManager>> plugin_manager(m, "PluginManager");

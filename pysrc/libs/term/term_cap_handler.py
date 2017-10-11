@@ -37,7 +37,7 @@ class TermCapHandler(object):
     cursor = property(get_cursor, set_cursor)
 
     def refresh_display(self):
-        logging.error('refresh terminal not implmented')
+        pass
 
     def get_scroll_region(self):
         return (0, 0)

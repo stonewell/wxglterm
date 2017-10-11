@@ -42,7 +42,6 @@ class DefaultTermContext(ContextBase, TermContext):
     term_network = property(get_term_network, set_term_network)
     term_data_handler = property(get_term_data_handler, set_term_data_handler)
 
-
 def register_plugins(pm):
     ni = DefaultTermContext().new_instance()
     pm.register_plugin(ni)

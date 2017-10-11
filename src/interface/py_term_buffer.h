@@ -24,6 +24,12 @@ public:
     uint32_t GetCol() const override {
         PYBIND11_OVERLOAD_PURE_NAME(uint32_t, TermBufferBase, "get_col", GetCol, );
     }
+    void SetRow(uint32_t row) override {
+        PYBIND11_OVERLOAD_PURE_NAME(void, TermBufferBase, "set_row", SetRow, row);
+    }
+    void SetCol(uint32_t col) override {
+        PYBIND11_OVERLOAD_PURE_NAME(void, TermBufferBase, "set_col", SetCol, col);
+    }
 
     TermLinePtr GetLine(uint32_t row) override {
         PYBIND11_OVERLOAD_PURE_NAME(TermLinePtr, TermBufferBase, "get_line", GetLine, row);
@@ -57,5 +63,15 @@ public:
     }
     void InsertLines(uint32_t begin, uint32_t count) override {
         PYBIND11_OVERLOAD_PURE_NAME(void, TermBufferBase, "insert_lines", ScrollBuffer, begin, count);
+    }
+    void SetCellDefaults(wchar_t c,
+                         uint32_t fore_color_idx,
+                         uint32_t back_color_idx,
+                         uint32_t mode) override {
+        PYBIND11_OVERLOAD_PURE_NAME(void, TermBufferBase, "set_cell_defaults", SetCellDefaults, c, fore_color_idx, back_color_idx, mode);
+    }
+
+    TermCellPtr CreateCellWithDefaults() override {
+        PYBIND11_OVERLOAD_PURE_NAME(TermCellPtr, TermBufferBase, "create_cell_with_defaults", CreateCellWithDefaults, );
     }
 };

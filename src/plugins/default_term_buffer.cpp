@@ -46,6 +46,13 @@ public:
     uint32_t GetCol() const override {
         return m_CurCol;
     }
+    void SetRow(uint32_t row) override {
+        m_CurRow = row;
+    }
+
+    void SetCol(uint32_t col) override {
+        m_CurCol = col;
+    }
 
     TermLinePtr GetLine(uint32_t row) override {
         if (row < GetRows()) {
@@ -131,6 +138,20 @@ public:
                 m_Lines.insert(b_it, term_line);
             }
         }
+    }
+
+    void SetCellDefaults(wchar_t c,
+                                 uint32_t fore_color_idx,
+                                 uint32_t back_color_idx,
+                                 uint32_t mode) override {
+        (void)c;
+        (void)fore_color_idx;
+        (void)back_color_idx;
+        (void)mode;
+    }
+
+    TermCellPtr CreateCellWithDefaults() override {
+        return TermCellPtr{};
     }
 private:
     uint32_t m_Rows;
