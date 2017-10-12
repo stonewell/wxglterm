@@ -34,7 +34,6 @@ public:
         m_Rows = row;
         m_Cols = col;
 
-        printf("--- Rows:%d, cols=%d\n", m_Rows, m_Cols);
         m_Lines.resize(m_Rows);
     }
 
@@ -62,7 +61,6 @@ public:
     }
 
     TermLinePtr GetLine(uint32_t row) override {
-        printf("Get Line:%d, rows=%d\n", row, m_Rows);
         if (row < GetRows()) {
             auto line =  m_Lines[row];
             if (!line) {

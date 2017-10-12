@@ -3,8 +3,9 @@ import sys
 
 from . import unknown_cap
 
+
 def get_cap_handler(name):
-    logging.getLogger('cap_manager').error("cap:{}".format(name))
+    logging.getLogger('cap_manager').debug("cap:{}".format(name))
 
     # Fast path: see if the module has already been imported.
     try:
