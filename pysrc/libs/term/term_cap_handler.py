@@ -11,6 +11,7 @@ class TermCapHandler(object):
     def __init__(self):
         self._cur_cell = None
         self.charset_modes_translate = [None, None]
+        self.charset_mode = 0
 
     @property
     def cur_cell(self):
@@ -71,10 +72,12 @@ class TermCapHandler(object):
         pass
 
     def get_scroll_region(self):
-        return (0, 0)
+        return (self.plugin_context.term_buffer.scroll_region_begin,
+                self.plugin_context.term_buffer.scroll_region_end)
 
     def set_scroll_region(self, begin, end):
-        pass
+        (self.plugin_context.term_buffer.scroll_region_begin,
+         self.plugin_context.term_buffer.scroll_region_end) = begin, end
 
     scroll_region = property(get_scroll_region, set_scroll_region)
 
@@ -149,6 +152,9 @@ class TermCapHandler(object):
             line.get_cell(i).reset(self.cur_cell)
 
         self.refresh_display()
+
+    def insert_chars(self, str):
+        self.__output_normal_data(str, True)
 
     def delete_chars(self, count, overwrite = False):
         line = self.get_cur_line()
@@ -351,7 +357,7 @@ class TermCapHandler(object):
         if self.is_debug():
             LOGGER.debug('change scroll region:{} rows={}'.format(context.params, self.get_rows()))
         if len(context.params) == 0:
-            self.set_scrolling_region(None, None)
+            self.set_scrolling_region(0, self.get_rows() - 1)
         else:
             self.set_scroll_region(context.params[0], context.params[1])
         self.cursor_home(None)
@@ -624,3 +630,9 @@ class TermCapHandler(object):
 
     def enter_status_line(self, mode, enter):
         pass
+
+    def __translate_char(self, c):
+        if self.charset_modes_translate[self.charset_mode]:
+            return self.charset_modes_translate[self.charset_mode](c)
+        else:
+            return c

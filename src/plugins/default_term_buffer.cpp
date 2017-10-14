@@ -52,6 +52,8 @@ private:
     uint32_t m_RowEnd, m_ColEnd;
 };
 
+using TermLineVector = std::vector<TermLinePtr>;
+
 class DefaultTermBuffer : public virtual PluginBase, public virtual TermBuffer {
 public:
     DefaultTermBuffer() :
@@ -80,6 +82,9 @@ public:
     void Resize(uint32_t row, uint32_t col) override {
         m_Rows = row;
         m_Cols = col;
+
+        m_ScrollRegionBegin = 0;
+        m_ScrollRegionEnd = row - 1;
 
         m_Lines.resize(m_Rows);
     }
@@ -156,17 +161,62 @@ public:
     }
 
     void DeleteLines(uint32_t begin, uint32_t count) override {
-        (void)begin;
-        (void)count;
+        if (begin + count > m_ScrollRegionEnd)
+        {
+            //Reset line directly
+            for (uint32_t i = begin;i <= m_ScrollRegionEnd; i++)
+            {
+                m_Lines[i]->Resize(0);
+                m_Lines[i]->Resize(GetCols());
+            }
+            return;
+        }
+
+        uint32_t end = begin + count;
+
+        TermLineVector::iterator b_it = m_Lines.begin() + begin,
+                e_it = m_Lines.begin() + end;
+
+        //Insert First, then delete
+        for (uint32_t i = begin; i < end; i++)
+        {
+            auto term_line = CreateDefaultTermLine(this);
+            term_line->Resize(GetCols());
+            m_Lines.insert(e_it, term_line);
+        }
+
+        m_Lines.erase(b_it, e_it);
     }
 
     void InsertLines(uint32_t begin, uint32_t count) override {
-        (void)begin;
-        (void)count;
+        if (begin + count > m_ScrollRegionEnd)
+        {
+            //Reset line directly
+            for (uint32_t i = begin;i <= m_ScrollRegionEnd; i++)
+            {
+                m_Lines[i]->Resize(0);
+                m_Lines[i]->Resize(GetCols());
+            }
+            return;
+        }
+
+        TermLineVector::iterator b_it = m_Lines.begin() + m_ScrollRegionEnd - count + 1,
+                e_it = m_Lines.begin() + m_ScrollRegionEnd + 1;
+
+        m_Lines.erase(b_it, e_it);
+
+        b_it = m_Lines.begin() + begin;
+
+        for (uint32_t i = 0; i < count; i++)
+        {
+            auto term_line = CreateDefaultTermLine(this);
+            term_line->Resize(GetCols());
+            m_Lines.insert(b_it, term_line);
+        }
     }
 
     void ScrollBuffer(int32_t scroll_offset) override {
-        std::vector<TermLinePtr>::iterator b_it = m_Lines.begin(),
+        TermLineVector::iterator b_it = m_Lines.begin(),
                 e_it = m_Lines.end();
 
         if (m_ScrollRegionBegin < m_ScrollRegionEnd) {
@@ -241,7 +291,7 @@ private:
     uint32_t m_ScrollRegionBegin;
     uint32_t m_ScrollRegionEnd;
 
-    std::vector<TermLinePtr> m_Lines;
+    TermLineVector m_Lines;
 
     wchar_t m_DefaultChar;
     uint16_t m_DefaultForeColorIndex;

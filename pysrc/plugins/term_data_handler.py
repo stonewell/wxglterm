@@ -1,5 +1,6 @@
 import logging
 import os
+import sys
 
 from collections import deque
 
@@ -11,14 +12,18 @@ import term.parse_termdata
 import term.read_termdata
 
 from term.term_cap_handler import TermCapHandler
+from term.term_buffer_handler import TermBufferHandler
 
-class DefaultTermDataHandler(MultipleInstancePluginBase, TermDataHandler, TermCapHandler):
+LOGGER = logging.getLogger('TermDataHandler')
+
+class DefaultTermDataHandler(MultipleInstancePluginBase, TermDataHandler, TermCapHandler, TermBufferHandler):
     def __init__(self):
         MultipleInstancePluginBase.__init__(self, name="default_term_data_handler",
-                         desc="It is a python version term data handler",
-                         version=1)
+                                            desc="It is a python version term data handler",
+                                            version=1)
         TermDataHandler.__init__(self)
         TermCapHandler.__init__(self)
+        TermBufferHandler.__init__(self)
 
     def init_plugin(self, context, plugin_config):
         MultipleInstancePluginBase.init_plugin(self, context, plugin_config)
@@ -30,7 +35,7 @@ class DefaultTermDataHandler(MultipleInstancePluginBase, TermDataHandler, TermCa
         try:
             self.cap_str += self.__load_cap_str__(self._term_name)
         except:
-            logging.exception('unable to load term data:%s' % self._term_name)
+            LOGGER.exception('unable to load term data:%s' % self._term_name)
             self.cap_str += self.__load_cap_str__('xterm-256color')
 
         self.cap = term.parse_termdata.parse_cap(self.cap_str)
@@ -46,7 +51,7 @@ class DefaultTermDataHandler(MultipleInstancePluginBase, TermDataHandler, TermCa
         termcap_dir = self.plugin_context.get_app_config().get_entry('/term/termcap_dir', 'data')
         term_path = os.path.join(termcap_dir, term_name+'.dat')
 
-        logging.getLogger('terminal').info('load term cap data file:{}'.format(term_path))
+        LOGGER.info('load term cap data file:{}'.format(term_path))
 
         return term.read_termdata.get_entry(term_path, term_name)
 
@@ -57,9 +62,9 @@ class DefaultTermDataHandler(MultipleInstancePluginBase, TermDataHandler, TermCa
         cap_name, increase_params = cap_turple
         cap_handler = cap.cap_manager.get_cap_handler(cap_name)
 
-        logging.getLogger('terminal').debug("control data:[[[" + ''.join(self.control_data) + ']]],for cap:' + cap_name)
+        LOGGER.debug("control data:[[[" + ''.join(self.control_data) + ']]],for cap:' + cap_name)
         if not cap_handler:
-            logging.getLogger('terminal').error('no matched:{}, params={}'.format(cap_turple, self._parse_context.params))
+            LOGGER.error('no matched:{}, params={}'.format(cap_turple, self._parse_context.params))
         elif cap_handler:
             cap_handler.handle(self, self._parse_context, cap_turple)
 
@@ -72,8 +77,16 @@ class DefaultTermDataHandler(MultipleInstancePluginBase, TermDataHandler, TermCa
     def __output_status_line_data(self, c):
         pass
 
-    def __output_normal_data(self, c):
-        pass
+    def __output_normal_data(self, c, insert = False):
+        if c == '\x1b':
+            LOGGER.error('normal data has escape char')
+            sys.exit(1)
+
+        try:
+            for cc in c:
+                self.__save_buffer(cc, insert)
+        except:
+            LOGGER.exception('save buffer failed')
 
     def __handle_cap__(self, check_unknown = True, data = None, c = None):
         cap_turple = self.state.get_cap(self._parse_context.params)
@@ -97,7 +110,7 @@ class DefaultTermDataHandler(MultipleInstancePluginBase, TermDataHandler, TermCa
             next_state = self.cap.control_data_start_state.handle(self._parse_context, c)
 
             if not next_state:
-                logging.getLogger('terminal').error('\r\n'.join([m1, m2, m3, m4, m5, str(self.in_status_line)]))
+                LOGGER.error('\r\n'.join([m1, m2, m3, m4, m5, str(self.in_status_line)]))
 
             self._cap_state_stack.append((self.state, self._parse_context.params, self.control_data))
 
@@ -106,7 +119,7 @@ class DefaultTermDataHandler(MultipleInstancePluginBase, TermDataHandler, TermCa
             self.control_data = []
 
         if not check_unknown and not cap_turple and len(self.control_data) > 0:
-            logging.getLogger('terminal').debug('found unfinished data')
+            LOGGER.debug('found unfinished data')
 
         return cap_turple
 
