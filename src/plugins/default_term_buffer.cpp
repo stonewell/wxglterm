@@ -221,7 +221,7 @@ public:
 
         if (m_ScrollRegionBegin < m_ScrollRegionEnd) {
             b_it = b_it + m_ScrollRegionBegin;
-            e_it = b_it + m_ScrollRegionEnd;
+            e_it = b_it + m_ScrollRegionEnd + 1;
         }
 
         if (scroll_offset < 0) {
@@ -239,6 +239,37 @@ public:
                 auto term_line = CreateDefaultTermLine(this);
                 term_line->Resize(GetCols());
                 m_Lines.insert(b_it, term_line);
+            }
+        }
+    }
+
+    void MoveCurRow(uint32_t offset, bool move_down, bool scroll_buffer) override {
+        uint32_t begin = 0, end = GetRows() - 1;
+
+        if (m_ScrollRegionBegin < m_ScrollRegionEnd) {
+            begin = m_ScrollRegionBegin;
+            end = m_ScrollRegionEnd;
+        }
+
+        if (move_down) {
+            if (m_CurRow + offset <= end) {
+                m_CurRow += offset;
+            } else {
+                m_CurRow = end;
+
+                //scroll
+                if (scroll_buffer)
+                    ScrollBuffer(m_CurRow + offset - end);
+            }
+        } else {
+            if (m_CurRow >= offset && (m_CurRow - offset) >= begin) {
+                m_CurRow -= offset;
+            } else {
+                m_CurRow = begin;
+
+                //scroll
+                if (!scroll_buffer)
+                    ScrollBuffer(-1 * (begin + offset - m_CurRow));
             }
         }
     }
@@ -280,6 +311,13 @@ public:
         m_Selection->SetRowEnd(0);
         m_Selection->SetColBegin(0);
         m_Selection->SetColEnd(0);
+    }
+
+    void SetCurCellData(uint32_t ch, bool wide_char, bool insert, TermCellPtr cell_template) override {
+        (void)ch;
+        (void)wide_char;
+        (void)insert;
+        (void)cell_template;
     }
 private:
     uint32_t m_Rows;

@@ -29,6 +29,7 @@ public:
     virtual void ScrollBuffer(int32_t offset) = 0;
     virtual void DeleteLines(uint32_t begin, uint32_t count) = 0;
     virtual void InsertLines(uint32_t begin, uint32_t count) = 0;
+    virtual void MoveCurRow(uint32_t offset, bool move_down, bool scroll_buffer) = 0;
 
     virtual void SetCellDefaults(wchar_t c,
                                  uint16_t fore_color_idx,
@@ -39,4 +40,6 @@ public:
     virtual void SetSelection(TermSelectionPtr selection) = 0;
     virtual TermSelectionPtr GetSelection() = 0;
     virtual void ClearSelection() = 0;
+
+    virtual void SetCurCellData(uint32_t ch, bool wide_char, bool insert, TermCellPtr cell_template) = 0;
 };

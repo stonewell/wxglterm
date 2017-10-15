@@ -464,16 +464,14 @@ class TermCapHandler(object):
         self.parm_down_cursor(context, True, True)
 
     def parm_index(self, context):
-        saved_cursor = self.get_cursor()
+        saved_cursor = self.cursor
         self.parm_down_cursor(context, True, True)
-        col, row = self.saved_cursor
-        self.set_cursor(col, row)
+        self.cursor = saved_cursor
 
     def parm_rindex(self, context):
-        saved_cursor = self.get_cursor()
+        saved_cursor = self.cursor
         self.parm_up_cursor(context, True, True)
-        col, row = self.saved_cursor
-        self.set_cursor(col, row)
+        self.cursor = saved_cursor
 
     def parm_down_cursor(self, context, do_refresh = True, do_scroll = False):
         begin, end = self.get_scroll_region()
@@ -482,16 +480,8 @@ class TermCapHandler(object):
 
         if self.is_debug():
             LOGGER.debug('before parm down cursor:{} {} {} {}'.format(begin, end, self.row, count))
-        for i in range(count):
-            self.get_cur_line()
 
-
-            if do_scroll and self.row == end:
-                self.plugin_context.term_buffer.scroll_up()
-            elif self.row < end:
-                self.row += 1
-
-            self.get_cur_line()
+        self.plugin_context.term_buffer.move_cur_row(count, True, do_scroll)
 
         if self.is_debug():
             LOGGER.debug('after parm down cursor:{} {} {} {}'.format(begin, end, self.row, count))
@@ -595,15 +585,8 @@ class TermCapHandler(object):
 
         if self.is_debug():
             LOGGER.debug('before parm up cursor:{} {} {} {}'.format(begin, end, self.row, count))
-        for i in range(count):
-            self.get_cur_line()
 
-            if do_scroll and self.row == begin:
-                self.plugin_context.term_buffer.scroll_down()
-            elif self.row > begin:
-                self.row -= 1
-
-            self.get_cur_line()
+        self.plugin_context.term_buffer.move_cur_row(count, False, do_scroll)
 
         if self.is_debug():
             LOGGER.debug('after parm up cursor:{} {} {} {}'.format(begin, end, self.row, count))
@@ -615,15 +598,12 @@ class TermCapHandler(object):
 
     def screen_alignment_test(self, context):
         self.save_cursor(context)
-        self.get_line(self.get_rows() - 1)
 
         for i in range(self.get_rows()):
-            self.set_cursor(0, i)
             line = self.get_cur_line()
-            line.alloc_cells(self.get_cols(), True)
 
             for cell in self.get_line_cells(line):
-                cell.set_char('E')
+                cell.char = 'E'
 
         self.restore_cursor(context)
         self.refresh_display()
@@ -636,3 +616,9 @@ class TermCapHandler(object):
             return self.charset_modes_translate[self.charset_mode](c)
         else:
             return c
+
+    def save_cursor(self, context):
+        self._saved_cursor = self.cursor
+
+    def restore_cursor(self, context):
+        self.cursor = self._saved_cursor

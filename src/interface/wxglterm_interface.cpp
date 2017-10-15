@@ -80,6 +80,8 @@ PYBIND11_EMBEDDED_MODULE(wxglterm_interface, m)
             .def("create_cell_with_defaults", &TermBuffer::CreateCellWithDefaults)
             .def_property("selection", &TermBuffer::GetSelection, &TermBuffer::SetSelection)
             .def("clear_selection", &TermBuffer::ClearSelection)
+            .def("move_cur_row", &TermBuffer::MoveCurRow)
+            .def("set_cur_cell_data", &TermBuffer::SetCurCellData)
             ;
 
     py::class_<TermLine, PyTermLine<>, std::shared_ptr<TermLine>> term_line(m, "TermLine", plugin);
