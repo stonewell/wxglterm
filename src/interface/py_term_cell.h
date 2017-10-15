@@ -44,4 +44,12 @@ public:
     void Reset(TermCellPtr cell) override {
         PYBIND11_OVERLOAD_PURE_NAME(void, TermCellBase, "reset", Reset, cell);
     }
+
+    bool IsWideChar() const override {
+        PYBIND11_OVERLOAD_PURE_NAME(bool, TermCellBase, "is_wide_char", IsWideChar,);
+    }
+
+    void SetWideChar(bool wide_char) override {
+        PYBIND11_OVERLOAD_PURE_NAME(void, TermCellBase, "set_wide_char", SetWideChar, wide_char);
+    }
 };

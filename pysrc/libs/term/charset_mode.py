@@ -35,7 +35,7 @@ line_drawing_map = [
 
 def translate_char(c):
     if ord(c) >= 96 and ord(c) < 126:
-        return unichr(line_drawing_map[ord(c) - 96])
+        return chr(line_drawing_map[ord(c) - 96])
     return c
 
 def translate_char_british(c):

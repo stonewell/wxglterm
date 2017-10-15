@@ -69,7 +69,7 @@ class TermCapHandler(object):
     cursor = property(get_cursor, set_cursor)
 
     def refresh_display(self):
-        pass
+        self.plugin_context.term_window.refresh()
 
     def get_scroll_region(self):
         return (self.plugin_context.term_buffer.scroll_region_begin,
@@ -611,7 +611,7 @@ class TermCapHandler(object):
     def enter_status_line(self, mode, enter):
         pass
 
-    def __translate_char(self, c):
+    def _translate_char(self, c):
         if self.charset_modes_translate[self.charset_mode]:
             return self.charset_modes_translate[self.charset_mode](c)
         else:

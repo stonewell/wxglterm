@@ -84,7 +84,7 @@ class DefaultTermDataHandler(MultipleInstancePluginBase, TermDataHandler, TermCa
 
         try:
             for cc in c:
-                self.__save_buffer(cc, insert)
+                self._save_buffer(cc, insert)
         except:
             LOGGER.exception('save buffer failed')
 

@@ -10,6 +10,7 @@ public:
         PluginBase("default_term_cell", "default terminal cell plugin", 0)
         , m_TermLine(term_line)
         , m_Mode{0}
+        , m_IsWideChar(false)
     {
         (void)m_TermLine;
     }
@@ -55,6 +56,15 @@ public:
         m_ForeColorIdx = cell->GetForeColorIndex();
         m_BackColorIdx = cell->GetBackColorIndex();
         m_Mode = cell->GetMode();
+        m_IsWideChar = cell->IsWideChar();
+    }
+
+    bool IsWideChar() const override {
+        return m_IsWideChar;
+    }
+
+    void SetWideChar(bool wide_char) override {
+        m_IsWideChar = wide_char;
     }
 private:
     TermLine * m_TermLine;
@@ -63,6 +73,7 @@ private:
     uint16_t m_ForeColorIdx;
     uint16_t m_BackColorIdx;
     std::bitset<16> m_Mode;
+    bool m_IsWideChar;
 };
 
 TermCellPtr CreateDefaultTermCell(TermLine * line)

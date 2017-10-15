@@ -31,9 +31,32 @@ public:
         return cell;
     }
 
+    //return the erased extra cell
+    TermCellPtr InsertCell(uint32_t col) override {
+        if (col >= m_TermBuffer->GetCols())
+            return TermCellPtr{};
+
+        TermCellVector::iterator it = m_Cells.begin() + col;
+        m_Cells.insert(it, TermCellPtr{});
+
+        it = m_Cells.end() - 1;
+
+        TermCellPtr cell = *it;
+
+        if (cell && cell->GetChar() == 0) {
+            it--;
+            cell = *it;
+
+            *it = TermCellPtr{};
+        }
+
+        m_Cells.erase(m_Cells.end() - 1);
+
+        return cell;
+    }
 private:
     TermBuffer * m_TermBuffer;
-    std::vector<TermCellPtr> m_Cells;
+    TermCellVector m_Cells;
 };
 
 TermLinePtr CreateDefaultTermLine(TermBuffer * term_buffer)

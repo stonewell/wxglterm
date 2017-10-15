@@ -52,8 +52,6 @@ private:
     uint32_t m_RowEnd, m_ColEnd;
 };
 
-using TermLineVector = std::vector<TermLinePtr>;
-
 class DefaultTermBuffer : public virtual PluginBase, public virtual TermBuffer {
 public:
     DefaultTermBuffer() :
@@ -314,10 +312,74 @@ public:
     }
 
     void SetCurCellData(uint32_t ch, bool wide_char, bool insert, TermCellPtr cell_template) override {
-        (void)ch;
-        (void)wide_char;
-        (void)insert;
-        (void)cell_template;
+        int new_cell_count = wide_char ? 1 : 2;
+
+        if (!insert)
+        {
+            if (m_CurCol + new_cell_count > m_Cols) {
+                MoveCurRow(1, true, false);
+                m_CurCol = 0;
+            }
+
+            TermCellPtr cell = GetCurCell();
+            cell->Reset(cell_template);
+            cell->SetChar((wchar_t)ch);
+            cell->SetWideChar(wide_char);
+            m_CurCol++;
+
+            if (wide_char) {
+                cell = GetCurCell();
+                cell->Reset(cell_template);
+                cell->SetChar((wchar_t)0);
+                m_CurCol++;
+            }
+        } else {
+            TermLinePtr line = GetLine(m_CurRow);
+
+            TermCellPtr extra_cell = line->InsertCell(m_CurCol);
+
+            TermCellPtr cell = line->GetCell(m_CurCol);
+            cell->Reset(cell_template);
+            cell->SetChar((wchar_t)ch);
+            cell->SetWideChar(wide_char);
+            m_CurCol++;
+
+            TermCellPtr extra_cell_2{};
+
+            if (wide_char) {
+                extra_cell_2 = line->InsertCell(m_CurCol);
+
+                cell = line->GetCell(m_CurCol);
+                cell->Reset(cell_template);
+                cell->SetChar((wchar_t)0);
+                m_CurCol++;
+            }
+
+            uint32_t saved_row = m_CurRow;
+            uint32_t saved_col = m_CurCol;
+
+            if (extra_cell || extra_cell_2) {
+                MoveCurRow(1, true, false);
+                m_CurCol = 0;
+
+                if (extra_cell) {
+                    SetCurCellData((uint32_t)extra_cell->GetChar(),
+                                   extra_cell->IsWideChar(),
+                                   insert,
+                                   extra_cell);
+                }
+
+                if (extra_cell_2) {
+                    SetCurCellData((uint32_t)extra_cell_2->GetChar(),
+                                   extra_cell_2->IsWideChar(),
+                                   insert,
+                                   extra_cell_2);
+                }
+            }
+
+            m_CurRow = saved_row;
+            m_CurCol = saved_col;
+        }
     }
 private:
     uint32_t m_Rows;

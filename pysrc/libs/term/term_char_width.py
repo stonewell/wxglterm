@@ -5,7 +5,7 @@ def bisearch(ucs, tbl, max):
         return 0
 
     while (max >= min):
-        mid = (min + max) / 2
+        mid = int((min + max) / 2)
 
         if ucs > tbl[mid][1]:
             min = mid + 1

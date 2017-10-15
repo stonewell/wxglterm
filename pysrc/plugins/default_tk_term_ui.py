@@ -15,7 +15,25 @@ class DefaultTkTermWindow(TermPluginBase, TermWindow):
         self.top = None
 
     def refresh(self):
-        pass
+        rows = self.plugin_context.term_buffer.rows
+        cols = self.plugin_context.term_buffer.cols
+
+        term_buff = self.plugin_context.term_buffer
+
+        for row in range(rows):
+            line = term_buff.get_line(row)
+
+            data = []
+            for col in range(cols):
+                cell = line.get_cell(col)
+                try:
+                    if cell.char != 0:
+                        data.append(cell.char)
+                except:
+                    pass
+
+            print(u''.join(data))
+
 
     def show(self):
         self.top = tkinter.Tk()
@@ -37,6 +55,8 @@ class DefaultTkTermUI(TermPluginBase, TermUI):
     def create_window(self):
         w = DefaultTkTermWindow()
 
+        w.init_plugin(self.plugin_context,
+                      self.plugin_config)
         self._windows.append(w)
         return w
 

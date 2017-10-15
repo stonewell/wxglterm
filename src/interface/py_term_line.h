@@ -12,7 +12,11 @@ public:
         PYBIND11_OVERLOAD_PURE_NAME(void, TermLineBase, "resize", Resize, col);
     }
 
-    TermCellPtr GetCell(uint32_t col) {
+    TermCellPtr GetCell(uint32_t col) override {
         PYBIND11_OVERLOAD_PURE_NAME(TermCellPtr, TermLineBase, "get_cell", GetCell, col);
+    }
+
+    TermCellPtr InsertCell(uint32_t col) override {
+        PYBIND11_OVERLOAD_PURE_NAME(TermCellPtr, TermLineBase, "insert_cell", InsertCell, col);
     }
 };
