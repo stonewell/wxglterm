@@ -16,11 +16,17 @@ class DefaultTkTermWindow(TermPluginBase, TermWindow):
         self.top = None
 
     def refresh(self):
+        if self.top:
+            print("-------------")
+            self.top.after(20, self.__refresh)
+
+    def __refresh(self):
         rows = self.plugin_context.term_buffer.rows
         cols = self.plugin_context.term_buffer.cols
 
         term_buff = self.plugin_context.term_buffer
 
+        self.text.delete('1.0', tkinter.END)
         for row in range(rows):
             line = term_buff.get_line(row)
 
@@ -35,11 +41,14 @@ class DefaultTkTermWindow(TermPluginBase, TermWindow):
                     sys.exit(1)
                     pass
 
-            print(u''.join(data))
+            self.text.insert('{}.{}'.format(row + 1, 0), u''.join(data) + u'\n')
 
 
     def show(self):
-        self.top = tkinter.Tk()
+        if not self.top:
+            self.top = tkinter.Tk()
+            self.text = tkinter.Text(self.top)
+            self.text.pack(fill=tkinter.BOTH, expand=1)
 
 class DefaultTkTermUI(TermPluginBase, TermUI):
     def __init__(self):
@@ -52,7 +61,8 @@ class DefaultTkTermUI(TermPluginBase, TermUI):
         if not hasattr(sys, 'argv') or len(sys.argv) == 0:
             sys.argv = ['']
 
-        self.top = None
+        self.top = tkinter.Tk()
+        self.root_window = None
         self._windows = []
 
     def create_window(self):
@@ -60,19 +70,23 @@ class DefaultTkTermUI(TermPluginBase, TermUI):
 
         w.init_plugin(self.plugin_context,
                       self.plugin_config)
+
+        if not self.root_window:
+            w.top = self.top
+            w.text = tkinter.Text(self.top)
+            w.text.pack(fill=tkinter.BOTH, expand=1)
+            self.root_window = w
+
         self._windows.append(w)
         return w
 
     def start_main_ui_loop(self):
-        if not self.top:
-            self.top = tkinter.Tk()
-
         self.top.mainloop()
 
         return 0;
 
     def schedule_task(self, task, miliseconds, repeated):
-        pass
+        self.top.after(miliseconds, lambda:task.run())
 
 g_term_ui = DefaultTkTermUI()
 
