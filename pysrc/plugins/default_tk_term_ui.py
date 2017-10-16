@@ -14,10 +14,10 @@ class DefaultTkTermWindow(TermPluginBase, TermWindow):
                             version=1)
         TermWindow.__init__(self)
         self.top = None
+        self.old_content = ''
 
     def refresh(self):
         if self.top:
-            print("-------------")
             self.top.after(20, self.__refresh)
 
     def __refresh(self):

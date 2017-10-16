@@ -6,12 +6,44 @@ from .charset_mode import translate_char, translate_char_british
 
 
 LOGGER = logging.getLogger('TermCapHandler')
+TAB_MAX = 999
+
 
 class TermCapHandler(object):
     def __init__(self):
         self._cur_cell = None
         self.charset_modes_translate = [None, None]
         self.charset_mode = 0
+
+        self._dec_mode = False
+        self._force_column = False
+        self._force_column_count = 80
+
+        self._origin_mode = False
+        self._saved_origin_mode = False
+
+        self._tab_stops = {}
+        self._set_default_tab_stops()
+
+    def _set_default_tab_stops(self):
+        tab_width = self.get_tab_width()
+
+        for i in range(0, TAB_MAX, tab_width):
+            self._tab_stops[i] = True
+
+    def get_tab_width(self):
+        return 8
+
+    def resize_terminal(self):
+        self.plugin_context.term_buffer.resize(self.get_rows(), self.get_cols())
+
+        self.set_scroll_region(0, self.get_rows() - 1)
+
+        if self.row >= self.get_rows():
+            self.row = self.get_rows() - 1
+
+        if self.col >= self.get_cols():
+            self.col = self.get_cols() - 1
 
     @property
     def cur_cell(self):
@@ -29,9 +61,13 @@ class TermCapHandler(object):
         return self.plugin_context.term_buffer.create_cell_with_defaults()
 
     def get_rows(self):
+        if self._force_column:
+            return self.cap.flags['lines']
         return self.plugin_context.term_buffer.rows
 
     def get_cols(self):
+        if self._force_column:
+            return self._force_column_count
         return self.plugin_context.term_buffer.cols
 
     def set_cur_col(self, col):
@@ -62,7 +98,8 @@ class TermCapHandler(object):
     def get_cursor(self):
         return (self.col, self.row)
 
-    def set_cursor(self, col, row):
+    def set_cursor(self, cursor):
+        col, row = cursor
         self.set_cur_col(col)
         self.set_cur_row(row)
 
@@ -226,12 +263,12 @@ class TermCapHandler(object):
     def cursor_address(self, context):
         if self.is_debug():
             LOGGER.debug('cursor address:{}'.format(context.params))
-        self.set_cursor(context.params[1], context.params[0])
+        self.cursor = (context.params[1], context.params[0])
 
         self.refresh_display()
 
     def cursor_home(self, context):
-        self.set_cursor(0, 0)
+        self.cursor = (0, 0)
         self.refresh_display()
 
     def clr_eos(self, context):
@@ -337,7 +374,7 @@ class TermCapHandler(object):
         self.refresh_display()
 
     def row_address(self, context):
-        self.set_cursor(self.col, context.params[0])
+        self.cursor = (self.col, context.params[0])
 
     def delete_line(self, context):
         self.parm_delete_line(context)
@@ -357,7 +394,7 @@ class TermCapHandler(object):
         if self.is_debug():
             LOGGER.debug('change scroll region:{} rows={}'.format(context.params, self.get_rows()))
         if len(context.params) == 0:
-            self.set_scrolling_region(0, self.get_rows() - 1)
+            self.set_scroll_region(0, self.get_rows() - 1)
         else:
             self.set_scroll_region(context.params[0], context.params[1])
         self.cursor_home(None)
@@ -430,7 +467,7 @@ class TermCapHandler(object):
         self.refresh_display()
 
     def key_shome(self, context):
-        self.set_cursor(1, 0)
+        self.cursor = (1, 0)
         self.refresh_display()
 
     def enter_bold_mode(self, context):
@@ -575,7 +612,7 @@ class TermCapHandler(object):
 
     def column_address(self, context):
         col, row = self.get_cursor()
-        self.set_cursor(context.params[0], row)
+        self.cursor = (context.params[0], row)
         self.refresh_display()
 
     def parm_up_cursor(self, context, do_refresh = True, do_scroll = False):
@@ -600,7 +637,7 @@ class TermCapHandler(object):
         self.save_cursor(context)
 
         for i in range(self.get_rows()):
-            line = self.get_cur_line()
+            line = self.get_line(i)
 
             for cell in self.get_line_cells(line):
                 cell.char = 'E'

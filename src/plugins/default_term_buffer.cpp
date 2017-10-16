@@ -219,17 +219,17 @@ public:
 
         if (m_ScrollRegionBegin < m_ScrollRegionEnd) {
             b_it = b_it + m_ScrollRegionBegin;
-            e_it = b_it + m_ScrollRegionEnd + 1;
+            e_it = m_Lines.begin() + m_ScrollRegionEnd + 1;
         }
 
         if (scroll_offset < 0) {
-            m_Lines.erase(b_it, b_it - scroll_offset);
-
             for(int i=0;i < -scroll_offset;i++) {
                 auto term_line = CreateDefaultTermLine(this);
                 term_line->Resize(GetCols());
                 m_Lines.insert(e_it, term_line);
             }
+
+            m_Lines.erase(b_it, b_it - scroll_offset);
         } else if (scroll_offset > 0) {
             m_Lines.erase(e_it - scroll_offset, e_it);
 
@@ -257,7 +257,7 @@ public:
 
                 //scroll
                 if (scroll_buffer)
-                    ScrollBuffer(m_CurRow + offset - end);
+                    ScrollBuffer(-1 * (m_CurRow + offset - end));
             }
         } else {
             if (m_CurRow >= offset && (m_CurRow - offset) >= begin) {
@@ -266,8 +266,8 @@ public:
                 m_CurRow = begin;
 
                 //scroll
-                if (!scroll_buffer)
-                    ScrollBuffer(-1 * (begin + offset - m_CurRow));
+                if (scroll_buffer)
+                    ScrollBuffer(begin + offset - m_CurRow);
             }
         }
     }
