@@ -167,7 +167,7 @@ class TermCapHandler(object):
 
         for i in range(begin, end):
             if not overwrite and i + count < self.get_cols():
-                line.get_cell(i).copy(line.get_cell(i + count))
+                line.get_cell(i).reset(line.get_cell(i + count))
             else:
                 line.get_cell(i).reset(self.cur_cell)
 
@@ -609,7 +609,8 @@ class TermCapHandler(object):
         self.refresh_display()
 
     def enter_status_line(self, mode, enter):
-        pass
+        LOGGER.error('enter_status_line:{}, {}'.format(mode, enter))
+        self.in_status_line = enter
 
     def _translate_char(self, c):
         if self.charset_modes_translate[self.charset_mode]:

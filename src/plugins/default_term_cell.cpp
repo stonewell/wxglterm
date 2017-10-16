@@ -3,12 +3,14 @@
 #include "default_term_cell.h"
 #include <vector>
 #include <bitset>
+#include <stdio.h>
 
 class DefaultTermCell : public virtual PluginBase, public virtual TermCell {
 public:
     DefaultTermCell(TermLine * term_line) :
         PluginBase("default_term_cell", "default terminal cell plugin", 0)
         , m_TermLine(term_line)
+        , m_Char(' ')
         , m_Mode{0}
         , m_IsWideChar(false)
     {

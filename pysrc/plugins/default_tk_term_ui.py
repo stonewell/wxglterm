@@ -4,6 +4,7 @@ from utils.term_utils import test_util
 
 import tkinter
 import sys
+import logging
 
 class DefaultTkTermWindow(TermPluginBase, TermWindow):
     def __init__(self):
@@ -30,6 +31,8 @@ class DefaultTkTermWindow(TermPluginBase, TermWindow):
                     if cell.char != 0:
                         data.append(cell.char)
                 except:
+                    logging.exception("char error")
+                    sys.exit(1)
                     pass
 
             print(u''.join(data))

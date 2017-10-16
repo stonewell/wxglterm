@@ -24,7 +24,7 @@ public:
         auto cell = m_Cells[col];
         if (!cell)
         {
-            cell = CreateDefaultTermCell(this);
+            cell = m_TermBuffer->CreateCellWithDefaults();
             m_Cells[col] = cell;
         }
 
