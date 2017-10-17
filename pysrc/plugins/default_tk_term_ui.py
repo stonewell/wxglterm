@@ -83,7 +83,6 @@ class DefaultTkTermUI(TermPluginBase, TermUI):
         return w
 
     def start_main_ui_loop(self):
-        self.top = tkinter.Tk()
         self.top.mainloop()
 
         return 0
