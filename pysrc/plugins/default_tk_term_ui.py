@@ -1,10 +1,10 @@
-from wxglterm_interface import Plugin, print_plugin_info, TermUI, TermWindow
+from wxglterm_interface import TermUI, TermWindow
 from term_plugin_base import TermPluginBase
-from utils.term_utils import test_util
 
 import tkinter
 import sys
 import logging
+
 
 class DefaultTkTermWindow(TermPluginBase, TermWindow):
     def __init__(self):
@@ -19,6 +19,7 @@ class DefaultTkTermWindow(TermPluginBase, TermWindow):
     def refresh(self):
         if self.top:
             self.top.after(20, self.__refresh)
+            pass
 
     def __refresh(self):
         rows = self.plugin_context.term_buffer.rows
@@ -41,14 +42,15 @@ class DefaultTkTermWindow(TermPluginBase, TermWindow):
                     sys.exit(1)
                     pass
 
-            self.text.insert('{}.{}'.format(row + 1, 0), u''.join(data) + u'\n')
-
+            self.text.insert('{}.{}'.format(row + 1, 0),
+                             u''.join(data) + u'\n')
 
     def show(self):
         if not self.top:
             self.top = tkinter.Tk()
             self.text = tkinter.Text(self.top)
             self.text.pack(fill=tkinter.BOTH, expand=1)
+
 
 class DefaultTkTermUI(TermPluginBase, TermUI):
     def __init__(self):
@@ -81,12 +83,14 @@ class DefaultTkTermUI(TermPluginBase, TermUI):
         return w
 
     def start_main_ui_loop(self):
+        self.top = tkinter.Tk()
         self.top.mainloop()
 
-        return 0;
+        return 0
 
     def schedule_task(self, task, miliseconds, repeated):
         self.top.after(miliseconds, lambda:task.run())
+        pass
 
 g_term_ui = DefaultTkTermUI()
 
