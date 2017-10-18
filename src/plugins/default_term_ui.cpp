@@ -40,7 +40,7 @@ private:
 
 wxIMPLEMENT_APP_NO_MAIN(__wxGLTermApp);
 
-class DefaultTermWindow : public virtual PluginBase, public virtual TermWindow {
+class DefaultTermWindow : public virtual PluginBase, public virtual TermWindow, public WindowManager {
 public:
     DefaultTermWindow() :
         PluginBase("default_term_window", "default terminal window plugin", 0)
@@ -51,21 +51,30 @@ public:
 
 public:
     void Refresh() override {
+        wxCriticalSectionLocker locker(m_MainWndLock);
+
         if (!m_MainDlg)
             return;
 
         m_MainDlg->RequestRefresh();
     }
 
+    void WindowClosed(wxFrame * win) {
+        wxCriticalSectionLocker locker(m_MainWndLock);
+        if (win == m_MainDlg)
+            m_MainDlg = nullptr;
+    }
+
     void Show() override {
         if (!m_MainDlg)
-            m_MainDlg = new MainDialog(wxT("wxGLTerm"));
+            m_MainDlg = new MainDialog(wxT("wxGLTerm"), this);
 
         m_MainDlg->Show(true);
     }
 
 private:
     MainDialog * m_MainDlg;
+    wxCriticalSection m_MainWndLock;
 };
 
 class DefaultTermUI : public virtual PluginBase, public virtual TermUI {
