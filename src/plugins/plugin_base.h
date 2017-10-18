@@ -28,6 +28,12 @@ public:
         m_Context = context;
         m_PluginConfig = plugin_config;
     }
+    ContextPtr GetPluginContext() const override {
+        return m_Context;
+    }
+    AppConfigPtr GetPluginConfig() const override {
+        return m_PluginConfig;
+    }
 private:
     std::string m_Name;
     std::string m_Description;

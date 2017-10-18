@@ -4,7 +4,8 @@
 
 class DrawPane : public wxPanel {
 public:
-    DrawPane(wxFrame * parent);
+    DrawPane(wxFrame * parent,
+             TermWindow * termWindow);
     virtual ~DrawPane();
 
     DECLARE_EVENT_TABLE();
@@ -19,4 +20,5 @@ private:
 
     int m_RefreshNow;
     wxCriticalSection m_RefreshLock;
+    TermWindow * m_TermWindow;
 };

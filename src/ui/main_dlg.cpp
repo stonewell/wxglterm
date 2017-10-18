@@ -1,3 +1,4 @@
+#include "term_window.h"
 #include "main_dlg.h"
 
 #include "wx/aboutdlg.h"
@@ -12,17 +13,20 @@ BEGIN_EVENT_TABLE(MainDialog, wxFrame)
 EVT_CLOSE(MainDialog::onClose)
 END_EVENT_TABLE()
 
-MainDialog::MainDialog(const wxString & title, WindowManager * winManager)
+MainDialog::MainDialog(const wxString & title,
+                       WindowManager * winManager,
+                       TermWindow * termWindow)
 : wxFrame(NULL, -1, title, wxDefaultPosition, wxSize(800, 700))
         , m_DrawPane(nullptr)
         , m_WindowManager(winManager)
+        , m_TermWindow(termWindow)
 {
     wxBoxSizer *vbox = new wxBoxSizer(wxVERTICAL);
 
     wxSizerFlags flags(1);
     flags.Expand().Border(wxALL, 5);
 
-    m_DrawPane = new DrawPane(this);
+    m_DrawPane = new DrawPane(this, termWindow);
 
     vbox->Add(m_DrawPane, flags);
 

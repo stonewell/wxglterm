@@ -14,4 +14,6 @@ public:
     virtual uint32_t GetVersion() = 0;
     virtual void InitPlugin(ContextPtr context,
                             AppConfigPtr plugin_config) = 0;
+    virtual ContextPtr GetPluginContext() const = 0;
+    virtual AppConfigPtr GetPluginConfig() const = 0;
 };

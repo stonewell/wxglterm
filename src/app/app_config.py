@@ -18,7 +18,7 @@ class DictQuery(dict):
             else:
                 val = dict.get(self, key, default)
 
-            if not val:
+            if not val or val == default:
                 break;
 
         if isinstance(val, list) or isinstance(val, dict):

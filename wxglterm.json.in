@@ -28,6 +28,9 @@
     "term":{
 	"termcap_dir":"data",
 	"use_system_ssh_config":true,
-	"use_ssh_config":"global_ssh_config_file_path"
+	"use_ssh_config":"global_ssh_config_file_path",
+	"font": {
+	    "size":14
+	}
     }
 }

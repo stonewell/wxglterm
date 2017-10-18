@@ -68,7 +68,7 @@ public:
 
     void Show() override {
         if (!m_MainDlg)
-            m_MainDlg = new MainDialog(wxT("wxGLTerm"), this);
+            m_MainDlg = new MainDialog(wxT("wxGLTerm"), this, this);
 
         m_MainDlg->Show(true);
     }
@@ -88,7 +88,11 @@ public:
     virtual ~DefaultTermUI() = default;
 
     TermWindowPtr CreateWindow() {
-        return TermWindowPtr { new DefaultTermWindow() };
+        auto window = TermWindowPtr { new DefaultTermWindow() };
+        window->InitPlugin(GetPluginContext(),
+                           GetPluginConfig());
+
+        return window;
     }
 
     int32_t StartMainUILoop() {

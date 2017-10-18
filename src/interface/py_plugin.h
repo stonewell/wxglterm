@@ -1,6 +1,7 @@
 #pragma once
 
 #include "plugin.h"
+#include "context.h"
 
 template<class PluginBase = Plugin>
 class PyPlugin : public virtual PluginBase {
@@ -20,5 +21,11 @@ public:
     void InitPlugin(ContextPtr context,
                     AppConfigPtr plugin_config) override {
         PYBIND11_OVERLOAD_PURE_NAME(void, PluginBase, "init_plugin", InitPlugin, context, plugin_config);
+    }
+    ContextPtr GetPluginContext() const override {
+        PYBIND11_OVERLOAD_PURE_NAME(ContextPtr, PluginBase, "get_plugin_context", GetPluginContext, );
+    }
+    AppConfigPtr GetPluginConfig() const override {
+        PYBIND11_OVERLOAD_PURE_NAME(AppConfigPtr, PluginBase, "get_plugin_config", GetPluginConfig, );
     }
 };
