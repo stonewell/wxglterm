@@ -8,8 +8,13 @@
 
 #include <iostream>
 
+BEGIN_EVENT_TABLE(MainDialog, wxFrame)
+EVT_CLOSE(MainDialog::onClose)
+END_EVENT_TABLE()
+
 MainDialog::MainDialog(const wxString & title)
-    : wxFrame(NULL, -1, title, wxDefaultPosition, wxSize(800, 700))
+: wxFrame(NULL, -1, title, wxDefaultPosition, wxSize(800, 700))
+        , m_DrawPane(nullptr)
 {
     wxBoxSizer *vbox = new wxBoxSizer(wxVERTICAL);
 
@@ -28,4 +33,10 @@ void MainDialog::RequestRefresh()
 {
     if (m_DrawPane)
         m_DrawPane->RequestRefresh();
+}
+
+void MainDialog::onClose(wxCloseEvent& evt)
+{
+    m_DrawPane = nullptr;
+    evt.Skip(); // don't stop event, we still want window to close
 }
