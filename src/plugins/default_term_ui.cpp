@@ -4,6 +4,7 @@
 #include "term_window.h"
 #include "task.h"
 #include "term_context.h"
+#include "term_network.h"
 
 #include "main_dlg.h"
 
@@ -52,6 +53,8 @@ public:
     void Refresh() override {
         if (!m_MainDlg)
             return;
+
+        m_MainDlg->Refresh();
     }
 
     void Show() override {
@@ -107,6 +110,10 @@ public:
 
         auto mainWnd = std::dynamic_pointer_cast<TermContext>(m_Context)->GetTermWindow();
         mainWnd->Show();
+        auto term_network = std::dynamic_pointer_cast<TermContext>(m_Context)->GetTermNetwork();
+
+        term_network->Connect("", 0, "", "");
+        printf("********************\n");
     }
 
     void Cancel() override {

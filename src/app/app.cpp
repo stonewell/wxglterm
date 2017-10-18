@@ -129,7 +129,7 @@ bool wxGLTermApp::DoInit()
         term_context->SetTermDataHandler(term_data_handler);
         term_context->SetTermBuffer(term_buffer);
 
-        term_network->Connect("", 0, "", "");
+        //term_network->Connect("", 0, "", "");
         m_TermUIList.push_back(term_ui);
 
         auto mainwnd_task = CreateShowContextWindowTask(term_context);

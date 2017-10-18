@@ -9,6 +9,7 @@ public:
     using PyMultipleInstancePlugin<TaskBase>::PyMultipleInstancePlugin;
 
     void Run() override {
+        pybind11::gil_scoped_acquire acquire;
         PYBIND11_OVERLOAD_PURE_NAME(void, TaskBase, "run", Run, );
     }
 

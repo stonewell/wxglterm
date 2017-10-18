@@ -14,6 +14,7 @@ import term.read_termdata
 from term.term_cap_handler import TermCapHandler
 from term.term_buffer_handler import TermBufferHandler
 
+logging.getLogger('').setLevel(logging.DEBUG)
 LOGGER = logging.getLogger('TermDataHandler')
 
 class DefaultTermDataHandler(MultipleInstancePluginBase, TermDataHandler, TermCapHandler, TermBufferHandler):
@@ -56,7 +57,9 @@ class DefaultTermDataHandler(MultipleInstancePluginBase, TermDataHandler, TermCa
         return term.read_termdata.get_entry(term_path, term_name)
 
     def on_data(self, data):
+        print("0++++++++-----")
         self.__try_parse__(data)
+        print("1++++++++-----")
 
     def __on_control_data(self, cap_turple):
         cap_name, increase_params = cap_turple
@@ -128,7 +131,9 @@ class DefaultTermDataHandler(MultipleInstancePluginBase, TermDataHandler, TermCa
 
         for c in data:
             c = chr(c)
+            print("1++++++++-----")
             next_state = self.state.handle(self._parse_context, c)
+            print("2++++++++-----")
 
             if not next_state or self.state.get_cap(self._parse_context.params):
                 cap_turple = self.__handle_cap__(data=data, c=c)

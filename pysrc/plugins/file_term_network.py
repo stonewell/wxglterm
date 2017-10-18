@@ -23,24 +23,34 @@ class FileTermNetwork(MultipleInstancePluginBase, TermNetwork):
             print("term data file is not exist:{}".format(file_path))
 
         self.start_reader()
+        print("x0-----")
 
     def start_reader(self):
         term_data_handler = self.plugin_context.get_term_data_handler()
 
         def __read_term_data():
+            print("y0-----")
             with open(self._file_path, 'rb') as f:
                 while True:
+                    print("0-----")
                     data = f.read(4)
+                    print("11-----")
                     if not data or len(data) != 4:
                         logging.getLogger('session').info("end of dump data, quit")
                         break
+                    print("22-----")
                     data_len = struct.unpack('!i', data)[0]
                     data = f.read(data_len)
+                    print("33-----")
                     if not data or data_len != len(data):
+                        print("44-----")
                         term_data_handler.on_data(data)
+                        print("55-----")
                         logging.getLogger('session').info("end of dump data, quit")
                         break
+                    print("1-----", term_data_handler)
                     term_data_handler.on_data(data)
+                    print("2-----")
                 return
 
         def read_term_data():

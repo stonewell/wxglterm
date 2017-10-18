@@ -37,7 +37,7 @@ class TermBufferHandler(object):
             wide_char = True
 
         if self.is_debug():
-            LOGGER.debug(u'save buffer width:{},{},{},len={}, line_len={}, cols={}'.format(self.col, self.row, w, len(c), line.cell_count(), self.get_cols()))
+            LOGGER.debug(u'save buffer width:{},{},{},len={}, line_len={}, cols={}'.format(self.col, self.row, w, len(c), 1, self.get_cols()))
 
         self.plugin_context.term_buffer.set_cur_cell_data(ord(c),
                                                           wide_char,

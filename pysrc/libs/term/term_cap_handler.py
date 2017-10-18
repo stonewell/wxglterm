@@ -119,7 +119,7 @@ class TermCapHandler(object):
     scroll_region = property(get_scroll_region, set_scroll_region)
 
     def is_debug(self):
-        return False
+        return True
 
     def create_new_buffer(self):
         new_buffer = self.plugin_context.term_buffer.new_instance()
@@ -585,6 +585,7 @@ class TermCapHandler(object):
             LOGGER.warning('not implemented enable mode:{}'.format(context.params))
 
     def disable_mode(self, context):
+        print("-----")
         if self.is_debug():
             LOGGER.debug('disable mode:{}'.format(context.params))
 
