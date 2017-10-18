@@ -1,5 +1,6 @@
-#include "plugin_base.h"
+#include <pybind11/embed.h>
 
+#include "plugin_base.h"
 #include "default_term_ui.h"
 #include "term_window.h"
 #include "task.h"
@@ -93,6 +94,7 @@ public:
     int32_t StartMainUILoop() {
         int argc = 0;
 
+        pybind11::gil_scoped_release release;
         return wxEntry(argc, (char **)nullptr);
     }
 

@@ -9,7 +9,9 @@ TARGET_COMPILE_DEFINITIONS(plugins PRIVATE
     ${wxWidgets_DEFINITIONS}
     )
 TARGET_INCLUDE_DIRECTORIES(plugins PRIVATE
-    ${wxWidgets_INCLUDE_DIRS}
+  "${pybind11_INCLUDE_DIRS}"
+  "${PYTHON_INCLUDE_DIRS}"
+  ${wxWidgets_INCLUDE_DIRS}
   "../interface"
   "../utils"
   "../ui"
