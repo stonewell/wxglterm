@@ -10,7 +10,7 @@ public:
     MainDialog(const wxString& title);
 
 public:
-    void Refresh();
+    void RequestRefresh();
 private:
     DrawPane * m_DrawPane;
 };

@@ -10,7 +10,7 @@ public:
     DECLARE_EVENT_TABLE();
 
 public:
-    void Refresh();
+    void RequestRefresh();
 
 private:
     void PaintEvent(wxPaintEvent & event);

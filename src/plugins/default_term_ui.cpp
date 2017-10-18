@@ -54,7 +54,7 @@ public:
         if (!m_MainDlg)
             return;
 
-        m_MainDlg->Refresh();
+        m_MainDlg->RequestRefresh();
     }
 
     void Show() override {
@@ -113,7 +113,6 @@ public:
         auto term_network = std::dynamic_pointer_cast<TermContext>(m_Context)->GetTermNetwork();
 
         term_network->Connect("", 0, "", "");
-        printf("********************\n");
     }
 
     void Cancel() override {

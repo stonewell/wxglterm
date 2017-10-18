@@ -24,9 +24,8 @@ MainDialog::MainDialog(const wxString & title)
     Centre();
 }
 
-void MainDialog::Refresh()
+void MainDialog::RequestRefresh()
 {
     if (m_DrawPane)
-        m_DrawPane->Refresh();
-    printf("refresh!!!\n");
+        m_DrawPane->RequestRefresh();
 }

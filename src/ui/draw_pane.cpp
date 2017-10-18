@@ -16,7 +16,7 @@ DrawPane::~DrawPane()
     Disconnect( wxEVT_IDLE, wxIdleEventHandler(DrawPane::OnIdle) );
 }
 
-void DrawPane::Refresh()
+void DrawPane::RequestRefresh()
 {
     wxCriticalSectionLocker locker(m_RefreshLock);
     m_RefreshNow++;

@@ -63,7 +63,7 @@ class DefaultTkTermUI(TermPluginBase, TermUI):
         if not hasattr(sys, 'argv') or len(sys.argv) == 0:
             sys.argv = ['']
 
-        self.top = tkinter.Tk()
+        self.top = None
         self.root_window = None
         self._windows = []
 
@@ -74,7 +74,7 @@ class DefaultTkTermUI(TermPluginBase, TermUI):
                       self.plugin_config)
 
         if not self.root_window:
-            w.top = self.top
+            w.top = self.top = tkinter.Tk()
             w.text = tkinter.Text(self.top)
             w.text.pack(fill=tkinter.BOTH, expand=1)
             self.root_window = w
