@@ -14,11 +14,20 @@ public:
     void RequestRefresh();
 
 private:
-    void PaintEvent(wxPaintEvent & event);
-    void DoPaint(wxDC & dc);
+    void OnPaint(wxPaintEvent & event);
     void OnIdle(wxIdleEvent& evt);
+    void OnSize(wxSizeEvent& event);
+
+    wxFont * GetFont();
+
+    void DoPaint(wxDC & dc);
 
     int m_RefreshNow;
     wxCriticalSection m_RefreshLock;
+    wxCriticalSection m_BufferResizeLock;
     TermWindow * m_TermWindow;
+
+    wxFont * m_Font;
+    wxCoord m_LineHeight;
+    wxCoord m_CellWidth;
 };

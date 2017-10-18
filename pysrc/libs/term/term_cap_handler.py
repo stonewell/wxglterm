@@ -291,6 +291,8 @@ class TermCapHandler(object):
             line = self.get_line(row)
 
             for cell in self.get_line_cells(line):
+                if not cell:
+                    print('cols:', self.get_cols(), 'line:', line)
                 cell.reset(self.cur_cell)
 
         self.refresh_display()
@@ -574,10 +576,10 @@ class TermCapHandler(object):
             if self._dec_mode:
                 self._force_column = True
                 self._force_column_count = 132
+                self.resize_terminal()
 
                 self.clr_eos(None)
                 self.cursor_home(None)
-                self.resize_terminal()
         elif mode == 6:
             self._origin_mode = True
             self.cursor_home(None)
@@ -600,10 +602,10 @@ class TermCapHandler(object):
             if self._dec_mode:
                 self._force_column = True
                 self._force_column_count = 80
+                self.resize_terminal()
 
                 self.clr_eos(None)
                 self.cursor_home(None)
-                self.resize_terminal()
         elif mode == 6:
             self._origin_mode = False
             self.cursor_home(None)

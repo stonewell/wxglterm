@@ -85,6 +85,18 @@ public:
         m_ScrollRegionEnd = row - 1;
 
         m_Lines.resize(m_Rows);
+
+        printf("----Resize buffer: rows=%u, cols=%u\n", m_Rows, m_Cols);
+
+        for (TermLineVector::iterator it = m_Lines.begin(),
+                                    it_end = m_Lines.end();
+             it != it_end;
+             it++)
+        {
+            if (*it)
+                (*it)->Resize(m_Cols);
+        }
+
     }
 
     uint32_t GetRows() const override {
@@ -122,6 +134,7 @@ public:
             return line;
         }
 
+        printf("row:%u, rows:%u\n", row, GetRows());
         return TermLinePtr{};
     }
 

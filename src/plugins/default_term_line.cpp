@@ -18,8 +18,11 @@ public:
     }
 
     TermCellPtr GetCell(uint32_t col) override {
-        if (col >= m_TermBuffer->GetCols())
+        if (col >= m_TermBuffer->GetCols()) {
+            printf("col:%u, cols:%u\n", col, m_TermBuffer->GetCols());
+
             return TermCellPtr{};
+        }
 
         auto cell = m_Cells[col];
         if (!cell)

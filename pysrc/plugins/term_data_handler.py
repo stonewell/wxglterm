@@ -108,7 +108,7 @@ class DefaultTermDataHandler(MultipleInstancePluginBase,
             m1 = 'start state:{}, params={}, self={}, next_states={}'.format(self.cap.control_data_start_state.cap_name, self._parse_context.params, self, self.cap.control_data_start_state.next_states)
             m2 = 'current state:{}, params={}, next_states={}, {}, [{}]'.format(self.state.cap_name, self._parse_context.params, self.state.next_states, self.state.digit_state, ord(c) if c else 'None')
             m3 = "unknown control data:[[[" + ''.join(self.control_data) + ']]]'
-            m4 = 'data:[[[' + data.replace('\x1B', '\\E').replace('\r', '\r\n') + ']]]'
+            m4 = 'data:[[[' + str(data.replace('\x1B', '\\E').replace('\r', '\r\n')) + ']]]'
             m5 = 'data:[[[' + ' '.join(map(str, map(ord, data))) + ']]]'
 
             next_state = self.cap.control_data_start_state.handle(self._parse_context, c)
