@@ -63,9 +63,17 @@ class DefaultTkTermUI(TermPluginBase, TermUI):
         if not hasattr(sys, 'argv') or len(sys.argv) == 0:
             sys.argv = ['']
 
-        self.top = None
-        self.root_window = None
-        self._windows = []
+        self.__top = None
+        self.__root_window = None
+        self.__windows = []
+
+    def __get_top_window(self):
+        if self.__top:
+            return self.__top
+
+        self.__top = tkinter.Tk()
+
+        return self.__top
 
     def create_window(self):
         w = DefaultTkTermWindow()
@@ -73,25 +81,28 @@ class DefaultTkTermUI(TermPluginBase, TermUI):
         w.init_plugin(self.plugin_context,
                       self.plugin_config)
 
-        if not self.root_window:
-            w.top = self.top = tkinter.Tk()
-            w.text = tkinter.Text(self.top)
+        if not self.__root_window:
+            w.top = self.__get_top_window()
+            w.text = tkinter.Text(w.top)
             w.text.pack(fill=tkinter.BOTH, expand=1)
-            self.root_window = w
+            self.__root_window = w
 
-        self._windows.append(w)
+        self.__windows.append(w)
         return w
 
     def start_main_ui_loop(self):
-        self.top.mainloop()
+        self.__get_top_window().mainloop()
 
         return 0
 
     def schedule_task(self, task, miliseconds, repeated):
-        self.top.after(miliseconds, lambda:task.run())
+        self.__get_top_window().after(miliseconds,
+                                      lambda: task.run())
         pass
 
+
 g_term_ui = DefaultTkTermUI()
+
 
 def register_plugins(pm):
     pm.register_plugin(g_term_ui)
