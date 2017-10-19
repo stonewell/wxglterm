@@ -17,6 +17,9 @@ private:
     void OnPaint(wxPaintEvent & event);
     void OnIdle(wxIdleEvent& evt);
     void OnSize(wxSizeEvent& event);
+    void OnKeyDown(wxKeyEvent& event);
+    void OnKeyUp(wxKeyEvent& event);
+    void OnChar(wxKeyEvent& event);
 
     wxFont * GetFont();
 

@@ -137,6 +137,8 @@ bool wxGLTermApp::DoInit()
         term_ui->ScheduleTask(mainwnd_task, 5, false);
 
         term_ui->StartMainUILoop();
+
+        term_network->Disconnect();
         return true;
     }
     else

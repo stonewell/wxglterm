@@ -83,8 +83,8 @@ class DefaultTermDataHandler(MultipleInstancePluginBase,
 
     def __output_normal_data(self, c, insert = False):
         if c == '\x1b':
-            LOGGER.error('normal data has escape char')
-            sys.exit(1)
+            LOGGER.error('normal data has escape char:{}'.format(c.replace('\x1b','\\E')))
+            return
 
         try:
             for cc in c:

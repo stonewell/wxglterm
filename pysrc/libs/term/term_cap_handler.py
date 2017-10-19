@@ -488,11 +488,11 @@ class TermCapHandler(object):
         self.keypad_transmit_mode = False
 
     def cursor_invisible(self, context):
-        self.term_widget.cursor_visible = False
+        self._cursor_visible = False
         self.refresh_display()
 
     def cursor_normal(self, context):
-        self.term_widget.cursor_visible = True
+        self._cursor_visible = True
         self.refresh_display()
 
     def cursor_visible(self, context):

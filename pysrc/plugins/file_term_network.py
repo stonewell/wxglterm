@@ -55,6 +55,8 @@ class FileTermNetwork(MultipleInstancePluginBase, TermNetwork):
         self.reader_thread = reader_thread = threading.Thread(target=read_term_data)
         reader_thread.start()
 
+    def send(self, data, n):
+        pass
 
 def register_plugins(pm):
     pm.register_plugin(FileTermNetwork().new_instance())

@@ -8,6 +8,7 @@
 #include "term_buffer.h"
 #include "term_line.h"
 #include "term_cell.h"
+#include "term_network.h"
 
 constexpr uint32_t PADDING = 5;
 
@@ -23,6 +24,9 @@ constexpr uint32_t PADDING = 5;
 BEGIN_EVENT_TABLE(DrawPane, wxPanel)
         EVT_PAINT(DrawPane::OnPaint)
         EVT_SIZE(DrawPane::OnSize)
+EVT_KEY_DOWN(DrawPane::OnKeyDown)
+EVT_KEY_UP(DrawPane::OnKeyUp)
+EVT_CHAR(DrawPane::OnChar)
 END_EVENT_TABLE()
 
 DrawPane::DrawPane(wxFrame * parent, TermWindow * termWindow)
@@ -191,4 +195,58 @@ void DrawPane::OnIdle(wxIdleEvent& evt)
     }
 
     evt.RequestMore(); // render continuously, not only once on idle
+}
+
+void DrawPane::OnKeyDown(wxKeyEvent& event)
+{
+    (void)event;
+    event.Skip();
+}
+
+void DrawPane::OnKeyUp(wxKeyEvent& event)
+{
+    (void)event;
+}
+
+void DrawPane::OnChar(wxKeyEvent& event)
+{
+    wxChar uc = event.GetUnicodeKey();
+
+    char c= uc & 0xFF;
+    if (uc != WXK_NONE)
+    {
+        printf("key char:%d, %d\n", (int)c, (int)uc);
+    } else {
+        printf("key code:%d\n", event.GetKeyCode());
+
+        return ;
+    }
+
+    TermContextPtr context = std::dynamic_pointer_cast<TermContext>(m_TermWindow->GetPluginContext());
+
+    if (!context)
+        return;
+
+    TermNetworkPtr network = context->GetTermNetwork();
+
+   try
+    {
+        pybind11::gil_scoped_acquire acquire;
+        char ch[2] = {c, 0};
+        network->Send(ch, 1);
+    }
+    catch(std::exception & e)
+    {
+        std::cerr << "!!Error Send:"
+                  << std::endl
+                  << e.what()
+                  << std::endl;
+        PyErr_Print();
+    }
+    catch(...)
+    {
+        std::cerr << "!!Error Send"
+                  << std::endl;
+        PyErr_Print();
+    }
 }
