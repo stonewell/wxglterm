@@ -61,6 +61,7 @@ class DefaultTermDataHandler(MultipleInstancePluginBase,
 
     def on_data(self, data):
         self.__try_parse__(data)
+        self.refresh_display()
 
     def __on_control_data(self, cap_turple):
         cap_name, increase_params = cap_turple

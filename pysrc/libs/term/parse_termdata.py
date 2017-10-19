@@ -102,6 +102,7 @@ class DigitState(ControlDataState):
             return self
         else:
             if self.value is not None:
+                logging.error('params:{}, value:{}, {}'.format(context.params, self.value, cc))
                 context.push_param(self.value)
                 self.value = None
             return ControlDataState.handle(self, context, cc)
