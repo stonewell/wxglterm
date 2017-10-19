@@ -42,4 +42,7 @@ public:
     virtual void ClearSelection() = 0;
 
     virtual void SetCurCellData(uint32_t ch, bool wide_char, bool insert, TermCellPtr cell_template) = 0;
+
+    virtual void LockResize() = 0;
+    virtual void UnlockResize() = 0;
 };

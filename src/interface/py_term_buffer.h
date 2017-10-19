@@ -94,4 +94,12 @@ public:
     void SetCurCellData(uint32_t ch, bool wide_char, bool insert, TermCellPtr cell_template) override {
         PYBIND11_OVERLOAD_PURE_NAME(void, TermBufferBase, "set_cur_cell_data", SetCurCellData, ch, wide_char, insert, cell_template);
     }
+
+    void LockResize() override {
+        PYBIND11_OVERLOAD_PURE_NAME(void, TermBufferBase, "lock_resize", LockResize, );
+    }
+
+    void UnlockResize() override {
+        PYBIND11_OVERLOAD_PURE_NAME(void, TermBufferBase, "unlock_resize", UnlockResize, );
+    }
 };

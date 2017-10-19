@@ -24,7 +24,6 @@ private:
 
     int m_RefreshNow;
     wxCriticalSection m_RefreshLock;
-    wxCriticalSection m_BufferResizeLock;
     TermWindow * m_TermWindow;
 
     wxFont * m_Font;

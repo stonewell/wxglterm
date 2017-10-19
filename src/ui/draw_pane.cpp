@@ -29,7 +29,6 @@ DrawPane::DrawPane(wxFrame * parent, TermWindow * termWindow)
 : wxPanel(parent)
         , m_RefreshNow(0)
         , m_RefreshLock()
-        , m_BufferResizeLock()
         , m_TermWindow(termWindow)
         , m_Font(nullptr)
 {
@@ -84,7 +83,6 @@ void DrawPane::OnSize(wxSizeEvent& /*event*/)
     printf("cell width:%u, line height:%u, %lu\n", m_CellWidth, m_LineHeight,
            sizeof(SINGLE_WIDTH_CHARACTERS));
 
-    wxCriticalSectionLocker locker(m_BufferResizeLock);
     buffer->Resize((clientSize.GetHeight() - PADDING * 2) / m_LineHeight,
                    (clientSize.GetWidth() - PADDING * 2) / m_CellWidth);
 }
@@ -105,10 +103,25 @@ wxFont * DrawPane::GetFont()
     auto font_size = appConfig->GetEntryUInt64("/term/font/size", 16);
     auto font_name = appConfig->GetEntry("/term/font/name", "Monospace");
 
-    m_Font = new wxFont(wxFontInfo(font_size).FaceName(font_name));
+    m_Font = new wxFont(wxFontInfo(font_size).FaceName(font_name.c_str()));
 
     return m_Font;
 }
+
+class __ScopeLocker {
+public:
+    __ScopeLocker(TermBufferPtr termBuffer) :
+        m_TermBuffer(termBuffer)
+    {
+        m_TermBuffer->LockResize();
+    }
+
+    ~__ScopeLocker() {
+        m_TermBuffer->UnlockResize();
+    }
+
+    TermBufferPtr m_TermBuffer;
+};
 
 void DrawPane::DoPaint(wxDC & dc)
 {
@@ -130,7 +143,8 @@ void DrawPane::DoPaint(wxDC & dc)
     wxString content {""};
 
     {
-        wxCriticalSectionLocker locker(m_BufferResizeLock);
+        __ScopeLocker locker(buffer);
+
         auto rows = buffer->GetRows();
         auto cols = buffer->GetCols();
 

@@ -71,6 +71,7 @@ public:
             m_MainDlg = new MainDialog(wxT("wxGLTerm"), this, this);
 
         m_MainDlg->Show(true);
+        m_MainDlg->Maximize(true);
     }
 
 private:

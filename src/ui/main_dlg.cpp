@@ -26,7 +26,7 @@ MainDialog::MainDialog(const wxString & title,
     wxSizerFlags flags(1);
     flags.Expand().Border(wxALL, 5);
 
-    m_DrawPane = new DrawPane(this, termWindow);
+    m_DrawPane = new DrawPane(this, m_TermWindow);
 
     vbox->Add(m_DrawPane, flags);
 
