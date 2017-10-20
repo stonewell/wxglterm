@@ -58,5 +58,8 @@ class FileTermNetwork(MultipleInstancePluginBase, TermNetwork):
     def send(self, data, n):
         pass
 
+    def resize(self, row, col):
+        pass
+
 def register_plugins(pm):
     pm.register_plugin(FileTermNetwork().new_instance())

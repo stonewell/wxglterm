@@ -29,8 +29,12 @@ class PtyTermNetwork(MultipleInstancePluginBase, TermNetwork):
         self._session.start()
 
     def send(self, data, n):
-        LOGGER.error(u'send data:{}, {}'.format(data, n))
+        LOGGER.debug(u'send data:{}, {}'.format(data, n))
         self._session.send(bytes(data[:n], 'utf-8'))
+
+    def resize(self, row, col):
+        if self._session:
+            self._session.resize_pty(col, row)
 
 def register_plugins(pm):
     pm.register_plugin(PtyTermNetwork().new_instance())

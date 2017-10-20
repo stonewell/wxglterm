@@ -91,6 +91,12 @@ void DrawPane::OnSize(wxSizeEvent& /*event*/)
 
     buffer->Resize((clientSize.GetHeight() - PADDING * 2) / m_LineHeight,
                    (clientSize.GetWidth() - PADDING * 2) / m_CellWidth);
+
+    TermNetworkPtr network = context->GetTermNetwork();
+
+    if (network)
+        network->Resize(buffer->GetRows(),
+                        buffer->GetCols());
 }
 
 wxFont * DrawPane::GetFont()
@@ -157,17 +163,20 @@ void DrawPane::DoPaint(wxDC & dc)
         for (auto row = 0u; row < rows; row++) {
             auto line = buffer->GetLine(row);
 
+            wchar_t last_char = '\0';
             for (auto col = 0u; col < cols; col++) {
                 auto cell = line->GetCell(col);
 
                 if (cell && cell->GetChar() != 0) {
                     content.append(cell->GetChar());
+                    last_char = cell->GetChar();
                 } else if (!cell) {
                     content.append(wxT(' '));
                 }
             }
 
-            content.append(wxT('\n'));
+            if (last_char != '\n' && last_char != '\r')
+                content.append(wxT('\n'));
         }
     }
 

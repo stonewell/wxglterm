@@ -3,9 +3,12 @@ import sys
 
 from . import unknown_cap
 
+LOGGER = logging.getLogger('cap_manager')
+LOGGER.setLevel(logging.DEBUG)
+
 
 def get_cap_handler(name):
-    logging.getLogger('cap_manager').debug("cap:{}".format(name))
+    LOGGER.debug("cap:{}".format(name))
 
     # Fast path: see if the module has already been imported.
     try:

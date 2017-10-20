@@ -3,9 +3,12 @@ import fcntl
 import os
 import select
 import termios
+import logging
 
 import client.pty_client
 from .session import Session
+
+LOGGER = logging.getLogger('session')
 
 
 class PtySession(Session):
@@ -63,6 +66,7 @@ class PtySession(Session):
             row = self.terminal.get_rows()
 
         if self.channel and not self.stopped:
+            LOGGER.error('resize pty row:{}, col:{}, w:{}, h:{}'.format(row, col, w, h))
             buf = array.array('h', [row, col, int(h), int(w)])
             fcntl.ioctl(self.channel, termios.TIOCSWINSZ, buf)
 

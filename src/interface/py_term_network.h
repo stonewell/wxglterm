@@ -20,4 +20,8 @@ public:
     void Send(const char * data, size_t n) override {
         PYBIND11_OVERLOAD_PURE_NAME(void, TermNetworkBase, "send", Send, data, n);
     }
+
+    void Resize(uint32_t row, uint32_t col) override {
+        PYBIND11_OVERLOAD_PURE_NAME(void, TermNetworkBase, "resize", resize, row, col);
+    }
 };

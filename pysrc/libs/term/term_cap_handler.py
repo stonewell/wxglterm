@@ -6,6 +6,7 @@ from .charset_mode import translate_char, translate_char_british
 
 
 LOGGER = logging.getLogger('TermCapHandler')
+LOGGER.setLevel(logging.DEBUG)
 TAB_MAX = 999
 
 
@@ -100,6 +101,19 @@ class TermCapHandler(object):
 
     def set_cursor(self, cursor):
         col, row = cursor
+
+        end = self.get_rows() - 1
+
+        if self._origin_mode:
+            begin, end = self.get_scroll_region()
+            row += begin
+
+        if row > end:
+            row = end
+
+        if col > self.get_cols():
+            col = self.get_cols() - 1
+
         self.set_cur_col(col)
         self.set_cur_row(row)
 
@@ -119,7 +133,7 @@ class TermCapHandler(object):
     scroll_region = property(get_scroll_region, set_scroll_region)
 
     def is_debug(self):
-        return False
+        return True
 
     def create_new_buffer(self):
         new_buffer = self.plugin_context.term_buffer.new_instance()
@@ -147,7 +161,6 @@ class TermCapHandler(object):
 
     def carriage_return(self, context):
         self.set_cur_col(0)
-        self.refresh_display()
 
     def set_foreground(self, light, color_idx):
         self.set_attributes(1 if light else -1, color_idx, -2)
@@ -518,7 +531,7 @@ class TermCapHandler(object):
         count = context.params[0] if context and context.params and len(context.params) > 0 else 1
 
         if self.is_debug():
-            LOGGER.debug('before parm down cursor:{} {} {} {}'.format(begin, end, self.row, count))
+            LOGGER.debug('before parm down cursor:{} {} {} {} {}'.format(begin, end, self.row, count, do_scroll))
 
         self.plugin_context.term_buffer.move_cur_row(count, True, do_scroll)
 

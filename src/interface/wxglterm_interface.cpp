@@ -143,6 +143,7 @@ PYBIND11_EMBEDDED_MODULE(wxglterm_interface, m)
             .def("disconnect", &TermNetwork::Disconnect)
             .def("connect", &TermNetwork::Connect)
             .def("send", &TermNetwork::Send)
+            .def("resize", &TermNetwork::Resize)
             ;
 
     py::class_<TermContext, PyTermContext<>, std::shared_ptr<TermContext>> term_context(m, "TermContext", context);

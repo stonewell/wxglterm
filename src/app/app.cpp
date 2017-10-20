@@ -123,7 +123,6 @@ bool wxGLTermApp::DoInit()
 
     if (term_context && term_ui && term_network && term_data_handler && term_buffer)
     {
-        term_buffer->Resize(48, 80);
         term_context->SetTermWindow(term_ui->CreateWindow());
         term_context->SetTermNetwork(term_network);
         term_context->SetTermDataHandler(term_data_handler);
