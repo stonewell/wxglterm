@@ -1,5 +1,7 @@
 #include <pybind11/embed.h>
 
+#include <iostream>
+
 #include "term_window.h"
 #include "draw_pane.h"
 #include <wx/dcbuffer.h>

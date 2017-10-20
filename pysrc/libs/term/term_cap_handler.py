@@ -211,7 +211,7 @@ class TermCapHandler(object):
         self.refresh_display()
 
     def meta_on(self, context):
-        if shelf.cfg.debug:
+        if self.is_debug():
             LOGGER.debug('meta_on')
 
     def set_attributes(self, mode, f_color_idx, b_color_idx):
