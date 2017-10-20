@@ -5,7 +5,9 @@
 class TermCell : public virtual Plugin {
 public:
     enum ColorIndexEnum {
-        DefaultColorIndex = 256,
+        DefaultForeColorIndex = 256,
+        DefaultBackColorIndex = 256,
+        DefaultCursorColorIndex = 256,
     };
 
     enum TextModeEnum {

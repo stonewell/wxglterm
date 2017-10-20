@@ -152,35 +152,34 @@ void DrawPane::DoPaint(wxDC & dc)
 
     wxDCFontChanger fontChanger(dc, *GetFont());
 
-    wxString content {""};
-
     {
         __ScopeLocker locker(buffer);
 
         auto rows = buffer->GetRows();
         auto cols = buffer->GetCols();
 
+        auto y = PADDING;
+
         for (auto row = 0u; row < rows; row++) {
             auto line = buffer->GetLine(row);
 
-            wchar_t last_char = '\0';
+            wxString content {""};
+
             for (auto col = 0u; col < cols; col++) {
                 auto cell = line->GetCell(col);
 
                 if (cell && cell->GetChar() != 0) {
                     content.append(cell->GetChar());
-                    last_char = cell->GetChar();
                 } else if (!cell) {
                     content.append(wxT(' '));
                 }
             }
 
-            if (last_char != '\n' && last_char != '\r')
-                content.append(wxT('\n'));
+            dc.DrawText(content, PADDING, y);
+            y += m_LineHeight;
         }
     }
 
-    dc.DrawText(content, PADDING, PADDING);
 }
 
 void DrawPane::OnIdle(wxIdleEvent& evt)

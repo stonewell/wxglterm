@@ -39,4 +39,12 @@ public:
     void SetTermDataHandler(TermDataHandlerPtr term_data_handler) override {
         PYBIND11_OVERLOAD_PURE_NAME(void, TermContextBase, "set_term_data_handler", SetTermDataHandler, term_data_handler);
     }
+
+    TermColorThemePtr GetTermColorTheme() const override {
+        PYBIND11_OVERLOAD_PURE_NAME(TermColorThemePtr, TermContextBase, "get_term_color_theme", GetTermColorTheme, );
+    }
+
+    void SetTermColorTheme(TermColorThemePtr term_color_theme) override {
+        PYBIND11_OVERLOAD_PURE_NAME(void, TermContextBase, "set_term_color_theme", SetTermColorTheme, term_color_theme);
+    }
 };

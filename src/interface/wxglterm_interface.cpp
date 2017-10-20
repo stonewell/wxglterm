@@ -15,6 +15,7 @@
 #include "py_term_ui.h"
 #include "py_term_network.h"
 #include "py_term_data_handler.h"
+#include "py_color_theme.h"
 #include "py_term_context.h"
 
 #include "py_plugin_manager.h"
@@ -114,7 +115,9 @@ PYBIND11_EMBEDDED_MODULE(wxglterm_interface, m)
             ;
 
     py::enum_<TermCell::ColorIndexEnum>(term_cell, "ColorIndex")
-            .value("DefaultColorIndex", TermCell::ColorIndexEnum::DefaultColorIndex)
+            .value("DefaultForeColorIndex", TermCell::ColorIndexEnum::DefaultForeColorIndex)
+            .value("DefaultBackColorIndex", TermCell::ColorIndexEnum::DefaultBackColorIndex)
+            .value("DefaultCursorColorIndex", TermCell::ColorIndexEnum::DefaultCursorColorIndex)
             .export_values();
     py::enum_<TermCell::TextModeEnum>(term_cell, "TextMode")
             .value("Stdout", TermCell::TextModeEnum::Stdout)
@@ -152,6 +155,7 @@ PYBIND11_EMBEDDED_MODULE(wxglterm_interface, m)
             .def_property("term_window", &TermContext::GetTermWindow, &TermContext::SetTermWindow)
             .def_property("term_network", &TermContext::GetTermNetwork, &TermContext::SetTermNetwork)
             .def_property("term_data_handler", &TermContext::GetTermDataHandler, &TermContext::SetTermDataHandler)
+            .def_property("term_color_theme", &TermContext::GetTermColorTheme, &TermContext::SetTermColorTheme)
             ;
 
     py::class_<PluginManager, PyPluginManager<>, std::shared_ptr<PluginManager>> plugin_manager(m, "PluginManager");
@@ -183,6 +187,21 @@ PYBIND11_EMBEDDED_MODULE(wxglterm_interface, m)
             .def("run", &Task::Run)
             .def("cancel", &Task::Cancel)
             .def("is_cancelled", &Task::IsCancelled)
+            ;
+
+    py::class_<TermColor, std::shared_ptr<TermColor>> term_color(m, "TermColor");
+    term_color.def(py::init<>())
+            .def_readwrite("r", &TermColor::r)
+            .def_readwrite("g", &TermColor::g)
+            .def_readwrite("b", &TermColor::b)
+            .def_readwrite("a", &TermColor::a)
+            ;
+
+    py::class_<TermColorTheme, PyTermColorTheme<>, std::shared_ptr<TermColorTheme>> term_color_theme(m, "TermColorTheme", multiple_instance_plugin);
+    term_color_theme.def(py::init<>())
+            .def("load", &TermColorTheme::Load)
+            .def("load_with_values", &TermColorTheme::LoadWithValues)
+            .def("get_color", &TermColorTheme::GetColor)
             ;
 }
 

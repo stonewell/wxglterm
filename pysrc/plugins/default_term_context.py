@@ -12,6 +12,7 @@ class DefaultTermContext(ContextBase, TermContext):
         self._term_window = None
         self._term_network = None
         self._term_data_handler = None
+        self._term_color_theme = None
 
     def get_term_buffer(self):
         return self._term_buffer
@@ -41,10 +42,17 @@ class DefaultTermContext(ContextBase, TermContext):
     def set_term_data_handler(self, term_data_handler):
         self._term_data_handler = term_data_handler
 
+    def get_term_color_theme(self):
+        return self._term_color_theme
+
+    def set_term_color_theme(self, term_color_theme):
+        self._term_color_theme = term_color_theme
+
     term_buffer = property(get_term_buffer, set_term_buffer)
     term_window = property(get_term_window, set_term_window)
     term_network = property(get_term_network, set_term_network)
     term_data_handler = property(get_term_data_handler, set_term_data_handler)
+    term_color_theme = property(get_term_color_theme, set_term_color_theme)
 
 def register_plugins(pm):
     ni = DefaultTermContext().new_instance()

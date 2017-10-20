@@ -55,7 +55,7 @@ class DefaultTkTermWindow(TermPluginBase, TermWindow):
 class DefaultTkTermUI(TermPluginBase, TermUI):
     def __init__(self):
         TermPluginBase.__init__(self,
-                            name="default_term_ui",
+                            name="default_tk_term_ui",
                             desc="It is a python version term default_term_ui",
                             version=1)
         TermUI.__init__(self)

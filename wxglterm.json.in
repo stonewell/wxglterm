@@ -6,9 +6,9 @@
 	    "name":"default_term_ui"
 	},
 	"network":{
-	    "name":"term_network_use_file",
+	    "name":"term_network_use_pty",
 	    "config":{
-		"file":""
+		"shell":"/bin/bash"
 	    }
 	},
 	"buffer":{
@@ -22,11 +22,18 @@
 	},
 	"show_context_window_task":{
 	    "name":"show_context_window_task"
+	},
+	"color_theme":{
+	    "name":"default_term_color_theme"
 	}
     },
 
     "term":{
 	"termcap_dir":"data",
+	"color_theme_dir":"data/color_theme",
+	"color_theme":{
+	    "name":"zenburn"
+	},
 	"use_system_ssh_config":true,
 	"use_ssh_config":"global_ssh_config_file_path",
 	"font": {

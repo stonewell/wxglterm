@@ -66,8 +66,8 @@ public:
         , m_ScrollRegionEnd(0)
         , m_Lines()
         , m_DefaultChar(' ')
-        , m_DefaultForeColorIndex(TermCell::DefaultColorIndex)
-        , m_DefaultBackColorIndex(TermCell::DefaultColorIndex)
+        , m_DefaultForeColorIndex(TermCell::DefaultForeColorIndex)
+        , m_DefaultBackColorIndex(TermCell::DefaultBackColorIndex)
         , m_DefaultMode(0)
         , m_Selection{new DefaultTermSelection}
     {
@@ -146,7 +146,7 @@ public:
             return line;
         }
 
-        printf("row:%u, rows:%u\n", row, GetRows());
+        printf("invalid row:%u, rows:%u\n", row, GetRows());
         return TermLinePtr{};
     }
 

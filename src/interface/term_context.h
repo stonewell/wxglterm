@@ -18,4 +18,7 @@ public:
     virtual void SetTermNetwork(TermNetworkPtr term_network) = 0;
     virtual TermDataHandlerPtr GetTermDataHandler() const = 0;
     virtual void SetTermDataHandler(TermDataHandlerPtr term_data_handler) = 0;
+
+    virtual TermColorThemePtr GetTermColorTheme() const = 0;
+    virtual void SetTermColorTheme(TermColorThemePtr term_color_theme) = 0;
 };

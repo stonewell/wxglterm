@@ -12,6 +12,7 @@
 #include "term_context.h"
 #include "term_network.h"
 #include "term_data_handler.h"
+#include "color_theme.h"
 
 #include "task.h"
 
@@ -120,15 +121,21 @@ bool wxGLTermApp::DoInit()
     auto term_network = CreateTermNetwork(term_context);
     auto term_data_handler = CreateTermDataHandler(term_context);
     auto term_buffer = CreateTermBuffer(term_context);
+    auto term_color_theme = CreateTermColorTheme(term_context);
 
-    if (term_context && term_ui && term_network && term_data_handler && term_buffer)
+    if (term_context
+        && term_ui
+        && term_network
+        && term_data_handler
+        && term_buffer
+        && term_color_theme)
     {
         term_context->SetTermWindow(term_ui->CreateWindow());
         term_context->SetTermNetwork(term_network);
         term_context->SetTermDataHandler(term_data_handler);
         term_context->SetTermBuffer(term_buffer);
+        term_context->SetTermColorTheme(term_color_theme);
 
-        //term_network->Connect("", 0, "", "");
         m_TermUIList.push_back(term_ui);
 
         auto mainwnd_task = CreateShowContextWindowTask(term_context);
@@ -304,6 +311,33 @@ TaskPtr wxGLTermApp::CreateShowContextWindowTask(TermContextPtr term_context)
                              new_instance_config);
 
     return std::dynamic_pointer_cast<Task>(new_instance);
+}
+
+TermColorThemePtr wxGLTermApp::CreateTermColorTheme(TermContextPtr term_context)
+{
+    std::string plugin_name = g_AppConfig->GetEntry("plugins/color_theme/name", "default_term_color_theme");
+    uint64_t plugin_version = g_AppConfig->GetEntryUInt64("plugins/color_theme/version", PluginManager::Latest);
+    std::string plugin_config = g_AppConfig->GetEntry("plugins/color_theme/config", "{}");
+
+    std::cout << "color_theme plugin config:"
+              << plugin_config
+              << std::endl;
+
+    auto plugin = std::dynamic_pointer_cast<TermColorTheme>(m_PluginManager->GetPlugin(plugin_name.c_str(), plugin_version));
+
+    if (!plugin)
+    {
+        //TODO: error or create default
+        return TermColorThemePtr{};
+    }
+
+    auto new_instance = plugin->NewInstance();
+    auto new_instance_config = CreateAppConfigFromString(plugin_config.c_str());
+
+    new_instance->InitPlugin(std::dynamic_pointer_cast<Context>(term_context),
+                             new_instance_config);
+
+    return std::dynamic_pointer_cast<TermColorTheme>(new_instance);
 }
 
 int main(int argc, char ** argv) {
