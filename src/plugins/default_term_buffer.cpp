@@ -183,89 +183,167 @@ public:
         m_ScrollRegionEnd = end;
     }
 
+    bool __NormalizeBeginEndPositionResetLinesWhenDeleteOrInsert(uint32_t & begin,
+                                                                 uint32_t count,
+                                                                 uint32_t & end)
+    {
+        std::lock_guard<std::recursive_mutex> guard(m_ResizeLock);
+
+        end = begin + count;
+
+        if (m_ScrollRegionBegin < m_ScrollRegionEnd)
+        {
+            if (begin < m_ScrollRegionBegin)
+                begin = m_ScrollRegionBegin;
+
+            if (end > m_ScrollRegionEnd)
+            {
+                //Reset line directly
+                for (uint32_t i = begin;i <= m_ScrollRegionEnd; i++)
+                {
+                    m_Lines[i]->Resize(0);
+                    m_Lines[i]->Resize(GetCols());
+                }
+                return true;
+            }
+        }
+        else
+        {
+            if (end >= m_Rows)
+            {
+                //Reset line directly
+                for (uint32_t i = begin;i < m_Rows; i++)
+                {
+                    m_Lines[i]->Resize(0);
+                    m_Lines[i]->Resize(GetCols());
+                }
+                return true;
+            }
+        }
+
+        return false;
+    }
+
     void DeleteLines(uint32_t begin, uint32_t count) override {
         std::lock_guard<std::recursive_mutex> guard(m_ResizeLock);
-        if (begin + count > m_ScrollRegionEnd)
-        {
-            //Reset line directly
-            for (uint32_t i = begin;i <= m_ScrollRegionEnd; i++)
-            {
-                m_Lines[i]->Resize(0);
-                m_Lines[i]->Resize(GetCols());
-            }
-            return;
-        }
 
         uint32_t end = begin + count;
 
-        TermLineVector::iterator b_it = m_Lines.begin() + begin,
-                e_it = m_Lines.begin() + end;
+        if (__NormalizeBeginEndPositionResetLinesWhenDeleteOrInsert(begin,
+                                                                    count,
+                                                                    end))
+        {
+            return;
+        }
 
+        if (end <= begin)
+            return;
+
+        TermLineVector tmpVector(end - begin);
         //Insert First, then delete
         for (uint32_t i = begin; i < end; i++)
         {
             auto term_line = CreateDefaultTermLine(this);
             term_line->Resize(GetCols());
-            m_Lines.insert(e_it, term_line);
+            tmpVector.push_back(term_line);
         }
 
+        TermLineVector::iterator b_it = m_Lines.begin() + begin,
+                e_it = m_Lines.begin() + end;
+
+        m_Lines.insert(e_it, tmpVector.begin(), tmpVector.end());
+
+        //recalculate iterator
+        b_it = m_Lines.begin() + begin;
+        e_it = m_Lines.begin() + end;
         m_Lines.erase(b_it, e_it);
     }
 
     void InsertLines(uint32_t begin, uint32_t count) override {
         std::lock_guard<std::recursive_mutex> guard(m_ResizeLock);
-        if (begin + count > m_ScrollRegionEnd)
+
+        uint32_t end = begin + count;
+
+        if (__NormalizeBeginEndPositionResetLinesWhenDeleteOrInsert(begin,
+                                                                    count,
+                                                                    end))
         {
-            //Reset line directly
-            for (uint32_t i = begin;i <= m_ScrollRegionEnd; i++)
-            {
-                m_Lines[i]->Resize(0);
-                m_Lines[i]->Resize(GetCols());
-            }
             return;
         }
 
-        TermLineVector::iterator b_it = m_Lines.begin() + m_ScrollRegionEnd - count + 1,
-                e_it = m_Lines.begin() + m_ScrollRegionEnd + 1;
+        if (end <= begin)
+            return;
+
+        TermLineVector::iterator b_it = m_Lines.begin() + begin,
+                e_it = m_Lines.begin() + end;
 
         m_Lines.erase(b_it, e_it);
 
-        b_it = m_Lines.begin() + begin;
+        TermLineVector tmpVector(end - begin);
 
-        for (uint32_t i = 0; i < count; i++)
+        for (uint32_t i = begin; i < end; i++)
         {
             auto term_line = CreateDefaultTermLine(this);
             term_line->Resize(GetCols());
-            m_Lines.insert(b_it, term_line);
+            tmpVector.push_back(term_line);
         }
+
+        b_it = m_Lines.begin() + begin;
+        m_Lines.insert(b_it, tmpVector.begin(), tmpVector.end());
     }
+
+    TermLineVector::iterator __GetScrollBeginIt() {
+        std::lock_guard<std::recursive_mutex> guard(m_ResizeLock);
+        TermLineVector::iterator _it = m_Lines.begin();
+
+        if (m_ScrollRegionBegin < m_ScrollRegionEnd) {
+            _it = _it + m_ScrollRegionBegin;
+        }
+
+        return _it;
+    };
+
+    TermLineVector::iterator __GetScrollEndIt() {
+        std::lock_guard<std::recursive_mutex> guard(m_ResizeLock);
+        TermLineVector::iterator _it = m_Lines.end();
+
+        if (m_ScrollRegionBegin < m_ScrollRegionEnd) {
+            _it = m_Lines.begin() + m_ScrollRegionEnd + 1;
+        }
+
+        return _it;
+    };
 
     void ScrollBuffer(int32_t scroll_offset) override {
         std::lock_guard<std::recursive_mutex> guard(m_ResizeLock);
-        TermLineVector::iterator b_it = m_Lines.begin(),
-                e_it = m_Lines.end();
-
-        if (m_ScrollRegionBegin < m_ScrollRegionEnd) {
-            b_it = b_it + m_ScrollRegionBegin;
-            e_it = m_Lines.begin() + m_ScrollRegionEnd + 1;
-        }
 
         if (scroll_offset < 0) {
+            TermLineVector tmpVector;
             for(int i=0;i < -scroll_offset;i++) {
                 auto term_line = CreateDefaultTermLine(this);
                 term_line->Resize(GetCols());
-                m_Lines.insert(e_it, term_line);
+                tmpVector.push_back(term_line);
             }
+
+            m_Lines.insert(__GetScrollEndIt(), tmpVector.begin(), tmpVector.end());
+
+            TermLineVector::iterator b_it = __GetScrollBeginIt();
 
             m_Lines.erase(b_it, b_it - scroll_offset);
         } else if (scroll_offset > 0) {
+            TermLineVector::iterator e_it = __GetScrollEndIt();
+
             m_Lines.erase(e_it - scroll_offset, e_it);
 
+            TermLineVector tmpVector;
             for(int i=0;i < scroll_offset;i++) {
                 auto term_line = CreateDefaultTermLine(this);
                 term_line->Resize(GetCols());
-                m_Lines.insert(b_it, term_line);
+                tmpVector.push_back(term_line);
             }
+
+            //recalculate
+            m_Lines.insert(__GetScrollBeginIt(), tmpVector.begin(), tmpVector.end());
         }
     }
 
