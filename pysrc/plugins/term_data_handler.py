@@ -82,7 +82,7 @@ class DefaultTermDataHandler(MultipleInstancePluginBase,
     def __output_status_line_data(self, c):
         pass
 
-    def __output_normal_data(self, c, insert = False):
+    def __output_normal_data(self, c, insert=False):
         if c == '\x1b':
             LOGGER.error('normal data has escape char:{}'.format(c.replace('\x1b','\\E')))
             return
@@ -93,24 +93,28 @@ class DefaultTermDataHandler(MultipleInstancePluginBase,
         except:
             LOGGER.exception('save buffer failed')
 
-    def __handle_cap__(self, check_unknown = True, data = None, c = None):
+    def __handle_cap__(self, check_unknown=True, data=None, c=None):
         cap_turple = self.state.get_cap(self._parse_context.params)
 
         if cap_turple:
             self.__on_control_data(cap_turple)
 
             if len(self._cap_state_stack) > 0:
-                self.state, self._parse_context.params, self.control_data = self._cap_state_stack.pop()
+                (self.state,
+                 self._parse_context.params,
+                 self.control_data) = self._cap_state_stack.pop()
             else:
                 self.state = self.cap.control_data_start_state
                 self._parse_context.params = []
                 self.control_data = []
         elif check_unknown and len(self.control_data) > 0:
-            next_state = self.cap.control_data_start_state.handle(self._parse_context, c)
+            next_state = \
+                self.cap.control_data_start_state.handle(self._parse_context,
+                                                         c)
 
             if not next_state:
                 m1 = 'start state:{}, params={}, self={}, next_states={}'.format(self.cap.control_data_start_state.cap_name, self._parse_context.params, self, self.cap.control_data_start_state.next_states)
-                m2 = 'current state:{}, params={}, next_states={}, {}, [{}]'.format(self.state.cap_name, self._parse_context.params, self.state.next_states, self.state.digit_state, ord(c) if c else 'None')
+                m2 = 'current state:{}, {}, params={}, next_states={}, {}, [{}]'.format(self.state, self.state.cap_name, self._parse_context.params, self.state.next_states, self.state.digit_state, ord(c) if c else 'None')
                 m3 = "unknown control data:[[[" + ''.join(self.control_data) + ']]]'
                 m4 = 'data:[[[{}]]]'.format(str(data).replace('\x1B', '\\E')
                                         .replace('\r', '\r\n'))
@@ -118,7 +122,9 @@ class DefaultTermDataHandler(MultipleInstancePluginBase,
 
                 LOGGER.error('\r\n'.join([m1, m2, m3, m4, m5, str(self.in_status_line)]))
 
-            self._cap_state_stack.append((self.state, self._parse_context.params, self.control_data))
+            self._cap_state_stack.append((self.state,
+                                          self._parse_context.params,
+                                          self.control_data))
 
             self.state = self.cap.control_data_start_state
             self._parse_context.params = []
@@ -136,9 +142,14 @@ class DefaultTermDataHandler(MultipleInstancePluginBase,
             c = chr(c)
             next_state = self.state.handle(self._parse_context, c)
 
-            if not next_state or self.state.get_cap(self._parse_context.params):
-                cap_turple = self.__handle_cap__(data=data, c=c)
+            if (not next_state or
+                    self.state.get_cap(self._parse_context.params)):
+                self.__handle_cap__(data=data, c=c)
 
+                # reset next state, if have both next_state
+                # and cap, next_state may process digit value
+                if next_state:
+                    next_state.reset()
                 # retry last char
                 next_state = self.state.handle(self._parse_context, c)
 
@@ -154,7 +165,8 @@ class DefaultTermDataHandler(MultipleInstancePluginBase,
             self.control_data.append(c if not c == '\x1B' else '\\E')
 
         if self.state:
-	        self.__handle_cap__(False)
+            self.__handle_cap__(False)
+
 
 def register_plugins(pm):
     pm.register_plugin(DefaultTermDataHandler().new_instance())

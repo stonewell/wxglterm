@@ -9,6 +9,7 @@ class Cap:
         self.cmds = {}
         self.control_data_start_state = ControlDataState()
 
+
 def parse_cap(cap_str):
     cap = Cap()
 
@@ -20,11 +21,12 @@ def parse_cap(cap_str):
             cap.cmds.update(parse_str_cap(field, cap.control_data_start_state))
         elif field.find('#') > 0:
             parts = field.split('#')
-            cap.flags.update({parts[0]:int(parts[1])})
+            cap.flags.update({parts[0]: int(parts[1])})
         else:
-            cap.flags.update({field:1})
+            cap.flags.update({field: 1})
 
     return cap
+
 
 class ControlDataParserContext:
     def __init__(self):
@@ -33,11 +35,15 @@ class ControlDataParserContext:
     def push_param(self, param):
         self.params.append(param)
 
+
 class ControlDataState:
     def __init__(self):
         self.cap_name = {}
         self.next_states = {}
         self.digit_state = None
+
+    def reset(self):
+        pass
 
     def add_state(self, c, state):
         if c in self.next_states:
@@ -55,9 +61,14 @@ class ControlDataState:
 
     def handle(self, context, c):
         if c in self.next_states:
-            return self.next_states[c]
+            next_state = self.next_states[c]
+            if next_state.digit_state:
+                next_state.digit_state.reset()
 
-        return self.digit_state.handle(context, c) if self.digit_state else None
+            return next_state
+
+        return self.digit_state.handle(context, c) \
+            if self.digit_state else None
 
     def get_cap(self, params):
         if len(params) == 0:
@@ -75,8 +86,8 @@ class ControlDataState:
                 else:
                     continue
 
-            re_str = k.replace(',**','(,[0-9]+)?')
-            re_str = re_str.replace('**','([0-9]+)?')
+            re_str = k.replace(',**', '(,[0-9]+)?')
+            re_str = re_str.replace('**', '([0-9]+)?')
             re_str = re_str.replace('*', '[0-9]+')
             re_str = re_str.replace('?', '*')
 
@@ -90,22 +101,28 @@ class DigitState(ControlDataState):
     def __init__(self):
         ControlDataState.__init__(self)
         self.digit_base = 10
-        self.digits = ['0', '1', '2', '3', '4', '5', '6', '7', '8', '9', 'A', 'B', 'C', 'D', 'E', 'F']
+        self.digits = ['0', '1', '2', '3', '4', '5',
+                       '6', '7', '8', '9', 'A', 'B', 'C', 'D', 'E', 'F']
         self.value = None
 
     def handle(self, context, cc):
         c = cc.upper()
 
         if c in self.digits[:self.digit_base]:
-            self.value = self.value * self.digit_base + self.digits.index(c) if self.value else self.digits.index(c)
+            self.value = self.value * self.digit_base + \
+                self.digits.index(c) \
+                if self.value else self.digits.index(c)
 
             return self
         else:
             if self.value is not None:
-                logging.error('params:{}, value:{}, {}'.format(context.params, self.value, cc))
                 context.push_param(self.value)
                 self.value = None
             return ControlDataState.handle(self, context, cc)
+
+    def reset(self):
+        self.value = None
+
 
 class CapStringValue:
     def __init__(self):
@@ -118,6 +135,7 @@ class CapStringValue:
 
     def __repr__(self):
         return self.__str__()
+
 
 def parse_padding(value):
     padding = 0.0
@@ -154,6 +172,7 @@ def parse_padding(value):
             pass
 
     return (pos, padding)
+
 
 def build_parser_state_machine(cap_str_value, start_state):
     value = cap_str_value.value
