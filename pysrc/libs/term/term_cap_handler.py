@@ -525,7 +525,7 @@ class TermCapHandler(object):
         self.parm_up_cursor(context, True, True)
         self.cursor = saved_cursor
 
-    def parm_down_cursor(self, context, do_refresh = True, do_scroll = False):
+    def parm_down_cursor(self, context, do_refresh=True, do_scroll=True):
         begin, end = self.get_scroll_region()
 
         count = context.params[0] if context and context.params and len(context.params) > 0 else 1
@@ -630,7 +630,7 @@ class TermCapHandler(object):
         self.cursor = (context.params[0], row)
         self.refresh_display()
 
-    def parm_up_cursor(self, context, do_refresh = True, do_scroll = False):
+    def parm_up_cursor(self, context, do_refresh = True, do_scroll = True):
         begin, end = self.get_scroll_region()
 
         count = context.params[0] if context and context.params and len(context.params) > 0 else 1
@@ -661,7 +661,6 @@ class TermCapHandler(object):
         self.refresh_display()
 
     def enter_status_line(self, mode, enter):
-        LOGGER.error('enter_status_line:{}, {}'.format(mode, enter))
         self.in_status_line = enter
 
     def _translate_char(self, c):

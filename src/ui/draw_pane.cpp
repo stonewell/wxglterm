@@ -224,10 +224,8 @@ void DrawPane::OnChar(wxKeyEvent& event)
     wxChar uc = event.GetUnicodeKey();
 
     char c= uc & 0xFF;
-    if (uc != WXK_NONE)
+    if (uc == WXK_NONE)
     {
-        printf("key char:%d, %d\n", (int)c, (int)uc);
-    } else {
         printf("key code:%d\n", event.GetKeyCode());
 
         return ;
