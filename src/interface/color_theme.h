@@ -2,7 +2,17 @@
 
 #include "multiple_instance_plugin.h"
 
-struct TermColor {
+class TermColor {
+public:
+    TermColor() :
+        r(0)
+        , g(0)
+        , b(0)
+        , a(0xFF) {
+    }
+
+    virtual ~TermColor() = default;
+
     uint8_t r;
     uint8_t g;
     uint8_t b;

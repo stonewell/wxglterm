@@ -7,13 +7,15 @@ from multiple_instance_plugin_base import MultipleInstancePluginBase
 
 LOGGER = logging.getLogger('term_color_theme')
 
+
 class DefaultTermColorTheme(MultipleInstancePluginBase, TermColorTheme):
     def __init__(self):
-        MultipleInstancePluginBase.__init__(self, name="default_term_color_theme",
+        MultipleInstancePluginBase.__init__(self,
+                                            name="default_term_color_theme",
                                             desc="It is a python version term color theme",
                                             version=1)
         TermColorTheme.__init__(self)
-        self._name = ''
+        self._theme_name = ''
         self._values = {}
 
         self.__init_colors_map()
@@ -32,7 +34,7 @@ class DefaultTermColorTheme(MultipleInstancePluginBase, TermColorTheme):
             return self.load_with_values(name, values)
 
     def load_with_values(self, name, values):
-        self._name = name
+        self._theme_name = name
         self._values.update(self.__to_colors_map(json.loads(values)))
 
         return True
@@ -67,7 +69,7 @@ class DefaultTermColorTheme(MultipleInstancePluginBase, TermColorTheme):
     def __from_array_to_color(self, v):
         c = TermColor()
 
-        c.r, c.g, c.b, c.a = v[0], v[1], v[2], v[3]
+        c.r, c.g, c.b, c.a = int(v[0]) & 0xFF, int(v[1]) & 0xFF, int(v[2]) & 0xFF, int(v[3]) & 0xFF
 
         return c
 

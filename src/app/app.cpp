@@ -328,6 +328,12 @@ TermColorThemePtr wxGLTermApp::CreateTermColorTheme(TermContextPtr term_context)
     if (!plugin)
     {
         //TODO: error or create default
+        std::cerr << "unable to find color theme plguin:"
+                  << plugin_name
+                  << ", version:"
+                  << plugin_version
+                  << std::endl;
+
         return TermColorThemePtr{};
     }
 
