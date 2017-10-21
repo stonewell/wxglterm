@@ -79,6 +79,8 @@ void DrawPane::OnSize(wxSizeEvent& /*event*/)
     wxSize clientSize = GetClientSize();
     wxClientDC dc(this);
 
+    wxDCFontChanger fontChanger(dc, *GetFont());
+
     dc.GetTextExtent(SINGLE_WIDTH_CHARACTERS,
                      &m_CellWidth,
                      &m_LineHeight,
@@ -86,8 +88,10 @@ void DrawPane::OnSize(wxSizeEvent& /*event*/)
                      NULL,
                      GetFont());
 
+    printf("cell width:%u, line height:%u, %lu\n", dc.GetTextExtent(SINGLE_WIDTH_CHARACTERS).GetWidth(), m_LineHeight,
+           sizeof(SINGLE_WIDTH_CHARACTERS));
+
     m_CellWidth /= (sizeof(SINGLE_WIDTH_CHARACTERS) - 1);
-    m_LineHeight += 1;
 
     printf("cell width:%u, line height:%u, %lu\n", m_CellWidth, m_LineHeight,
            sizeof(SINGLE_WIDTH_CHARACTERS));
@@ -118,7 +122,10 @@ wxFont * DrawPane::GetFont()
     auto font_size = appConfig->GetEntryUInt64("/term/font/size", 16);
     auto font_name = appConfig->GetEntry("/term/font/name", "Monospace");
 
-    m_Font = new wxFont(wxFontInfo(font_size).FaceName(font_name.c_str()));
+    m_Font = new wxFont(wxFontInfo(font_size)
+                        .FaceName(font_name.c_str())
+                        .Family(wxFONTFAMILY_TELETYPE)
+                        .Encoding(wxFONTENCODING_UTF8));
 
     return m_Font;
 }
@@ -189,6 +196,13 @@ void DrawPane::DoPaint(wxDC & dc)
 
         auto y = PADDING;
 
+        uint16_t last_fore_color = TermCell::DefaultForeColorIndex;
+        uint16_t last_back_color = TermCell::DefaultBackColorIndex;
+        auto last_y = PADDING;
+        auto last_x = PADDING;
+
+        wxString content {""};
+
         for (auto row = 0u; row < rows; row++) {
             auto line = buffer->GetLine(row);
 
@@ -197,26 +211,70 @@ void DrawPane::DoPaint(wxDC & dc)
             for (auto col = 0u; col < cols; col++) {
                 auto cell = line->GetCell(col);
 
-                wxString content {""};
+                wchar_t ch = 0;
+                uint16_t fore_color = TermCell::DefaultForeColorIndex;
+                uint16_t back_color = TermCell::DefaultBackColorIndex;
 
                 if (cell && cell->GetChar() != 0) {
-                    content.append(cell->GetChar());
-                    dc.SetTextForeground(m_ColorTable[cell->GetForeColorIndex()]);
-                    dc.SetTextBackground(m_ColorTable[cell->GetBackColorIndex()]);
+                    fore_color = cell->GetForeColorIndex();
+                    back_color = cell->GetBackColorIndex();
+                    ch = cell->GetChar();
                 } else if (!cell) {
-                    content.append(wxT(' '));
-                    dc.SetTextForeground(m_ColorTable[TermCell::DefaultForeColorIndex]);
-                    dc.SetTextBackground(m_ColorTable[TermCell::DefaultBackColorIndex]);
+                    ch = ' ';
                 }
 
-                dc.DrawText(content, x, y);
-                x += m_CellWidth;
+                if (ch != 0)
+                {
+                    if (last_fore_color != fore_color
+                        || last_back_color != back_color)
+                    {
+                        dc.SetTextForeground(m_ColorTable[last_fore_color]);
+                        dc.SetTextBackground(m_ColorTable[last_back_color]);
+                        dc.DrawText(content, last_x, last_y);
 
-                if (cell && cell->IsWideChar())
-                    x += m_CellWidth;
+                        if (content.Find('\n', true) > 0)
+                        {
+                            last_x = PADDING + dc.GetTextExtent(content.AfterLast('\n')).GetWidth();
+                        } else {
+                            last_x += dc.GetTextExtent(content).GetWidth();
+                        }
+                        last_y = y;
+                        content.Clear();
+                        last_fore_color = fore_color;
+                        last_back_color = back_color;
+
+                    }
+
+                    content.append(ch);
+                }
+
+                x += m_CellWidth;
             }
 
             y += m_LineHeight;
+
+            if (last_x == PADDING)
+            {
+                content.append("\n");
+            }
+            else if (content.Length() > 0)
+            {
+                dc.SetTextForeground(m_ColorTable[last_fore_color]);
+                dc.SetTextBackground(m_ColorTable[last_back_color]);
+                dc.DrawText(content, last_x, last_y);
+                last_x = PADDING;
+                last_y = y;
+                content.Clear();
+                last_fore_color = TermCell::DefaultForeColorIndex;
+                last_back_color = TermCell::DefaultBackColorIndex;
+            }
+        }
+
+        if (content.Length() > 0)
+        {
+            dc.SetTextForeground(m_ColorTable[last_fore_color]);
+            dc.SetTextBackground(m_ColorTable[last_back_color]);
+            dc.DrawText(content, last_x, last_y);
         }
     }
 
