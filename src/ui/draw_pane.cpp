@@ -11,6 +11,7 @@
 #include "term_line.h"
 #include "term_cell.h"
 #include "term_network.h"
+#include "color_theme.h"
 
 constexpr uint32_t PADDING = 5;
 
@@ -38,6 +39,8 @@ DrawPane::DrawPane(wxFrame * parent, TermWindow * termWindow)
         , m_TermWindow(termWindow)
         , m_Font(nullptr)
 {
+    InitColorTable();
+
     SetBackgroundStyle(wxBG_STYLE_PAINT);
 
     Connect( wxID_ANY, wxEVT_IDLE, wxIdleEventHandler(DrawPane::OnIdle) );
@@ -135,9 +138,35 @@ public:
     TermBufferPtr m_TermBuffer;
 };
 
+class __DCAttributesChanger {
+public:
+    __DCAttributesChanger(wxDC * pdc) :
+        m_pDC(pdc)
+        , back(pdc->GetBackground())
+        , txt_fore(pdc->GetTextForeground())
+        , txt_back(pdc->GetTextBackground())
+    {
+    }
+
+    ~__DCAttributesChanger() {
+        m_pDC->SetTextForeground(txt_fore);
+        m_pDC->SetTextBackground(txt_back);
+        m_pDC->SetBackground(back);
+    }
+
+    wxDC * m_pDC;
+    const wxBrush & back;
+    const wxColour & txt_fore;
+    const wxColour & txt_back;
+};
+
 void DrawPane::DoPaint(wxDC & dc)
 {
-    dc.SetBackground( *wxWHITE_BRUSH );
+    __DCAttributesChanger changer(&dc);
+
+    wxBrush backgroundBrush(m_ColorTable[TermCell::DefaultBackColorIndex]);
+
+    dc.SetBackground( backgroundBrush );
     dc.Clear();
 
     TermContextPtr context = std::dynamic_pointer_cast<TermContext>(m_TermWindow->GetPluginContext());
@@ -163,19 +192,30 @@ void DrawPane::DoPaint(wxDC & dc)
         for (auto row = 0u; row < rows; row++) {
             auto line = buffer->GetLine(row);
 
-            wxString content {""};
+            auto x = PADDING;
 
             for (auto col = 0u; col < cols; col++) {
                 auto cell = line->GetCell(col);
 
+                wxString content {""};
+
                 if (cell && cell->GetChar() != 0) {
                     content.append(cell->GetChar());
+                    dc.SetTextForeground(m_ColorTable[cell->GetForeColorIndex()]);
+                    dc.SetTextBackground(m_ColorTable[cell->GetBackColorIndex()]);
                 } else if (!cell) {
                     content.append(wxT(' '));
+                    dc.SetTextForeground(m_ColorTable[TermCell::DefaultForeColorIndex]);
+                    dc.SetTextBackground(m_ColorTable[TermCell::DefaultBackColorIndex]);
                 }
+
+                dc.DrawText(content, x, y);
+                x += m_CellWidth;
+
+                if (cell && cell->IsWideChar())
+                    x += m_CellWidth;
             }
 
-            dc.DrawText(content, PADDING, y);
             y += m_LineHeight;
         }
     }
@@ -242,6 +282,41 @@ void DrawPane::OnChar(wxKeyEvent& event)
         pybind11::gil_scoped_acquire acquire;
         char ch[2] = {c, 0};
         network->Send(ch, 1);
+    }
+    catch(std::exception & e)
+    {
+        std::cerr << "!!Error Send:"
+                  << std::endl
+                  << e.what()
+                  << std::endl;
+        PyErr_Print();
+    }
+    catch(...)
+    {
+        std::cerr << "!!Error Send"
+                  << std::endl;
+        PyErr_Print();
+    }
+}
+
+void DrawPane::InitColorTable()
+{
+    TermContextPtr context = std::dynamic_pointer_cast<TermContext>(m_TermWindow->GetPluginContext());
+    TermColorThemePtr color_theme = context->GetTermColorTheme();
+
+   try
+    {
+        pybind11::gil_scoped_acquire acquire;
+
+        for(int i = 0; i < TermCell::ColorIndexCount;i++)
+        {
+            TermColorPtr color = color_theme->GetColor(i);
+
+            m_ColorTable[i].Set(color->r,
+                                color->g,
+                                color->b,
+                                color->a);
+        }
     }
     catch(std::exception & e)
     {

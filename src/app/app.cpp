@@ -130,6 +130,12 @@ bool wxGLTermApp::DoInit()
         && term_buffer
         && term_color_theme)
     {
+        std::string color_theme { g_AppConfig->GetEntry("/term/color_theme/name", "NOT FOUND") };
+
+        if (color_theme != "NOT FOUND")
+        {
+            term_color_theme->Load(color_theme.c_str());
+        }
         term_context->SetTermWindow(term_ui->CreateWindow());
         term_context->SetTermNetwork(term_network);
         term_context->SetTermDataHandler(term_data_handler);

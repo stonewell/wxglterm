@@ -16,7 +16,7 @@ public:
         PYBIND11_OVERLOAD_PURE_NAME(bool, TermColorThemeBase, "load_with_values", LoadWithValues, name, value);
     }
 
-    TermColorPtr GetColor(uint8_t index) override {
+    TermColorPtr GetColor(uint32_t index) override {
         PYBIND11_OVERLOAD_PURE_NAME(TermColorPtr, TermColorThemeBase, "get_color", GetColor, index);
     }
 };

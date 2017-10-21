@@ -34,16 +34,28 @@ class DefaultTermColorTheme(MultipleInstancePluginBase, TermColorTheme):
             return self.load_with_values(name, values)
 
     def load_with_values(self, name, values):
-        self._theme_name = name
-        self._values.update(self.__to_colors_map(json.loads(values)))
+        try:
+            self._theme_name = name
 
-        return True
+            colors_map = self.__to_colors_map(json.loads(values))
+            self._values.update(colors_map)
+
+            if not TermCell.ColorIndex.DefaultForeColorIndex in colors_map:
+                self._values[TermCell.ColorIndex.DefaultForeColorIndex] = self._values[7]
+            if not TermCell.ColorIndex.DefaultBackColorIndex in colors_map:
+                self._values[TermCell.ColorIndex.DefaultBackColorIndex] = self._values[0]
+            if not TermCell.ColorIndex.DefaultCursorColorIndex in colors_map:
+                self._values[TermCell.ColorIndex.DefaultCursorColorIndex] = self._values[7]
+
+            return True
+        except:
+            LOGGER.exception('load {} color theme failed'.format(name))
+            return False
+
 
     def get_color(self, index):
-        key = str(index)
-
         try:
-            return self._values[key]
+            return self._values[index]
         except:
             return TermColor()
 
@@ -62,7 +74,7 @@ class DefaultTermColorTheme(MultipleInstancePluginBase, TermColorTheme):
             c.b = int(v[4:6], 16)
             c.a = int(v[6:8], 16) if len(v) >= 8 else 0xFF
 
-            colors_map[key] = c
+            colors_map[int(key)] = c
 
         return colors_map
 
@@ -97,26 +109,26 @@ class DefaultTermColorTheme(MultipleInstancePluginBase, TermColorTheme):
             [0xFF, 0xFF, 0xFF, 0xFF], #WHITE
         ]
 
-        self._values[str(TermCell.ColorIndex.DefaultForeColorIndex)] = self.__from_array_to_color([0x00,0x00,0x00,0x88])
-        self._values[str(TermCell.ColorIndex.DefaultBackColorIndex)] = self.__from_array_to_color([0xdd,0xdd,0xdd,0xFF])
-        self._values[str(TermCell.ColorIndex.DefaultCursorColorIndex)] = self.__from_array_to_color([0x00,0x00,0x00,0x88])
+        self._values[TermCell.ColorIndex.DefaultForeColorIndex] = self.__from_array_to_color([0x00,0x00,0x00,0x88])
+        self._values[TermCell.ColorIndex.DefaultBackColorIndex] = self.__from_array_to_color([0xdd,0xdd,0xdd,0xFF])
+        self._values[TermCell.ColorIndex.DefaultCursorColorIndex] = self.__from_array_to_color([0x00,0x00,0x00,0x88])
 
         for i in range(len(COLOR_TABLE)):
-            self._values[str(i)] = self.__from_array_to_color(COLOR_TABLE[i])
+            self._values[i] = self.__from_array_to_color(COLOR_TABLE[i])
 
         for i in range(240):
             if i < 216:
                 r = i / 36
                 g = (i / 6) % 6
                 b = i % 6
-                self._values[str(i + 16)] = self.__from_array_to_color(
+                self._values[i + 16] = self.__from_array_to_color(
                     [r * 40 + 55 if r > 0 else 0,
                      g * 40 + 55 if g > 0 else 0,
                      b * 40 + 55 if b > 0 else 0,
                      0xFF])
             else:
                 shade = (i - 216) * 10 + 8
-                self._values[str(i + 16)] = self.__from_array_to_color(
+                self._values[i + 16] = self.__from_array_to_color(
                     [shade,
                      shade,
                      shade,

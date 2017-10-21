@@ -1,6 +1,7 @@
 #pragma once
 
 #include <wx/wx.h>
+#include "term_cell.h"
 
 class DrawPane : public wxPanel {
 public:
@@ -25,6 +26,8 @@ private:
 
     void DoPaint(wxDC & dc);
 
+    void InitColorTable();
+
     int m_RefreshNow;
     wxCriticalSection m_RefreshLock;
     TermWindow * m_TermWindow;
@@ -32,4 +35,6 @@ private:
     wxFont * m_Font;
     wxCoord m_LineHeight;
     wxCoord m_CellWidth;
+
+    wxColour m_ColorTable[TermCell::ColorIndexCount];
 };

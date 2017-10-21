@@ -24,5 +24,5 @@ public:
     virtual bool Load(const char * name) = 0;
     virtual bool LoadWithValues(const char * name, const char * value) = 0;
 
-    virtual TermColorPtr GetColor(uint8_t index) = 0;
+    virtual TermColorPtr GetColor(uint32_t index) = 0;
 };
