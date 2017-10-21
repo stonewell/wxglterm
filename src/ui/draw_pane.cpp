@@ -228,6 +228,16 @@ void DrawPane::DoPaint(wxDC & dc)
                     if (last_fore_color != fore_color
                         || last_back_color != back_color)
                     {
+                        wxSize content_size = dc.GetTextExtent(content);
+
+                        if (last_back_color != back_color)
+                        {
+                            wxBrush brush(m_ColorTable[last_back_color]);
+                            dc.SetBrush(brush);
+                            dc.SetPen(wxPen(m_ColorTable[last_back_color]));
+                            dc.DrawRectangle(wxPoint(last_x, last_y), content_size);
+                        }
+
                         dc.SetTextForeground(m_ColorTable[last_fore_color]);
                         dc.SetTextBackground(m_ColorTable[last_back_color]);
                         dc.DrawText(content, last_x, last_y);
@@ -236,7 +246,7 @@ void DrawPane::DoPaint(wxDC & dc)
                         {
                             last_x = PADDING + dc.GetTextExtent(content.AfterLast('\n')).GetWidth();
                         } else {
-                            last_x += dc.GetTextExtent(content).GetWidth();
+                            last_x += content_size.GetWidth();
                         }
                         last_y = y;
                         content.Clear();
