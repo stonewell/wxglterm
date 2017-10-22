@@ -52,4 +52,12 @@ public:
     void SetWideChar(bool wide_char) override {
         PYBIND11_OVERLOAD_PURE_NAME(void, TermCellBase, "set_wide_char", SetWideChar, wide_char);
     }
+
+    bool IsModified() const override {
+        PYBIND11_OVERLOAD_PURE_NAME(bool, TermCellBase, "is_modified", IsModified, );
+    }
+
+    void SetModified(bool modified) override {
+        PYBIND11_OVERLOAD_PURE_NAME(void, TermCellBase, "set_modified", SetModified, modified);
+    }
 };

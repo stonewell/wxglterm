@@ -59,9 +59,13 @@ void DrawPane::RequestRefresh()
 
 void DrawPane::OnPaint(wxPaintEvent & /*event*/)
 {
-    wxAutoBufferedPaintDC dc(this);
+    wxPaintDC dc(this);
 
-    DoPaint(dc);
+    wxRect clientSize = GetClientSize();
+
+    wxRegion clipRegion(clientSize);
+
+    DoPaint(dc, clipRegion);
 }
 
 void DrawPane::OnSize(wxSizeEvent& /*event*/)
@@ -104,6 +108,8 @@ void DrawPane::OnSize(wxSizeEvent& /*event*/)
     if (network)
         network->Resize(buffer->GetRows(),
                         buffer->GetCols());
+
+    RequestRefresh();
 }
 
 wxFont * DrawPane::GetFont()
@@ -167,14 +173,13 @@ public:
     const wxColour & txt_back;
 };
 
-void DrawPane::DoPaint(wxDC & dc)
+void DrawPane::DoPaint(wxDC & dc, wxRegion & clipRegion)
 {
     __DCAttributesChanger changer(&dc);
 
     wxBrush backgroundBrush(m_ColorTable[TermCell::DefaultBackColorIndex]);
 
-    dc.SetBackground( backgroundBrush );
-    dc.Clear();
+    wxSize clientSize = GetClientSize();
 
     TermContextPtr context = std::dynamic_pointer_cast<TermContext>(m_TermWindow->GetPluginContext());
 
@@ -203,8 +208,38 @@ void DrawPane::DoPaint(wxDC & dc)
 
         wxString content {""};
 
+        dc.SetBackground( backgroundBrush );
+        dc.Clear();
+
         for (auto row = 0u; row < rows; row++) {
             auto line = buffer->GetLine(row);
+
+            if (row == line->GetLastRenderLineIndex()
+                && !line->IsModified())
+            {
+                wxRect rowRect(0, PADDING + row * m_LineHeight, clientSize.GetWidth(), m_LineHeight);
+                clipRegion.Subtract(rowRect);
+
+                y += m_LineHeight;
+
+                if (content.Length() > 0)
+                {
+                    dc.SetTextForeground(m_ColorTable[last_fore_color]);
+                    dc.SetTextBackground(m_ColorTable[last_back_color]);
+                    dc.DrawText(content, last_x, last_y);
+                    content.Clear();
+                    last_fore_color = TermCell::DefaultForeColorIndex;
+                    last_back_color = TermCell::DefaultBackColorIndex;
+                }
+
+                last_x = PADDING;
+                last_y = y;
+                continue;
+            }
+
+            std::cout << "row:" << row << "-------------------" << std::endl;
+            line->SetLastRenderLineIndex(row);
+            line->SetModified(false);
 
             auto x = PADDING;
 
@@ -302,9 +337,17 @@ void DrawPane::OnIdle(wxIdleEvent& evt)
     if (refreshNow)
     {
         wxClientDC dc(this);
+
+        wxRect clientSize = GetClientSize();
+
+        wxRegion clipRegion(clientSize);
+
         wxBufferedDC bDC(&dc,
                          GetClientSize());
-        DoPaint(bDC);
+        DoPaint(bDC, clipRegion);
+
+        dc.DestroyClippingRegion();
+        dc.SetDeviceClippingRegion(clipRegion);
     }
 
     {

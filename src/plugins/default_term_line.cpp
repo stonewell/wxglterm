@@ -10,11 +10,13 @@ public:
     DefaultTermLine(TermBuffer * term_buffer) :
         PluginBase("default_term_line", "default terminal line plugin", 0)
         , m_TermBuffer(term_buffer)
+        , m_LastRenderLineIndex { (uint32_t)-1 }
     {
     }
 
     void Resize(uint32_t col) override {
         m_Cells.resize(col);
+        SetModified(true);
     }
 
     TermCellPtr GetCell(uint32_t col) override {
@@ -57,9 +59,36 @@ public:
 
         return cell;
     }
+
+    bool IsModified() const override {
+        for(auto cell : m_Cells)
+        {
+            if (cell && cell->IsModified())
+                return true;
+        }
+
+        return false;
+    }
+
+    void SetModified(bool modified) override {
+        for(auto cell : m_Cells)
+        {
+            if (cell)
+                cell->SetModified(modified);
+        }
+    }
+
+    uint32_t GetLastRenderLineIndex() const override {
+        return m_LastRenderLineIndex;
+    }
+
+    void SetLastRenderLineIndex(uint32_t index) override {
+        m_LastRenderLineIndex = index;
+    }
 private:
     TermBuffer * m_TermBuffer;
     TermCellVector m_Cells;
+    uint32_t m_LastRenderLineIndex;
 };
 
 TermLinePtr CreateDefaultTermLine(TermBuffer * term_buffer)

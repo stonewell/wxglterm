@@ -37,4 +37,7 @@ public:
 
     virtual bool IsWideChar() const = 0;
     virtual void SetWideChar(bool wide_char) = 0;
+
+    virtual bool IsModified() const = 0;
+    virtual void SetModified(bool modified) = 0;
 };

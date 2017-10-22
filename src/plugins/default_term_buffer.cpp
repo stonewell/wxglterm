@@ -106,7 +106,9 @@ public:
              it++)
         {
             if (*it)
+            {
                 (*it)->Resize(m_Cols);
+            }
         }
 
     }

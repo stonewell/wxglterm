@@ -24,7 +24,7 @@ private:
 
     wxFont * GetFont();
 
-    void DoPaint(wxDC & dc);
+    void DoPaint(wxDC & dc, wxRegion & clipRegion);
 
     void InitColorTable();
 

@@ -92,6 +92,8 @@ PYBIND11_EMBEDDED_MODULE(wxglterm_interface, m)
             .def("resize", &TermLine::Resize)
             .def("get_cell", &TermLine::GetCell)
             .def("insert_cell", &TermLine::InsertCell)
+            .def_property("is_modified", &TermLine::IsModified, &TermLine::SetModified)
+            .def_property("last_render_line_index", &TermLine::GetLastRenderLineIndex, &TermLine::SetLastRenderLineIndex)
             ;
 
     py::class_<TermCell, PyTermCell<>, std::shared_ptr<TermCell>> term_cell(m, "TermCell", plugin);
@@ -104,6 +106,7 @@ PYBIND11_EMBEDDED_MODULE(wxglterm_interface, m)
             .def("remove_mode", &TermCell::RemoveMode)
             .def("reset", &TermCell::Reset)
             .def_property("is_wide_char", &TermCell::IsWideChar, &TermCell::SetWideChar)
+            .def_property("is_modified", &TermCell::IsModified, &TermCell::SetModified)
             ;
 
     py::class_<TermSelection, PyTermSelection<>, std::shared_ptr<TermSelection>> term_selection(m, "TermSelection", plugin);
