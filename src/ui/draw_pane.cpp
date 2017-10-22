@@ -25,7 +25,6 @@ constexpr uint32_t PADDING = 5;
 					"{|}~"
 
 BEGIN_EVENT_TABLE(DrawPane, wxPanel)
-        EVT_PAINT(DrawPane::OnPaint)
         EVT_SIZE(DrawPane::OnSize)
 EVT_KEY_DOWN(DrawPane::OnKeyDown)
 EVT_KEY_UP(DrawPane::OnKeyUp)
@@ -41,8 +40,6 @@ DrawPane::DrawPane(wxFrame * parent, TermWindow * termWindow)
 {
     InitColorTable();
 
-    SetBackgroundStyle(wxBG_STYLE_PAINT);
-
     Connect( wxID_ANY, wxEVT_IDLE, wxIdleEventHandler(DrawPane::OnIdle) );
 }
 
@@ -55,17 +52,6 @@ void DrawPane::RequestRefresh()
 {
     wxCriticalSectionLocker locker(m_RefreshLock);
     m_RefreshNow++;
-}
-
-void DrawPane::OnPaint(wxPaintEvent & /*event*/)
-{
-    wxPaintDC dc(this);
-
-    wxRect clientSize = GetClientSize();
-
-    wxRegion clipRegion(clientSize);
-
-    DoPaint(dc, clipRegion);
 }
 
 void DrawPane::OnSize(wxSizeEvent& /*event*/)
@@ -180,6 +166,7 @@ void DrawPane::DoPaint(wxDC & dc, wxRegion & clipRegion)
     wxBrush backgroundBrush(m_ColorTable[TermCell::DefaultBackColorIndex]);
 
     wxSize clientSize = GetClientSize();
+    wxString content {""};
 
     TermContextPtr context = std::dynamic_pointer_cast<TermContext>(m_TermWindow->GetPluginContext());
 
@@ -206,15 +193,14 @@ void DrawPane::DoPaint(wxDC & dc, wxRegion & clipRegion)
         auto last_y = PADDING;
         auto last_x = PADDING;
 
-        wxString content {""};
-
         dc.SetBackground( backgroundBrush );
         dc.Clear();
 
         for (auto row = 0u; row < rows; row++) {
             auto line = buffer->GetLine(row);
 
-            if (row == line->GetLastRenderLineIndex()
+            if (!clipRegion.IsEmpty()
+                && row == line->GetLastRenderLineIndex()
                 && !line->IsModified())
             {
                 wxRect rowRect(0, PADDING + row * m_LineHeight, clientSize.GetWidth(), m_LineHeight);
@@ -234,10 +220,10 @@ void DrawPane::DoPaint(wxDC & dc, wxRegion & clipRegion)
 
                 last_x = PADDING;
                 last_y = y;
+
                 continue;
             }
 
-            std::cout << "row:" << row << "-------------------" << std::endl;
             line->SetLastRenderLineIndex(row);
             line->SetModified(false);
 
@@ -300,7 +286,8 @@ void DrawPane::DoPaint(wxDC & dc, wxRegion & clipRegion)
 
             if (last_x == PADDING)
             {
-                content.append("\n");
+                if (row != rows - 1)
+                    content.append("\n");
             }
             else if (content.Length() > 0)
             {
@@ -319,11 +306,13 @@ void DrawPane::DoPaint(wxDC & dc, wxRegion & clipRegion)
         {
             dc.SetTextForeground(m_ColorTable[last_fore_color]);
             dc.SetTextBackground(m_ColorTable[last_back_color]);
+
             dc.DrawText(content, last_x, last_y);
-        }
+         }
     }
 
 }
+
 
 void DrawPane::OnIdle(wxIdleEvent& evt)
 {

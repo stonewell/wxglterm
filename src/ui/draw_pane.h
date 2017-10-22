@@ -15,7 +15,6 @@ public:
     void RequestRefresh();
 
 private:
-    void OnPaint(wxPaintEvent & event);
     void OnIdle(wxIdleEvent& evt);
     void OnSize(wxSizeEvent& event);
     void OnKeyDown(wxKeyEvent& event);
