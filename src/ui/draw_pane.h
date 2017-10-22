@@ -24,6 +24,17 @@ private:
     wxFont * GetFont();
 
     void DoPaint(wxDC & dc, wxRegion & clipRegion);
+    void DrawContent(wxDC &dc,
+                     wxString & content,
+                     uint16_t & last_fore_color,
+                     uint16_t & last_back_color,
+                     uint16_t & last_mode,
+                     uint16_t fore_color,
+                     uint16_t back_color,
+                     uint16_t mode,
+                     wxCoord & last_x,
+                     wxCoord & last_y,
+                     wxCoord y);
 
     void InitColorTable();
 
