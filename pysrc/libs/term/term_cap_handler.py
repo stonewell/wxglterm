@@ -122,15 +122,15 @@ class TermCapHandler(object):
 
     cursor = property(get_cursor, set_cursor)
 
-    def __create_refresh_timer(self):
-        return threading.Timer(0.02, self.__do_refresh)
+    def __create_refresh_timer(self, interval = 0.02):
+        return threading.Timer(interval, self.__do_refresh)
 
     def __do_refresh(self):
         self.plugin_context.term_window.refresh()
 
-    def refresh_display(self):
+    def refresh_display(self, interval = 0.02):
         self._refresh_timer.cancel()
-        self._refresh_timer = self.__create_refresh_timer()
+        self._refresh_timer = self.__create_refresh_timer(interval)
         self._refresh_timer.start()
 
     def get_scroll_region(self):
