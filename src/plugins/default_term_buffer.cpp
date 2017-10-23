@@ -422,7 +422,7 @@ public:
 
     void SetCurCellData(uint32_t ch, bool wide_char, bool insert, TermCellPtr cell_template) override {
         std::lock_guard<std::recursive_mutex> guard(m_ResizeLock);
-        int new_cell_count = wide_char ? 1 : 2;
+        int new_cell_count = wide_char ? 2 : 1;
 
         if (!insert)
         {
@@ -490,6 +490,9 @@ public:
             m_CurRow = saved_row;
             m_CurCol = saved_col;
         }
+
+        if (m_CurCol >= m_Cols)
+            m_CurCol = m_Cols - 1;
     }
 
     void LockResize() override {

@@ -154,10 +154,10 @@ class TermCapHandler(object):
         self.parm_left_cursor(context)
 
     def cursor_down(self, context):
-        self.parm_down_cursor(context)
+        self.parm_down_cursor(context, True, False)
 
     def cursor_up(self, context):
-        self.parm_up_cursor(context)
+        self.parm_up_cursor(context, True, False)
 
     def carriage_return(self, context):
         self.set_cur_col(0)
@@ -183,7 +183,8 @@ class TermCapHandler(object):
         line = self.get_cur_line()
 
         begin = self.col
-        if line.get_cell(begin).char == '\000':
+
+        if begin < self.get_cols() and line.get_cell(begin).char == '\000':
             begin -= 1
 
         for i in range(begin, self.get_cols()):
@@ -278,11 +279,8 @@ class TermCapHandler(object):
             LOGGER.debug('cursor address:{}'.format(context.params))
         self.cursor = (context.params[1], context.params[0])
 
-        self.refresh_display()
-
     def cursor_home(self, context):
         self.cursor = (0, 0)
-        self.refresh_display()
 
     def clr_eos(self, context):
         self.get_cur_line()
@@ -323,7 +321,6 @@ class TermCapHandler(object):
             col = self.get_cols() - 1
 
         self.set_cur_col(col)
-        self.refresh_display()
 
     def parm_left_cursor(self, context):
         #same as xterm, if cursor out of screen, moving start from last col
@@ -336,7 +333,6 @@ class TermCapHandler(object):
             col = 0
 
         self.set_cur_col(col)
-        self.refresh_display()
 
     def client_report_version(self, context):
         self.send_data('\033[>0;136;0c')
@@ -370,10 +366,6 @@ class TermCapHandler(object):
         self._tab_stops[self.col] = True
 
     def tab(self, context):
-        #col = self.col / self.session.get_tab_width()
-        #col = (col + 1) * self.session.get_tab_width();
-
-        tab_width = self.get_tab_width()
         col = self.col
 
         if len(self._tab_stops) > 0:
@@ -413,21 +405,18 @@ class TermCapHandler(object):
         else:
             self.set_scroll_region(context.params[0], context.params[1])
         self.cursor_home(None)
-        self.refresh_display()
 
     def change_scroll_region_from_start(self, context):
         if self.is_debug():
             LOGGER.debug('change scroll region from start:{} rows={}'.format(context.params, self.get_rows()))
         self.set_scroll_region(0, context.params[0])
         self.cursor_home(None)
-        self.refresh_display()
 
     def change_scroll_region_to_end(self, context):
         if self.is_debug():
             LOGGER.debug('change scroll region to end:{} rows={}'.format(context.params, self.get_rows()))
         self.set_scroll_region(context.params[0], self.get_rows() - 1)
         self.cursor_home(None)
-        self.refresh_display()
 
     def insert_line(self, context):
         self.parm_insert_line(context)
@@ -483,7 +472,6 @@ class TermCapHandler(object):
 
     def key_shome(self, context):
         self.cursor = (1, 0)
-        self.refresh_display()
 
     def enter_bold_mode(self, context):
         self.cur_cell.add_mode(TermCell.TextMode.Bold)
@@ -502,17 +490,18 @@ class TermCapHandler(object):
 
     def cursor_invisible(self, context):
         self._cursor_visible = False
-        self.refresh_display()
 
     def cursor_normal(self, context):
         self._cursor_visible = True
-        self.refresh_display()
 
     def cursor_visible(self, context):
         self.cursor_normal(context)
 
     def next_line(self, context):
         self.col = 0
+        self.parm_down_cursor(context, True, True)
+
+    def line_feed(self, context):
         self.parm_down_cursor(context, True, True)
 
     def parm_index(self, context):
@@ -567,11 +556,9 @@ class TermCapHandler(object):
 
     def shift_in_to_charset_mode_g0(self, context):
         self.charset_mode = 0
-        self.refresh_display()
 
     def shift_out_to_charset_mode_g1(self, context):
         self.charset_mode = 1
-        self.refresh_display()
 
     def enable_mode(self, context):
         if self.is_debug():
@@ -593,6 +580,8 @@ class TermCapHandler(object):
 
                 self.clr_eos(None)
                 self.cursor_home(None)
+        elif mode == 5:
+            self.cur_cell.add_mode(TextMode.REVERSE)
         elif mode == 6:
             self._origin_mode = True
             self.cursor_home(None)
@@ -619,6 +608,8 @@ class TermCapHandler(object):
 
                 self.clr_eos(None)
                 self.cursor_home(None)
+        elif mode == 5:
+            self.cur_cell.remove_mode(TextMode.REVERSE)
         elif mode == 6:
             self._origin_mode = False
             self.cursor_home(None)
@@ -628,7 +619,6 @@ class TermCapHandler(object):
     def column_address(self, context):
         col, row = self.get_cursor()
         self.cursor = (context.params[0], row)
-        self.refresh_display()
 
     def parm_up_cursor(self, context, do_refresh = True, do_scroll = True):
         begin, end = self.get_scroll_region()
