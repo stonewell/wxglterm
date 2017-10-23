@@ -60,6 +60,7 @@ class DefaultTermDataHandler(MultipleInstancePluginBase,
         return term.read_termdata.get_entry(term_path, term_name)
 
     def on_data(self, data):
+        self._refresh_timer.cancel()
         self.__try_parse__(data)
         self.refresh_display()
 

@@ -1,5 +1,6 @@
 import os
 import logging
+import threading
 
 from wxglterm_interface import TermCell, TermBuffer
 from .charset_mode import translate_char, translate_char_british
@@ -25,6 +26,8 @@ class TermCapHandler(object):
 
         self._tab_stops = {}
         self._set_default_tab_stops()
+
+        self._refresh_timer = self.__create_refresh_timer()
 
     def _set_default_tab_stops(self):
         tab_width = self.get_tab_width()
@@ -119,8 +122,16 @@ class TermCapHandler(object):
 
     cursor = property(get_cursor, set_cursor)
 
-    def refresh_display(self):
+    def __create_refresh_timer(self):
+        return threading.Timer(0.02, self.__do_refresh)
+
+    def __do_refresh(self):
         self.plugin_context.term_window.refresh()
+
+    def refresh_display(self):
+        self._refresh_timer.cancel()
+        self._refresh_timer = self.__create_refresh_timer()
+        self._refresh_timer.start()
 
     def get_scroll_region(self):
         return (self.plugin_context.term_buffer.scroll_region_begin,
@@ -450,7 +461,6 @@ class TermCapHandler(object):
 
     def exit_standout_mode(self, context):
         self.cur_cell.mode = self._default_cell.mode
-        self.refresh_display()
 
     def enter_ca_mode(self, context):
         self.saved_screen_buffer, self.saved_col, self.saved_row, self.savedcur_cell = \
@@ -522,12 +532,12 @@ class TermCapHandler(object):
         if self.is_debug():
             LOGGER.debug('before parm down cursor:{} {} {} {} {}'.format(begin, end, self.row, count, do_scroll))
 
-        self.plugin_context.term_buffer.move_cur_row(count, True, do_scroll)
+        scrolled = self.plugin_context.term_buffer.move_cur_row(count, True, do_scroll)
 
         if self.is_debug():
             LOGGER.debug('after parm down cursor:{} {} {} {}'.format(begin, end, self.row, count))
 
-        if do_refresh:
+        if do_refresh and scrolled:
             self.refresh_display()
 
     def exit_alt_charset_mode(self, context):
@@ -628,11 +638,11 @@ class TermCapHandler(object):
         if self.is_debug():
             LOGGER.debug('before parm up cursor:{} {} {} {}'.format(begin, end, self.row, count))
 
-        self.plugin_context.term_buffer.move_cur_row(count, False, do_scroll)
+        scrolled = self.plugin_context.term_buffer.move_cur_row(count, False, do_scroll)
 
         if self.is_debug():
             LOGGER.debug('after parm up cursor:{} {} {} {}'.format(begin, end, self.row, count))
-        if do_refresh:
+        if do_refresh and scrolled:
             self.refresh_display()
 
     def send_primary_device_attributes(self, context):

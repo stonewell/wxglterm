@@ -25,6 +25,7 @@ constexpr uint32_t PADDING = 5;
 					"{|}~"
 
 BEGIN_EVENT_TABLE(DrawPane, wxPanel)
+        EVT_PAINT(DrawPane::OnPaint)
         EVT_SIZE(DrawPane::OnSize)
 EVT_KEY_DOWN(DrawPane::OnKeyDown)
 EVT_KEY_UP(DrawPane::OnKeyUp)
@@ -38,6 +39,7 @@ DrawPane::DrawPane(wxFrame * parent, TermWindow * termWindow)
         , m_TermWindow(termWindow)
         , m_Font(nullptr)
 {
+    SetBackgroundStyle(wxBG_STYLE_PAINT);
     InitColorTable();
 
     Connect( wxID_ANY, wxEVT_IDLE, wxIdleEventHandler(DrawPane::OnIdle) );
@@ -52,6 +54,26 @@ void DrawPane::RequestRefresh()
 {
     wxCriticalSectionLocker locker(m_RefreshLock);
     m_RefreshNow++;
+}
+
+void DrawPane::OnPaint(wxPaintEvent & /*event*/)
+{
+    int refreshNow = 0;
+
+    {
+        wxCriticalSectionLocker locker(m_RefreshLock);
+        refreshNow = m_RefreshNow;
+    }
+
+    wxAutoBufferedPaintDC dc(this);
+
+    wxRegion clipRegion(0,0,0,0);
+    DoPaint(dc, clipRegion);
+
+    {
+        wxCriticalSectionLocker locker(m_RefreshLock);
+        m_RefreshNow -= refreshNow;
+    }
 }
 
 void DrawPane::OnSize(wxSizeEvent& /*event*/)
@@ -381,6 +403,8 @@ void DrawPane::OnIdle(wxIdleEvent& evt)
     {
         wxCriticalSectionLocker locker(m_RefreshLock);
         refreshNow = m_RefreshNow;
+        if (refreshNow)
+            std::cout << "refresh:" << refreshNow << std::endl;
     }
 
     if (refreshNow)
@@ -401,6 +425,8 @@ void DrawPane::OnIdle(wxIdleEvent& evt)
 
     {
         wxCriticalSectionLocker locker(m_RefreshLock);
+        if (refreshNow)
+            std::cout << "end refresh:" << m_RefreshNow << "," << refreshNow << std::endl;
         m_RefreshNow -= refreshNow;
     }
 

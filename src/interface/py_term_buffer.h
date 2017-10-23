@@ -87,8 +87,8 @@ public:
         PYBIND11_OVERLOAD_PURE_NAME(void, TermBufferBase, "clear_selection", ClearSelection, );
     }
 
-    void MoveCurRow(uint32_t offset, bool move_down, bool scroll_buffer) override {
-        PYBIND11_OVERLOAD_PURE_NAME(void, TermBufferBase, "move_cur_row", MoveCurRow, offset, move_down, scroll_buffer);
+    bool MoveCurRow(uint32_t offset, bool move_down, bool scroll_buffer) override {
+        PYBIND11_OVERLOAD_PURE_NAME(bool, TermBufferBase, "move_cur_row", MoveCurRow, offset, move_down, scroll_buffer);
     }
 
     void SetCurCellData(uint32_t ch, bool wide_char, bool insert, TermCellPtr cell_template) override {

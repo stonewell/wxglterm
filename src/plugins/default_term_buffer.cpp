@@ -349,10 +349,11 @@ public:
         }
     }
 
-    void MoveCurRow(uint32_t offset, bool move_down, bool scroll_buffer) override {
+    bool MoveCurRow(uint32_t offset, bool move_down, bool scroll_buffer) override {
         std::lock_guard<std::recursive_mutex> guard(m_ResizeLock);
         uint32_t begin = 0, end = GetRows() - 1;
 
+        bool scrolled = false;
         if (m_ScrollRegionBegin < m_ScrollRegionEnd) {
             begin = m_ScrollRegionBegin;
             end = m_ScrollRegionEnd;
@@ -366,7 +367,10 @@ public:
 
                 //scroll
                 if (scroll_buffer)
+                {
                     ScrollBuffer(-1 * (m_CurRow + offset - end));
+                    scrolled = true;
+                }
             }
         } else {
             if (m_CurRow >= offset && (m_CurRow - offset) >= begin) {
@@ -376,9 +380,14 @@ public:
 
                 //scroll
                 if (scroll_buffer)
+                {
                     ScrollBuffer(begin + offset - m_CurRow);
+                    scrolled = true;
+                }
             }
         }
+
+        return scrolled;
     }
 
     void SetCellDefaults(wchar_t c,
