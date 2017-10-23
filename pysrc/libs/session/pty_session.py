@@ -30,7 +30,23 @@ class PtySession(Session):
                 break
             if self.stopped or len(elist) > 0:
                 return None
-        return os.read(self.channel, block_size)
+
+        data = []
+
+        while True:
+            try:
+                tmp_data = os.read(self.channel, block_size)
+
+                if self.stopped:
+                    return None
+
+                if len(tmp_data) == 0:
+                    break
+                data += tmp_data
+            except:
+                break
+
+        return data
 
     def _stop_reader(self):
         if self.channel:
