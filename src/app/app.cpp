@@ -151,6 +151,7 @@ bool wxGLTermApp::DoInit()
         term_ui->StartMainUILoop();
 
         term_network->Disconnect();
+        term_data_handler->Stop();
         return true;
     }
     else

@@ -6,6 +6,7 @@
 #include "task.h"
 #include "term_context.h"
 #include "term_network.h"
+#include "term_data_handler.h"
 
 #include "main_dlg.h"
 
@@ -126,9 +127,12 @@ public:
 
         auto mainWnd = std::dynamic_pointer_cast<TermContext>(m_Context)->GetTermWindow();
         mainWnd->Show();
-        auto term_network = std::dynamic_pointer_cast<TermContext>(m_Context)->GetTermNetwork();
 
+        auto term_network = std::dynamic_pointer_cast<TermContext>(m_Context)->GetTermNetwork();
         term_network->Connect("", 0, "", "");
+
+        auto term_dataHandler = std::dynamic_pointer_cast<TermContext>(m_Context)->GetTermDataHandler();
+        term_dataHandler->Start();
     }
 
     void Cancel() override {

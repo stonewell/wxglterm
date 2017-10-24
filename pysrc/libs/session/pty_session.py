@@ -17,7 +17,7 @@ class PtySession(Session):
 
         self.channel = None
 
-    def _read_data(self, block_size = 4096):
+    def _read_data(self, block_size = 8192):
         if not self.channel:
             return None
 
@@ -25,11 +25,13 @@ class PtySession(Session):
             return None
 
         while True:
-            rlist, wlist, elist = select.select([self.channel], [], [self.channel], .5)
-            if len(rlist) > 0:
-                break
+            rlist, wlist, elist = select.select([self.channel], [], [self.channel], 1)
+
             if self.stopped or len(elist) > 0:
                 return None
+
+            if len(rlist) > 0:
+                break
 
         data = []
 

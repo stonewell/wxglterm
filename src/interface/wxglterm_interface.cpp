@@ -183,6 +183,8 @@ PYBIND11_EMBEDDED_MODULE(wxglterm_interface, m)
     py::class_<TermDataHandler, PyTermDataHandler<>, std::shared_ptr<TermDataHandler>> term_data_handler(m, "TermDataHandler", multiple_instance_plugin);
     term_data_handler.def(py::init<>())
             .def("on_data", &TermDataHandler::OnData)
+            .def("start", &TermDataHandler::Start)
+            .def("stop", &TermDataHandler::Stop)
             ;
 
     py::class_<Task, PyTask<>, std::shared_ptr<Task>> task(m, "Task", multiple_instance_plugin);

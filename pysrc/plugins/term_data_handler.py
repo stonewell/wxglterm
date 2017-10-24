@@ -3,6 +3,9 @@ import os
 import sys
 
 from collections import deque
+import threading
+from threading import Event
+from threading import Thread
 
 from wxglterm_interface import TermDataHandler
 from multiple_instance_plugin_base import MultipleInstancePluginBase
@@ -28,6 +31,11 @@ class DefaultTermDataHandler(MultipleInstancePluginBase,
         TermDataHandler.__init__(self)
         TermCapHandler.__init__(self)
         TermBufferHandler.__init__(self)
+
+        self._stopped = True
+        self._data_event = Event()
+        self._data_queue = deque()
+        self._process_thread = None
 
     def init_plugin(self, context, plugin_config):
         MultipleInstancePluginBase.init_plugin(self, context, plugin_config)
@@ -61,8 +69,8 @@ class DefaultTermDataHandler(MultipleInstancePluginBase,
 
     def on_data(self, data):
         self._refresh_timer.cancel()
-        self.__try_parse__(data)
-        self.refresh_display(0.04)
+        self._data_queue.extend(data)
+        self._data_event.set()
 
     def __on_control_data(self, cap_turple):
         cap_name, increase_params = cap_turple
@@ -136,16 +144,16 @@ class DefaultTermDataHandler(MultipleInstancePluginBase,
 
         return cap_turple
 
-    def __try_parse__(self, data):
+    def __try_parse__(self):
         next_state = None
 
-        for c in data:
-            c = chr(c)
+        while True:
+            c = chr(self._data_queue.popleft())
             next_state = self.state.handle(self._parse_context, c)
 
             if (not next_state or
                     self.state.get_cap(self._parse_context.params)):
-                self.__handle_cap__(data=data, c=c)
+                self.__handle_cap__(c=c)
 
                 # reset next state, if have both next_state
                 # and cap, next_state may process digit value
@@ -168,6 +176,49 @@ class DefaultTermDataHandler(MultipleInstancePluginBase,
         if self.state:
             self.__handle_cap__(False)
 
+    def __read_queued_data(self):
+        while True:
+            if self._stopped:
+                break
+
+            self._data_event.wait(5)
+
+            if self._stopped:
+                break
+
+            if not self._data_event.is_set():
+                continue
+
+            self._data_event.clear()
+
+            try:
+                self.__try_parse__()
+            except IndexError:
+                pass
+            except:
+                LOGGER.exception("try parse failed")
+                pass
+
+            self.refresh_display(0.04)
+
+    def start(self):
+        if not self._stopped:
+            return
+
+        self._stopped = False
+        self._process_thread = Thread(target=self.__read_queued_data)
+        self._process_thread.start()
+
+    def stop(self):
+        if self._stopped:
+            return
+
+        self._stopped = True
+
+        self._data_event.set()
+
+        if self._process_thread and threading.current_thread() != self._process_thread:
+            self._process_thread.join()
 
 def register_plugins(pm):
     pm.register_plugin(DefaultTermDataHandler().new_instance())
