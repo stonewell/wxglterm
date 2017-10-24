@@ -7,6 +7,7 @@
 
 #include <vector>
 #include <mutex>
+#include <iostream>
 
 class DefaultTermSelection : public virtual PluginBase, public virtual TermSelection {
 public:
@@ -208,6 +209,8 @@ public:
                 }
                 return true;
             }
+
+            end = m_ScrollRegionEnd + 1;
         }
         else
         {
@@ -221,6 +224,8 @@ public:
                 }
                 return true;
             }
+
+            end = m_Rows;
         }
 
         return false;
@@ -229,7 +234,7 @@ public:
     void DeleteLines(uint32_t begin, uint32_t count) override {
         std::lock_guard<std::recursive_mutex> guard(m_ResizeLock);
 
-        uint32_t end = begin + count;
+        uint32_t end = m_Rows;
 
         if (__NormalizeBeginEndPositionResetLinesWhenDeleteOrInsert(begin,
                                                                     count,
@@ -241,9 +246,9 @@ public:
         if (end <= begin)
             return;
 
-        TermLineVector tmpVector(end - begin);
+        TermLineVector tmpVector;
         //Insert First, then delete
-        for (uint32_t i = begin; i < end; i++)
+        for (uint32_t i = begin; i < begin + count; i++)
         {
             auto term_line = CreateDefaultTermLine(this);
             term_line->Resize(GetCols());
@@ -257,14 +262,14 @@ public:
 
         //recalculate iterator
         b_it = m_Lines.begin() + begin;
-        e_it = m_Lines.begin() + end;
+        e_it = b_it + count;
         m_Lines.erase(b_it, e_it);
     }
 
     void InsertLines(uint32_t begin, uint32_t count) override {
         std::lock_guard<std::recursive_mutex> guard(m_ResizeLock);
 
-        uint32_t end = begin + count;
+        uint32_t end = m_Rows;
 
         if (__NormalizeBeginEndPositionResetLinesWhenDeleteOrInsert(begin,
                                                                     count,
@@ -276,14 +281,13 @@ public:
         if (end <= begin)
             return;
 
-        TermLineVector::iterator b_it = m_Lines.begin() + begin,
+        TermLineVector::iterator b_it = m_Lines.begin() + end - count,
                 e_it = m_Lines.begin() + end;
 
         m_Lines.erase(b_it, e_it);
 
-        TermLineVector tmpVector(end - begin);
-
-        for (uint32_t i = begin; i < end; i++)
+        TermLineVector tmpVector;
+        for (uint32_t i = 0; i < count; i++)
         {
             auto term_line = CreateDefaultTermLine(this);
             term_line->Resize(GetCols());

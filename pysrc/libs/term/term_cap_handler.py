@@ -185,7 +185,12 @@ class TermCapHandler(object):
     def clr_line(self, context):
         line = self.get_cur_line()
 
+        if not line:
+            return
+
         for cell in self.get_line_cells(line):
+            if not cell:
+                continue
             cell.reset(self.cur_cell)
 
         self.refresh_display()
@@ -193,25 +198,37 @@ class TermCapHandler(object):
     def clr_eol(self, context):
         line = self.get_cur_line()
 
+        if not line:
+            return
+
         begin = self.col
 
         if begin < self.get_cols() and line.get_cell(begin).char == '\000':
             begin -= 1
 
         for i in range(begin, self.get_cols()):
-            line.get_cell(i).reset(self.cur_cell)
+            cell = line.get_cell(i)
+
+            if cell:
+                cell.reset(self.cur_cell)
 
         self.refresh_display()
 
     def clr_bol(self, context):
         line = self.get_cur_line()
 
+        if not line:
+            return
+
         end = self.col
         if end + 1 < self.get_cols() and line.get_cell(end + 1).char == '\000':
             end = end + 1
 
         for i in range(end + 1):
-            line.get_cell(i).reset(self.cur_cell)
+            cell = line.get_cell(i)
+
+            if cell:
+                cell.reset(self.cur_cell)
 
         self.refresh_display()
 
@@ -220,6 +237,10 @@ class TermCapHandler(object):
 
     def delete_chars(self, count, overwrite = False):
         line = self.get_cur_line()
+
+        if not line:
+            return
+
         begin = self.col
 
         if line.get_cell(begin).char == '\000':
@@ -294,8 +315,6 @@ class TermCapHandler(object):
         self.cursor = (0, 0)
 
     def clr_eos(self, context):
-        self.get_cur_line()
-
         begin = 0
         end = self.get_rows()
 
@@ -312,9 +331,13 @@ class TermCapHandler(object):
         for row in range(begin, end):
             line = self.get_line(row)
 
+            if not line:
+                continue
+
             for cell in self.get_line_cells(line):
                 if not cell:
                     print('cols:', self.get_cols(), 'line:', line)
+                    continue
                 cell.reset(self.cur_cell)
 
         self.refresh_display()
@@ -400,7 +423,7 @@ class TermCapHandler(object):
     def parm_delete_line(self, context):
         if self.is_debug():
             begin, end = self.get_scroll_region()
-            LOGGER.debug('delete line:{} begin={} end={}'.format(context.params, begin, end))
+            LOGGER.debug('delete line:{} begin={} end={}, row={}'.format(context.params, begin, end, self.row))
 
         c_to_delete = context.params[0] if len(context.params) > 0 else 1
 
@@ -435,7 +458,7 @@ class TermCapHandler(object):
     def parm_insert_line(self, context):
         if self.is_debug():
             begin, end = self.get_scroll_region()
-            LOGGER.debug('insert line:{} begin={} end={}'.format(context.params, begin, end))
+            LOGGER.debug('insert line:{} begin={} end={}, row={}'.format(context.params, begin, end, self.row))
 
         c_to_insert = context.params[0] if len(context.params) > 0 else 1
 
@@ -475,6 +498,8 @@ class TermCapHandler(object):
         self.refresh_display()
 
     def exit_ca_mode(self, context):
+        self.saved_screen_buffer.resize(self.get_rows(), self.get_cols())
+
         self.plugin_context.term_buffer, self.col, self.row, self.cur_cell = \
             self.saved_screen_buffer, self.saved_col, self.saved_row, self.savedcur_cell
         self.plugin_context.term_buffer.clear_selection()
@@ -654,7 +679,12 @@ class TermCapHandler(object):
         for i in range(self.get_rows()):
             line = self.get_line(i)
 
+            if not line:
+                continue
+
             for cell in self.get_line_cells(line):
+                if not cell:
+                    continue
                 cell.char = 'E'
 
         self.restore_cursor(context)
