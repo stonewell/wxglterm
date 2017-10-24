@@ -15,7 +15,22 @@
 
 wxCoord PADDING = 5;
 
-#define SINGLE_WIDTH_CHARACTERS \
+class __ScopeLocker {
+public:
+    __ScopeLocker(TermBufferPtr termBuffer) :
+        m_TermBuffer(termBuffer)
+    {
+        m_TermBuffer->LockResize();
+    }
+
+    ~__ScopeLocker() {
+        m_TermBuffer->UnlockResize();
+    }
+
+    TermBufferPtr m_TermBuffer;
+};
+
+#define SINGLE_WIDTH_CHARACTERS         \
 					" !\"#$%&'()*+,-./" \
 					"0123456789" \
 					":;<=>?@" \
@@ -30,6 +45,7 @@ BEGIN_EVENT_TABLE(DrawPane, wxPanel)
 EVT_KEY_DOWN(DrawPane::OnKeyDown)
 EVT_KEY_UP(DrawPane::OnKeyUp)
 EVT_CHAR(DrawPane::OnChar)
+EVT_ERASE_BACKGROUND(DrawPane::OnEraseBackground)
 END_EVENT_TABLE()
 
 DrawPane::DrawPane(wxFrame * parent, TermWindow * termWindow)
@@ -52,12 +68,30 @@ DrawPane::~DrawPane()
 
 void DrawPane::RequestRefresh()
 {
-    wxCriticalSectionLocker locker(m_RefreshLock);
-    m_RefreshNow++;
+    {
+        wxCriticalSectionLocker locker(m_RefreshLock);
+        m_RefreshNow++;
+    }
+
+    Refresh(false);
+}
+
+void DrawPane::OnEraseBackground(wxEraseEvent & /*event*/)
+{
 }
 
 void DrawPane::OnPaint(wxPaintEvent & /*event*/)
 {
+    TermContextPtr context = std::dynamic_pointer_cast<TermContext>(m_TermWindow->GetPluginContext());
+
+    if (!context)
+        return;
+
+    TermBufferPtr buffer = context->GetTermBuffer();
+
+    if (!buffer)
+        return;
+
     int refreshNow = 0;
 
     {
@@ -67,8 +101,9 @@ void DrawPane::OnPaint(wxPaintEvent & /*event*/)
 
     wxAutoBufferedPaintDC dc(this);
 
-    wxRegion clipRegion(0,0,0,0);
-    DoPaint(dc, clipRegion);
+    __ScopeLocker locker(buffer);
+
+    DoPaint(dc, true);
 
     {
         wxCriticalSectionLocker locker(m_RefreshLock);
@@ -146,6 +181,16 @@ wxFont * DrawPane::GetFont()
 
 void DrawPane::OnIdle(wxIdleEvent& evt)
 {
+    TermContextPtr context = std::dynamic_pointer_cast<TermContext>(m_TermWindow->GetPluginContext());
+
+    if (!context)
+        return;
+
+    TermBufferPtr buffer = context->GetTermBuffer();
+
+    if (!buffer)
+        return;
+
     int refreshNow = 0;
 
     {
@@ -165,10 +210,15 @@ void DrawPane::OnIdle(wxIdleEvent& evt)
 
         wxBufferedDC bDC(&dc,
                          GetClientSize());
-        DoPaint(bDC, clipRegion);
+
+        __ScopeLocker locker(buffer);
+
+        CalculateClipRegion(clipRegion);
 
         dc.DestroyClippingRegion();
         dc.SetDeviceClippingRegion(clipRegion);
+
+        DoPaint(bDC, false);
     }
 
     {
@@ -178,7 +228,7 @@ void DrawPane::OnIdle(wxIdleEvent& evt)
         m_RefreshNow -= refreshNow;
     }
 
-    evt.RequestMore(); // render continuously, not only once on idle
+    evt.RequestMore(false); // render continuously, not only once on idle
 }
 
 void DrawPane::InitColorTable()

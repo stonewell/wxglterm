@@ -19,11 +19,13 @@ public:
 
 class __wxGLTimer : public wxTimer {
 public:
-    __wxGLTimer(TaskPtr task, int miliseconds):
+    __wxGLTimer(TaskPtr task, int miliseconds, bool repeated):
         m_Task(task)
         , m_Interval(miliseconds)
+        , m_Repeated(repeated)
     {
         (void)m_Interval;
+        (void)m_Repeated;
     }
 
     virtual ~__wxGLTimer() = default;
@@ -38,6 +40,7 @@ public:
 private:
     TaskPtr m_Task;
     int m_Interval;
+    bool m_Repeated;
 };
 
 wxIMPLEMENT_APP_NO_MAIN(__wxGLTermApp);
@@ -105,7 +108,7 @@ public:
     }
 
     bool ScheduleTask(TaskPtr task, int miliseconds, bool repeated) {
-        auto timer = new __wxGLTimer(task, miliseconds);
+        auto timer = new __wxGLTimer(task, miliseconds, repeated);
         return timer->Start(miliseconds, !repeated);
     }
 };

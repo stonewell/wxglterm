@@ -181,7 +181,7 @@ class DefaultTermDataHandler(MultipleInstancePluginBase,
             if self._stopped:
                 break
 
-            self._data_event.wait(5)
+            self._data_event.wait()
 
             if self._stopped:
                 break

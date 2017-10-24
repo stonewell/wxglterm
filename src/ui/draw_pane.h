@@ -21,10 +21,13 @@ private:
     void OnKeyDown(wxKeyEvent& event);
     void OnKeyUp(wxKeyEvent& event);
     void OnChar(wxKeyEvent& event);
+    void OnEraseBackground(wxEraseEvent & event);
 
     wxFont * GetFont();
 
-    void DoPaint(wxDC & dc, wxRegion & clipRegion);
+    void DoPaint(wxDC & dc, bool full_paint);
+    void CalculateClipRegion(wxRegion & clipRegion);
+
     void DrawContent(wxDC &dc,
                      wxString & content,
                      uint16_t & last_fore_color,
