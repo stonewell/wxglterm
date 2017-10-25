@@ -26,7 +26,7 @@ class PtySession(Session):
             return None
 
         while True:
-            rlist, wlist, elist = select.select([self.channel], [], [self.channel])
+            rlist, wlist, elist = select.select([self.channel], [], [self.channel], 1)
 
             if self.stopped or len(elist) > 0:
                 return None

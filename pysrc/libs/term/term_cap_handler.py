@@ -616,7 +616,7 @@ class TermCapHandler(object):
                 self.clr_eos(None)
                 self.cursor_home(None)
         elif mode == 5:
-            self.cur_cell.add_mode(TextMode.REVERSE)
+            self.cur_cell.add_mode(TermCell.TextMode.Reverse)
         elif mode == 6:
             self._origin_mode = True
             self.cursor_home(None)
@@ -644,7 +644,7 @@ class TermCapHandler(object):
                 self.clr_eos(None)
                 self.cursor_home(None)
         elif mode == 5:
-            self.cur_cell.remove_mode(TextMode.REVERSE)
+            self.cur_cell.remove_mode(TermCell.TextMode.Reverse)
         elif mode == 6:
             self._origin_mode = False
             self.cursor_home(None)
