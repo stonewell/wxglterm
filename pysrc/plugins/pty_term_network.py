@@ -12,7 +12,7 @@ LOGGER = logging.getLogger('term_network')
 
 class PtyTermNetwork(MultipleInstancePluginBase, TermNetwork):
     def __init__(self):
-        MultipleInstancePluginBase.__init__(self, name="term_network_use_pty",
+        MultipleInstancePluginBase.__init__(self, name="py_term_network_use_pty",
                                             desc="It is a python version term network",
                                             version=1)
         TermNetwork.__init__(self)

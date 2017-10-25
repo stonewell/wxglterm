@@ -67,9 +67,9 @@ class DefaultTermDataHandler(MultipleInstancePluginBase,
 
         return term.read_termdata.get_entry(term_path, term_name)
 
-    def on_data(self, data):
+    def on_data(self, data, count):
         self._refresh_timer.cancel()
-        self._data_queue.extend(data)
+        self._data_queue.extend(data[:count])
         self._data_event.set()
 
     def __on_control_data(self, cap_turple):
@@ -148,7 +148,12 @@ class DefaultTermDataHandler(MultipleInstancePluginBase,
         next_state = None
 
         while True:
-            c = chr(self._data_queue.popleft())
+            data = self._data_queue.popleft()
+
+            if isinstance(data, str):
+                c = data[0]
+            else:
+                c = chr(data)
             next_state = self.state.handle(self._parse_context, c)
 
             if (not next_state or

@@ -152,6 +152,15 @@ bool wxGLTermApp::DoInit()
 
         term_network->Disconnect();
         term_data_handler->Stop();
+
+        term_context->SetTermNetwork(TermNetworkPtr{});
+
+        term_context->SetTermWindow(TermWindowPtr{});
+        term_context->SetTermDataHandler(TermDataHandlerPtr{});
+        term_context->SetTermBuffer(TermBufferPtr{});
+        term_context->SetTermColorTheme(TermColorThemePtr{});
+        term_context->SetAppConfig(AppConfigPtr{});
+
         return true;
     }
     else

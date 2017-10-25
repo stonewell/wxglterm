@@ -23,9 +23,9 @@ elseif ("${CMAKE_CXX_COMPILER_ID}" STREQUAL "MSVC")
 endif()
 
 if (NOT CONFIGURED_ONCE)
-    set(CMAKE_CXX_FLAGS "-std=c++14 ${warnings}"
+    set(CMAKE_CXX_FLAGS "-std=c++14 -fPIC ${warnings}"
         CACHE STRING "Flags used by the compiler during all build types." FORCE)
-    set(CMAKE_C_FLAGS   "${warnings}"
+    set(CMAKE_C_FLAGS   "-fPIC ${warnings}"
         CACHE STRING "Flags used by the compiler during all build types." FORCE)
 endif()
 
@@ -46,6 +46,7 @@ ADD_SUBDIRECTORY(src/ui)
 ADD_SUBDIRECTORY(src/utils)
 ADD_SUBDIRECTORY(src/plugins)
 ADD_SUBDIRECTORY(src/app)
+ADD_SUBDIRECTORY(src/external_plugins)
 
 ADD_CUSTOM_COMMAND(OUTPUT ${CMAKE_BINARY_DIR}/termdata.stamp
   COMMAND

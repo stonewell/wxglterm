@@ -18,10 +18,6 @@ class DefaultTermContext(ContextBase, TermContext):
         return self._term_buffer
 
     def set_term_buffer(self, term_buffer):
-        #hack way to cast the object created by pybind11
-        if term_buffer.__class__ != TermBuffer:
-            term_buffer.__class__ = TermBuffer
-
         self._term_buffer = term_buffer
 
     def get_term_window(self):

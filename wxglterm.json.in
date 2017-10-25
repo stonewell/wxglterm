@@ -6,7 +6,7 @@
 	    "name":"default_term_ui"
 	},
 	"network":{
-	    "name":"term_network_use_pty",
+	    "name":"py_term_network_use_pty",
 	    "config":{
 		"shell":"/bin/bash"
 	    }
