@@ -83,8 +83,9 @@ PYBIND11_EMBEDDED_MODULE(wxglterm_interface, m)
             .def("clear_selection", &TermBuffer::ClearSelection)
             .def("move_cur_row", &TermBuffer::MoveCurRow)
             .def("set_cur_cell_data", &TermBuffer::SetCurCellData)
-            .def("lock_resize", &TermBuffer::LockResize)
-            .def("unlock_resize", &TermBuffer::UnlockResize)
+            .def("lock_update", &TermBuffer::LockUpdate)
+            .def("unlock_update", &TermBuffer::UnlockUpdate)
+            .def("enable_alter_buffer", &TermBuffer::EnableAlterBuffer)
             ;
 
     py::class_<TermLine, PyTermLine<>, std::shared_ptr<TermLine>> term_line(m, "TermLine", plugin);

@@ -103,18 +103,8 @@ void DrawPane::DrawContent(wxDC &dc,
     last_back_color = back_color;
 }
 
-void DrawPane::CalculateClipRegion(wxRegion & clipRegion)
+void DrawPane::CalculateClipRegion(wxRegion & clipRegion, TermBufferPtr buffer)
 {
-   TermContextPtr context = std::dynamic_pointer_cast<TermContext>(m_TermWindow->GetPluginContext());
-
-    if (!context)
-        return;
-
-    TermBufferPtr buffer = context->GetTermBuffer();
-
-    if (!buffer)
-        return;
-
     wxRect clientSize = GetClientSize();
 
     clipRegion.Union(clientSize);
@@ -134,23 +124,13 @@ void DrawPane::CalculateClipRegion(wxRegion & clipRegion)
     }
 }
 
-void DrawPane::DoPaint(wxDC & dc, bool full_paint)
+void DrawPane::DoPaint(wxDC & dc, TermBufferPtr buffer, bool full_paint)
 {
     __DCAttributesChanger changer(&dc);
 
     wxBrush backgroundBrush(m_ColorTable[TermCell::DefaultBackColorIndex]);
 
     wxString content {""};
-
-    TermContextPtr context = std::dynamic_pointer_cast<TermContext>(m_TermWindow->GetPluginContext());
-
-    if (!context)
-        return;
-
-    TermBufferPtr buffer = context->GetTermBuffer();
-
-    if (!buffer)
-        return;
 
     wxDCFontChanger fontChanger(dc, *GetFont());
 

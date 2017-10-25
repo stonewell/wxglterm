@@ -26,6 +26,7 @@ class PtySession(Session):
             return None
 
         while True:
+            LOGGER.error('select....')
             rlist, wlist, elist = select.select([self.channel], [], [self.channel], 1)
 
             if self.stopped or len(elist) > 0:
@@ -34,6 +35,7 @@ class PtySession(Session):
             if len(rlist) > 0:
                 break
 
+        LOGGER.error('select done ....')
         data = [1]
 
         while True:

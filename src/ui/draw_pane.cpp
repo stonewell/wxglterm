@@ -20,11 +20,11 @@ public:
     __ScopeLocker(TermBufferPtr termBuffer) :
         m_TermBuffer(termBuffer)
     {
-        m_TermBuffer->LockResize();
+        m_TermBuffer->LockUpdate();
     }
 
     ~__ScopeLocker() {
-        m_TermBuffer->UnlockResize();
+        m_TermBuffer->UnlockUpdate();
     }
 
     TermBufferPtr m_TermBuffer;
@@ -99,11 +99,12 @@ void DrawPane::OnPaint(wxPaintEvent & /*event*/)
         refreshNow = m_RefreshNow;
     }
 
-    wxAutoBufferedPaintDC dc(this);
+    {
+        __ScopeLocker locker(buffer);
+        wxAutoBufferedPaintDC dc(this);
 
-    __ScopeLocker locker(buffer);
-
-    DoPaint(dc, true);
+        DoPaint(dc, buffer, true);
+    }
 
     {
         wxCriticalSectionLocker locker(m_RefreshLock);
@@ -213,12 +214,12 @@ void DrawPane::OnIdle(wxIdleEvent& evt)
 
         __ScopeLocker locker(buffer);
 
-        CalculateClipRegion(clipRegion);
+        CalculateClipRegion(clipRegion, buffer);
 
         dc.DestroyClippingRegion();
         dc.SetDeviceClippingRegion(clipRegion);
 
-        DoPaint(bDC, false);
+        DoPaint(bDC, buffer, false);
     }
 
     {

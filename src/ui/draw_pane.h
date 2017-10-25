@@ -25,8 +25,8 @@ private:
 
     wxFont * GetFont();
 
-    void DoPaint(wxDC & dc, bool full_paint);
-    void CalculateClipRegion(wxRegion & clipRegion);
+    void DoPaint(wxDC & dc, TermBufferPtr buffer, bool full_paint);
+    void CalculateClipRegion(wxRegion & clipRegion, TermBufferPtr buffer);
 
     void DrawContent(wxDC &dc,
                      wxString & content,

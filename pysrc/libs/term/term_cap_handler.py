@@ -486,23 +486,18 @@ class TermCapHandler(object):
         self.cur_cell.mode = self._default_cell.mode
 
     def enter_ca_mode(self, context):
-        self.saved_screen_buffer, self.saved_col, self.saved_row, self.savedcur_cell = \
-          self.plugin_context.term_buffer, self.col, self.row, self.cur_cell
+        self.savedcur_cell, self.cur_cell = \
+            self.cur_cell, self.create_default_cell()
 
-        new_buffer = self.create_new_buffer()
+        self.plugin_context.term_buffer.enable_alter_buffer(True)
 
-        self.plugin_context.term_buffer, self.col, self.row, self.cur_cell = \
-          new_buffer, 0, 0, self.create_default_cell()
-        self.plugin_context.term_buffer.resize(self.get_rows(), self.get_cols())
-        self.plugin_context.term_buffer.clear_selection()
         self.refresh_display()
 
     def exit_ca_mode(self, context):
-        self.saved_screen_buffer.resize(self.get_rows(), self.get_cols())
+        self.cur_cell = self.savedcur_cell
 
-        self.plugin_context.term_buffer, self.col, self.row, self.cur_cell = \
-            self.saved_screen_buffer, self.saved_col, self.saved_row, self.savedcur_cell
-        self.plugin_context.term_buffer.clear_selection()
+        self.plugin_context.term_buffer.enable_alter_buffer(False)
+
         self.refresh_display()
 
     def key_shome(self, context):

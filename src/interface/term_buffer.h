@@ -8,12 +8,12 @@ class TermBuffer : public virtual MultipleInstancePlugin {
 public:
     virtual void Resize(uint32_t row, uint32_t col) = 0;
 
-    virtual uint32_t GetRows() const = 0;
-    virtual uint32_t GetCols() const = 0;
+    virtual uint32_t GetRows()= 0;
+    virtual uint32_t GetCols()= 0;
 
-    virtual uint32_t GetRow() const = 0;
+    virtual uint32_t GetRow()= 0;
     virtual void SetRow(uint32_t row) = 0;
-    virtual uint32_t GetCol() const = 0;
+    virtual uint32_t GetCol()= 0;
     virtual void SetCol(uint32_t col) = 0;
 
     virtual TermLinePtr GetLine(uint32_t row) = 0;
@@ -21,8 +21,8 @@ public:
     virtual TermLinePtr GetCurLine() = 0;
     virtual TermCellPtr GetCurCell() = 0;
 
-    virtual uint32_t GetScrollRegionBegin() const = 0;
-    virtual uint32_t GetScrollRegionEnd() const = 0;
+    virtual uint32_t GetScrollRegionBegin()= 0;
+    virtual uint32_t GetScrollRegionEnd()= 0;
     virtual void SetScrollRegionBegin(uint32_t begin) = 0;
     virtual void SetScrollRegionEnd(uint32_t end) = 0;
 
@@ -43,6 +43,8 @@ public:
 
     virtual void SetCurCellData(uint32_t ch, bool wide_char, bool insert, TermCellPtr cell_template) = 0;
 
-    virtual void LockResize() = 0;
-    virtual void UnlockResize() = 0;
+    virtual void LockUpdate() = 0;
+    virtual void UnlockUpdate() = 0;
+
+    virtual void EnableAlterBuffer(bool enable) = 0;
 };

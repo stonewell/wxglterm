@@ -54,11 +54,10 @@ private:
     uint32_t m_RowEnd, m_ColEnd;
 };
 
-class DefaultTermBuffer : public virtual PluginBase, public virtual TermBuffer {
+class __InternalTermBuffer {
 public:
-    DefaultTermBuffer() :
-        PluginBase("default_term_buffer", "default terminal buffer plugin", 0)
-        , m_ResizeLock{}
+    __InternalTermBuffer(TermBuffer* term_buffer) :
+        m_TermBuffer(term_buffer)
         , m_Rows(0)
         , m_Cols(0)
         , m_CurRow(0)
@@ -66,34 +65,29 @@ public:
         , m_ScrollRegionBegin(0)
         , m_ScrollRegionEnd(0)
         , m_Lines()
-        , m_DefaultChar(' ')
-        , m_DefaultForeColorIndex(TermCell::DefaultForeColorIndex)
-        , m_DefaultBackColorIndex(TermCell::DefaultBackColorIndex)
-        , m_DefaultMode(0)
         , m_Selection{new DefaultTermSelection}
     {
     }
 
-    virtual ~DefaultTermBuffer() = default;
+    void Resize(uint32_t row, uint32_t col) {
+        printf("++++Resize buffer: rows=%u, %u, cols=%u,%u\n",
+               m_Rows, m_CurRow,
+               m_Cols, m_CurCol);
 
-    MultipleInstancePluginPtr NewInstance() override {
-        return MultipleInstancePluginPtr{new DefaultTermBuffer()};
-    }
-
-    void Resize(uint32_t row, uint32_t col) override {
-        std::lock_guard<std::recursive_mutex> guard(m_ResizeLock);
+        if (m_Rows == row && m_Cols == col)
+            return;
 
         m_Rows = row;
         m_Cols = col;
 
         m_ScrollRegionBegin = 0;
-        m_ScrollRegionEnd = row - 1;
+        m_ScrollRegionEnd = row ? row - 1 : 0;
 
         if (m_CurRow >= m_Rows)
-            m_CurRow = m_Rows - 1;
+            m_CurRow = m_Rows ? m_Rows - 1 : 0;
 
         if (m_CurCol >= m_Cols)
-            m_CurCol = m_Cols - 1;
+            m_CurCol = m_Cols ? m_Cols - 1 : 0;
 
         m_Lines.resize(m_Rows);
 
@@ -102,7 +96,7 @@ public:
                m_Cols, m_CurCol);
 
         for (TermLineVector::iterator it = m_Lines.begin(),
-                                    it_end = m_Lines.end();
+                     it_end = m_Lines.end();
              it != it_end;
              it++)
         {
@@ -112,36 +106,37 @@ public:
             }
         }
 
+        ClearSelection();
     }
 
-    uint32_t GetRows() const override {
+    uint32_t GetRows() const {
         return m_Rows;
     }
 
-    uint32_t GetCols() const override {
+    uint32_t GetCols() const {
         return m_Cols;
     }
 
-    uint32_t GetRow() const override {
+    uint32_t GetRow() const {
         return m_CurRow;
     }
 
-    uint32_t GetCol() const override {
+    uint32_t GetCol() const {
         return m_CurCol;
     }
-    void SetRow(uint32_t row) override {
+    void SetRow(uint32_t row) {
         m_CurRow = row;
     }
 
-    void SetCol(uint32_t col) override {
+    void SetCol(uint32_t col) {
         m_CurCol = col;
     }
 
-    TermLinePtr GetLine(uint32_t row) override {
+    TermLinePtr GetLine(uint32_t row) {
         if (row < GetRows()) {
             auto line =  m_Lines[row];
             if (!line) {
-                line = CreateDefaultTermLine(this);
+                line = CreateDefaultTermLine(m_TermBuffer);
                 line->Resize(GetCols());
                 m_Lines[row] = line;
             }
@@ -153,7 +148,7 @@ public:
         return TermLinePtr{};
     }
 
-    TermCellPtr GetCell(uint32_t row, uint32_t col) override {
+    TermCellPtr GetCell(uint32_t row, uint32_t col) {
         TermLinePtr line = GetLine(row);
 
         if (line)
@@ -162,27 +157,27 @@ public:
         return TermCellPtr{};
     }
 
-    TermLinePtr GetCurLine() override {
+    TermLinePtr GetCurLine() {
         return GetLine(GetRow());
     }
 
-    TermCellPtr GetCurCell() override {
+    TermCellPtr GetCurCell() {
         return GetCell(GetRow(), GetCol());
     }
 
-    uint32_t GetScrollRegionBegin() const override {
+    uint32_t GetScrollRegionBegin() const {
         return m_ScrollRegionBegin;
     }
 
-    uint32_t GetScrollRegionEnd() const override {
+    uint32_t GetScrollRegionEnd() const {
         return m_ScrollRegionEnd;
     }
 
-    void SetScrollRegionBegin(uint32_t begin) override {
+    void SetScrollRegionBegin(uint32_t begin) {
         m_ScrollRegionBegin = begin;
     }
 
-    void SetScrollRegionEnd(uint32_t end) override {
+    void SetScrollRegionEnd(uint32_t end) {
         m_ScrollRegionEnd = end;
     }
 
@@ -190,8 +185,6 @@ public:
                                                                  uint32_t count,
                                                                  uint32_t & end)
     {
-        std::lock_guard<std::recursive_mutex> guard(m_ResizeLock);
-
         end = begin + count;
 
         if (m_ScrollRegionBegin < m_ScrollRegionEnd)
@@ -231,9 +224,7 @@ public:
         return false;
     }
 
-    void DeleteLines(uint32_t begin, uint32_t count) override {
-        std::lock_guard<std::recursive_mutex> guard(m_ResizeLock);
-
+    void DeleteLines(uint32_t begin, uint32_t count) {
         uint32_t end = m_Rows;
 
         if (__NormalizeBeginEndPositionResetLinesWhenDeleteOrInsert(begin,
@@ -250,7 +241,7 @@ public:
         //Insert First, then delete
         for (uint32_t i = begin; i < begin + count; i++)
         {
-            auto term_line = CreateDefaultTermLine(this);
+            auto term_line = CreateDefaultTermLine(m_TermBuffer);
             term_line->Resize(GetCols());
             tmpVector.push_back(term_line);
         }
@@ -266,9 +257,7 @@ public:
         m_Lines.erase(b_it, e_it);
     }
 
-    void InsertLines(uint32_t begin, uint32_t count) override {
-        std::lock_guard<std::recursive_mutex> guard(m_ResizeLock);
-
+    void InsertLines(uint32_t begin, uint32_t count) {
         uint32_t end = m_Rows;
 
         if (__NormalizeBeginEndPositionResetLinesWhenDeleteOrInsert(begin,
@@ -289,7 +278,7 @@ public:
         TermLineVector tmpVector;
         for (uint32_t i = 0; i < count; i++)
         {
-            auto term_line = CreateDefaultTermLine(this);
+            auto term_line = CreateDefaultTermLine(m_TermBuffer);
             term_line->Resize(GetCols());
             tmpVector.push_back(term_line);
         }
@@ -299,7 +288,6 @@ public:
     }
 
     TermLineVector::iterator __GetScrollBeginIt() {
-        std::lock_guard<std::recursive_mutex> guard(m_ResizeLock);
         TermLineVector::iterator _it = m_Lines.begin();
 
         if (m_ScrollRegionBegin < m_ScrollRegionEnd) {
@@ -310,7 +298,6 @@ public:
     };
 
     TermLineVector::iterator __GetScrollEndIt() {
-        std::lock_guard<std::recursive_mutex> guard(m_ResizeLock);
         TermLineVector::iterator _it = m_Lines.end();
 
         if (m_ScrollRegionBegin < m_ScrollRegionEnd) {
@@ -320,13 +307,11 @@ public:
         return _it;
     };
 
-    void ScrollBuffer(int32_t scroll_offset) override {
-        std::lock_guard<std::recursive_mutex> guard(m_ResizeLock);
-
+    void ScrollBuffer(int32_t scroll_offset) {
         if (scroll_offset < 0) {
             TermLineVector tmpVector;
             for(int i=0;i < -scroll_offset;i++) {
-                auto term_line = CreateDefaultTermLine(this);
+                auto term_line = CreateDefaultTermLine(m_TermBuffer);
                 term_line->Resize(GetCols());
                 tmpVector.push_back(term_line);
             }
@@ -343,7 +328,7 @@ public:
 
             TermLineVector tmpVector;
             for(int i=0;i < scroll_offset;i++) {
-                auto term_line = CreateDefaultTermLine(this);
+                auto term_line = CreateDefaultTermLine(m_TermBuffer);
                 term_line->Resize(GetCols());
                 tmpVector.push_back(term_line);
             }
@@ -353,8 +338,7 @@ public:
         }
     }
 
-    bool MoveCurRow(uint32_t offset, bool move_down, bool scroll_buffer) override {
-        std::lock_guard<std::recursive_mutex> guard(m_ResizeLock);
+    bool MoveCurRow(uint32_t offset, bool move_down, bool scroll_buffer) {
         uint32_t begin = 0, end = GetRows() - 1;
 
         bool scrolled = false;
@@ -394,47 +378,25 @@ public:
         return scrolled;
     }
 
-    void SetCellDefaults(wchar_t c,
-                         uint16_t fore_color_idx,
-                         uint16_t back_color_idx,
-                         uint16_t mode) override {
-        m_DefaultChar = c;
-        m_DefaultForeColorIndex = fore_color_idx;
-        m_DefaultBackColorIndex = back_color_idx;
-        m_DefaultMode = mode;
-    }
-
-    TermCellPtr CreateCellWithDefaults() override {
-        TermCellPtr cell = CreateDefaultTermCell(nullptr);
-
-        cell->SetChar(m_DefaultChar);
-        cell->SetForeColorIndex(m_DefaultForeColorIndex);
-        cell->SetBackColorIndex(m_DefaultBackColorIndex);
-        cell->SetMode(m_DefaultMode);
-
-        return cell;
-    }
-
-    void SetSelection(TermSelectionPtr selection) override {
+    void SetSelection(TermSelectionPtr selection) {
         m_Selection->SetRowBegin(selection->GetRowBegin());
         m_Selection->SetRowEnd(selection->GetRowEnd());
         m_Selection->SetColBegin(selection->GetColBegin());
         m_Selection->SetColEnd(selection->GetColEnd());
     }
 
-    TermSelectionPtr GetSelection() override {
+    TermSelectionPtr GetSelection() {
         return m_Selection;
     }
 
-    void ClearSelection() override {
+    void ClearSelection() {
         m_Selection->SetRowBegin(0);
         m_Selection->SetRowEnd(0);
         m_Selection->SetColBegin(0);
         m_Selection->SetColEnd(0);
     }
 
-    void SetCurCellData(uint32_t ch, bool wide_char, bool insert, TermCellPtr cell_template) override {
-        std::lock_guard<std::recursive_mutex> guard(m_ResizeLock);
+    void SetCurCellData(uint32_t ch, bool wide_char, bool insert, TermCellPtr cell_template) {
         int new_cell_count = wide_char ? 2 : 1;
 
         if (!insert)
@@ -508,16 +470,8 @@ public:
             m_CurCol = m_Cols - 1;
     }
 
-    void LockResize() override {
-        m_ResizeLock.lock();
-    }
-
-    void UnlockResize() override {
-        m_ResizeLock.unlock();
-    }
-
 private:
-    std::recursive_mutex m_ResizeLock;
+    TermBuffer * m_TermBuffer;
     uint32_t m_Rows;
     uint32_t m_Cols;
 
@@ -529,12 +483,204 @@ private:
 
     TermLineVector m_Lines;
 
+    TermSelectionPtr m_Selection;
+
+};
+
+class DefaultTermBuffer : public virtual PluginBase, public virtual TermBuffer {
+public:
+    DefaultTermBuffer() :
+        PluginBase("default_term_buffer", "default terminal buffer plugin", 0)
+        , m_UpdateLock{}
+        , m_DefaultChar(' ')
+        , m_DefaultForeColorIndex(TermCell::DefaultForeColorIndex)
+        , m_DefaultBackColorIndex(TermCell::DefaultBackColorIndex)
+        , m_DefaultMode(0)
+        , m_CurBuffer(0)
+        , m_Buffers {{this}, {this}}
+    {
+    }
+
+    virtual ~DefaultTermBuffer() = default;
+
+    MultipleInstancePluginPtr NewInstance() override {
+        return MultipleInstancePluginPtr{new DefaultTermBuffer()};
+    }
+
+    void Resize(uint32_t row, uint32_t col) override {
+        std::lock_guard<std::recursive_mutex> guard(m_UpdateLock);
+
+        m_Buffers[m_CurBuffer].Resize(row, col);
+    }
+
+    uint32_t GetRows() override {
+        std::lock_guard<std::recursive_mutex> guard(m_UpdateLock);
+        return m_Buffers[m_CurBuffer].GetRows();
+    }
+
+    uint32_t GetCols() override {
+        std::lock_guard<std::recursive_mutex> guard(m_UpdateLock);
+        return m_Buffers[m_CurBuffer].GetCols();
+    }
+
+    uint32_t GetRow() override {
+        std::lock_guard<std::recursive_mutex> guard(m_UpdateLock);
+        return m_Buffers[m_CurBuffer].GetRow();
+    }
+
+    uint32_t GetCol() override {
+        std::lock_guard<std::recursive_mutex> guard(m_UpdateLock);
+        return m_Buffers[m_CurBuffer].GetCol();
+    }
+
+    void SetRow(uint32_t row) override {
+        std::lock_guard<std::recursive_mutex> guard(m_UpdateLock);
+        m_Buffers[m_CurBuffer].SetRow(row);
+    }
+
+    void SetCol(uint32_t col) override {
+        std::lock_guard<std::recursive_mutex> guard(m_UpdateLock);
+        m_Buffers[m_CurBuffer].SetCol(col);
+    }
+
+    TermLinePtr GetLine(uint32_t row) override {
+        std::lock_guard<std::recursive_mutex> guard(m_UpdateLock);
+        return m_Buffers[m_CurBuffer].GetLine(row);
+    }
+
+    TermCellPtr GetCell(uint32_t row, uint32_t col) override {
+        std::lock_guard<std::recursive_mutex> guard(m_UpdateLock);
+        return m_Buffers[m_CurBuffer].GetCell(row, col);
+    }
+
+    TermLinePtr GetCurLine() override {
+        std::lock_guard<std::recursive_mutex> guard(m_UpdateLock);
+        return m_Buffers[m_CurBuffer].GetCurLine();
+    }
+
+    TermCellPtr GetCurCell() override {
+        std::lock_guard<std::recursive_mutex> guard(m_UpdateLock);
+        return m_Buffers[m_CurBuffer].GetCurCell();
+    }
+
+    uint32_t GetScrollRegionBegin() override {
+        std::lock_guard<std::recursive_mutex> guard(m_UpdateLock);
+        return m_Buffers[m_CurBuffer].GetScrollRegionBegin();
+    }
+
+    uint32_t GetScrollRegionEnd() override {
+        std::lock_guard<std::recursive_mutex> guard(m_UpdateLock);
+        return m_Buffers[m_CurBuffer].GetScrollRegionEnd();
+    }
+
+    void SetScrollRegionBegin(uint32_t begin) override {
+        std::lock_guard<std::recursive_mutex> guard(m_UpdateLock);
+        m_Buffers[m_CurBuffer].SetScrollRegionBegin(begin);
+    }
+
+    void SetScrollRegionEnd(uint32_t end) override {
+        std::lock_guard<std::recursive_mutex> guard(m_UpdateLock);
+        m_Buffers[m_CurBuffer].SetScrollRegionEnd(end);
+    }
+
+    void DeleteLines(uint32_t begin, uint32_t count) override {
+        std::lock_guard<std::recursive_mutex> guard(m_UpdateLock);
+        m_Buffers[m_CurBuffer].DeleteLines(begin, count);
+    }
+
+    void InsertLines(uint32_t begin, uint32_t count) override {
+        std::lock_guard<std::recursive_mutex> guard(m_UpdateLock);
+        m_Buffers[m_CurBuffer].InsertLines(begin, count);
+    }
+
+    void ScrollBuffer(int32_t scroll_offset) override {
+        std::lock_guard<std::recursive_mutex> guard(m_UpdateLock);
+        m_Buffers[m_CurBuffer].ScrollBuffer(scroll_offset);
+    }
+
+    bool MoveCurRow(uint32_t offset, bool move_down, bool scroll_buffer) override {
+        std::lock_guard<std::recursive_mutex> guard(m_UpdateLock);
+        return m_Buffers[m_CurBuffer].MoveCurRow(offset, move_down, scroll_buffer);
+    }
+
+    void SetCellDefaults(wchar_t c,
+                         uint16_t fore_color_idx,
+                         uint16_t back_color_idx,
+                         uint16_t mode) override {
+        m_DefaultChar = c;
+        m_DefaultForeColorIndex = fore_color_idx;
+        m_DefaultBackColorIndex = back_color_idx;
+        m_DefaultMode = mode;
+    }
+
+    TermCellPtr CreateCellWithDefaults() override {
+        TermCellPtr cell = CreateDefaultTermCell(nullptr);
+
+        cell->SetChar(m_DefaultChar);
+        cell->SetForeColorIndex(m_DefaultForeColorIndex);
+        cell->SetBackColorIndex(m_DefaultBackColorIndex);
+        cell->SetMode(m_DefaultMode);
+
+        return cell;
+    }
+
+    void SetSelection(TermSelectionPtr selection) override {
+        std::lock_guard<std::recursive_mutex> guard(m_UpdateLock);
+        m_Buffers[m_CurBuffer].SetSelection(selection);
+    }
+
+    TermSelectionPtr GetSelection() override {
+        std::lock_guard<std::recursive_mutex> guard(m_UpdateLock);
+        return m_Buffers[m_CurBuffer].GetSelection();
+    }
+
+    void ClearSelection() override {
+        std::lock_guard<std::recursive_mutex> guard(m_UpdateLock);
+        m_Buffers[m_CurBuffer].ClearSelection();
+    }
+
+    void SetCurCellData(uint32_t ch, bool wide_char, bool insert, TermCellPtr cell_template) override {
+        std::lock_guard<std::recursive_mutex> guard(m_UpdateLock);
+        m_Buffers[m_CurBuffer].SetCurCellData(ch,
+                                              wide_char,
+                                              insert,
+                                              cell_template);
+    }
+
+    void LockUpdate() override {
+        m_UpdateLock.lock();
+    }
+
+    void UnlockUpdate() override {
+        m_UpdateLock.unlock();
+    }
+
+    void EnableAlterBuffer(bool enable) override {
+        std::lock_guard<std::recursive_mutex> guard(m_UpdateLock);
+        std::cout << "enable alter buffer:" << enable << std::endl;
+        if (enable)
+        {
+            m_CurBuffer = 1;
+            m_Buffers[m_CurBuffer].Resize(0, 0);
+            m_Buffers[m_CurBuffer].Resize(m_Buffers[0].GetRows(), m_Buffers[0].GetCols());
+        }
+        else
+        {
+            m_CurBuffer = 0;
+            m_Buffers[m_CurBuffer].Resize(m_Buffers[1].GetRows(), m_Buffers[1].GetCols());
+        }
+    }
+
+private:
+    std::recursive_mutex m_UpdateLock;
     wchar_t m_DefaultChar;
     uint16_t m_DefaultForeColorIndex;
     uint16_t m_DefaultBackColorIndex;
     uint16_t m_DefaultMode;
+    uint32_t m_CurBuffer;
 
-    TermSelectionPtr m_Selection;
+    __InternalTermBuffer m_Buffers[2];
+
 };
 
 TermBufferPtr CreateDefaultTermBuffer() {

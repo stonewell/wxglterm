@@ -12,16 +12,16 @@ public:
         PYBIND11_OVERLOAD_PURE_NAME(void, TermBufferBase, "resize", resize, row, col);
     }
 
-    uint32_t GetRows() const override {
+    uint32_t GetRows()override {
         PYBIND11_OVERLOAD_PURE_NAME(uint32_t, TermBufferBase, "get_rows", GetRows, );
     }
-    uint32_t GetCols() const override {
+    uint32_t GetCols()override {
         PYBIND11_OVERLOAD_PURE_NAME(uint32_t, TermBufferBase, "get_cols", GetCols, );
     }
-    uint32_t GetRow() const override {
+    uint32_t GetRow()override {
         PYBIND11_OVERLOAD_PURE_NAME(uint32_t, TermBufferBase, "get_row", GetRow, );
     }
-    uint32_t GetCol() const override {
+    uint32_t GetCol()override {
         PYBIND11_OVERLOAD_PURE_NAME(uint32_t, TermBufferBase, "get_col", GetCol, );
     }
     void SetRow(uint32_t row) override {
@@ -43,10 +43,10 @@ public:
     TermCellPtr GetCurCell() override {
         PYBIND11_OVERLOAD_PURE_NAME(TermCellPtr, TermBufferBase, "get_cur_cell", GetCurCell,);
     }
-    uint32_t GetScrollRegionBegin() const override {
+    uint32_t GetScrollRegionBegin()override {
         PYBIND11_OVERLOAD_PURE_NAME(uint32_t, TermBufferBase, "get_scroll_region_begin", GetScrollRegionBegin,);
     }
-    uint32_t GetScrollRegionEnd() const override {
+    uint32_t GetScrollRegionEnd()override {
         PYBIND11_OVERLOAD_PURE_NAME(uint32_t, TermBufferBase, "get_scroll_region_end", GetScrollRegionEnd,);
     }
     void SetScrollRegionBegin(uint32_t begin) override {
@@ -95,11 +95,15 @@ public:
         PYBIND11_OVERLOAD_PURE_NAME(void, TermBufferBase, "set_cur_cell_data", SetCurCellData, ch, wide_char, insert, cell_template);
     }
 
-    void LockResize() override {
-        PYBIND11_OVERLOAD_PURE_NAME(void, TermBufferBase, "lock_resize", LockResize, );
+    void LockUpdate() override {
+        PYBIND11_OVERLOAD_PURE_NAME(void, TermBufferBase, "lock_update", LockUpdate, );
     }
 
-    void UnlockResize() override {
-        PYBIND11_OVERLOAD_PURE_NAME(void, TermBufferBase, "unlock_resize", UnlockResize, );
+    void UnlockUpdate() override {
+        PYBIND11_OVERLOAD_PURE_NAME(void, TermBufferBase, "unlock_update", UnlockUpdate, );
+    }
+
+    void EnableAlterBuffer(bool enable) override {
+        PYBIND11_OVERLOAD_PURE_NAME(void, TermBufferBase, "enable_alter_buffer", EnableAlterBuffer, enable );
     }
 };
