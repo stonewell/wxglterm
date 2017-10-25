@@ -23,13 +23,11 @@ class Session(object):
     def _start_reader(self):
         def __read_term_data():
             while True:
-                data = self._read_data(4096)
+                data = self._read_data()
                 if not data:
                     LOGGER.info("end of socket, quit")
                     self.stop()
                     break
-
-                self.terminal.on_data(data)
 
         def read_term_data():
             try:

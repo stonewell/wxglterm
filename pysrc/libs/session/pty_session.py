@@ -4,6 +4,7 @@ import os
 import select
 import termios
 import logging
+import time
 
 import client.pty_client
 from .session import Session
@@ -25,7 +26,7 @@ class PtySession(Session):
             return None
 
         while True:
-            rlist, wlist, elist = select.select([self.channel], [], [self.channel], 1)
+            rlist, wlist, elist = select.select([self.channel], [], [self.channel])
 
             if self.stopped or len(elist) > 0:
                 return None
@@ -33,7 +34,7 @@ class PtySession(Session):
             if len(rlist) > 0:
                 break
 
-        data = []
+        data = [1]
 
         while True:
             try:
@@ -44,7 +45,7 @@ class PtySession(Session):
 
                 if len(tmp_data) == 0:
                     break
-                data += tmp_data
+                self.terminal.on_data(tmp_data)
             except:
                 break
 
