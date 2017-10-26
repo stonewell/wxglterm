@@ -18,6 +18,8 @@ namespace py = pybind11;
 
 #ifdef _WIN32
 #define EXT_DYLIB ".dll"
+#elif defined(__APPLE__)
+#define EXT_DYLIB ".dylib"
 #else
 #define EXT_DYLIB ".so"
 #endif

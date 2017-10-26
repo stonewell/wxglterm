@@ -47,7 +47,7 @@ class PtySession(Session):
 
                 if len(tmp_data) == 0:
                     break
-                self.terminal.on_data(tmp_data)
+                self.terminal.on_data(tmp_data, len(tmp_data))
             except:
                 break
 

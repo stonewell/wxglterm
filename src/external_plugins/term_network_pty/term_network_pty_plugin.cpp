@@ -1,7 +1,14 @@
 #include <iostream>
 #include <unistd.h>
 #include <vector>
+
+#ifdef __APPLE__
+#include <util.h>
+#include <sys/ioctl.h>
+#else
 #include <pty.h>
+#endif
+
 #include <termios.h>
 #include <fcntl.h>
 
