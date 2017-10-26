@@ -128,6 +128,7 @@ public:
         if (m_Cancelled)
             return;
 
+        pybind11::gil_scoped_acquire acquire;
         auto mainWnd = std::dynamic_pointer_cast<TermContext>(m_Context)->GetTermWindow();
         mainWnd->Show();
 

@@ -3,6 +3,13 @@ import json
 
 class DictQuery(dict):
     def get(self, path, default = None):
+        try:
+            return self.__get(path, default)
+        except:
+            import logging
+            logging.exception('get failed')
+
+    def __get(self, path, default = None):
         keys = path.split("/")
         val = None
 
@@ -23,7 +30,8 @@ class DictQuery(dict):
 
         if isinstance(val, list) or isinstance(val, dict):
             return json.dumps(val)
-        return val
+
+        return val if val else default
 
 def load_config(config_path):
     if not os.path.exists(config_path):

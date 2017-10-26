@@ -9,6 +9,10 @@ def start_client(session, cfg):
     try:
         shell = cfg.get_entry("shell", '')
 
+        env = {}
+        env.update(os.environ)
+        env['TERM'] = session.terminal._term_name
+
         if len(shell) == 0:
             shell = os.environ['SHELL']
 
@@ -22,7 +26,7 @@ def start_client(session, cfg):
         pid, master_fd = pty.fork()
 
         if pid == pty.CHILD:
-            os.execlp(shell[0], *shell)
+            os.execvpe(shell[0], shell, env)
 
         session.interactive_shell(master_fd)
     except:

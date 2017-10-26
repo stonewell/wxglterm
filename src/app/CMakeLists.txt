@@ -3,14 +3,9 @@ FILE(GLOB wxglterm_src
   "*.cpp"
   )
 
-ADD_CUSTOM_COMMAND(OUTPUT app_config.inc
-  COMMAND ${PYTHON_EXECUTABLE} ${CMAKE_CURRENT_SOURCE_DIR}/../../utils/pystmt_generator/pystmt_generator.py -i ${CMAKE_CURRENT_SOURCE_DIR}/app_config.py -o app_config.inc
-  DEPENDS ${CMAKE_CURRENT_SOURCE_DIR}/app_config.py ${CMAKE_CURRENT_SOURCE_DIR}/../../utils/pystmt_generator/pystmt_generator.py
-  )
-
 ADD_CUSTOM_TARGET(copy_py_plugins ALL DEPENDS ${CMAKE_BINARY_DIR}/pyplugins.stamp wxglterm)
 
-ADD_EXECUTABLE(wxglterm ${wxglterm_src} app_config.inc)
+ADD_EXECUTABLE(wxglterm ${wxglterm_src})
 
 TARGET_COMPILE_DEFINITIONS(wxglterm PRIVATE
   ${wxWidgets_DEFINITIONS}

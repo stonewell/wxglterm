@@ -245,6 +245,10 @@ TermNetworkPtr wxGLTermApp::CreateTermNetwork(TermContextPtr term_context)
     new_instance->InitPlugin(std::dynamic_pointer_cast<Context>(term_context),
                              new_instance_config);
 
+    std::cout << "config shell:"
+              << new_instance_config->GetEntry("shell", "default")
+              << std::endl;;
+
     return std::dynamic_pointer_cast<TermNetwork>(new_instance);
 }
 

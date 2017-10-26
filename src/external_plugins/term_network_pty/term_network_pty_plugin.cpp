@@ -1,3 +1,5 @@
+#include <pybind11/embed.h>
+
 #include <iostream>
 #include <unistd.h>
 #include <vector>
@@ -24,6 +26,8 @@
 #include "term_context.h"
 
 #include "PortableThread.h"
+
+#include "app_config_impl.h"
 
 static
 void delete_data(void * data);
@@ -59,6 +63,58 @@ public:
         m_PtyReaderThread.Join();
     }
 
+    std::shared_ptr<char> m_TermName;
+    std::shared_ptr<char> m_CmdLine;
+    std::vector<char *> m_Args;
+
+    void BuildEnviron() {
+        m_Envs.clear();
+
+        extern char ** environ;
+
+        char ** tmp = environ;
+
+        std::string term_name = "TERM=" + GetPluginContext()->GetAppConfig()->GetEntry("/term/term_name", "xterm-256color");
+
+        m_TermName = {strdup(term_name.c_str()), [](char * data) {
+                free(data);
+            }};
+
+        while(*tmp) {
+            if (term_name != "NOT FOUND" && !strncmp(*tmp, "TERM=", strlen("TERM=")))
+            {
+                m_Envs.push_back(m_TermName.get());
+            }
+            else
+            {
+                m_Envs.push_back(*tmp);
+            }
+            tmp++;
+        }
+
+        m_Envs.push_back(NULL);
+    }
+
+    void BuildCmdLine(const std::string & cmd_line)
+    {
+        m_CmdLine = {
+            strdup(cmd_line.c_str()), [](char * data) {
+                free(data);
+            }};
+
+        char * token = strtok(m_CmdLine.get(), " ");
+
+        m_Args.clear();
+        std::cout << "cmd line:" << cmd_line << std::endl;
+        while(token != NULL) {
+            std::cout << "token:" << token << std::endl;
+            m_Args.push_back(token);
+            token = strtok(NULL, " ");
+        }
+
+        m_Args.push_back(NULL);
+    }
+
     void Connect(const char * host, int port, const char * user_name, const char * password) override {
         (void)host;
         (void)port;
@@ -73,6 +129,25 @@ public:
            0
         };
 
+        std::string shell = GetPluginConfig()->GetEntry("shell", "NOT FOUND");
+
+        if (shell == "NOT FOUND")
+        {
+            char * sys_shell = getenv("SHELL");
+
+            if (sys_shell)
+                shell = std::string(sys_shell);
+            else
+                shell = std::string("/bin/bash -i -l");
+        }
+
+        std::cout << "????? shell:"
+                  << shell
+                  << std::endl;
+        BuildEnviron();
+
+        BuildCmdLine(shell);
+
         pid = forkpty(&m_MasterFD, NULL, NULL, &ws);
 
         // impossible to fork
@@ -82,10 +157,7 @@ public:
         }
         // child
         else if (pid == 0) {
-
-            char *args[] = { NULL };
-
-            execvp("/bin/bash", args);
+            execvpe(m_Args[0], &m_Args[0], &m_Envs[0]);
         }
         // parent
         else {
@@ -136,8 +208,6 @@ public:
 
     unsigned long Run(void * /*pArgument*/) override {
         struct timeval tv;
-        tv.tv_sec = 1;
-        tv.tv_usec = 0;
 
         TermContextPtr context = std::dynamic_pointer_cast<TermContext>(GetPluginContext());
 
@@ -151,6 +221,9 @@ public:
 
             fd_set          read_fd;
             fd_set          except_fd;
+
+            tv.tv_sec = 5;
+            tv.tv_usec = 0;
 
             FD_ZERO(&read_fd);
             FD_ZERO(&except_fd);
@@ -169,6 +242,7 @@ public:
                 break;
             } else if (result == 0) {
                 //timeout
+                std::cout << "select timed out:...." << std::endl;
                 continue;
             }
 
@@ -200,6 +274,7 @@ private:
     int m_MasterFD;
     std::vector<char> m_ReadBuffer;
     PortableThread::CPortableThread m_PtyReaderThread;
+    std::vector<char *> m_Envs;
 };
 
 void delete_data(void * data) {
