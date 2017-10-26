@@ -6,7 +6,7 @@
 	    "name":"default_term_ui"
 	},
 	"network":{
-	    "name":"py_term_network_use_pty",
+	    "name":"term_network_use_pty",
 	    "config":{
 		"shell":"/bin/bash"
 	    }
@@ -15,7 +15,7 @@
 	    "name":"default_term_buffer"
 	},
 	"data_handler":{
-	    "name":"default_term_data_handler"
+	    "name":"py_term_data_handler"
 	},
 	"context":{
 	    "name":"default_term_context"

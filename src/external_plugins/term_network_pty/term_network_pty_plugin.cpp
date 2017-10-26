@@ -55,7 +55,10 @@ public:
         return MultipleInstancePluginPtr{new TermNetworkPty, delete_data};
     }
 
+    bool m_Stopped;
     void Disconnect() override {
+        m_Stopped = true;
+
         if (m_MasterFD == -1)
             return;
 
@@ -120,6 +123,8 @@ public:
         (void)port;
         (void)user_name;
         (void)password;
+
+        m_Stopped = false;
 
         pid_t pid;
         struct winsize ws {
@@ -222,7 +227,7 @@ public:
             fd_set          read_fd;
             fd_set          except_fd;
 
-            tv.tv_sec = 5;
+            tv.tv_sec = 1;
             tv.tv_usec = 0;
 
             FD_ZERO(&read_fd);
@@ -232,6 +237,9 @@ public:
             FD_SET(m_MasterFD, &except_fd);
 
             int result = select(m_MasterFD+1, &read_fd, NULL, &except_fd, &tv);
+
+            if (m_Stopped)
+                break;
 
             if (result == -1) {
                 if (errno == EINTR) {
