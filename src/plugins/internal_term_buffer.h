@@ -25,13 +25,9 @@ public:
     uint32_t GetCol() const {
         return m_CurCol;
     }
-    void SetRow(uint32_t row) {
-        m_CurRow = row;
-    }
 
-    void SetCol(uint32_t col) {
-        m_CurCol = col;
-    }
+    void SetRow(uint32_t row);
+    void SetCol(uint32_t col);
 
     TermLinePtr GetLine(uint32_t row);
 

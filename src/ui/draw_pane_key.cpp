@@ -60,7 +60,6 @@ void DrawPane::OnChar(wxKeyEvent& event)
             data.push_back((char)('_' - '[' + 27));
         else
             char_processed = false;
-
     }
 
     if (!char_processed)

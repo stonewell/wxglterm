@@ -36,10 +36,10 @@ void __InternalTermBuffer::Resize(uint32_t row, uint32_t col) {
     m_ScrollRegionEnd = row ? row - 1 : 0;
 
     if (m_CurRow >= m_Rows)
-        m_CurRow = m_Rows ? m_Rows - 1 : 0;
+        SetRow(m_Rows ? m_Rows - 1 : 0);
 
     if (m_CurCol >= m_Cols)
-        m_CurCol = m_Cols ? m_Cols - 1 : 0;
+        SetCol(m_Cols ? m_Cols - 1 : 0);
 
     m_Lines.resize(m_Rows);
 
@@ -132,20 +132,20 @@ void __InternalTermBuffer::SetCurCellData(uint32_t ch, bool wide_char, bool inse
     {
         if (m_CurCol + new_cell_count > m_Cols) {
             MoveCurRow(1, true, false);
-            m_CurCol = 0;
+            SetCol(0);
         }
 
         TermCellPtr cell = GetCurCell();
         cell->Reset(cell_template);
         cell->SetChar((wchar_t)ch);
         cell->SetWideChar(wide_char);
-        m_CurCol++;
+        SetCol(m_CurCol + 1);
 
         if (wide_char) {
             cell = GetCurCell();
             cell->Reset(cell_template);
             cell->SetChar((wchar_t)0);
-            m_CurCol++;
+            SetCol(m_CurCol + 1);
         }
     } else {
         TermLinePtr line = GetLine(m_CurRow);
@@ -156,7 +156,7 @@ void __InternalTermBuffer::SetCurCellData(uint32_t ch, bool wide_char, bool inse
         cell->Reset(cell_template);
         cell->SetChar((wchar_t)ch);
         cell->SetWideChar(wide_char);
-        m_CurCol++;
+        SetCol(m_CurCol + 1);
 
         TermCellPtr extra_cell_2{};
 
@@ -166,7 +166,7 @@ void __InternalTermBuffer::SetCurCellData(uint32_t ch, bool wide_char, bool inse
             cell = line->GetCell(m_CurCol);
             cell->Reset(cell_template);
             cell->SetChar((wchar_t)0);
-            m_CurCol++;
+            SetCol(m_CurCol + 1);
         }
 
         uint32_t saved_row = m_CurRow;
@@ -174,7 +174,7 @@ void __InternalTermBuffer::SetCurCellData(uint32_t ch, bool wide_char, bool inse
 
         if (!IsDefaultCell(extra_cell) || !IsDefaultCell(extra_cell_2)) {
             MoveCurRow(1, true, false);
-            m_CurCol = 0;
+            SetCol(0);
 
             if (m_CurRow >= saved_row)
             {
@@ -195,12 +195,12 @@ void __InternalTermBuffer::SetCurCellData(uint32_t ch, bool wide_char, bool inse
             }
         }
 
-        m_CurRow = saved_row;
-        m_CurCol = saved_col;
+        SetRow(saved_row);
+        SetCol(saved_col);
     }
 
     if (m_CurCol >= m_Cols)
-        m_CurCol = m_Cols - 1;
+        SetCol(m_Cols - 1);
 }
 
 bool __InternalTermBuffer::IsDefaultCell(TermCellPtr cell) {
@@ -334,9 +334,9 @@ bool __InternalTermBuffer::MoveCurRow(uint32_t offset, bool move_down, bool scro
 
     if (move_down) {
         if (m_CurRow + offset <= end) {
-            m_CurRow += offset;
+            SetRow(m_CurRow + offset);
         } else {
-            m_CurRow = end;
+            SetRow(end);
 
             //scroll
             if (scroll_buffer)
@@ -347,9 +347,9 @@ bool __InternalTermBuffer::MoveCurRow(uint32_t offset, bool move_down, bool scro
         }
     } else {
         if (m_CurRow >= offset && (m_CurRow - offset) >= begin) {
-            m_CurRow -= offset;
+            SetRow(m_CurRow - offset);
         } else {
-            m_CurRow = begin;
+            SetRow(begin);
 
             //scroll
             if (scroll_buffer)
@@ -361,4 +361,40 @@ bool __InternalTermBuffer::MoveCurRow(uint32_t offset, bool move_down, bool scro
     }
 
     return scrolled;
+}
+
+void __InternalTermBuffer::SetRow(uint32_t row) {
+    if (row == m_CurRow)
+        return;
+
+    TermCellPtr cell = GetCurCell();
+
+    if (cell) {
+        cell->RemoveMode(TermCell::Cursor);
+    }
+    m_CurRow = row;
+    cell = GetCurCell();
+
+    if (cell) {
+        cell->AddMode(TermCell::Cursor);
+    }
+}
+
+void __InternalTermBuffer::SetCol(uint32_t col) {
+    if (col == m_CurCol)
+        return;
+
+    TermCellPtr cell = GetCurCell();
+
+    if (cell) {
+        cell->RemoveMode(TermCell::Cursor);
+    }
+
+    m_CurCol = col;
+
+    cell = GetCurCell();
+
+    if (cell) {
+        cell->AddMode(TermCell::Cursor);
+    }
 }

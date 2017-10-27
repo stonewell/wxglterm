@@ -13,6 +13,8 @@
 #include "term_network.h"
 #include "color_theme.h"
 
+#include <bitset>
+
 extern
 wxCoord PADDING;
 
@@ -59,6 +61,15 @@ void DrawPane::DrawContent(wxDC &dc,
     wxSize content_last_line_size {0, 0};
     wxSize content_before_last_line_size {0, 0};
 
+    std::bitset<16> m(mode);
+
+    if (mode != 0)
+    {
+        std::cout << "mode:" << mode << ",cursor:"
+                  << m.test(TermCell::Cursor)
+                  << std::endl;
+    }
+
     if (multi_line)
     {
         content_last_line_size = dc.GetTextExtent(content.AfterLast('\n'));
@@ -68,9 +79,9 @@ void DrawPane::DrawContent(wxDC &dc,
 
     if (last_back_color != TermCell::DefaultBackColorIndex)
     {
-        wxBrush brush(m_ColorTable[last_back_color]);
+        wxBrush brush(m_ColorTable[m.test(TermCell::Cursor) ? (uint16_t)TermCell::DefaultCursorColorIndex : last_back_color]);
         dc.SetBrush(brush);
-        dc.SetPen(wxPen(m_ColorTable[last_back_color]));
+        dc.SetPen(wxPen(m_ColorTable[m.test(TermCell::Cursor) ? (uint16_t)TermCell::DefaultCursorColorIndex : last_back_color]));
 
         if (multi_line)
         {
