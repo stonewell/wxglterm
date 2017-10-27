@@ -23,7 +23,7 @@ public:
         return m_Version;
     }
 
-    void InitPlugin(ContextPtr context,
+    virtual void InitPlugin(ContextPtr context,
                     AppConfigPtr plugin_config) override {
         m_Context = context;
         m_PluginConfig = plugin_config;
