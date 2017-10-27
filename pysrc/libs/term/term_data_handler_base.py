@@ -1,10 +1,7 @@
 import logging
 import os
-import sys
+from collections import deque
 
-import threading
-
-import cap.cap_manager
 import term.parse_termdata
 import term.read_termdata
 
@@ -15,28 +12,27 @@ class TermDataHandlerBase():
     def __init__(self):
         pass
 
-    def init_with_term_name(self, term_name):
-        #initialize term caps
+    def init_with_term_name(self, termcap_dir, term_name):
+        # initialize term caps
         self._term_name = term_name
 
-        self._cap_str = self.__load_cap_str__('generic-cap')
+        self._cap_str = self.__load_cap_str__(termcap_dir, 'generic-cap')
         try:
-            self._cap_str += self.__load_cap_str__(self._term_name)
+            self._cap_str += \
+                self.__load_cap_str__(termcap_dir, self._term_name)
         except:
             LOGGER.exception('unable to load term data:%s' % self._term_name)
-            self._cap_str += self.__load_cap_str__('xterm-256color')
+            self._cap_str += \
+                self.__load_cap_str__(termcap_dir, 'xterm-256color')
 
         self._cap = term.parse_termdata.parse_cap(self._cap_str)
 
         self._parse_context = term.parse_termdata.ControlDataParserContext()
         self._state = self._cap.control_data_start_state
         self._control_data = []
-        self._in_status_line = False
-        self._keypad_transmit_mode = False
         self._cap_state_stack = deque()
 
-    def __load_cap_str__(self, term_name):
-        termcap_dir = self.plugin_context.get_app_config().get_entry('/term/termcap_dir', 'data')
+    def __load_cap_str__(self, termcap_dir, term_name):
         term_path = os.path.join(termcap_dir, term_name+'.dat')
 
         LOGGER.info('load term cap data file:{}'.format(term_path))
@@ -45,8 +41,11 @@ class TermDataHandlerBase():
 
     def __handle_cap__(self, check_unknown=True, data=None, c=None):
         cap_turple = self._state.get_cap(self._parse_context.params)
+        params = []
 
         if cap_turple:
+            params = self._parse_context.params[:] if self._parse_context.params else []
+
             if len(self._cap_state_stack) > 0:
                 (self._state,
                  self._parse_context.params,
@@ -68,7 +67,7 @@ class TermDataHandlerBase():
                                         .replace('\r', '\r\n'))
                 m5 = 'data:[[[{}]]]]'.format(' '.join(map(str, map(ord, str(data)))))
 
-                LOGGER.error('\r\n'.join([m1, m2, m3, m4, m5, str(self._in_status_line)]))
+                LOGGER.error('\r\n'.join([m1, m2, m3, m4, m5]))
 
             self._cap_state_stack.append((self._state,
                                           self._parse_context.params,
@@ -81,22 +80,23 @@ class TermDataHandlerBase():
         if not check_unknown and not cap_turple and len(self._control_data) > 0:
             LOGGER.debug('found unfinished data')
 
-        return cap_turple
+        return (cap_turple, params)
 
-    def process_data(self, c = '\0'):
+    def process_data(self, c=None):
         cap_turple = None
         char_to_output = None
+        params = None
 
-        if c == '\0':
+        if c is None:
             if self._state:
-                cap_turple = self.__handle_cap__(False)
-            return (cap_turple, char_to_output)
+                cap_turple, params = self.__handle_cap__(False)
+            return (cap_turple, params, char_to_output)
 
         next_state = self._state.handle(self._parse_context, c)
 
         if (not next_state or
-            self._state.get_cap(self._parse_context.params)):
-            cap_turple = self.__handle_cap__(c=c)
+                self._state.get_cap(self._parse_context.params)):
+            cap_turple, params = self.__handle_cap__(c=c)
 
             # reset next state, if have both next_state
             # and cap, next_state may process digit value
@@ -111,7 +111,9 @@ class TermDataHandlerBase():
             else:
                 char_to_output = c
 
+            return (cap_turple, params, char_to_output)
+
         self._state = next_state
         self._control_data.append(c if not c == '\x1B' else '\\E')
 
-        return (cap_turple, char_to_output)
+        return (cap_turple, params, char_to_output)

@@ -16,14 +16,19 @@ import term.read_termdata
 
 from term.term_cap_handler import TermCapHandler
 from term.term_buffer_handler import TermBufferHandler
+from term.term_data_handler_base import TermDataHandlerBase
 
 LOGGER = logging.getLogger('TermDataHandler')
 
 
+class TempContext(object):
+    pass
+
 class DefaultTermDataHandler(MultipleInstancePluginBase,
                              TermDataHandler,
                              TermCapHandler,
-                             TermBufferHandler):
+                             TermBufferHandler,
+                             TermDataHandlerBase):
     def __init__(self):
         MultipleInstancePluginBase.__init__(self, name="py_term_data_handler",
                                             desc="It is a python version term data handler",
@@ -31,56 +36,41 @@ class DefaultTermDataHandler(MultipleInstancePluginBase,
         TermDataHandler.__init__(self)
         TermCapHandler.__init__(self)
         TermBufferHandler.__init__(self)
+        TermDataHandlerBase.__init__(self)
 
         self._stopped = True
         self._data_event = Event()
         self._data_queue = deque()
         self._process_thread = None
+        self._tmp_context = TempContext()
 
     def init_plugin(self, context, plugin_config):
         MultipleInstancePluginBase.init_plugin(self, context, plugin_config)
 
         #initialize term caps
-        self._term_name = self.plugin_context.get_app_config().get_entry("/term/term_name", "xterm-256color")
+        term_name = self.plugin_context.get_app_config().get_entry("/term/term_name", "xterm-256color")
+        termcap_dir = self.plugin_context.get_app_config().get_entry('/term/termcap_dir', 'data')
 
-        self.cap_str = self.__load_cap_str__('generic-cap')
-        try:
-            self.cap_str += self.__load_cap_str__(self._term_name)
-        except:
-            LOGGER.exception('unable to load term data:%s' % self._term_name)
-            self.cap_str += self.__load_cap_str__('xterm-256color')
+        self.init_with_term_name(termcap_dir, term_name)
 
-        self.cap = term.parse_termdata.parse_cap(self.cap_str)
-
-        self._parse_context = term.parse_termdata.ControlDataParserContext()
-        self.state = self.cap.control_data_start_state
-        self.control_data = []
         self.in_status_line = False
         self.keypad_transmit_mode = False
-        self._cap_state_stack = deque()
-
-    def __load_cap_str__(self, term_name):
-        termcap_dir = self.plugin_context.get_app_config().get_entry('/term/termcap_dir', 'data')
-        term_path = os.path.join(termcap_dir, term_name+'.dat')
-
-        LOGGER.info('load term cap data file:{}'.format(term_path))
-
-        return term.read_termdata.get_entry(term_path, term_name)
 
     def on_data(self, data, count):
         self._refresh_timer.cancel()
         self._data_queue.extend(data[:count])
         self._data_event.set()
 
-    def __on_control_data(self, cap_turple):
+    def __on_control_data(self, cap_turple, params):
         cap_name, increase_params = cap_turple
         cap_handler = cap.cap_manager.get_cap_handler(cap_name)
 
-        LOGGER.debug("control data:[[[" + ''.join(self.control_data) + ']]],for cap:' + cap_name)
+        LOGGER.debug("control data:[[[" + ''.join(self._control_data) + ']]],for cap:' + cap_name)
         if not cap_handler:
             LOGGER.error('no matched:{}, params={}'.format(cap_turple, self._parse_context.params))
         elif cap_handler:
-            cap_handler.handle(self, self._parse_context, cap_turple)
+            self._tmp_context.params = params
+            cap_handler.handle(self, self._tmp_context, cap_turple)
 
     def __output_data(self, c):
         if self.in_status_line:
@@ -102,84 +92,31 @@ class DefaultTermDataHandler(MultipleInstancePluginBase,
         except:
             LOGGER.exception('save buffer failed')
 
-    def __handle_cap__(self, check_unknown=True, data=None, c=None):
-        cap_turple = self.state.get_cap(self._parse_context.params)
-
-        if cap_turple:
-            self.__on_control_data(cap_turple)
-
-            if len(self._cap_state_stack) > 0:
-                (self.state,
-                 self._parse_context.params,
-                 self.control_data) = self._cap_state_stack.pop()
-            else:
-                self.state = self.cap.control_data_start_state
-                self._parse_context.params = []
-                self.control_data = []
-        elif check_unknown and len(self.control_data) > 0:
-            next_state = \
-                self.cap.control_data_start_state.handle(self._parse_context,
-                                                         c)
-
-            if not next_state:
-                m1 = 'start state:{}, params={}, self={}, next_states={}'.format(self.cap.control_data_start_state.cap_name, self._parse_context.params, self, self.cap.control_data_start_state.next_states)
-                m2 = 'current state:{}, {}, params={}, next_states={}, {}, [{}]'.format(self.state, self.state.cap_name, self._parse_context.params, self.state.next_states, self.state.digit_state, ord(c) if c else 'None')
-                m3 = "unknown control data:[[[" + ''.join(self.control_data) + ']]]'
-                m4 = 'data:[[[{}]]]'.format(str(data).replace('\x1B', '\\E')
-                                        .replace('\r', '\r\n'))
-                m5 = 'data:[[[{}]]]]'.format(' '.join(map(str, map(ord, str(data)))))
-
-                LOGGER.error('\r\n'.join([m1, m2, m3, m4, m5, str(self.in_status_line)]))
-
-            self._cap_state_stack.append((self.state,
-                                          self._parse_context.params,
-                                          self.control_data))
-
-            self.state = self.cap.control_data_start_state
-            self._parse_context.params = []
-            self.control_data = []
-
-        if not check_unknown and not cap_turple and len(self.control_data) > 0:
-            LOGGER.debug('found unfinished data')
-
-        return cap_turple
-
     def __try_parse__(self):
-        next_state = None
+        try:
+            while True:
+                data = self._data_queue.popleft()
 
-        while True:
-            data = self._data_queue.popleft()
-
-            if isinstance(data, str):
-                c = data[0]
-            else:
-                c = chr(data)
-            next_state = self.state.handle(self._parse_context, c)
-
-            if (not next_state or
-                    self.state.get_cap(self._parse_context.params)):
-                self.__handle_cap__(c=c)
-
-                # reset next state, if have both next_state
-                # and cap, next_state may process digit value
-                if next_state:
-                    next_state.reset()
-                # retry last char
-                next_state = self.state.handle(self._parse_context, c)
-
-                if next_state:
-                    self.state = next_state
-                    self.control_data.append(c if not c == '\x1B' else '\\E')
+                if isinstance(data, str):
+                    c = data[0]
                 else:
-                    self.__output_data(c)
+                    c = chr(data)
 
-                continue
+                cap_turple, params, output_char = self.process_data(c)
 
-            self.state = next_state
-            self.control_data.append(c if not c == '\x1B' else '\\E')
+                if cap_turple:
+                    self.__on_control_data(cap_turple, params)
 
-        if self.state:
-            self.__handle_cap__(False)
+                if output_char:
+                    self.__output_data(output_char)
+
+        except IndexError:
+            cap_turple, params, output_char = self.process_data()
+            if cap_turple:
+                self.__on_control_data(cap_turple, params)
+
+            if output_char:
+                self.__output_data(output_char)
 
     def __read_queued_data(self):
         while True:
@@ -198,13 +135,11 @@ class DefaultTermDataHandler(MultipleInstancePluginBase,
 
             try:
                 self.__try_parse__()
-            except IndexError:
-                pass
             except:
                 LOGGER.exception("try parse failed")
                 pass
 
-            self.refresh_display(0.04)
+            self.refresh_display(0.02)
 
     def start(self):
         if not self._stopped:
@@ -222,8 +157,10 @@ class DefaultTermDataHandler(MultipleInstancePluginBase,
 
         self._data_event.set()
 
-        if self._process_thread and threading.current_thread() != self._process_thread:
+        if (self._process_thread and
+                threading.current_thread() != self._process_thread):
             self._process_thread.join()
+
 
 def register_plugins(pm):
     pm.register_plugin(DefaultTermDataHandler().new_instance())
