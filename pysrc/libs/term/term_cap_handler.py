@@ -233,7 +233,7 @@ class TermCapHandler(object):
         self.refresh_display()
 
     def insert_chars(self, str):
-        self.__output_normal_data(str, True)
+        self._output_normal_data(str, True)
 
     def delete_chars(self, count, overwrite = False):
         line = self.get_cur_line()

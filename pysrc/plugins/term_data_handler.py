@@ -74,14 +74,14 @@ class DefaultTermDataHandler(MultipleInstancePluginBase,
 
     def __output_data(self, c):
         if self.in_status_line:
-            self.__output_status_line_data(c)
+            self._output_status_line_data(c)
         else:
-            self.__output_normal_data(c)
+            self._output_normal_data(c)
 
-    def __output_status_line_data(self, c):
+    def _output_status_line_data(self, c):
         pass
 
-    def __output_normal_data(self, c, insert=False):
+    def _output_normal_data(self, c, insert=False):
         if c == '\x1b':
             LOGGER.error('normal data has escape char:{}'.format(c.replace('\x1b','\\E')))
             return

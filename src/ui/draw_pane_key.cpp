@@ -31,9 +31,7 @@ void DrawPane::OnChar(wxKeyEvent& event)
     char c= uc & 0xFF;
     if (uc == WXK_NONE)
     {
-        printf("key code:%d\n", event.GetKeyCode());
-
-        return ;
+        uc = event.GetKeyCode();
     }
 
     TermContextPtr context = std::dynamic_pointer_cast<TermContext>(m_TermWindow->GetPluginContext());
@@ -43,11 +41,36 @@ void DrawPane::OnChar(wxKeyEvent& event)
 
     TermNetworkPtr network = context->GetTermNetwork();
 
-   try
+    std::vector<char> data;
+
+    bool char_processed = false;
+    if (event.AltDown()){
+        data.push_back('\x1B');
+    }
+
+    if (event.ControlDown()) {
+        char_processed = true;
+        if (c >= 'a' && c <= 'z')
+            data.push_back((char)(c - 'a' + 1));
+        else if (c>= '[' && c <= ']')
+            data.push_back((char)(c - '[' + 27));
+        else if (c == '6')
+            data.push_back((char)('^' - '[' + 27));
+        else if (c == '-')
+            data.push_back((char)('_' - '[' + 27));
+        else
+            char_processed = false;
+
+    }
+
+    if (!char_processed)
+        data.push_back(c);
+
+    try
     {
         pybind11::gil_scoped_acquire acquire;
-        char ch[2] = {c, 0};
-        network->Send(ch, 1);
+
+        network->Send(&data[0], data.size());
     }
     catch(std::exception & e)
     {
