@@ -94,9 +94,20 @@ void TermDataHandlerImpl::ProcessSingleChar(const char * ch) {
         std::cout << "output char:" << output_char.cast<std::string>() << std::endl;
 }
 
-void TermDataHandlerImpl::ProcessAllChars(char ch) {
+class __SimpleGILStateLock {
+public:
+    __SimpleGILStateLock() {
+        gstate = PyGILState_Ensure();
+    }
+    ~__SimpleGILStateLock() {
+        PyGILState_Release(gstate);
+    }
+
     PyGILState_STATE gstate;
-    gstate = PyGILState_Ensure();
+};
+
+void TermDataHandlerImpl::ProcessAllChars(char ch) {
+    __SimpleGILStateLock lock;
 
     do {
         ProcessSingleChar(&ch);
@@ -104,8 +115,6 @@ void TermDataHandlerImpl::ProcessAllChars(char ch) {
 
     if (!m_Stopped)
         ProcessSingleChar(NULL);
-
-    PyGILState_Release(gstate);
 }
 
 unsigned long TermDataHandlerImpl::Run(void * /*pArgument*/) {

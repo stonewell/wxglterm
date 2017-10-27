@@ -108,6 +108,8 @@ void DrawPane::OnPaint(wxPaintEvent & /*event*/)
 
     {
         wxCriticalSectionLocker locker(m_RefreshLock);
+        if (refreshNow)
+            std::cout << "on paint end refresh:" << m_RefreshNow << "," << refreshNow << std::endl;
         m_RefreshNow -= refreshNow;
     }
 }
