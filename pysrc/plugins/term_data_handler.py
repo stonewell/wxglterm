@@ -139,6 +139,8 @@ class DefaultTermDataHandler(MultipleInstancePluginBase,
                 LOGGER.exception("try parse failed")
                 pass
 
+            if self._stopped:
+                break
             self.refresh_display(0.02)
 
     def start(self):
