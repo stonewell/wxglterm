@@ -162,7 +162,11 @@ public:
         }
         // child
         else if (pid == 0) {
+#ifdef __APPLE__
+            execve(m_Args[0], &m_Args[0], &m_Envs[0]);
+#else
             execvpe(m_Args[0], &m_Args[0], &m_Envs[0]);
+#endif
         }
         // parent
         else {
