@@ -148,6 +148,9 @@ void __InternalTermBuffer::SetCurCellData(uint32_t ch, bool wide_char, bool inse
             SetCol(m_CurCol + 1);
         }
     } else {
+        uint32_t saved_row = m_CurRow;
+        uint32_t saved_col = m_CurCol;
+
         TermLinePtr line = GetLine(m_CurRow);
 
         TermCellPtr extra_cell = line->InsertCell(m_CurCol);
@@ -169,16 +172,13 @@ void __InternalTermBuffer::SetCurCellData(uint32_t ch, bool wide_char, bool inse
             SetCol(m_CurCol + 1);
         }
 
-        uint32_t saved_row = m_CurRow;
-        uint32_t saved_col = m_CurCol;
-
         if (!IsDefaultCell(extra_cell) || !IsDefaultCell(extra_cell_2)) {
             MoveCurRow(1, true, false);
             SetCol(0);
 
-            if (m_CurRow >= saved_row)
+            if (m_CurRow > saved_row)
             {
-                if (extra_cell) {
+                if (!IsDefaultCell(extra_cell)) {
                     printf("extra_cell:%d\n", (uint32_t)extra_cell->GetChar());
                     SetCurCellData((uint32_t)extra_cell->GetChar(),
                                    extra_cell->IsWideChar(),
@@ -186,7 +186,7 @@ void __InternalTermBuffer::SetCurCellData(uint32_t ch, bool wide_char, bool inse
                                    extra_cell);
                 }
 
-                if (extra_cell_2) {
+                if (!IsDefaultCell(extra_cell_2)) {
                     SetCurCellData((uint32_t)extra_cell_2->GetChar(),
                                    extra_cell_2->IsWideChar(),
                                    insert,

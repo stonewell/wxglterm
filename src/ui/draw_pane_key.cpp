@@ -15,8 +15,71 @@
 
 void DrawPane::OnKeyDown(wxKeyEvent& event)
 {
-    (void)event;
-    event.Skip();
+    wxChar uc = event.GetUnicodeKey();
+
+    char c= uc & 0xFF;
+
+    TermContextPtr context = std::dynamic_pointer_cast<TermContext>(m_TermWindow->GetPluginContext());
+
+    if (!context)
+        return;
+
+    TermNetworkPtr network = context->GetTermNetwork();
+
+    std::vector<char> data;
+
+    if (uc != WXK_NONE && event.GetModifiers() == wxMOD_ALT){
+        data.push_back('\x1B');
+        data.push_back(c);
+    }
+
+    std::cout << "on key down:" << c << ","
+              << event.AltDown() << ","
+              << event.RawControlDown()
+              << ","
+              << uc
+              << ","
+              << event.GetKeyCode()
+              << std::endl;
+
+    if (uc != WXK_NONE && event.GetModifiers() == wxMOD_RAW_CONTROL) {
+        if (uc >= 'a' && uc <= 'z')
+            data.push_back((char)(uc - 'a' + 1));
+        if (uc >= 'A' && uc <= 'Z')
+            data.push_back((char)(uc - 'A' + 1));
+        else if (uc>= '[' && uc <= ']')
+            data.push_back((char)(uc - '[' + 27));
+        else if (uc == '6')
+            data.push_back((char)('^' - '[' + 27));
+        else if (uc == '-')
+            data.push_back((char)('_' - '[' + 27));
+    }
+
+    if (data.size() == 0) {
+        event.Skip();
+        return;
+    }
+
+    try
+    {
+        pybind11::gil_scoped_acquire acquire;
+
+        network->Send(&data[0], data.size());
+    }
+    catch(std::exception & e)
+    {
+        std::cerr << "!!Error Send:"
+                  << std::endl
+                  << e.what()
+                  << std::endl;
+        PyErr_Print();
+    }
+    catch(...)
+    {
+        std::cerr << "!!Error Send"
+                  << std::endl;
+        PyErr_Print();
+    }
 }
 
 void DrawPane::OnKeyUp(wxKeyEvent& event)
@@ -28,10 +91,9 @@ void DrawPane::OnChar(wxKeyEvent& event)
 {
     wxChar uc = event.GetUnicodeKey();
 
-    char c= uc & 0xFF;
     if (uc == WXK_NONE)
     {
-        uc = event.GetKeyCode();
+        return;
     }
 
     TermContextPtr context = std::dynamic_pointer_cast<TermContext>(m_TermWindow->GetPluginContext());
@@ -43,29 +105,7 @@ void DrawPane::OnChar(wxKeyEvent& event)
 
     std::vector<char> data;
 
-    bool char_processed = false;
-    if (event.AltDown()){
-        data.push_back('\x1B');
-    }
-
-    if (event.ControlDown()) {
-        char_processed = true;
-        if (c >= 'a' && c <= 'z')
-            data.push_back((char)(c - 'a' + 1));
-        else if (c >= 'A' && c <= 'Z')
-            data.push_back((char)(c - 'A' + 1));
-        else if (c>= '[' && c <= ']')
-            data.push_back((char)(c - '[' + 27));
-        else if (c == '6')
-            data.push_back((char)('^' - '[' + 27));
-        else if (c == '-')
-            data.push_back((char)('_' - '[' + 27));
-        else
-            char_processed = false;
-    }
-
-    if (!char_processed)
-        data.push_back(c);
+    data.push_back(uc);
 
     try
     {
