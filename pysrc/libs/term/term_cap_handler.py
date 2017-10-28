@@ -66,7 +66,7 @@ class TermCapHandler(object):
 
     def get_rows(self):
         if self._force_column:
-            return self.cap.flags['lines']
+            return self._cap.flags['lines']
         return self.plugin_context.term_buffer.rows
 
     def get_cols(self):
@@ -475,8 +475,8 @@ class TermCapHandler(object):
 
     def user9(self, context):
         if self.is_debug():
-            LOGGER.debug('response terminal type:{} {}'.format(context.params, self.cap.cmds['user8'].cap_value))
-        self.send_data(self.cap.cmds['user8'].cap_value)
+            LOGGER.debug('response terminal type:{} {}'.format(context.params, self._cap_.cmds['user8'].cap_value))
+        self.send_data(self._cap.cmds['user8'].cap_value)
 
     def enter_reverse_mode(self, context):
         self.cur_cell.add_mode(TermCell.TextMode.Reverse)
