@@ -63,13 +63,7 @@ public:
         m_Char = cell->GetChar();
         m_ForeColorIdx = cell->GetForeColorIndex();
         m_BackColorIdx = cell->GetBackColorIndex();
-        bool cursor = m_Mode.test(TermCell::Cursor);
-
         m_Mode = cell->GetMode();
-
-        if (cursor)
-            m_Mode.set(TermCell::Cursor);
-
         m_IsWideChar = cell->IsWideChar();
     }
 

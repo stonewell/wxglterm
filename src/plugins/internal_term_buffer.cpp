@@ -364,37 +364,9 @@ bool __InternalTermBuffer::MoveCurRow(uint32_t offset, bool move_down, bool scro
 }
 
 void __InternalTermBuffer::SetRow(uint32_t row) {
-    if (row == m_CurRow)
-        return;
-
-    TermCellPtr cell = GetCurCell();
-
-    if (cell) {
-        cell->RemoveMode(TermCell::Cursor);
-    }
     m_CurRow = row;
-    cell = GetCurCell();
-
-    if (cell) {
-        cell->AddMode(TermCell::Cursor);
-    }
 }
 
 void __InternalTermBuffer::SetCol(uint32_t col) {
-    if (col == m_CurCol)
-        return;
-
-    TermCellPtr cell = GetCurCell();
-
-    if (cell) {
-        cell->RemoveMode(TermCell::Cursor);
-    }
-
     m_CurCol = col;
-
-    cell = GetCurCell();
-
-    if (cell) {
-        cell->AddMode(TermCell::Cursor);
-    }
 }

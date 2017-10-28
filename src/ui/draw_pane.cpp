@@ -103,7 +103,10 @@ void DrawPane::OnPaint(wxPaintEvent & /*event*/)
         __ScopeLocker locker(buffer);
         wxAutoBufferedPaintDC dc(this);
 
+        TermCellPtr cell = buffer->GetCurCell();
+        cell->AddMode(TermCell::Cursor);
         DoPaint(dc, buffer, true);
+        cell->RemoveMode(TermCell::Cursor);
     }
 
     {
@@ -221,7 +224,10 @@ void DrawPane::OnIdle(wxIdleEvent& evt)
         dc.DestroyClippingRegion();
         dc.SetDeviceClippingRegion(clipRegion);
 
+        TermCellPtr cell = buffer->GetCurCell();
+        cell->AddMode(TermCell::Cursor);
         DoPaint(bDC, buffer, false);
+        cell->RemoveMode(TermCell::Cursor);
     }
 
     {

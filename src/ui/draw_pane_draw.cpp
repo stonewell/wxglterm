@@ -52,23 +52,13 @@ void DrawPane::DrawContent(wxDC &dc,
                            wxCoord & last_y,
                            wxCoord y)
 {
-    (void)mode;
-    (void)last_mode;
-
     wxSize content_size = dc.GetTextExtent(content);
     bool multi_line = content.Find('\n', true) > 0;
 
     wxSize content_last_line_size {0, 0};
     wxSize content_before_last_line_size {0, 0};
 
-    std::bitset<16> m(mode);
-
-    if (mode != 0)
-    {
-        std::cout << "mode:" << mode << ",cursor:"
-                  << m.test(TermCell::Cursor)
-                  << std::endl;
-    }
+    std::bitset<16> m(last_mode);
 
     if (multi_line)
     {
@@ -77,7 +67,7 @@ void DrawPane::DrawContent(wxDC &dc,
         content_before_last_line_size.SetWidth(content_size.GetWidth());
     }
 
-    if (last_back_color != TermCell::DefaultBackColorIndex)
+    if (last_back_color != TermCell::DefaultBackColorIndex || m.test(TermCell::Cursor))
     {
         wxBrush brush(m_ColorTable[m.test(TermCell::Cursor) ? (uint16_t)TermCell::DefaultCursorColorIndex : last_back_color]);
         dc.SetBrush(brush);
@@ -112,6 +102,7 @@ void DrawPane::DrawContent(wxDC &dc,
     content.Clear();
     last_fore_color = fore_color;
     last_back_color = back_color;
+    last_mode = mode;
 }
 
 void DrawPane::CalculateClipRegion(wxRegion & clipRegion, TermBufferPtr buffer)
@@ -211,7 +202,8 @@ void DrawPane::DoPaint(wxDC & dc, TermBufferPtr buffer, bool full_paint)
             if (ch != 0)
             {
                 if (last_fore_color != fore_color
-                    || last_back_color != back_color)
+                    || last_back_color != back_color
+                    || last_mode != mode)
                 {
                     DrawContent(dc, content,
                                 last_fore_color,

@@ -52,6 +52,8 @@ void DrawPane::OnChar(wxKeyEvent& event)
         char_processed = true;
         if (c >= 'a' && c <= 'z')
             data.push_back((char)(c - 'a' + 1));
+        else if (c >= 'A' && c <= 'Z')
+            data.push_back((char)(c - 'A' + 1));
         else if (c>= '[' && c <= ']')
             data.push_back((char)(c - '[' + 27));
         else if (c == '6')
