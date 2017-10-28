@@ -67,11 +67,27 @@ void DrawPane::DrawContent(wxDC &dc,
         content_before_last_line_size.SetWidth(content_size.GetWidth());
     }
 
-    if (last_back_color != TermCell::DefaultBackColorIndex || m.test(TermCell::Cursor))
+    uint16_t back_color_use = last_back_color;
+    uint16_t fore_color_use = last_fore_color;
+
+    if (m.test(TermCell::Cursor))
     {
-        wxBrush brush(m_ColorTable[m.test(TermCell::Cursor) ? (uint16_t)TermCell::DefaultCursorColorIndex : last_back_color]);
+        back_color_use = TermCell::DefaultCursorColorIndex;
+        fore_color_use = last_back_color;
+    }
+
+    if (m.test(TermCell::Reverse))
+    {
+        uint16_t tmp = back_color_use;
+        back_color_use = fore_color_use;
+        fore_color_use = tmp;
+    }
+
+    if (back_color_use != TermCell::DefaultBackColorIndex)
+    {
+        wxBrush brush(m_ColorTable[back_color_use]);
         dc.SetBrush(brush);
-        dc.SetPen(wxPen(m_ColorTable[m.test(TermCell::Cursor) ? (uint16_t)TermCell::DefaultCursorColorIndex : last_back_color]));
+        dc.SetPen(wxPen(m_ColorTable[back_color_use]));
 
         if (multi_line)
         {
@@ -87,8 +103,8 @@ void DrawPane::DrawContent(wxDC &dc,
         }
     }
 
-    dc.SetTextForeground(m_ColorTable[last_fore_color]);
-    dc.SetTextBackground(m_ColorTable[last_back_color]);
+    dc.SetTextForeground(m_ColorTable[fore_color_use]);
+    dc.SetTextBackground(m_ColorTable[back_color_use]);
     dc.DrawText(content, last_x, last_y);
 
     if (multi_line)
