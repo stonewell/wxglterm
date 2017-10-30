@@ -33,7 +33,7 @@ void DrawPane::OnKeyDown(wxKeyEvent& event)
         data.push_back(c);
     }
 
-    std::cout << "on key down:" << c << ","
+    std::cout << "on key down:" << (int)c << ","
               << event.AltDown() << ","
               << event.RawControlDown()
               << ","
@@ -53,6 +53,11 @@ void DrawPane::OnKeyDown(wxKeyEvent& event)
             data.push_back((char)('^' - '[' + 27));
         else if (uc == '-')
             data.push_back((char)('_' - '[' + 27));
+    }
+
+    if (uc == WXK_RETURN && !event.HasModifiers())
+    {
+        data.push_back((char)13);
     }
 
     if (data.size() == 0) {

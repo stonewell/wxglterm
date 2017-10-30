@@ -178,8 +178,6 @@ public:
     }
 
     void Send(const char * data, size_t n) override {
-        (void)data;
-        (void)n;
         write(m_MasterFD, data, n);
     }
 

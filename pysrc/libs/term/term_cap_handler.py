@@ -97,7 +97,7 @@ class TermCapHandler(object):
         return self.plugin_context.term_buffer.get_line(row)
 
     def send_data(self, data):
-        pass
+        self.plugin_context.term_network.send(data, len(data))
 
     def get_cursor(self):
         return (self.col, self.row)
@@ -336,7 +336,6 @@ class TermCapHandler(object):
 
             for cell in self.get_line_cells(line):
                 if not cell:
-                    print('cols:', self.get_cols(), 'line:', line)
                     continue
                 cell.reset(self.cur_cell)
 
