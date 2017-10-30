@@ -125,7 +125,7 @@ PYBIND11_EMBEDDED_MODULE(wxglterm_interface, m)
             .export_values();
     py::enum_<TermCell::TextModeEnum>(term_cell, "TextMode")
             .value("Stdout", TermCell::TextModeEnum::Stdout)
-            .value("Reverse", TermCell::TextModeEnum::Stdout)
+            .value("Reverse", TermCell::TextModeEnum::Reverse)
             .value("Selection", TermCell::TextModeEnum::Selection)
             .value("Cursor", TermCell::TextModeEnum::Cursor)
             .value("Bold", TermCell::TextModeEnum::Bold)

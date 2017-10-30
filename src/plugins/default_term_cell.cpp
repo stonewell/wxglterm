@@ -63,7 +63,7 @@ public:
         m_Char = cell->GetChar();
         m_ForeColorIdx = cell->GetForeColorIndex();
         m_BackColorIdx = cell->GetBackColorIndex();
-        m_Mode = cell->GetMode();
+        m_Mode = std::bitset<16>(cell->GetMode());
         m_IsWideChar = cell->IsWideChar();
     }
 
