@@ -12,23 +12,9 @@
 #include "term_cell.h"
 #include "term_network.h"
 #include "color_theme.h"
+#include "scope_locker.h"
 
 wxCoord PADDING = 5;
-
-class __ScopeLocker {
-public:
-    __ScopeLocker(TermBufferPtr termBuffer) :
-        m_TermBuffer(termBuffer)
-    {
-        m_TermBuffer->LockUpdate();
-    }
-
-    ~__ScopeLocker() {
-        m_TermBuffer->UnlockUpdate();
-    }
-
-    TermBufferPtr m_TermBuffer;
-};
 
 #define SINGLE_WIDTH_CHARACTERS         \
 					" !\"#$%&'()*+,-./" \
@@ -39,13 +25,21 @@ public:
 					"abcdefghijklmnopqrstuvwxyz" \
 					"{|}~"
 
+#define TIMER_ID (-1)
+
+wxDECLARE_EVENT(MY_REFRESH_EVENT, wxCommandEvent);
+// this is a definition so can't be in a header
+wxDEFINE_EVENT(MY_REFRESH_EVENT, wxCommandEvent);
+
 BEGIN_EVENT_TABLE(DrawPane, wxPanel)
         EVT_PAINT(DrawPane::OnPaint)
         EVT_SIZE(DrawPane::OnSize)
-EVT_KEY_DOWN(DrawPane::OnKeyDown)
-EVT_KEY_UP(DrawPane::OnKeyUp)
-EVT_CHAR(DrawPane::OnChar)
-EVT_ERASE_BACKGROUND(DrawPane::OnEraseBackground)
+        EVT_KEY_DOWN(DrawPane::OnKeyDown)
+        EVT_KEY_UP(DrawPane::OnKeyUp)
+        EVT_CHAR(DrawPane::OnChar)
+        EVT_ERASE_BACKGROUND(DrawPane::OnEraseBackground)
+EVT_TIMER(TIMER_ID, DrawPane::OnTimer)
+EVT_COMMAND(wxID_ANY, MY_REFRESH_EVENT, DrawPane::OnRefreshEvent)
 END_EVENT_TABLE()
 
 DrawPane::DrawPane(wxFrame * parent, TermWindow * termWindow)
@@ -54,6 +48,7 @@ DrawPane::DrawPane(wxFrame * parent, TermWindow * termWindow)
         , m_RefreshLock()
         , m_TermWindow(termWindow)
         , m_Font(nullptr)
+        , m_RefreshTimer(this, TIMER_ID)
 {
     SetBackgroundStyle(wxBG_STYLE_PAINT);
     InitColorTable();
@@ -73,7 +68,10 @@ void DrawPane::RequestRefresh()
         m_RefreshNow++;
     }
 
-    Refresh(false);
+    wxCommandEvent event(MY_REFRESH_EVENT);
+
+    // Do send it
+    wxPostEvent(this, event);
 }
 
 void DrawPane::OnEraseBackground(wxEraseEvent & /*event*/)
@@ -187,56 +185,7 @@ wxFont * DrawPane::GetFont()
 
 void DrawPane::OnIdle(wxIdleEvent& evt)
 {
-    TermContextPtr context = std::dynamic_pointer_cast<TermContext>(m_TermWindow->GetPluginContext());
-
-    if (!context)
-        return;
-
-    TermBufferPtr buffer = context->GetTermBuffer();
-
-    if (!buffer)
-        return;
-
-    int refreshNow = 0;
-
-    {
-        wxCriticalSectionLocker locker(m_RefreshLock);
-        refreshNow = m_RefreshNow;
-        if (refreshNow)
-            std::cout << "refresh:" << refreshNow << std::endl;
-    }
-
-    if (refreshNow)
-    {
-        wxClientDC dc(this);
-
-        wxRect clientSize = GetClientSize();
-
-        wxRegion clipRegion(clientSize);
-
-        wxBufferedDC bDC(&dc,
-                         GetClientSize());
-
-        __ScopeLocker locker(buffer);
-
-        CalculateClipRegion(clipRegion, buffer);
-
-        dc.DestroyClippingRegion();
-        dc.SetDeviceClippingRegion(clipRegion);
-
-        TermCellPtr cell = buffer->GetCurCell();
-        cell->AddMode(TermCell::Cursor);
-        DoPaint(bDC, buffer, false);
-        cell->RemoveMode(TermCell::Cursor);
-    }
-
-    {
-        wxCriticalSectionLocker locker(m_RefreshLock);
-        if (refreshNow)
-            std::cout << "end refresh:" << m_RefreshNow << "," << refreshNow << std::endl;
-        m_RefreshNow -= refreshNow;
-    }
-
+    PaintOnDemand();
     evt.RequestMore(false); // render continuously, not only once on idle
 }
 
@@ -273,4 +222,16 @@ void DrawPane::InitColorTable()
                   << std::endl;
         PyErr_Print();
     }
+}
+
+void DrawPane::OnTimer(wxTimerEvent& event)
+{
+    (void)event;
+    PaintOnDemand();
+}
+
+void DrawPane::OnRefreshEvent(wxCommandEvent& event)
+{
+    (void)event;
+    m_RefreshTimer.StartOnce(5);
 }

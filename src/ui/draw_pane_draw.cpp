@@ -12,6 +12,7 @@
 #include "term_cell.h"
 #include "term_network.h"
 #include "color_theme.h"
+#include "scope_locker.h"
 
 #include <bitset>
 
@@ -269,5 +270,58 @@ void DrawPane::DoPaint(wxDC & dc, TermBufferPtr buffer, bool full_paint)
         dc.SetTextBackground(m_ColorTable[last_back_color]);
 
         dc.DrawText(content, last_x, last_y);
+    }
+}
+
+void DrawPane::PaintOnDemand()
+{
+   TermContextPtr context = std::dynamic_pointer_cast<TermContext>(m_TermWindow->GetPluginContext());
+
+    if (!context)
+        return;
+
+    TermBufferPtr buffer = context->GetTermBuffer();
+
+    if (!buffer)
+        return;
+
+    int refreshNow = 0;
+
+    {
+        wxCriticalSectionLocker locker(m_RefreshLock);
+        refreshNow = m_RefreshNow;
+        if (refreshNow)
+            std::cout << "refresh:" << refreshNow << std::endl;
+    }
+
+    if (refreshNow)
+    {
+        wxClientDC dc(this);
+
+        wxRect clientSize = GetClientSize();
+
+        wxRegion clipRegion(clientSize);
+
+        wxBufferedDC bDC(&dc,
+                         GetClientSize());
+
+        __ScopeLocker locker(buffer);
+
+        CalculateClipRegion(clipRegion, buffer);
+
+        dc.DestroyClippingRegion();
+        dc.SetDeviceClippingRegion(clipRegion);
+
+        TermCellPtr cell = buffer->GetCurCell();
+        cell->AddMode(TermCell::Cursor);
+        DoPaint(bDC, buffer, false);
+        cell->RemoveMode(TermCell::Cursor);
+    }
+
+    {
+        wxCriticalSectionLocker locker(m_RefreshLock);
+        if (refreshNow)
+            std::cout << "end refresh:" << m_RefreshNow << "," << refreshNow << std::endl;
+        m_RefreshNow -= refreshNow;
     }
 }

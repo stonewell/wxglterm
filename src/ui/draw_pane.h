@@ -22,9 +22,12 @@ private:
     void OnKeyUp(wxKeyEvent& event);
     void OnChar(wxKeyEvent& event);
     void OnEraseBackground(wxEraseEvent & event);
+    void OnTimer(wxTimerEvent& event);
+    void OnRefreshEvent(wxCommandEvent& event);
 
     wxFont * GetFont();
 
+    void PaintOnDemand();
     void DoPaint(wxDC & dc, TermBufferPtr buffer, bool full_paint);
     void CalculateClipRegion(wxRegion & clipRegion, TermBufferPtr buffer);
 
@@ -51,4 +54,5 @@ private:
     wxCoord m_CellWidth;
 
     wxColour m_ColorTable[TermCell::ColorIndexCount];
+    wxTimer m_RefreshTimer;
 };
