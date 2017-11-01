@@ -56,19 +56,11 @@ public:
         return m_ScrollRegionEnd;
     }
 
-    void SetScrollRegionBegin(uint32_t begin) {
-        m_ScrollRegionBegin = begin;
-    }
-
-    void SetScrollRegionEnd(uint32_t end) {
-        m_ScrollRegionEnd = end;
-    }
+    void SetScrollRegionBegin(uint32_t begin);
+    void SetScrollRegionEnd(uint32_t end);
 
     void DeleteLines(uint32_t begin, uint32_t count);
     void InsertLines(uint32_t begin, uint32_t count);
-
-    TermLineVector::iterator __GetScrollBeginIt();
-    TermLineVector::iterator __GetScrollEndIt();
 
     void ScrollBuffer(int32_t scroll_offset);
     bool MoveCurRow(uint32_t offset, bool move_down, bool scroll_buffer);
@@ -98,6 +90,9 @@ private:
     bool __NormalizeBeginEndPositionResetLinesWhenDeleteOrInsert(uint32_t & begin,
                                                                  uint32_t count,
                                                                  uint32_t & end);
+    bool HasScrollRegion();
+    void ClearHistoryLinesData();
+    uint32_t RowToLineIndex(uint32_t row);
 
 
     DefaultTermBuffer * m_TermBuffer;
@@ -114,4 +109,7 @@ private:
 
     TermSelectionPtr m_Selection;
 
+    uint32_t m_VisRowHeaderBegin;
+    uint32_t m_VisRowScrollRegionBegin;
+    uint32_t m_VisRowFooterBegin;
 };
