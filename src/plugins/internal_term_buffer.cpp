@@ -222,7 +222,7 @@ void __InternalTermBuffer::SetCurCellData(uint32_t ch,
         SetCol(saved_col);
     }
 
-    if (m_CurCol >= m_Cols)
+    if (m_CurCol > m_Cols)
         SetCol(m_Cols - 1);
 }
 
