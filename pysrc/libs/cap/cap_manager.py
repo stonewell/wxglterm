@@ -4,7 +4,7 @@ import sys
 from . import unknown_cap
 
 LOGGER = logging.getLogger('cap_manager')
-#LOGGER.setLevel(logging.DEBUG)
+LOGGER.setLevel(logging.DEBUG)
 
 
 def get_cap_handler(name):

@@ -40,10 +40,10 @@ class FileTermNetwork(MultipleInstancePluginBase, TermNetwork):
                     data_len = struct.unpack('!i', data)[0]
                     data = f.read(data_len)
                     if not data or data_len != len(data):
-                        term_data_handler.on_data(data)
+                        term_data_handler.on_data(data, len(data))
                         LOGGER.info("end of dump data, quit")
                         break
-                    term_data_handler.on_data(data)
+                    term_data_handler.on_data(data, len(data))
                 return
 
         def read_term_data():
