@@ -42,8 +42,7 @@ EVT_TIMER(TIMER_ID, DrawPane::OnTimer)
 EVT_COMMAND(wxID_ANY, MY_REFRESH_EVENT, DrawPane::OnRefreshEvent)
 END_EVENT_TABLE()
 
-DrawPane::DrawPane(wxFrame * parent, TermWindow * termWindow)
-: wxPanel(parent)
+DrawPane::DrawPane(wxFrame * parent, TermWindow * termWindow) : wxPanel(parent)
         , m_RefreshNow(0)
         , m_RefreshLock()
         , m_TermWindow(termWindow)
@@ -233,5 +232,11 @@ void DrawPane::OnTimer(wxTimerEvent& event)
 void DrawPane::OnRefreshEvent(wxCommandEvent& event)
 {
     (void)event;
-    m_RefreshTimer.StartOnce(5);
+    PaintOnDemand();
+
+    if (m_RefreshNow) {
+        wxCommandEvent event(MY_REFRESH_EVENT);
+
+        wxPostEvent(this, event);
+    }
 }

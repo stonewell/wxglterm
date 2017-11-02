@@ -8,6 +8,7 @@
 #include <vector>
 #include <iostream>
 #include <cassert>
+#include <functional>
 
 __InternalTermBuffer::__InternalTermBuffer(DefaultTermBuffer* term_buffer) :
     m_TermBuffer(term_buffer)
@@ -30,8 +31,25 @@ void __InternalTermBuffer::Resize(uint32_t row, uint32_t col) {
            m_Rows, m_CurRow,
            m_Cols, m_CurCol);
 
-    if (m_Rows == row && m_Cols == col)
+    std::function<void()> reset_lines { [this]() {
+            for (TermLineVector::iterator it = m_Lines.begin(),
+                         it_end = m_Lines.end();
+                 it != it_end;
+                 it++)
+            {
+                if (*it)
+                {
+                    (*it)->Resize(m_Cols);
+                }
+            }
+
+        }
+    };
+
+    if (m_Rows == row && m_Cols == col) {
+        reset_lines();
         return;
+    }
 
     ClearHistoryLinesData();
 
@@ -53,16 +71,7 @@ void __InternalTermBuffer::Resize(uint32_t row, uint32_t col) {
            m_Rows, m_CurRow,
            m_Cols, m_CurCol);
 
-    for (TermLineVector::iterator it = m_Lines.begin(),
-                 it_end = m_Lines.end();
-         it != it_end;
-         it++)
-    {
-        if (*it)
-        {
-            (*it)->Resize(m_Cols);
-        }
-    }
+    reset_lines();
 
     ClearSelection();
 

@@ -307,15 +307,31 @@ void DrawPane::PaintOnDemand()
 
         __ScopeLocker locker(buffer);
 
-        CalculateClipRegion(clipRegion, buffer);
-
-        dc.DestroyClippingRegion();
-        dc.SetDeviceClippingRegion(clipRegion);
+        bool paintChanged = true;
 
         TermCellPtr cell = buffer->GetCurCell();
-        cell->AddMode(TermCell::Cursor);
-        DoPaint(bDC, buffer, false);
-        cell->RemoveMode(TermCell::Cursor);
+
+        if (cell)
+            cell->AddMode(TermCell::Cursor);
+        else {
+            TermLinePtr line = buffer->GetCurLine();
+
+            if (line)
+                line->SetModified(true);
+        }
+
+        if (paintChanged)
+        {
+            CalculateClipRegion(clipRegion, buffer);
+
+            dc.DestroyClippingRegion();
+            dc.SetDeviceClippingRegion(clipRegion);
+        }
+
+        DoPaint(bDC, buffer, !paintChanged);
+
+        if (cell)
+            cell->RemoveMode(TermCell::Cursor);
     }
 
     {

@@ -145,7 +145,7 @@ class TermCapHandler(object):
     scroll_region = property(get_scroll_region, set_scroll_region)
 
     def is_debug(self):
-        return True
+        return False
 
     def create_new_buffer(self):
         new_buffer = self.plugin_context.term_buffer.new_instance()
