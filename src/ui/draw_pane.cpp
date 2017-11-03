@@ -67,10 +67,11 @@ void DrawPane::RequestRefresh()
         m_RefreshNow++;
     }
 
-    wxCommandEvent event(MY_REFRESH_EVENT);
+    //wxCommandEvent event(MY_REFRESH_EVENT);
 
     // Do send it
-    wxPostEvent(this, event);
+    //wxPostEvent(this, event);
+    wxWakeUpIdle();
 }
 
 void DrawPane::OnEraseBackground(wxEraseEvent & /*event*/)
@@ -184,8 +185,12 @@ wxFont * DrawPane::GetFont()
 
 void DrawPane::OnIdle(wxIdleEvent& evt)
 {
+    (void)evt;
     PaintOnDemand();
-    evt.RequestMore(false); // render continuously, not only once on idle
+
+    if (m_RefreshNow)
+        //evt.RequestMore(); // render continuously, not only once on idle
+        wxWakeUpIdle();
 }
 
 void DrawPane::InitColorTable()
@@ -193,7 +198,7 @@ void DrawPane::InitColorTable()
     TermContextPtr context = std::dynamic_pointer_cast<TermContext>(m_TermWindow->GetPluginContext());
     TermColorThemePtr color_theme = context->GetTermColorTheme();
 
-   try
+    try
     {
         pybind11::gil_scoped_acquire acquire;
 

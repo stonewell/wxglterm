@@ -307,7 +307,7 @@ void DrawPane::PaintOnDemand()
 
         __ScopeLocker locker(buffer);
 
-        bool paintChanged = false;
+        bool paintChanged = true;
 
         TermCellPtr cell = buffer->GetCurCell();
 
