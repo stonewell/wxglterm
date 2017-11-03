@@ -6,9 +6,9 @@ from wxglterm_interface import TermCell, TermBuffer
 from .charset_mode import translate_char, translate_char_british
 
 
-logging.getLogger('').setLevel(logging.DEBUG)
+#logging.getLogger('').setLevel(logging.DEBUG)
 LOGGER = logging.getLogger('TermCapHandler')
-LOGGER.setLevel(logging.DEBUG)
+#LOGGER.setLevel(logging.DEBUG)
 TAB_MAX = 999
 
 
@@ -177,13 +177,14 @@ class TermCapHandler(object):
         self.set_cur_col(0)
 
     def set_foreground(self, light, color_idx):
-        self.set_attributes(1 if light else -1, color_idx, -2)
+        self.set_attributes([1] if light else [], color_idx, -2)
 
     def set_background(self, light, color_idx):
-        self.set_attributes(1 if light else -1, -2, color_idx)
+        self.set_attributes([1] if light else [], -2, color_idx)
 
     def origin_pair(self):
-        self.cur_cell = self.create_default_cell()
+        self.cur_cell.fore_color_idx = self._default_cell.fore_color_idx
+        self.cur_cell.back_color_idx = self._default_cell.back_color_idx
 
     def clr_line(self, context):
         line = self.get_cur_line()
@@ -264,24 +265,24 @@ class TermCapHandler(object):
             LOGGER.debug('meta_on')
 
     def set_attributes(self, mode, f_color_idx, b_color_idx):
-        fore_color = None
-        back_color = None
-
-        text_mode = None
-
-        if (mode > 0):
-            if mode & (1 << 1):
-                self.cur_cell.add_mode(TermCell.TextMode.Bold)
-            if mode & (1 << 2):
-                self.cur_cell.add_mode(TermCell.TextMode.Dim)
-            if mode & (1 << 7):
-                self.cur_cell.add_mode(TermCell.TextMode.Reverse)
-            if mode & (1 << 21) or mode & (1 << 22):
-                self.cur_cell.remove_mode(TermCell.TextMode.Bold)
-                self.cur_cell.remove_mode(TermCell.TextMode.Dim)
-            if mode & (1 << 27):
-                self.cur_cell.remove_mode(TermCell.TextMode.Reverse)
-        elif mode == 0:
+        if len(mode) > 0:
+            for m in mode:
+                if m == 1:
+                    self.cur_cell.add_mode(TermCell.TextMode.Bold)
+                elif m == 2:
+                    self.cur_cell.add_mode(TermCell.TextMode.Dim)
+                elif m == 7:
+                    self.cur_cell.add_mode(TermCell.TextMode.Reverse)
+                elif m == 21 or m == 22:
+                    self.cur_cell.remove_mode(TermCell.TextMode.Bold)
+                    self.cur_cell.remove_mode(TermCell.TextMode.Dim)
+                elif m == 27:
+                    self.cur_cell.remove_mode(TermCell.TextMode.Reverse)
+                elif m == 0:
+                    self.cur_cell.mode = self._default_cell.mode
+                    if self.is_debug():
+                        LOGGER.debug('reset mode')
+        else:
             self.cur_cell.mode = self._default_cell.mode
             if self.is_debug():
                 LOGGER.debug('reset mode')

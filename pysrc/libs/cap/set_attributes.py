@@ -7,20 +7,17 @@ def handle(term, context, cap_turple):
         for idx in range(len(context.params)):
             context.params[idx] -= 1 if context.params[idx] != 0 else 0
 
-    mode = -1
+    mode = []
     f_color_idx = -2
     b_color_idx = -2
 
     for v in context.params:
         if v == 0:
-            #reset
+            # reset
             term.origin_pair()
         elif v >= 1 and v <= 29:
             #mode
-            if mode < 0:
-                mode = 0
-
-            mode |= (1 << v)
+            mode.append(v)
         elif v == 39:
             #reset foreground
             f_color_idx = -1
@@ -36,5 +33,5 @@ def handle(term, context, cap_turple):
 
     logging.getLogger('set_attributes').debug('params={} mode={} f_color={} b_color={}'.format(context.params, mode, f_color_idx, b_color_idx))
 
-    if not (mode == -1 and f_color_idx == -2 and b_color_idx == -2):
+    if not (len(mode) == 0 and f_color_idx == -2 and b_color_idx == -2):
         term.set_attributes(mode, f_color_idx, b_color_idx)
