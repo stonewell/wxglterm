@@ -25,6 +25,8 @@ class TermCapHandler(object):
         self._origin_mode = False
         self._saved_origin_mode = False
 
+        self._auto_wrap = False
+
         self._tab_stops = {}
         self._set_default_tab_stops()
 
@@ -615,6 +617,8 @@ class TermCapHandler(object):
         elif mode == 6:
             self._origin_mode = True
             self.cursor_home(None)
+        elif mode == 7:
+            self._auto_wrap = True
         else:
             LOGGER.warning('not implemented enable mode:{}'.format(context.params))
 
@@ -643,6 +647,8 @@ class TermCapHandler(object):
         elif mode == 6:
             self._origin_mode = False
             self.cursor_home(None)
+        elif mode == 7:
+            self._auto_wrap = False
         else:
             LOGGER.warning('not implemented disable mode:{}'.format(context.params))
 

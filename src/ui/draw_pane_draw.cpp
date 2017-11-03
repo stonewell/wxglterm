@@ -53,7 +53,7 @@ void DrawPane::DrawContent(wxDC &dc,
                            wxCoord & last_y,
                            wxCoord y)
 {
-    wxSize content_size = dc.GetTextExtent(content);
+    wxSize content_size = dc.GetMultiLineTextExtent(content);
     bool multi_line = content.Find('\n', true) > 0;
 
     wxSize content_last_line_size {0, 0};
@@ -307,7 +307,7 @@ void DrawPane::PaintOnDemand()
 
         __ScopeLocker locker(buffer);
 
-        bool paintChanged = true;
+        bool paintChanged = false;
 
         TermCellPtr cell = buffer->GetCurCell();
 

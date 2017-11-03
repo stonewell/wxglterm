@@ -39,6 +39,9 @@ class TermBufferHandler(object):
         if self.is_debug():
             LOGGER.debug(u'save buffer width:{},{},{},len={}, line_len={}, cols={}'.format(self.col, self.row, w, len(c), 1, self.get_cols()))
 
+        if not self._auto_wrap and self.col >= self.get_cols():
+            self.col = self.get_cols() - 1
+
         self.plugin_context.term_buffer.set_cur_cell_data(ord(c),
                                                           wide_char,
                                                           insert,
