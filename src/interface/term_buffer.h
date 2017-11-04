@@ -47,4 +47,6 @@ public:
     virtual void UnlockUpdate() = 0;
 
     virtual void EnableAlterBuffer(bool enable) = 0;
+
+    virtual TermBufferPtr CloneBuffer() = 0;
 };

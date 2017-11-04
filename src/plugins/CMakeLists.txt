@@ -7,6 +7,7 @@ default_term_buffer_impl.cpp  internal_term_buffer.cpp
 default_term_cell.cpp         internal_term_buffer.h
 default_term_cell.h           plugin_base.cpp
 default_term_line.cpp         plugin_base.h
+default_term_buffer_clone_impl.cpp
 )
 
 ADD_LIBRARY(plugins STATIC ${plugins_src})

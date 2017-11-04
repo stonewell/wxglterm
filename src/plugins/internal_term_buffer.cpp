@@ -26,6 +26,40 @@ __InternalTermBuffer::__InternalTermBuffer(DefaultTermBuffer* term_buffer) :
 {
 }
 
+__InternalTermBuffer::__InternalTermBuffer(const __InternalTermBuffer & term_buffer) :
+    m_TermBuffer(nullptr)
+    , m_Rows(term_buffer.m_Rows)
+    , m_Cols(term_buffer.m_Cols)
+    , m_CurRow(term_buffer.m_CurRow)
+    , m_CurCol(term_buffer.m_CurCol)
+    , m_ScrollRegionBegin(term_buffer.m_ScrollRegionBegin)
+    , m_ScrollRegionEnd(term_buffer.m_ScrollRegionEnd)
+    , m_Lines()
+    , m_Selection{new DefaultTermSelection}
+    , m_VisRowHeaderBegin {term_buffer.m_VisRowHeaderBegin}
+    , m_VisRowScrollRegionBegin {term_buffer.m_VisRowScrollRegionBegin}
+    , m_VisRowFooterBegin {term_buffer.m_VisRowFooterBegin}
+{
+    m_Lines.resize(term_buffer.m_Lines.size());
+    uint32_t index = 0;
+
+    for(TermLinePtr line : term_buffer.m_Lines) {
+        if (!line) {
+            index++;
+            continue;
+        }
+        TermLinePtr new_line = CreateDefaultTermLine(m_TermBuffer);
+        new_line->Resize(GetCols());
+
+        for(uint32_t i=0;i < GetCols(); i++) {
+            TermCellPtr cell = line->GetCell(i);
+            TermCellPtr new_cell = new_line->GetCell(i);
+            new_cell->Reset(cell);
+        }
+        m_Lines[index++] = new_line;
+    }
+}
+
 void __InternalTermBuffer::Resize(uint32_t row, uint32_t col) {
     printf("++++Resize buffer: rows=%u, %u, cols=%u,%u\n",
            m_Rows, m_CurRow,

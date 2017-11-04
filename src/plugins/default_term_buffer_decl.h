@@ -66,6 +66,7 @@ public:
 
     void EnableAlterBuffer(bool enable) override;
 
+    TermBufferPtr CloneBuffer() override;
 private:
     friend class __InternalTermBuffer;
 

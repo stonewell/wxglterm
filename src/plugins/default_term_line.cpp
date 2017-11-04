@@ -12,6 +12,7 @@ public:
         , m_TermBuffer(term_buffer)
         , m_LastRenderLineIndex { (uint32_t)-1 }
     {
+        (void)m_TermBuffer;
     }
 
     void Resize(uint32_t col) override {
@@ -20,8 +21,8 @@ public:
     }
 
     TermCellPtr GetCell(uint32_t col) override {
-        if (col >= m_TermBuffer->GetCols()) {
-            printf("col:%u, cols:%u\n", col, m_TermBuffer->GetCols());
+        if (col >= m_Cells.size()) {
+            printf("col:%u, cols:%zu\n", col, m_Cells.size());
 
             return TermCellPtr{};
         }
@@ -29,7 +30,7 @@ public:
         auto cell = m_Cells[col];
         if (!cell)
         {
-            cell = m_TermBuffer->CreateCellWithDefaults();
+            cell = CreateDefaultTermCell(this);
             m_Cells[col] = cell;
         }
 
@@ -38,7 +39,7 @@ public:
 
     //return the erased extra cell
     TermCellPtr InsertCell(uint32_t col) override {
-        if (col >= m_TermBuffer->GetCols())
+        if (col >= m_Cells.size())
             return TermCellPtr{};
 
         TermCellVector::iterator it = m_Cells.begin() + col;

@@ -1,4 +1,5 @@
 #include <iostream>
+#include <sstream>
 
 #ifdef WXGLTERM_DYNAMIC_INTERFACE
 #include <pybind11/pybind11.h>
@@ -86,6 +87,7 @@ PYBIND11_EMBEDDED_MODULE(wxglterm_interface, m)
             .def("lock_update", &TermBuffer::LockUpdate)
             .def("unlock_update", &TermBuffer::UnlockUpdate)
             .def("enable_alter_buffer", &TermBuffer::EnableAlterBuffer)
+            .def("clone_buffer", &TermBuffer::CloneBuffer)
             ;
 
     py::class_<TermLine, PyTermLine<>, std::shared_ptr<TermLine>> term_line(m, "TermLine", plugin);
@@ -108,7 +110,16 @@ PYBIND11_EMBEDDED_MODULE(wxglterm_interface, m)
             .def("reset", &TermCell::Reset)
             .def_property("is_wide_char", &TermCell::IsWideChar, &TermCell::SetWideChar)
             .def_property("is_modified", &TermCell::IsModified, &TermCell::SetModified)
-            ;
+            .def("__repr__",
+                 [](const TermCell &a) {
+                     std::stringstream ss;
+
+                     ss << "char:" << a.GetChar() << ", mode:" << a.GetMode() << ", fore:" << a.GetForeColorIndex() << ", back:" << a.GetBackColorIndex();
+
+                     return ss.str();
+                 }
+                 );
+
 
     py::class_<TermSelection, PyTermSelection<>, std::shared_ptr<TermSelection>> term_selection(m, "TermSelection", plugin);
     term_selection.def(py::init<>())

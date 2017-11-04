@@ -106,4 +106,8 @@ public:
     void EnableAlterBuffer(bool enable) override {
         PYBIND11_OVERLOAD_PURE_NAME(void, TermBufferBase, "enable_alter_buffer", EnableAlterBuffer, enable );
     }
+
+    TermBufferPtr CloneBuffer() override {
+        PYBIND11_OVERLOAD_PURE_NAME(TermBufferPtr, TermBufferBase, "clone_buffer", CloneBuffer, );
+    }
 };

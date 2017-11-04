@@ -8,6 +8,8 @@ class DefaultTermBuffer;
 class __InternalTermBuffer {
 public:
     __InternalTermBuffer(DefaultTermBuffer* term_buffer);
+    __InternalTermBuffer(const __InternalTermBuffer & term_buffer);
+
     void Resize(uint32_t row, uint32_t col);
 
     uint32_t GetRows() const {
