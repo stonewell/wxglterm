@@ -31,5 +31,6 @@ void handle_cap(term_data_context_s & term_context, const std::string & cap_name
 
 void output_char(term_data_context_s & term_context, const std::string & data) {
     if (!term_context.in_status_line) {
+        (void)data;
     }
 }

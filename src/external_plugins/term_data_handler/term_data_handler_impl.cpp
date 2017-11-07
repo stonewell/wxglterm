@@ -85,7 +85,7 @@ void TermDataHandlerImpl::ProcessSingleChar(const char * ch) {
 
     py::object cap_name = m_DataHandler.attr("cap_name");
     py::object params = m_DataHandler.attr("params");
-    py::object output_char = m_DataHandler.attr("output_char");
+    py::object output_data = m_DataHandler.attr("output_char");
 
     if (!cap_name.is_none()) {
         std::string str_cap_name = cap_name.cast<std::string>();
@@ -103,8 +103,10 @@ void TermDataHandlerImpl::ProcessSingleChar(const char * ch) {
                    str_cap_name,
                    int_params);
     }
-    if (!output_char.is_none())
-        output_char(m_DataContext, output_char.cast<std::string>());
+    if (!output_data.is_none()) {
+        std::string data = output_data.cast<std::string>();
+        output_char(m_DataContext, data);
+    }
 }
 
 class __SimpleGILStateLock {
