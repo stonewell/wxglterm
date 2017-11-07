@@ -38,8 +38,8 @@ BEGIN_EVENT_TABLE(DrawPane, wxPanel)
         EVT_KEY_UP(DrawPane::OnKeyUp)
         EVT_CHAR(DrawPane::OnChar)
         EVT_ERASE_BACKGROUND(DrawPane::OnEraseBackground)
-EVT_TIMER(TIMER_ID, DrawPane::OnTimer)
-EVT_COMMAND(wxID_ANY, MY_REFRESH_EVENT, DrawPane::OnRefreshEvent)
+        EVT_TIMER(TIMER_ID, DrawPane::OnTimer)
+        EVT_COMMAND(wxID_ANY, MY_REFRESH_EVENT, DrawPane::OnRefreshEvent)
 END_EVENT_TABLE()
 
 DrawPane::DrawPane(wxFrame * parent, TermWindow * termWindow) : wxPanel(parent)
@@ -48,6 +48,7 @@ DrawPane::DrawPane(wxFrame * parent, TermWindow * termWindow) : wxPanel(parent)
         , m_TermWindow(termWindow)
         , m_Font(nullptr)
         , m_RefreshTimer(this, TIMER_ID)
+        , m_Buffer{}
 {
     SetBackgroundStyle(wxBG_STYLE_PAINT);
     InitColorTable();
@@ -58,6 +59,7 @@ DrawPane::DrawPane(wxFrame * parent, TermWindow * termWindow) : wxPanel(parent)
 DrawPane::~DrawPane()
 {
     Disconnect( wxEVT_IDLE, wxIdleEventHandler(DrawPane::OnIdle) );
+    m_Buffer = nullptr;
 }
 
 void DrawPane::RequestRefresh()
@@ -72,6 +74,31 @@ void DrawPane::RequestRefresh()
     // Do send it
     //wxPostEvent(this, event);
     wxWakeUpIdle();
+
+    // if (!buffer)
+    // {
+    // TermContextPtr context = std::dynamic_pointer_cast<TermContext>(m_TermWindow->GetPluginContext());
+
+    // if (!context)
+    //     return;
+
+    // buffer = context->GetTermBuffer();
+    // }
+    // if (!buffer)
+    //     return;
+
+    // wxRect clientSize = GetClientSize();
+
+    // wxRegion clipRegion(clientSize);
+
+    // CalculateClipRegion(clipRegion, buffer);
+
+    // wxRegionIterator upd(clipRegion);
+    // while (upd)
+    // {
+    //     RefreshRect(upd.GetRect());
+    //     upd++;
+    // }
 }
 
 void DrawPane::OnEraseBackground(wxEraseEvent & /*event*/)
@@ -102,9 +129,12 @@ void DrawPane::OnPaint(wxPaintEvent & /*event*/)
         wxAutoBufferedPaintDC dc(this);
 
         TermCellPtr cell = buffer->GetCurCell();
-        cell->AddMode(TermCell::Cursor);
+        if (cell)
+            cell->AddMode(TermCell::Cursor);
         DoPaint(dc, buffer, true);
-        cell->RemoveMode(TermCell::Cursor);
+
+        if (cell)
+            cell->RemoveMode(TermCell::Cursor);
     }
 
     {
@@ -244,4 +274,19 @@ void DrawPane::OnRefreshEvent(wxCommandEvent& event)
 
         wxPostEvent(this, event);
     }
+}
+
+TermBufferPtr DrawPane::EnsureTermBuffer()
+{
+    if (!m_Buffer)
+    {
+        TermContextPtr context = std::dynamic_pointer_cast<TermContext>(m_TermWindow->GetPluginContext());
+
+        if (!context)
+            return TermBufferPtr {};
+
+        m_Buffer = context->GetTermBuffer();
+    }
+
+    return m_Buffer;
 }

@@ -131,10 +131,10 @@ class TermCapHandler(object):
     def __do_refresh(self):
         self.plugin_context.term_window.refresh()
 
-    def refresh_display(self, interval=0.001):
-        #self._refresh_timer.cancel()
-        #self._refresh_timer = self.__create_refresh_timer(interval)
-        #self._refresh_timer.start()
+    def refresh_display(self, interval=0.005):
+        # self._refresh_timer.cancel()
+        # self._refresh_timer = self.__create_refresh_timer(interval)
+        # self._refresh_timer.start()
         self.plugin_context.term_window.refresh()
 
     def get_scroll_region(self):

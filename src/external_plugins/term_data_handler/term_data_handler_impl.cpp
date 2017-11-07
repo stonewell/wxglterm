@@ -21,6 +21,8 @@
 #include "read_write_queue.h"
 #include "load_module.h"
 
+#include "cap_manager.h"
+
 using TermDataQueue = moodycamel::BlockingReaderWriterQueue<char, 4096>;
 
 namespace py = pybind11;
@@ -66,6 +68,8 @@ private:
     TermDataQueue m_TermDataQueue;
     bool m_Stopped;
     py::object m_DataHandler;
+
+    term_data_context_s m_DataContext;
 };
 
 TermDataHandlerPtr CreateTermDataHandler()
@@ -83,15 +87,24 @@ void TermDataHandlerImpl::ProcessSingleChar(const char * ch) {
     py::object params = m_DataHandler.attr("params");
     py::object output_char = m_DataHandler.attr("output_char");
 
-    if (!cap_name.is_none())
-        std::cout << "cap name:" << cap_name.cast<std::string>() << std::endl;
-    if (!params.is_none()) {
-        py::list l = params;
-        for(auto i : l)
-            std::cout << "param:" << i.cast<int>() << std::endl;
+    if (!cap_name.is_none()) {
+        std::string str_cap_name = cap_name.cast<std::string>();
+
+        std::cout << "cap name:" << str_cap_name << std::endl;
+        std::vector<int> int_params;
+
+        if (!params.is_none()) {
+            py::list l = params;
+            for(auto i : l)
+                int_params.push_back(i.cast<int>());
+        }
+
+        handle_cap(m_DataContext,
+                   str_cap_name,
+                   int_params);
     }
     if (!output_char.is_none())
-        std::cout << "output char:" << output_char.cast<std::string>() << std::endl;
+        output_char(m_DataContext, output_char.cast<std::string>());
 }
 
 class __SimpleGILStateLock {
@@ -180,6 +193,14 @@ void TermDataHandlerImpl::LoadPyDataHandler() {
 void TermDataHandlerImpl::Start() {
     if (!m_Stopped)
         return;
+
+    TermContextPtr context = std::dynamic_pointer_cast<TermContext>(GetPluginContext());
+
+    if (!context)
+        return;
+
+    m_DataContext.term_buffer = context->GetTermBuffer();
+    m_DataContext.term_window = context->GetTermWindow();
 
     m_Stopped = false;
 

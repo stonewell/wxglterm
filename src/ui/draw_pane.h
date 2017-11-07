@@ -45,6 +45,8 @@ private:
 
     void InitColorTable();
 
+    TermBufferPtr EnsureTermBuffer();
+
     int m_RefreshNow;
     wxCriticalSection m_RefreshLock;
     TermWindow * m_TermWindow;
@@ -55,4 +57,5 @@ private:
 
     wxColour m_ColorTable[TermCell::ColorIndexCount];
     wxTimer m_RefreshTimer;
+    TermBufferPtr m_Buffer;
 };

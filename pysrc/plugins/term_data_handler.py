@@ -55,6 +55,7 @@ class DefaultTermDataHandler(MultipleInstancePluginBase,
 
         self.in_status_line = False
         self.keypad_transmit_mode = False
+        self._has_cell_updated = False
 
     def on_data(self, data, count):
         self._refresh_timer.cancel()
@@ -72,11 +73,17 @@ class DefaultTermDataHandler(MultipleInstancePluginBase,
             self._tmp_context.params = params
             cap_handler.handle(self, self._tmp_context, cap_turple)
 
+        if self._has_cell_updated:
+            self.refresh_display()
+            self._has_cell_updated = False
+
     def __output_data(self, c):
         if self.in_status_line:
             self._output_status_line_data(c)
         else:
             self._output_normal_data(c)
+
+        self._has_cell_updated = True
 
     def _output_status_line_data(self, c):
         pass

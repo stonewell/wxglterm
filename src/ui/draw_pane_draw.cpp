@@ -275,14 +275,9 @@ void DrawPane::DoPaint(wxDC & dc, TermBufferPtr buffer, bool full_paint)
 
 void DrawPane::PaintOnDemand()
 {
-    TermContextPtr context = std::dynamic_pointer_cast<TermContext>(m_TermWindow->GetPluginContext());
+    (void)EnsureTermBuffer();
 
-    if (!context)
-        return;
-
-    TermBufferPtr buffer = context->GetTermBuffer();
-
-    if (!buffer)
+    if (!m_Buffer)
         return;
 
     int refreshNow = 0;
@@ -305,16 +300,16 @@ void DrawPane::PaintOnDemand()
         wxBufferedDC bDC(&dc,
                          GetClientSize());
 
-        auto tmpBuffer = buffer->CloneBuffer();
+        __ScopeLocker buffer_locker(m_Buffer);
 
         bool paintChanged = true;
 
-        TermCellPtr cell = tmpBuffer->GetCurCell();
+        TermCellPtr cell = m_Buffer->GetCurCell();
 
         if (cell)
             cell->AddMode(TermCell::Cursor);
         else {
-            TermLinePtr line = tmpBuffer->GetCurLine();
+            TermLinePtr line = m_Buffer->GetCurLine();
 
             if (line)
                 line->SetModified(true);
@@ -322,13 +317,13 @@ void DrawPane::PaintOnDemand()
 
         if (paintChanged)
         {
-            CalculateClipRegion(clipRegion, tmpBuffer);
+            CalculateClipRegion(clipRegion, m_Buffer);
 
             dc.DestroyClippingRegion();
             dc.SetDeviceClippingRegion(clipRegion);
         }
 
-        DoPaint(bDC, tmpBuffer, !paintChanged);
+        DoPaint(bDC, m_Buffer, !paintChanged);
 
         if (cell)
             cell->RemoveMode(TermCell::Cursor);
