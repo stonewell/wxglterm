@@ -69,11 +69,11 @@ void DrawPane::RequestRefresh()
         m_RefreshNow++;
     }
 
-    //wxCommandEvent event(MY_REFRESH_EVENT);
+    wxCommandEvent event(MY_REFRESH_EVENT);
 
     // Do send it
-    //wxPostEvent(this, event);
-    wxWakeUpIdle();
+    wxPostEvent(this, event);
+    //wxWakeUpIdle();
 
     // if (!buffer)
     // {
@@ -261,19 +261,21 @@ void DrawPane::InitColorTable()
 void DrawPane::OnTimer(wxTimerEvent& event)
 {
     (void)event;
-    PaintOnDemand();
+    //PaintOnDemand();
+    Refresh();
 }
 
 void DrawPane::OnRefreshEvent(wxCommandEvent& event)
 {
     (void)event;
-    PaintOnDemand();
+    // PaintOnDemand();
 
-    if (m_RefreshNow) {
-        wxCommandEvent event(MY_REFRESH_EVENT);
+    // if (m_RefreshNow) {
+    //     wxCommandEvent event(MY_REFRESH_EVENT);
 
-        wxPostEvent(this, event);
-    }
+    //     wxPostEvent(this, event);
+    // }
+    m_RefreshTimer.Start(20);
 }
 
 TermBufferPtr DrawPane::EnsureTermBuffer()

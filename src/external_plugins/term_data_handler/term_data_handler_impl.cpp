@@ -14,6 +14,8 @@
 #include "term_network.h"
 #include "term_data_handler.h"
 #include "term_context.h"
+#include "term_buffer.h"
+#include "term_window.h"
 
 #include "PortableThread.h"
 
@@ -86,17 +88,24 @@ void TermDataHandlerImpl::ProcessSingleChar(const char * ch) {
     py::object cap_name = m_DataHandler.attr("cap_name");
     py::object params = m_DataHandler.attr("params");
     py::object output_data = m_DataHandler.attr("output_char");
+    py::object increase_param = m_DataHandler.attr("increase_param");
 
     if (!cap_name.is_none()) {
         std::string str_cap_name = cap_name.cast<std::string>();
+        bool b_increase_param = increase_param.cast<bool>();
 
         std::cout << "cap name:" << str_cap_name << std::endl;
         std::vector<int> int_params;
 
         if (!params.is_none()) {
             py::list l = params;
-            for(auto i : l)
-                int_params.push_back(i.cast<int>());
+            for(auto i : l) {
+                int ii = i.cast<int>();
+
+                if (b_increase_param && ii > 0)
+                    ii--;
+                int_params.push_back(ii);
+            }
         }
 
         handle_cap(m_DataContext,
@@ -105,7 +114,7 @@ void TermDataHandlerImpl::ProcessSingleChar(const char * ch) {
     }
     if (!output_data.is_none()) {
         std::string data = output_data.cast<std::string>();
-        output_char(m_DataContext, data);
+        output_char(m_DataContext, data, false);
     }
 }
 
@@ -151,6 +160,8 @@ unsigned long TermDataHandlerImpl::Run(void * /*pArgument*/) {
 
         //process char
         ProcessAllChars(c);
+
+        m_DataContext.term_window->Refresh();
     };
 
     return 0;
@@ -203,6 +214,8 @@ void TermDataHandlerImpl::Start() {
 
     m_DataContext.term_buffer = context->GetTermBuffer();
     m_DataContext.term_window = context->GetTermWindow();
+    m_DataContext.cell_template = m_DataContext.term_buffer->CreateCellWithDefaults();
+    m_DataContext.default_cell_template = m_DataContext.term_buffer->CreateCellWithDefaults();
 
     m_Stopped = false;
 
