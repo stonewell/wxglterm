@@ -99,6 +99,8 @@ void DrawPane::RequestRefresh()
     //     RefreshRect(upd.GetRect());
     //     upd++;
     // }
+
+    //m_RefreshTimer.Start(20);
 }
 
 void DrawPane::OnEraseBackground(wxEraseEvent & /*event*/)
@@ -218,9 +220,9 @@ void DrawPane::OnIdle(wxIdleEvent& evt)
     (void)evt;
     PaintOnDemand();
 
-    if (m_RefreshNow)
+    //if (m_RefreshNow)
         //evt.RequestMore(); // render continuously, not only once on idle
-        wxWakeUpIdle();
+        //wxWakeUpIdle();
 }
 
 void DrawPane::InitColorTable()
@@ -261,8 +263,8 @@ void DrawPane::InitColorTable()
 void DrawPane::OnTimer(wxTimerEvent& event)
 {
     (void)event;
-    //PaintOnDemand();
-    Refresh();
+    PaintOnDemand();
+    //Refresh();
 }
 
 void DrawPane::OnRefreshEvent(wxCommandEvent& event)

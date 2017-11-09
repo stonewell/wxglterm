@@ -301,6 +301,7 @@ void DrawPane::PaintOnDemand()
                          GetClientSize());
 
         __ScopeLocker buffer_locker(m_Buffer);
+        std::cout << "buffer locked to draw" << std::endl;
 
         bool paintChanged = true;
 
@@ -327,6 +328,7 @@ void DrawPane::PaintOnDemand()
 
         if (cell)
             cell->RemoveMode(TermCell::Cursor);
+        std::cout << "buffer draw done, unlock" << std::endl;
     }
 
     {

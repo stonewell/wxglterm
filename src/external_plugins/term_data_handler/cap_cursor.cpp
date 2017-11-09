@@ -33,8 +33,10 @@ void __parm_move_cursor(term_data_context_s & term_context,
 
     auto scrolled = term_context.term_buffer->MoveCurRow(count, move_down, do_scroll);
 
-    if (do_refresh &&  scrolled)
-        term_context.term_window->Refresh();
+    // if (do_refresh &&  scrolled)
+    //     term_context.term_window->Refresh();
+    (void)scrolled;
+    (void)do_refresh;
 }
 
 void cursor_right(term_data_context_s & term_context,
