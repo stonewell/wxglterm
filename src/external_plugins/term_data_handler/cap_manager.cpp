@@ -109,15 +109,3 @@ void from_status_line(term_data_context_s & term_context,
     (void)params;
     term_context.in_status_line = false;
 }
-
-/*
-    def set_foreground(self, light, color_idx):
-        self.set_attributes([1] if light else [], color_idx, -2)
-
-    def set_background(self, light, color_idx):
-        self.set_attributes([1] if light else [], -2, color_idx)
-
-    def origin_pair(self):
-        self.cur_cell.fore_color_idx = self._default_cell.fore_color_idx
-        self.cur_cell.back_color_idx = self._default_cell.back_color_idx
-*/

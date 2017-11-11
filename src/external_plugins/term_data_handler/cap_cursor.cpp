@@ -185,3 +185,20 @@ void parm_up_cursor(term_data_context_s & term_context,
                        true,
                        true);
 }
+
+/*
+    def cursor_invisible(self, context):
+        self._cursor_visible = False
+
+    def cursor_normal(self, context):
+        self._cursor_visible = True
+
+    def cursor_visible(self, context):
+        self.cursor_normal(context)
+
+    def save_cursor(self, context):
+        self._saved_cursor = self.cursor
+
+    def restore_cursor(self, context):
+        self.cursor = self._saved_cursor
+*/

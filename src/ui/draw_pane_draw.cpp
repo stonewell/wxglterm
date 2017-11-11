@@ -71,6 +71,14 @@ void DrawPane::DrawContent(wxDC &dc,
     uint16_t back_color_use = last_back_color;
     uint16_t fore_color_use = last_fore_color;
 
+    if (m.test(TermCell::Bold)) {
+        if (back_color_use < 8)
+            back_color_use += 8;
+
+        if (fore_color_use < 8)
+            fore_color_use += 8;
+    }
+
     if (m.test(TermCell::Cursor))
     {
         back_color_use = TermCell::DefaultCursorColorIndex;
