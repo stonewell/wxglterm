@@ -8,7 +8,8 @@ SET(term_data_handler_src
   char_width.cpp
   char_width.h
   cap_cursor.cpp
-  cap_attrs.cpp)
+  cap_attrs.cpp
+  cap_query.cpp)
 
 SET(PY_STMT_GENERATOR
   ${CMAKE_CURRENT_SOURCE_DIR}/../../../utils/pystmt_generator/pystmt_generator.py)

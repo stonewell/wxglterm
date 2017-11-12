@@ -214,6 +214,7 @@ void TermDataHandlerImpl::Start() {
 
     m_DataContext.term_buffer = context->GetTermBuffer();
     m_DataContext.term_window = context->GetTermWindow();
+    m_DataContext.term_network = context->GetTermNetwork();
     m_DataContext.cell_template = m_DataContext.term_buffer->CreateCellWithDefaults();
     m_DataContext.default_cell_template = m_DataContext.term_buffer->CreateCellWithDefaults();
 

@@ -31,7 +31,8 @@ term_cap_s::term_cap_s(const std::string & name,
 
 term_data_context_s::term_data_context_s():
     in_status_line(false)
-    , auto_wrap(false) {
+    , auto_wrap(false)
+    , origin_mode(false) {
 }
 
 void handle_cap(term_data_context_s & term_context, const std::string & cap_name, const std::vector<int> params) {

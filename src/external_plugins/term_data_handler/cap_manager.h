@@ -9,11 +9,14 @@ struct term_data_context_s {
 
     TermWindowPtr term_window;
     TermBufferPtr term_buffer;
+    TermNetworkPtr term_network;
     TermCellPtr cell_template;
     TermCellPtr default_cell_template;
 
     bool in_status_line;
     bool auto_wrap;
+    bool origin_mode;
+
     std::vector<char> remain_buffer;
 };
 
