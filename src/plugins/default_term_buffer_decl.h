@@ -67,6 +67,11 @@ public:
     void EnableAlterBuffer(bool enable) override;
 
     TermBufferPtr CloneBuffer() override;
+
+    uint16_t GetMode() override;
+    void SetMode(uint16_t m) override;
+    void AddMode(uint16_t m) override;
+    void RemoveMode(uint16_t m) override;
 private:
     friend class __InternalTermBuffer;
 

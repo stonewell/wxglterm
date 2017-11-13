@@ -189,3 +189,22 @@ void DefaultTermBuffer::EnableAlterBuffer(bool enable) {
         m_Buffers[m_CurBuffer].Resize(m_Buffers[1].GetRows(), m_Buffers[1].GetCols());
     }
 }
+
+uint16_t DefaultTermBuffer::GetMode() {
+    std::lock_guard<std::recursive_mutex> guard(m_UpdateLock);
+    return m_Buffers[m_CurBuffer].GetMode();
+}
+
+void DefaultTermBuffer::SetMode(uint16_t m) {
+    std::lock_guard<std::recursive_mutex> guard(m_UpdateLock);
+    m_Buffers[m_CurBuffer].SetMode(m);
+}
+
+void DefaultTermBuffer::AddMode(uint16_t m) {
+    std::lock_guard<std::recursive_mutex> guard(m_UpdateLock);
+    m_Buffers[m_CurBuffer].AddMode(m);
+}
+void DefaultTermBuffer::RemoveMode(uint16_t m) {
+    std::lock_guard<std::recursive_mutex> guard(m_UpdateLock);
+    m_Buffers[m_CurBuffer].RemoveMode(m);
+}

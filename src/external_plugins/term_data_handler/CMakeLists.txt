@@ -9,7 +9,11 @@ SET(term_data_handler_src
   char_width.h
   cap_cursor.cpp
   cap_attrs.cpp
-  cap_query.cpp)
+  cap_query.cpp
+  cap_cell_data.cpp
+  cap_scroll_region.cpp
+  cap_mode.cpp
+  cap_tab.cpp)
 
 SET(PY_STMT_GENERATOR
   ${CMAKE_CURRENT_SOURCE_DIR}/../../../utils/pystmt_generator/pystmt_generator.py)

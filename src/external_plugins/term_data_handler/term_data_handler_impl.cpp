@@ -94,7 +94,6 @@ void TermDataHandlerImpl::ProcessSingleChar(const char * ch) {
         std::string str_cap_name = cap_name.cast<std::string>();
         bool b_increase_param = increase_param.cast<bool>();
 
-        std::cout << "cap name:" << str_cap_name << std::endl;
         std::vector<int> int_params;
 
         if (!params.is_none()) {

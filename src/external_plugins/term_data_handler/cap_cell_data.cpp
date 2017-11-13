@@ -4,152 +4,213 @@
 
 #include "cap_manager.h"
 
-/*
-    def screen_alignment_test(self, context):
-        self.save_cursor(context)
+DEFINE_CAP(screen_alignment_test);
+DEFINE_CAP(insert_line);
+DEFINE_CAP(parm_insert_line);
+DEFINE_CAP(delete_line);
+DEFINE_CAP(parm_delete_line);
+DEFINE_CAP(clr_eos);
+DEFINE_CAP(clr_line);
+DEFINE_CAP(clr_eol);
+DEFINE_CAP(clr_bol);
+DEFINE_CAP(parm_ich);
+DEFINE_CAP(parm_dch);
+DEFINE_CAP(erase_chars);
 
-        for i in range(self.get_rows()):
-            line = self.get_line(i)
+void screen_alignment_test(term_data_context_s & term_context,
+                           const std::vector<int> & params) {
+    handle_cap(term_context, "save_cursor", params);
+    auto rows = term_context.term_buffer->GetRows();
+    auto cols = term_context.term_buffer->GetCols();
 
-            if not line:
-                continue
+    for(uint32_t row = 0; row < rows; row++) {
+        auto line = term_context.term_buffer->GetLine(row);
 
-            for cell in self.get_line_cells(line):
-                if not cell:
-                    continue
-                cell.char = 'E'
+        for(uint32_t col=0; col < cols; col++) {
+            auto cell = line->GetCell(col);
 
-        self.restore_cursor(context)
-        self.refresh_display()
-    def insert_line(self, context):
-        self.parm_insert_line(context)
+            if (cell)
+                cell->SetChar('E');
+        }
+    }
+    handle_cap(term_context, "restore_cursor", params);
+}
 
-    def parm_insert_line(self, context):
-        if self.is_debug():
-            begin, end = self.get_scroll_region()
-            LOGGER.debug('insert line:{} begin={} end={}, row={}'.format(context.params, begin, end, self.row))
+void insert_line(term_data_context_s & term_context,
+                 const std::vector<int> & params) {
+    parm_insert_line(term_context,
+                     params);
+}
 
-        c_to_insert = context.params[0] if len(context.params) > 0 else 1
+void parm_insert_line(term_data_context_s & term_context,
+                      const std::vector<int> & params) {
+    auto count = 1;
 
-        self.plugin_context.term_buffer.insert_lines(self.row, c_to_insert)
+    if (params.size() > 0)
+        count = params[0];
 
-        self.refresh_display()
+    term_context.term_buffer->InsertLines(term_context.term_buffer->GetRow(),
+                                          count);
+}
 
-    def delete_line(self, context):
-        self.parm_delete_line(context)
+void delete_line(term_data_context_s & term_context,
+                 const std::vector<int> & params) {
+    parm_delete_line(term_context,
+                     params);
+}
 
-    def parm_delete_line(self, context):
-        if self.is_debug():
-            begin, end = self.get_scroll_region()
-            LOGGER.debug('delete line:{} begin={} end={}, row={}'.format(context.params, begin, end, self.row))
+void parm_delete_line(term_data_context_s & term_context,
+                      const std::vector<int> & params) {
+    auto count = 1;
 
-        c_to_delete = context.params[0] if len(context.params) > 0 else 1
+    if (params.size() > 0)
+        count = params[0];
 
-        self.plugin_context.term_buffer.delete_lines(self.row, c_to_delete)
+    term_context.term_buffer->DeleteLines(term_context.term_buffer->GetRow(),
+                                          count);
+}
 
-        self.refresh_display()
-    def clr_eos(self, context):
-        begin = 0
-        end = self.get_rows()
+void clr_eos(term_data_context_s & term_context,
+             const std::vector<int> & params) {
+    uint32_t begin = 0, end = term_context.term_buffer->GetRows();
+    uint32_t cols = term_context.term_buffer->GetCols();
 
-        if context:
-            if len(context.params) == 0 or context.params[0] == 0:
-                self.clr_eol(context)
+    if (params.size() == 0 || params[0] == 0) {
+        clr_eol(term_context, params);
+        begin = term_context.term_buffer->GetRow() + 1;
+    } else if (params[0] == 1) {
+        clr_bol(term_context, params);
+        end = term_context.term_buffer->GetRow();
+    }
 
-                begin = self.row + 1
-            elif context.params[0] == 1:
-                self.clr_bol(context)
+    for(auto row = begin; row < end; row++) {
+        auto line = term_context.term_buffer->GetLine(row);
 
-                end = self.row
+        if (!line)
+            continue;
 
-        for row in range(begin, end):
-            line = self.get_line(row)
+        for(uint32_t col = 0; col < cols; col++) {
+            auto cell = line->GetCell(col);
 
-            if not line:
-                continue
+            if (cell) {
+                cell->Reset(term_context.cell_template);
+            }
+        }
+    }
+}
 
-            for cell in self.get_line_cells(line):
-                if not cell:
-                    continue
-                cell.reset(self.cur_cell)
+void clr_line(term_data_context_s & term_context,
+              const std::vector<int> & params) {
+    (void)params;
+    auto line = term_context.term_buffer->GetCurLine();
 
-        self.refresh_display()
+    if (!line)
+        return;
 
-def clr_line(self, context):
-        line = self.get_cur_line()
+    uint32_t cols = term_context.term_buffer->GetCols();
 
-        if not line:
-            return
+    for(uint32_t col = 0; col < cols; col++) {
+        auto cell = line->GetCell(col);
 
-        for cell in self.get_line_cells(line):
-            if not cell:
-                continue
-            cell.reset(self.cur_cell)
+        if (cell) {
+            cell->Reset(term_context.cell_template);
+        }
+    }
+}
 
-        self.refresh_display()
+void clr_eol(term_data_context_s & term_context,
+             const std::vector<int> & params) {
+    (void)params;
+    auto line = term_context.term_buffer->GetCurLine();
 
-    def clr_eol(self, context):
-        line = self.get_cur_line()
+    if (!line)
+        return;
 
-        if not line:
-            return
+    uint32_t cols = term_context.term_buffer->GetCols();
+    uint32_t begin = term_context.term_buffer->GetCol();
 
-        begin = self.col
+    if (begin < cols && line->GetCell(begin)->GetChar() == '\000')
+        begin--;
 
-        if begin < self.get_cols() and line.get_cell(begin).char == '\000':
-            begin -= 1
+    for(uint32_t col = begin; col < cols; col++) {
+        auto cell = line->GetCell(col);
 
-        for i in range(begin, self.get_cols()):
-            cell = line.get_cell(i)
+        if (cell) {
+            cell->Reset(term_context.cell_template);
+        }
+    }
+}
 
-            if cell:
-                cell.reset(self.cur_cell)
+void clr_bol(term_data_context_s & term_context,
+             const std::vector<int> & params) {
+    (void)params;
+    auto line = term_context.term_buffer->GetCurLine();
 
-        self.refresh_display()
+    if (!line)
+        return;
 
-    def clr_bol(self, context):
-        line = self.get_cur_line()
+    uint32_t cols = term_context.term_buffer->GetCols();
+    uint32_t end = term_context.term_buffer->GetCol();
 
-        if not line:
-            return
+    if (end + 1 < cols && line->GetCell(end + 1)->GetChar() == '\000')
+        end++;
 
-        end = self.col
-        if end + 1 < self.get_cols() and line.get_cell(end + 1).char == '\000':
-            end = end + 1
+    for(uint32_t col = 0; col <= end; col++) {
+        auto cell = line->GetCell(col);
 
-        for i in range(end + 1):
-            cell = line.get_cell(i)
+        if (cell) {
+            cell->Reset(term_context.cell_template);
+        }
+    }
+}
 
-            if cell:
-                cell.reset(self.cur_cell)
+void parm_ich(term_data_context_s & term_context,
+              const std::vector<int> & params) {
+    for(int i=0;i < params[0];i++)
+        output_char(term_context,
+                    " ",
+                    true);
+}
 
-        self.refresh_display()
+static
+void __do_delete_chars(term_data_context_s & term_context,
+                       int count,
+                       bool overwrite) {
+    auto line = term_context.term_buffer->GetCurLine();
 
-    def insert_chars(self, str):
-        self._output_normal_data(str, True)
+    if (!line)
+        return;
 
-    def delete_chars(self, count, overwrite = False):
-        line = self.get_cur_line()
+    uint32_t cols = term_context.term_buffer->GetCols();
+    uint32_t begin = term_context.term_buffer->GetCol();
 
-        if not line:
-            return
+    if (begin < cols && line->GetCell(begin)->GetChar() == '\000')
+        begin--;
 
-        begin = self.col
+    auto end = begin + count;
 
-        if line.get_cell(begin).char == '\000':
-            begin -= 1
+    if (!overwrite || (begin + count > cols))
+        end = cols;
 
-        end = self.get_cols() if not overwrite or begin + count > self.get_cols() else begin + count
+    for(auto col = begin; col < end; col++) {
+        if (!overwrite && (col + count < cols)) {
+            line->GetCell(col)->Reset(line->GetCell(col + count));
+        } else {
+            line->GetCell(col)->Reset(term_context.cell_template);
+        }
+    }
+}
 
-        for i in range(begin, end):
-            if not overwrite and i + count < self.get_cols():
-                line.get_cell(i).reset(line.get_cell(i + count))
-            else:
-                line.get_cell(i).reset(self.cur_cell)
+void parm_dch(term_data_context_s & term_context,
+              const std::vector<int> & params) {
+    __do_delete_chars(term_context,
+                      params[0],
+                      false);
+}
 
-        self.refresh_display()
-
-    def meta_on(self, context):
-        if self.is_debug():
-            LOGGER.debug('meta_on')
-            */
+void erase_chars(term_data_context_s & term_context,
+                 const std::vector<int> & params) {
+    __do_delete_chars(term_context,
+                      params[0],
+                      true);
+}

@@ -23,6 +23,7 @@ cap_map_t CapFuncs {
 DEFINE_CAP(bell);
 DEFINE_CAP(to_status_line);
 DEFINE_CAP(from_status_line);
+DEFINE_CAP(meta_on);
 
 term_cap_s::term_cap_s(const std::string & name,
                    cap_func_t cap_func) {
@@ -32,7 +33,17 @@ term_cap_s::term_cap_s(const std::string & name,
 term_data_context_s::term_data_context_s():
     in_status_line(false)
     , auto_wrap(false)
-    , origin_mode(false) {
+    , origin_mode(false)
+    , dec_mode(false)
+    , force_column(false)
+    , keypad_transmit_mode(false)
+    , force_column_count(80)
+    , saved_col((uint32_t)-1)
+    , saved_row((uint32_t)-1) {
+
+    for(int i = 0; i < TAB_MAX; i += TAB_WIDTH) {
+        tab_stops.emplace(i, true);
+    }
 }
 
 void handle_cap(term_data_context_s & term_context, const std::string & cap_name, const std::vector<int> params) {
@@ -109,4 +120,24 @@ void from_status_line(term_data_context_s & term_context,
                     const std::vector<int> & params) {
     (void)params;
     term_context.in_status_line = false;
+}
+
+void meta_on(term_data_context_s & term_context,
+                    const std::vector<int> & params) {
+    (void)term_context;
+    (void)params;
+}
+
+void resize_terminal(term_data_context_s & term_context) {
+    auto rows = term_context.term_buffer->GetRows();
+    auto cols = term_context.term_buffer->GetCols();
+
+    if (term_context.force_column) {
+        rows = 25;
+        cols = term_context.force_column_count;
+    }
+
+    term_context.term_buffer->Resize(rows, cols);
+    term_context.term_buffer->SetScrollRegionBegin(0);
+    term_context.term_buffer->SetScrollRegionEnd(rows - 1);
 }

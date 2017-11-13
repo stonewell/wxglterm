@@ -3,35 +3,53 @@
 #include "term_cell.h"
 
 #include "cap_manager.h"
-/*
-def clear_tab(self, context):
-        action = 0
-        if context.params and len(context.params) > 0:
-            action = context.params[0]
 
-        if action == 0:
-            self._tab_stops.pop(self.col, 0)
-        elif action == 3:
-            self._tab_stops.clear()
+DEFINE_CAP(clear_tab);
+DEFINE_CAP(clear_all_tabs);
+DEFINE_CAP(set_tab);
+DEFINE_CAP(tab);
 
-    def clear_all_tabs(self, context):
-        self._tab_stops.clear()
+void clear_tab(term_data_context_s & term_context,
+          const std::vector<int> & params) {
+    int action = 0;
 
-    def set_tab(self, context):
-        self._tab_stops[self.col] = True
+    if (params.size() > 0)
+        action = params[0];
 
-    def tab(self, context):
-        col = self.col
+    if (action == 0) {
+        term_context.tab_stops.erase(term_context.term_buffer->GetCol());
+    } else if (action == 3) {
+        term_context.tab_stops.clear();
+    }
+}
 
-        if len(self._tab_stops) > 0:
-            for c in range(self.col+1, TAB_MAX):
-                if c in self._tab_stops:
-                    col = c
-                    break
+void clear_all_tabs(term_data_context_s & term_context,
+          const std::vector<int> & params) {
+    (void)params;
+    term_context.tab_stops.clear();
+}
 
-        if col >= self.get_cols():
-            col = self.get_cols() - 1
+void set_tab(term_data_context_s & term_context,
+          const std::vector<int> & params) {
+    (void)params;
+    term_context.tab_stops.emplace(term_context.term_buffer->GetCol(), true);
+}
 
-        self.col = col
-        self.refresh_display()
-*/
+void tab(term_data_context_s & term_context,
+          const std::vector<int> & params) {
+    (void)params;
+
+    auto col = term_context.term_buffer->GetCol();
+
+    for(auto c = col + 1; c < TAB_MAX; c++) {
+        if (term_context.tab_stops.find(c) != term_context.tab_stops.end()) {
+            col = c;
+            break;
+        }
+    }
+
+    if (col >= term_context.term_buffer->GetCols())
+        col = term_context.term_buffer->GetCols() - 1;
+
+    term_context.term_buffer->SetCol(col);
+}

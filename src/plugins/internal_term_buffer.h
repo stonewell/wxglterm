@@ -3,6 +3,8 @@
 #include "default_term_line.h"
 #include "default_term_cell.h"
 
+#include <bitset>
+
 class DefaultTermBuffer;
 
 class __InternalTermBuffer {
@@ -87,6 +89,11 @@ public:
 
     void SetCurCellData(uint32_t ch, bool wide_char, bool insert, TermCellPtr cell_template);
 
+    uint16_t GetMode() const;
+    void SetMode(uint16_t m);
+    void AddMode(uint16_t m);
+    void RemoveMode(uint16_t m);
+
 private:
     bool IsDefaultCell(TermCellPtr cell);
     bool __NormalizeBeginEndPositionResetLinesWhenDeleteOrInsert(uint32_t & begin,
@@ -114,4 +121,5 @@ private:
     uint32_t m_VisRowHeaderBegin;
     uint32_t m_VisRowScrollRegionBegin;
     uint32_t m_VisRowFooterBegin;
+    std::bitset<16> m_Mode;
 };

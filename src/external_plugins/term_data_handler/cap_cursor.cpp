@@ -20,6 +20,9 @@ DEFINE_CAP(parm_right_cursor);
 DEFINE_CAP(parm_left_cursor);
 DEFINE_CAP(parm_down_cursor);
 DEFINE_CAP(parm_up_cursor);
+DEFINE_CAP(save_cursor);
+DEFINE_CAP(restore_cursor);
+
 
 static
 void __parm_move_cursor(term_data_context_s & term_context,
@@ -186,6 +189,21 @@ void parm_up_cursor(term_data_context_s & term_context,
                        true);
 }
 
+void save_cursor(term_data_context_s & term_context,
+                 const std::vector<int> & params) {
+    (void)params;
+    term_context.saved_col = term_context.term_buffer->GetCol();
+    term_context.saved_row = term_context.term_buffer->GetRow();
+}
+
+void restore_cursor(term_data_context_s & term_context,
+                    const std::vector<int> & params) {
+    (void)params;
+    if (term_context.saved_col != (uint32_t)-1)
+        term_context.term_buffer->SetCol(term_context.saved_col);
+    if (term_context.saved_row != (uint32_t)-1)
+        term_context.term_buffer->SetRow(term_context.saved_row);
+}
 /*
     def cursor_invisible(self, context):
         self._cursor_visible = False
@@ -195,10 +213,4 @@ void parm_up_cursor(term_data_context_s & term_context,
 
     def cursor_visible(self, context):
         self.cursor_normal(context)
-
-    def save_cursor(self, context):
-        self._saved_cursor = self.cursor
-
-    def restore_cursor(self, context):
-        self.cursor = self._saved_cursor
 */

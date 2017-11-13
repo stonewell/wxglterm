@@ -88,6 +88,9 @@ PYBIND11_EMBEDDED_MODULE(wxglterm_interface, m)
             .def("unlock_update", &TermBuffer::UnlockUpdate)
             .def("enable_alter_buffer", &TermBuffer::EnableAlterBuffer)
             .def("clone_buffer", &TermBuffer::CloneBuffer)
+            .def_property("mode", &TermBuffer::GetMode, &TermBuffer::SetMode)
+            .def("add_mode", &TermBuffer::AddMode)
+            .def("remove_mode", &TermBuffer::RemoveMode)
             ;
 
     py::class_<TermLine, PyTermLine<>, std::shared_ptr<TermLine>> term_line(m, "TermLine", plugin);

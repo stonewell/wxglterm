@@ -151,6 +151,21 @@ public:
     TermBufferPtr CloneBuffer() {
         return TermBufferPtr {};
     }
+
+    uint16_t GetMode() override {
+        return m_Buffer.GetMode();
+    }
+
+    void SetMode(uint16_t m) override {
+        (void)m;
+    }
+
+    void AddMode(uint16_t m) override {
+        (void)m;
+    }
+    void RemoveMode(uint16_t m) override {
+        (void)m;
+    }
 };
 
 TermBufferPtr DefaultTermBuffer::CloneBuffer() {

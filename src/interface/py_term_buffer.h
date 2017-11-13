@@ -110,4 +110,16 @@ public:
     TermBufferPtr CloneBuffer() override {
         PYBIND11_OVERLOAD_PURE_NAME(TermBufferPtr, TermBufferBase, "clone_buffer", CloneBuffer, );
     }
+    uint16_t GetMode() override {
+        PYBIND11_OVERLOAD_PURE_NAME(uint16_t, TermBufferBase, "get_mode", GetMode, );
+    }
+    void SetMode(uint16_t m) override {
+        PYBIND11_OVERLOAD_PURE_NAME(void, TermBufferBase, "set_mode", SetMode, m);
+    }
+    void AddMode(uint16_t m) override {
+        PYBIND11_OVERLOAD_PURE_NAME(void, TermBufferBase, "add_mode", AddMode, m);
+    }
+    void RemoveMode(uint16_t m) override {
+        PYBIND11_OVERLOAD_PURE_NAME(void, TermBufferBase, "remove_mode", RemoveMode, m);
+    }
 };

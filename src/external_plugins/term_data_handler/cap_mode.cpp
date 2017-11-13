@@ -3,6 +3,139 @@
 #include "term_cell.h"
 
 #include "cap_manager.h"
+
+#include <iostream>
+
+DEFINE_CAP(enable_mode);
+DEFINE_CAP(disable_mode);
+DEFINE_CAP(enter_bold_mode);
+DEFINE_CAP(enter_reverse_mode);
+DEFINE_CAP(keypad_xmit);
+DEFINE_CAP(exit_standout_mode);
+DEFINE_CAP(enter_ca_mode);
+DEFINE_CAP(exit_ca_mode);
+
+
+void enable_mode(term_data_context_s & term_context,
+                    const std::vector<int> & params) {
+    auto mode = params[0];
+
+    const std::vector<int> empty_params {};
+
+    if (mode == 25) {
+        handle_cap(term_context, "cursor_normal", params);
+    }
+    else if (mode == 40){
+        term_context.dec_mode = true;
+        term_context.force_column = true;
+        resize_terminal(term_context);
+    }
+    else if (mode == 3) {
+        if (term_context.dec_mode){
+            term_context.force_column = true;
+            term_context.force_column_count = 132;
+            resize_terminal(term_context);
+
+            handle_cap(term_context, "clr_eos", empty_params);
+            handle_cap(term_context, "cursor_home", empty_params);
+        }
+    }
+    else if (mode == 5) {
+        term_context.cell_template->AddMode(TermCell::Reverse);
+    }
+    else if (mode == 6) {
+        term_context.origin_mode = true;
+        handle_cap(term_context, "cursor_home", empty_params);
+    }
+    else if (mode == 7) {
+        term_context.auto_wrap = true;
+    }
+    else {
+        std::cerr << "enable mode not implemented, with params:[";
+        std::copy(params.begin(), params.end(), std::ostream_iterator<int>(std::cerr, ","));
+        std::cerr << "]" << std::endl;
+    }
+}
+
+void disable_mode(term_data_context_s & term_context,
+                    const std::vector<int> & params) {
+    auto mode = params[0];
+
+    const std::vector<int> empty_params {};
+
+    if (mode == 25) {
+        handle_cap(term_context, "cursor_invisible", params);
+    }
+    else if (mode == 40){
+        term_context.dec_mode = false;
+        term_context.force_column = false;
+        resize_terminal(term_context);
+    }
+    else if (mode == 3) {
+        if (term_context.dec_mode){
+            term_context.force_column = true;
+            term_context.force_column_count = 80;
+            resize_terminal(term_context);
+
+            handle_cap(term_context, "clr_eos", empty_params);
+            handle_cap(term_context, "cursor_home", empty_params);
+        }
+    }
+    else if (mode == 5) {
+        term_context.cell_template->RemoveMode(TermCell::Reverse);
+    }
+    else if (mode == 6) {
+        term_context.origin_mode = false;
+        handle_cap(term_context, "cursor_home", empty_params);
+    }
+    else if (mode == 7) {
+        term_context.auto_wrap = false;
+    }
+    else {
+        std::cerr << "disable mode not implemented, with params:[";
+        std::copy(params.begin(), params.end(), std::ostream_iterator<int>(std::cerr, ","));
+        std::cerr << "]" << std::endl;
+    }
+}
+
+void enter_bold_mode(term_data_context_s & term_context,
+                    const std::vector<int> & params) {
+    (void)params;
+    term_context.cell_template->AddMode(TermCell::Bold);
+    term_context.term_buffer->AddMode(TermCell::Bold);
+}
+void keypad_xmit(term_data_context_s & term_context,
+                    const std::vector<int> & params) {
+    (void)params;
+    term_context.keypad_transmit_mode = true;
+}
+void enter_reverse_mode(term_data_context_s & term_context,
+                    const std::vector<int> & params) {
+    (void)params;
+    term_context.cell_template->AddMode(TermCell::Reverse);
+    term_context.term_buffer->AddMode(TermCell::Reverse);
+}
+
+void exit_standout_mode(term_data_context_s & term_context,
+                    const std::vector<int> & params) {
+    (void)params;
+    term_context.cell_template->SetMode(term_context.default_cell_template->GetMode());
+    term_context.term_buffer->SetMode(term_context.default_cell_template->GetMode());
+}
+
+void enter_ca_mode(term_data_context_s & term_context,
+                    const std::vector<int> & params) {
+    (void)params;
+    term_context.saved_cell_template = term_context.cell_template;
+    term_context.cell_template = term_context.term_buffer->CreateCellWithDefaults();
+    term_context.term_buffer->EnableAlterBuffer(true);
+}
+void exit_ca_mode(term_data_context_s & term_context,
+                    const std::vector<int> & params) {
+    (void)params;
+    term_context.cell_template = term_context.saved_cell_template;
+    term_context.term_buffer->EnableAlterBuffer(false);
+}
 /*
     def exit_alt_charset_mode(self, context):
         self.charset_modes_translate[0] = None
@@ -33,94 +166,4 @@
 
     def shift_out_to_charset_mode_g1(self, context):
         self.charset_mode = 1
-
-    def enable_mode(self, context):
-        if self.is_debug():
-            LOGGER.debug('enable mode:{}'.format(context.params))
-
-        mode = context.params[0]
-
-        if mode == 25:
-            self.cursor_normal(context)
-        elif mode == 40:
-            self._dec_mode = True
-            self._force_column = True
-            self.resize_terminal()
-        elif mode == 3:
-            if self._dec_mode:
-                self._force_column = True
-                self._force_column_count = 132
-                self.resize_terminal()
-
-                self.clr_eos(None)
-                self.cursor_home(None)
-        elif mode == 5:
-            self.cur_cell.add_mode(TermCell.TextMode.Reverse)
-        elif mode == 6:
-            self._origin_mode = True
-            self.cursor_home(None)
-        elif mode == 7:
-            self._auto_wrap = True
-        else:
-            LOGGER.warning('not implemented enable mode:{}'.format(context.params))
-
-    def disable_mode(self, context):
-        if self.is_debug():
-            LOGGER.debug('disable mode:{}'.format(context.params))
-
-        mode = context.params[0]
-
-        if mode == 25:
-            self.cursor_invisible(context)
-        elif mode == 40:
-            self._dec_mode = False
-            self._force_column = False
-            self.resize_terminal()
-        elif mode == 3:
-            if self._dec_mode:
-                self._force_column = True
-                self._force_column_count = 80
-                self.resize_terminal()
-
-                self.clr_eos(None)
-                self.cursor_home(None)
-        elif mode == 5:
-            self.cur_cell.remove_mode(TermCell.TextMode.Reverse)
-        elif mode == 6:
-            self._origin_mode = False
-            self.cursor_home(None)
-        elif mode == 7:
-            self._auto_wrap = False
-        else:
-            LOGGER.warning('not implemented disable mode:{}'.format(context.params))
-    def enter_bold_mode(self, context):
-        self.cur_cell.add_mode(TermCell.TextMode.Bold)
-        if self.is_debug():
-            LOGGER.debug('set bold mode:attr={}'.format(self.cur_cell))
-
-    def keypad_xmit(self, context):
-        if self.is_debug():
-            LOGGER.debug('keypad transmit mode')
-        self.keypad_transmit_mode = True
-def enter_reverse_mode(self, context):
-        self.cur_cell.add_mode(TermCell.TextMode.Reverse)
-        self.refresh_display()
-
-    def exit_standout_mode(self, context):
-        self.cur_cell.mode = self._default_cell.mode
-
-    def enter_ca_mode(self, context):
-        self.savedcur_cell, self.cur_cell = \
-            self.cur_cell, self.create_default_cell()
-
-        self.plugin_context.term_buffer.enable_alter_buffer(True)
-
-        self.refresh_display()
-
-    def exit_ca_mode(self, context):
-        self.cur_cell = self.savedcur_cell
-
-        self.plugin_context.term_buffer.enable_alter_buffer(False)
-
-        self.refresh_display()
 */

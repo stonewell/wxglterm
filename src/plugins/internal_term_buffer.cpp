@@ -23,6 +23,7 @@ __InternalTermBuffer::__InternalTermBuffer(DefaultTermBuffer* term_buffer) :
     , m_VisRowHeaderBegin {0}
     , m_VisRowScrollRegionBegin {0}
     , m_VisRowFooterBegin {0}
+    , m_Mode{0}
 {
 }
 
@@ -523,4 +524,19 @@ void __InternalTermBuffer::ClearHistoryLinesData() {
     m_VisRowFooterBegin = HasScrollRegion() ? m_ScrollRegionEnd + 1 : m_Rows;
 
     m_VisRowScrollRegionBegin = HasScrollRegion() ? m_ScrollRegionBegin : 0;
+}
+
+uint16_t __InternalTermBuffer::GetMode() const {
+    return (uint16_t)m_Mode.to_ulong();
+}
+
+void __InternalTermBuffer::SetMode(uint16_t m) {
+    m_Mode = std::bitset<16>(m);
+}
+
+void __InternalTermBuffer::AddMode(uint16_t m) {
+    m_Mode.set(m);
+}
+void __InternalTermBuffer::RemoveMode(uint16_t m) {
+    m_Mode.reset(m);
 }

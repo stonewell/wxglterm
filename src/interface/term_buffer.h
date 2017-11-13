@@ -49,4 +49,9 @@ public:
     virtual void EnableAlterBuffer(bool enable) = 0;
 
     virtual TermBufferPtr CloneBuffer() = 0;
+
+    virtual uint16_t GetMode() = 0;
+    virtual void SetMode(uint16_t m) = 0;
+    virtual void AddMode(uint16_t m) = 0;
+    virtual void RemoveMode(uint16_t m) = 0;
 };
