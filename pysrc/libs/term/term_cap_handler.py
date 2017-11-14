@@ -655,8 +655,7 @@ class TermCapHandler(object):
             LOGGER.warning('not implemented disable mode:{}'.format(context.params))
 
     def column_address(self, context):
-        col, row = self.get_cursor()
-        self.cursor = (context.params[0], row)
+        self.col = context.params[0]
 
     def parm_up_cursor(self, context, do_refresh = True, do_scroll = True):
         begin, end = self.get_scroll_region()
@@ -704,6 +703,15 @@ class TermCapHandler(object):
 
     def save_cursor(self, context):
         self._saved_cursor = self.cursor
+        self._saved_charset_modes_translate = self.charset_modes_translate[:]
+        self._saved_charset_mode = self.charset_mode
+
+        self._saved_origin_mode = self._origin_mode
 
     def restore_cursor(self, context):
-        self.cursor = self._saved_cursor
+        self._origin_mode = self._saved_origin_mode
+
+        self.charset_modes_translate = self._saved_charset_modes_translate[:]
+        self.charset_mode = self._saved_charset_mode
+
+        self.col, self.row = self._saved_cursor

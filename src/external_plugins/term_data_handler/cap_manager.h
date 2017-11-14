@@ -5,6 +5,8 @@
 #include <vector>
 #include <unordered_map>
 
+using charset_mode_func_t = std::function<wchar_t(wchar_t)>;
+
 struct term_data_context_s {
     term_data_context_s();
 
@@ -28,6 +30,14 @@ struct term_data_context_s {
 
     std::vector<char> remain_buffer;
     std::unordered_map<uint32_t, bool> tab_stops;
+
+    int charset_mode;
+    charset_mode_func_t charset_modes_translate[2];
+    int saved_charset_mode;
+    charset_mode_func_t saved_charset_modes_translate[2];
+
+    bool saved_origin_mode;
+    bool cap_debug;
 };
 
 #define TAB_MAX (999)

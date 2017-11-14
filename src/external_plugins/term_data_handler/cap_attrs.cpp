@@ -8,7 +8,7 @@
 
 DEFINE_CAP(set_a_foreground);
 DEFINE_CAP(set_a_background);
-DEFINE_CAP(origin_pair);
+DEFINE_CAP(orig_pair);
 DEFINE_CAP(set_attributes);
 
 constexpr int32_t VALUE_NOT_CHANGE = -1;
@@ -89,7 +89,7 @@ void set_a_background(term_data_context_s & term_context,
                      color_idx);
 }
 
-void origin_pair(term_data_context_s & term_context,
+void orig_pair(term_data_context_s & term_context,
                   const std::vector<int> & params){
     (void)params;
 
@@ -105,7 +105,7 @@ void set_attributes(term_data_context_s & term_context,
 
     for(int v : params) {
         if (v == 0) {
-            origin_pair(term_context, params);
+            orig_pair(term_context, params);
         } else if (v >= 1 && v <= 29) {
             mode.set(v);
         } else if (v == 39) {

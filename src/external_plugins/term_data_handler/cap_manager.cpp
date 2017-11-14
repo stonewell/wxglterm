@@ -39,7 +39,13 @@ term_data_context_s::term_data_context_s():
     , keypad_transmit_mode(false)
     , force_column_count(80)
     , saved_col((uint32_t)-1)
-    , saved_row((uint32_t)-1) {
+    , saved_row((uint32_t)-1)
+    , charset_mode {0}
+    , charset_modes_translate {nullptr, nullptr}
+    , saved_charset_mode {0}
+    , saved_charset_modes_translate {nullptr, nullptr}
+    , saved_origin_mode {false}
+    , cap_debug {false} {
 
     for(int i = 0; i < TAB_MAX; i += TAB_WIDTH) {
         tab_stops.emplace(i, true);
@@ -49,10 +55,12 @@ term_data_context_s::term_data_context_s():
 void handle_cap(term_data_context_s & term_context, const std::string & cap_name, const std::vector<int> params) {
     cap_map_t::iterator it = CapFuncs.find(cap_name);
 
-    std::cerr << "handle cap:" << cap_name;
-    std::cerr << ",params:[";
-    std::copy(params.begin(), params.end(), std::ostream_iterator<int>(std::cerr, ","));
-    std::cerr << "]" << std::endl;
+    if (term_context.cap_debug) {
+        std::cerr << "handle cap:" << cap_name;
+        std::cerr << ",params:[";
+        std::copy(params.begin(), params.end(), std::ostream_iterator<int>(std::cerr, ","));
+        std::cerr << "]" << std::endl;
+    }
 
     if (it != CapFuncs.end()) {
         it->second(term_context, params);
@@ -92,6 +100,9 @@ void output_char(term_data_context_s & term_context, const std::string & data, b
                                          term_context.remain_buffer.begin() + converted);
 
         for (auto it : w_str){
+            if (term_context.charset_modes_translate[term_context.charset_mode])
+                it = term_context.charset_modes_translate[term_context.charset_mode](it);
+
             auto width = char_width(it);
 
             if (width == 0) {

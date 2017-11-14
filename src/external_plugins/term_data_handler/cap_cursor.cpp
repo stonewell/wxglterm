@@ -195,6 +195,12 @@ void save_cursor(term_data_context_s & term_context,
     (void)params;
     term_context.saved_col = term_context.term_buffer->GetCol();
     term_context.saved_row = term_context.term_buffer->GetRow();
+
+    term_context.saved_charset_modes_translate[0] = term_context.charset_modes_translate[0];
+    term_context.saved_charset_modes_translate[1] = term_context.charset_modes_translate[1];
+    term_context.saved_charset_mode = term_context.charset_mode;
+
+    term_context.saved_origin_mode = term_context.origin_mode;
 }
 
 void restore_cursor(term_data_context_s & term_context,
@@ -204,6 +210,12 @@ void restore_cursor(term_data_context_s & term_context,
         term_context.term_buffer->SetCol(term_context.saved_col);
     if (term_context.saved_row != (uint32_t)-1)
         term_context.term_buffer->SetRow(term_context.saved_row);
+
+    term_context.charset_modes_translate[0] = term_context.saved_charset_modes_translate[0];
+    term_context.charset_modes_translate[1] = term_context.saved_charset_modes_translate[1];
+    term_context.charset_mode = term_context.saved_charset_mode;
+
+    term_context.origin_mode = term_context.saved_origin_mode;
 }
 /*
     def cursor_invisible(self, context):

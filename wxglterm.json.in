@@ -1,4 +1,6 @@
 {
+    "app_debug":false,
+
     "plugins":{
 	"dir":"plugins",
 	"python_lib":"libs",
@@ -15,7 +17,10 @@
 	    "name":"default_term_buffer"
 	},
 	"data_handler":{
-	    "name":"py_term_data_handler"
+	    "name":"term_data_handler",
+	    "config":{
+		"cap_debug":false
+	    }
 	},
 	"context":{
 	    "name":"default_term_context"

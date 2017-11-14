@@ -53,6 +53,11 @@ public:
     void InitPlugin(ContextPtr context,
                     AppConfigPtr plugin_config) override {
         PluginBase::InitPlugin(context, plugin_config);
+
+        bool app_debug = context->GetAppConfig()->GetEntryBool("app_debug", false);
+
+        m_DataContext.cap_debug = plugin_config->GetEntryBool("cap_debug", app_debug);
+
         LoadPyDataHandler();
     }
 
@@ -81,9 +86,9 @@ TermDataHandlerPtr CreateTermDataHandler()
 
 void TermDataHandlerImpl::ProcessSingleChar(const char * ch) {
     if (ch)
-        m_DataHandler.attr("on_term_data")(*ch);
+        m_DataHandler.attr("on_term_data")(*ch, m_DataContext.cap_debug);
     else
-        m_DataHandler.attr("on_term_data")();
+        m_DataHandler.attr("on_term_data")(py::arg("cap_debug") = m_DataContext.cap_debug);
 
     py::object cap_name = m_DataHandler.attr("cap_name");
     py::object params = m_DataHandler.attr("params");
@@ -146,7 +151,9 @@ unsigned long TermDataHandlerImpl::Run(void * /*pArgument*/) {
         char c = '\0';
 
         if (!m_TermDataQueue.wait_dequeue_timed(c, std::chrono::microseconds(1000000))) {
-            std::cout << "queue wait timed out ..." << std::endl;
+            if (m_DataContext.cap_debug) {
+                std::cout << "queue wait timed out ..." << std::endl;
+            }
 
             if (m_Stopped)
                 break;

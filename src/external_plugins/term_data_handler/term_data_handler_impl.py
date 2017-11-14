@@ -5,8 +5,8 @@ class __TermDataHandler(TermDataHandlerBase):
     def __init__(self):
         TermDataHandlerBase.__init__(self)
 
-    def on_term_data(self, c=None):
-        if not c:
+    def on_term_data(self, c=None, cap_debug = False):
+        if not c and cap_debug:
             print('************ handle None char', c)
         cap_turple, self.params, self.output_char = self.process_data(c)
 
