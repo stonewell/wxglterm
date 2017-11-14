@@ -5,6 +5,7 @@
 #include "cap_manager.h"
 
 #include <iostream>
+#include <iterator> // for ostream_iterator
 
 DEFINE_CAP(enable_mode);
 DEFINE_CAP(disable_mode);
