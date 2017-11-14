@@ -2,6 +2,7 @@
 
 #include <wx/wx.h>
 #include "term_cell.h"
+#include <bitset>
 
 class DrawPane : public wxPanel {
 public:
@@ -33,6 +34,7 @@ private:
 
     void DrawContent(wxDC &dc,
                      wxString & content,
+                     std::bitset<16> & buffer_mode,
                      uint16_t & last_fore_color,
                      uint16_t & last_back_color,
                      uint16_t & last_mode,

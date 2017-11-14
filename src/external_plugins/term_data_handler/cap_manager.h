@@ -47,3 +47,6 @@ struct term_cap_s {
 void handle_cap(term_data_context_s & term_context, const std::string & cap_name, const std::vector<int> params);
 void output_char(term_data_context_s & term_context, const std::string & data, bool insert);
 void resize_terminal(term_data_context_s & term_context);
+void set_cursor(term_data_context_s & term_context,
+                uint32_t col,
+                uint32_t row);

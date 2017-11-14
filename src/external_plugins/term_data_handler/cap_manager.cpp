@@ -49,6 +49,11 @@ term_data_context_s::term_data_context_s():
 void handle_cap(term_data_context_s & term_context, const std::string & cap_name, const std::vector<int> params) {
     cap_map_t::iterator it = CapFuncs.find(cap_name);
 
+    std::cerr << "handle cap:" << cap_name;
+    std::cerr << ",params:[";
+    std::copy(params.begin(), params.end(), std::ostream_iterator<int>(std::cerr, ","));
+    std::cerr << "]" << std::endl;
+
     if (it != CapFuncs.end()) {
         it->second(term_context, params);
     } else {
@@ -140,4 +145,27 @@ void resize_terminal(term_data_context_s & term_context) {
     term_context.term_buffer->Resize(rows, cols);
     term_context.term_buffer->SetScrollRegionBegin(0);
     term_context.term_buffer->SetScrollRegionEnd(rows - 1);
+}
+
+void set_cursor(term_data_context_s & term_context,
+                uint32_t col,
+                uint32_t row) {
+    auto rows = term_context.term_buffer->GetRows();
+    auto cols = term_context.term_buffer->GetCols();
+    auto end = rows - 1;
+
+    if (term_context.origin_mode) {
+        auto begin = term_context.term_buffer->GetScrollRegionBegin();
+        end = term_context.term_buffer->GetScrollRegionEnd();
+        row += begin;
+    }
+
+    if (row > end)
+        row = end;
+
+    if (col > cols)
+        col = cols - 1;
+
+    term_context.term_buffer->SetCol(col);
+    term_context.term_buffer->SetRow(row);
 }

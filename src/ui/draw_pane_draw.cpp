@@ -43,6 +43,7 @@ public:
 
 void DrawPane::DrawContent(wxDC &dc,
                            wxString & content,
+                           std::bitset<16> & buffer_mode,
                            uint16_t & last_fore_color,
                            uint16_t & last_back_color,
                            uint16_t & last_mode,
@@ -71,7 +72,8 @@ void DrawPane::DrawContent(wxDC &dc,
     uint16_t back_color_use = last_back_color;
     uint16_t fore_color_use = last_fore_color;
 
-    if (m.test(TermCell::Bold)) {
+    if (m.test(TermCell::Bold) ||
+        buffer_mode.test(TermCell::Bold)) {
         if (back_color_use < 8)
             back_color_use += 8;
 
@@ -85,7 +87,8 @@ void DrawPane::DrawContent(wxDC &dc,
         fore_color_use = last_back_color;
     }
 
-    if (m.test(TermCell::Reverse))
+    if (m.test(TermCell::Reverse) ||
+        buffer_mode.test(TermCell::Reverse))
     {
         uint16_t tmp = back_color_use;
         back_color_use = fore_color_use;
@@ -174,6 +177,7 @@ void DrawPane::DoPaint(wxDC & dc, TermBufferPtr buffer, bool full_paint)
 
     dc.SetBackground( backgroundBrush );
     dc.Clear();
+    std::bitset<16> m(buffer->GetMode());
 
     for (auto row = 0u; row < rows; row++) {
         auto line = buffer->GetLine(row);
@@ -187,6 +191,7 @@ void DrawPane::DoPaint(wxDC & dc, TermBufferPtr buffer, bool full_paint)
             if (content.Length() > 0)
             {
                 DrawContent(dc, content,
+                            m,
                             last_fore_color,
                             last_back_color,
                             last_mode,
@@ -231,6 +236,7 @@ void DrawPane::DoPaint(wxDC & dc, TermBufferPtr buffer, bool full_paint)
                     || last_mode != mode)
                 {
                     DrawContent(dc, content,
+                                m,
                                 last_fore_color,
                                 last_back_color,
                                 last_mode,
@@ -258,6 +264,7 @@ void DrawPane::DoPaint(wxDC & dc, TermBufferPtr buffer, bool full_paint)
         else if (content.Length() > 0)
         {
             DrawContent(dc, content,
+                        m,
                         last_fore_color,
                         last_back_color,
                         last_mode,

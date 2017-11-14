@@ -70,27 +70,28 @@ void carriage_return(term_data_context_s & term_context,
 
 void cursor_home(term_data_context_s & term_context,
                  const std::vector<int> & params){
-    term_context.term_buffer->SetCol(0);
-    term_context.term_buffer->SetRow(0);
     (void)params;
+    set_cursor(term_context, 0, 0);
 }
 
 void cursor_address(term_data_context_s & term_context,
                     const std::vector<int> & params){
-    term_context.term_buffer->SetCol(params[1]);
-    term_context.term_buffer->SetRow(params[0]);
+    set_cursor(term_context, params[1], params[0]);
 }
 
 void row_address(term_data_context_s & term_context,
                  const std::vector<int> & params){
-    term_context.term_buffer->SetRow(params[0]);
+    set_cursor(term_context,
+               term_context.term_buffer->GetCol(),
+               params[0]);
 }
 
 void key_shome(term_data_context_s & term_context,
                const std::vector<int> & params) {
     (void)params;
-    term_context.term_buffer->SetCol(1);
-    term_context.term_buffer->SetRow(0);
+    set_cursor(term_context,
+               1,
+               0);
 }
 
 void next_line(term_data_context_s & term_context,
@@ -124,7 +125,7 @@ void parm_rindex(term_data_context_s & term_context,
 
 void column_address(term_data_context_s & term_context,
                     const std::vector<int> & params) {
-    term_context.term_buffer->SetRow(params[0]);
+    term_context.term_buffer->SetCol(params[0]);
 }
 
 void parm_right_cursor(term_data_context_s & term_context,
