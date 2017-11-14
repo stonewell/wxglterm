@@ -62,6 +62,8 @@ void wxGLTermApp::Cleanup()
     g_AppConfig.reset((AppConfig*)nullptr);
 }
 
+bool g_AppDebug = false;
+
 bool wxGLTermApp::DoInit()
 {
     m_PyInterpreter = std::make_shared<py::scoped_interpreter>();
@@ -70,13 +72,17 @@ bool wxGLTermApp::DoInit()
 
     g_AppConfig->LoadFromFile("wxglterm.json");
 
-    std::cout << "termcap_dir:"
-              << g_AppConfig->GetEntry("/term/termcap_dir", "NOT FOUND!!!")
-              << ","
-              << g_AppConfig->GetEntry("/term/termcap_dir", "NOT FOUND!!! with path start with /")
-              << std::endl
-              << "use_system_ssh_config:" << g_AppConfig->GetEntryBool("use_system_ssh_config", false)
-              << std::endl;
+    g_AppDebug = g_AppConfig->GetEntryBool("app_debug", false);
+
+    if (g_AppDebug) {
+        std::cout << "termcap_dir:"
+                  << g_AppConfig->GetEntry("/term/termcap_dir", "NOT FOUND!!!")
+                  << ","
+                  << g_AppConfig->GetEntry("/term/termcap_dir", "NOT FOUND!!! with path start with /")
+                  << std::endl
+                  << "use_system_ssh_config:" << g_AppConfig->GetEntryBool("use_system_ssh_config", false)
+                  << std::endl;
+    }
 
     wxFileName f(wxStandardPaths::Get().GetExecutablePath());
     f.AppendDir("plugins");
@@ -86,11 +92,13 @@ bool wxGLTermApp::DoInit()
     f2.AppendDir("libs");
     std::string libsPath(f2.GetPath());
 
-    std::cout << "app path:"
-              << pluginPath
-              << ", libs:"
-              << libsPath
-              << std::endl;
+    if (g_AppDebug) {
+        std::cout << "app path:"
+                  << pluginPath
+                  << ", libs:"
+                  << libsPath
+                  << std::endl;
+    }
 
     std::string plugins_dir = g_AppConfig->GetEntry("plugins/dir", pluginPath.c_str());
     std::string python_lib_dir = g_AppConfig->GetEntry("plugins/python_lib", libsPath.c_str());
@@ -183,14 +191,15 @@ TermUIPtr wxGLTermApp::CreateTermUI(TermContextPtr term_context)
         return TermUIPtr{};
     }
 
-    std::cout << "ui plugin config:"
-              << ui_plugin_config
-              << std::endl;
+    if (g_AppDebug)
+        std::cout << "ui plugin config:"
+                  << ui_plugin_config
+                  << std::endl;
 
     auto new_instance_config = CreateAppConfigFromString(ui_plugin_config.c_str());
 
     plugin_term_ui->InitPlugin(std::dynamic_pointer_cast<Context>(term_context),
-                             new_instance_config);
+                               new_instance_config);
 
     return plugin_term_ui;
 }
@@ -227,9 +236,10 @@ TermNetworkPtr wxGLTermApp::CreateTermNetwork(TermContextPtr term_context)
     uint64_t plugin_version = g_AppConfig->GetEntryUInt64("plugins/network/version", PluginManager::Latest);
     std::string plugin_config = g_AppConfig->GetEntry("plugins/network/config", "{}");
 
-    std::cout << "network plugin config:"
-              << plugin_config
-              << std::endl;
+    if (g_AppDebug)
+        std::cout << "network plugin config:"
+                  << plugin_config
+                  << std::endl;
 
     auto plugin = std::dynamic_pointer_cast<TermNetwork>(m_PluginManager->GetPlugin(plugin_name.c_str(), plugin_version));
 
@@ -245,9 +255,10 @@ TermNetworkPtr wxGLTermApp::CreateTermNetwork(TermContextPtr term_context)
     new_instance->InitPlugin(std::dynamic_pointer_cast<Context>(term_context),
                              new_instance_config);
 
-    std::cout << "config shell:"
-              << new_instance_config->GetEntry("shell", "default")
-              << std::endl;;
+    if (g_AppDebug)
+        std::cout << "config shell:"
+                  << new_instance_config->GetEntry("shell", "default")
+                  << std::endl;;
 
     return std::dynamic_pointer_cast<TermNetwork>(new_instance);
 }
@@ -258,9 +269,10 @@ TermBufferPtr wxGLTermApp::CreateTermBuffer(TermContextPtr term_context)
     uint64_t plugin_version = g_AppConfig->GetEntryUInt64("plugins/buffer/version", PluginManager::Latest);
     std::string plugin_config = g_AppConfig->GetEntry("plugins/buffer/config", "{}");
 
-    std::cout << "buffer plugin config:"
-              << plugin_config
-              << std::endl;
+    if (g_AppDebug)
+        std::cout << "buffer plugin config:"
+                  << plugin_config
+                  << std::endl;
 
     auto plugin = std::dynamic_pointer_cast<TermBuffer>(m_PluginManager->GetPlugin(plugin_name.c_str(), plugin_version));
 
@@ -285,9 +297,10 @@ TermDataHandlerPtr wxGLTermApp::CreateTermDataHandler(TermContextPtr term_contex
     uint64_t plugin_version = g_AppConfig->GetEntryUInt64("plugins/data_handler/version", PluginManager::Latest);
     std::string plugin_config = g_AppConfig->GetEntry("plugins/data_handler/config", "{}");
 
-    std::cout << "data_handler plugin config:"
-              << plugin_config
-              << std::endl;
+    if (g_AppDebug)
+        std::cout << "data_handler plugin config:"
+                  << plugin_config
+                  << std::endl;
 
     auto plugin = std::dynamic_pointer_cast<TermDataHandler>(m_PluginManager->GetPlugin(plugin_name.c_str(), plugin_version));
 
@@ -312,9 +325,10 @@ TaskPtr wxGLTermApp::CreateShowContextWindowTask(TermContextPtr term_context)
     uint64_t plugin_version = g_AppConfig->GetEntryUInt64("plugins/show_context_window_task/version", PluginManager::Latest);
     std::string plugin_config = g_AppConfig->GetEntry("plugins/show_context_window_task/config", "{}");
 
-    std::cout << "show_context_window task plugin config:"
-              << plugin_config
-              << std::endl;
+    if (g_AppDebug)
+        std::cout << "show_context_window task plugin config:"
+                  << plugin_config
+                  << std::endl;
 
     auto plugin = std::dynamic_pointer_cast<Task>(m_PluginManager->GetPlugin(plugin_name.c_str(), plugin_version));
 
@@ -339,9 +353,10 @@ TermColorThemePtr wxGLTermApp::CreateTermColorTheme(TermContextPtr term_context)
     uint64_t plugin_version = g_AppConfig->GetEntryUInt64("plugins/color_theme/version", PluginManager::Latest);
     std::string plugin_config = g_AppConfig->GetEntry("plugins/color_theme/config", "{}");
 
-    std::cout << "color_theme plugin config:"
-              << plugin_config
-              << std::endl;
+    if (g_AppDebug)
+        std::cout << "color_theme plugin config:"
+                  << plugin_config
+                  << std::endl;
 
     auto plugin = std::dynamic_pointer_cast<TermColorTheme>(m_PluginManager->GetPlugin(plugin_name.c_str(), plugin_version));
 

@@ -300,7 +300,7 @@ void DrawPane::PaintOnDemand()
     {
         wxCriticalSectionLocker locker(m_RefreshLock);
         refreshNow = m_RefreshNow;
-        if (refreshNow)
+        if (refreshNow && m_AppDebug)
             std::cout << "refresh:" << refreshNow << std::endl;
     }
 
@@ -316,7 +316,8 @@ void DrawPane::PaintOnDemand()
                          GetClientSize());
 
         __ScopeLocker buffer_locker(m_Buffer);
-        std::cout << "buffer locked to draw" << std::endl;
+        if (m_AppDebug)
+            std::cout << "buffer locked to draw" << std::endl;
 
         bool paintChanged = true;
 
@@ -343,12 +344,13 @@ void DrawPane::PaintOnDemand()
 
         if (cell)
             cell->RemoveMode(TermCell::Cursor);
-        std::cout << "buffer draw done, unlock" << std::endl;
+        if (m_AppDebug)
+            std::cout << "buffer draw done, unlock" << std::endl;
     }
 
     {
         wxCriticalSectionLocker locker(m_RefreshLock);
-        if (refreshNow)
+        if (refreshNow && m_AppDebug)
             std::cout << "end refresh:" << m_RefreshNow << "," << refreshNow << std::endl;
         m_RefreshNow -= refreshNow;
     }

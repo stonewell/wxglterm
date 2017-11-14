@@ -49,10 +49,12 @@ DrawPane::DrawPane(wxFrame * parent, TermWindow * termWindow) : wxPanel(parent)
         , m_Font(nullptr)
         , m_RefreshTimer(this, TIMER_ID)
         , m_Buffer{}
+        , m_AppDebug{false}
 {
     SetBackgroundStyle(wxBG_STYLE_PAINT);
     InitColorTable();
 
+    m_AppDebug = m_TermWindow->GetPluginContext()->GetAppConfig()->GetEntryBool("app_debug", false);
     Connect( wxID_ANY, wxEVT_IDLE, wxIdleEventHandler(DrawPane::OnIdle) );
 }
 
@@ -141,7 +143,7 @@ void DrawPane::OnPaint(wxPaintEvent & /*event*/)
 
     {
         wxCriticalSectionLocker locker(m_RefreshLock);
-        if (refreshNow)
+        if (refreshNow && m_AppDebug)
             std::cout << "on paint end refresh:" << m_RefreshNow << "," << refreshNow << std::endl;
         m_RefreshNow -= refreshNow;
     }
@@ -171,13 +173,15 @@ void DrawPane::OnSize(wxSizeEvent& /*event*/)
                      NULL,
                      GetFont());
 
-    printf("cell width:%u, line height:%u, %lu\n", dc.GetTextExtent(SINGLE_WIDTH_CHARACTERS).GetWidth(), m_LineHeight,
-           sizeof(SINGLE_WIDTH_CHARACTERS));
+    if (m_AppDebug)
+        printf("cell width:%u, line height:%u, %lu\n", dc.GetTextExtent(SINGLE_WIDTH_CHARACTERS).GetWidth(), m_LineHeight,
+               sizeof(SINGLE_WIDTH_CHARACTERS));
 
     m_CellWidth /= (sizeof(SINGLE_WIDTH_CHARACTERS) - 1);
 
-    printf("cell width:%u, line height:%u, %lu\n", m_CellWidth, m_LineHeight,
-           sizeof(SINGLE_WIDTH_CHARACTERS));
+    if (m_AppDebug)
+        printf("cell width:%u, line height:%u, %lu\n", m_CellWidth, m_LineHeight,
+               sizeof(SINGLE_WIDTH_CHARACTERS));
 
     buffer->Resize((clientSize.GetHeight() - PADDING * 2) / m_LineHeight,
                    (clientSize.GetWidth() - PADDING * 2) / m_CellWidth);
@@ -246,7 +250,7 @@ void DrawPane::InitColorTable()
     }
     catch(std::exception & e)
     {
-        std::cerr << "!!Error Send:"
+        std::cerr << "!!Error InitColorTable:"
                   << std::endl
                   << e.what()
                   << std::endl;
@@ -254,7 +258,7 @@ void DrawPane::InitColorTable()
     }
     catch(...)
     {
-        std::cerr << "!!Error Send"
+        std::cerr << "!!Error InitColorTable"
                   << std::endl;
         PyErr_Print();
     }

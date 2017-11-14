@@ -176,7 +176,7 @@ void DefaultTermBuffer::UnlockUpdate() {
 
 void DefaultTermBuffer::EnableAlterBuffer(bool enable) {
     std::lock_guard<std::recursive_mutex> guard(m_UpdateLock);
-    std::cout << "enable alter buffer:" << enable << std::endl;
+
     if (enable)
     {
         m_CurBuffer = 1;

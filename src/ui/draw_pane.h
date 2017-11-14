@@ -60,4 +60,6 @@ private:
     wxColour m_ColorTable[TermCell::ColorIndexCount];
     wxTimer m_RefreshTimer;
     TermBufferPtr m_Buffer;
+
+    bool m_AppDebug;
 };

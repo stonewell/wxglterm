@@ -22,7 +22,7 @@ public:
 
     TermCellPtr GetCell(uint32_t col) override {
         if (col >= m_Cells.size()) {
-            printf("col:%u, cols:%zu\n", col, m_Cells.size());
+            printf("invalid col for getcell, col:%u, cols:%zu\n", col, m_Cells.size());
 
             return TermCellPtr{};
         }

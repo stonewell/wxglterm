@@ -24,6 +24,8 @@ namespace py = pybind11;
 #define EXT_DYLIB ".so"
 #endif
 
+extern bool g_AppDebug;
+
 static
 void insert_into_forward_list(PluginList & plugin_list, SharedPluginPtr plugin)
 {
@@ -76,9 +78,10 @@ void PluginManagerImpl::RegisterPlugin(SharedPluginPtr plugin)
 
 void PluginManagerImpl::RegisterPlugin(const char * plugin_file_path)
 {
-    std::cerr << "load plugin from file:"
-              << plugin_file_path
-              << std::endl;
+    if (g_AppDebug)
+        std::cerr << "load plugin from file:"
+                  << plugin_file_path
+                  << std::endl;
 
     const char * ext = nullptr;
 
@@ -117,9 +120,10 @@ void PluginManagerImpl::RegisterPlugin(const char * plugin_file_path)
 
 void PluginManagerImpl::LoadPythonPlugin(const char * plugin_file_path)
 {
-    std::cerr << "!!load python plugin from file:"
-              << plugin_file_path
-              << std::endl;
+    if (g_AppDebug)
+        std::cerr << "!!load python plugin from file:"
+                  << plugin_file_path
+                  << std::endl;
 
     auto py_module = LoadPyModuleFromFile(plugin_file_path);
     py::print(py_module);
@@ -136,17 +140,19 @@ void PluginManagerImpl::LoadPythonPlugin(const char * plugin_file_path)
 
 SharedPluginPtr PluginManagerImpl::GetPlugin(const char * plugin_name, uint64_t plugin_version_code)
 {
-    std::cerr << "get plugin:"
-              << plugin_name
-              << ", with version:";
-    if (plugin_version_code == static_cast<uint64_t>(PluginManager::Latest))
-    {
-        std::cerr << "Latest";
-    }
-    else
-        std::cerr << plugin_version_code;
+    if (g_AppDebug) {
+        std::cerr << "get plugin:"
+                  << plugin_name
+                  << ", with version:";
+        if (plugin_version_code == static_cast<uint64_t>(PluginManager::Latest))
+        {
+            std::cerr << "Latest";
+        }
+        else
+            std::cerr << plugin_version_code;
 
-    std::cerr << std::endl;
+        std::cerr << std::endl;
+    }
 
     PluginMap::iterator it = m_PluginMap.find(plugin_name);
 
@@ -164,21 +170,23 @@ SharedPluginPtr PluginManagerImpl::GetPlugin(const char * plugin_name, uint64_t 
             return plugin;
     }
 
-    std::cerr << "get plugin:"
-              << plugin_name
-              << ", with version:"
-              << plugin_version_code
-              << " not found, return latest"
-              << std::endl;
+    if (g_AppDebug)
+        std::cerr << "get plugin:"
+                  << plugin_name
+                  << ", with version:"
+                  << plugin_version_code
+                  << " not found, return latest"
+                  << std::endl;
 
     return it->second.front();
 }
 
 void PluginManagerImpl::LoadDylibPlugin(const char * plugin_file_path)
 {
-    std::cerr << "!!load dylib plugin from file:"
-              << plugin_file_path
-              << std::endl;
+    if (g_AppDebug)
+        std::cerr << "!!load dylib plugin from file:"
+                  << plugin_file_path
+                  << std::endl;
 
     auto h = LoadDyModuleFromFile(plugin_file_path);
 
@@ -200,8 +208,9 @@ void PluginManagerImpl::LoadDylibPlugin(const char * plugin_file_path)
 
     m_DylibHandleList.push_front(h);
 
-    std::cerr << "!!load dylib plugin from file:"
-              << plugin_file_path
-              << " done."
-              << std::endl;
+    if (g_AppDebug)
+        std::cerr << "!!load dylib plugin from file:"
+                  << plugin_file_path
+                  << " done."
+                  << std::endl;
 }

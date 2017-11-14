@@ -62,10 +62,6 @@ __InternalTermBuffer::__InternalTermBuffer(const __InternalTermBuffer & term_buf
 }
 
 void __InternalTermBuffer::Resize(uint32_t row, uint32_t col) {
-    printf("++++Resize buffer: rows=%u, %u, cols=%u,%u\n",
-           m_Rows, m_CurRow,
-           m_Cols, m_CurCol);
-
     std::function<void()> reset_lines { [this]() {
             for (TermLineVector::iterator it = m_Lines.begin(),
                          it_end = m_Lines.end();
@@ -101,10 +97,6 @@ void __InternalTermBuffer::Resize(uint32_t row, uint32_t col) {
         SetCol(m_Cols ? m_Cols - 1 : 0);
 
     m_Lines.resize(m_Rows);
-
-    printf("----Resize buffer: rows=%u, %u, cols=%u,%u\n",
-           m_Rows, m_CurRow,
-           m_Cols, m_CurCol);
 
     reset_lines();
 
@@ -481,9 +473,6 @@ void __InternalTermBuffer::SetScrollRegionEnd(uint32_t end) {
 }
 
 void __InternalTermBuffer::ClearHistoryLinesData() {
-    printf("++++ClearHistoryData: rows=%u, %zu\n",
-           m_Rows, m_Lines.size());
-
     auto it = m_Lines.begin();
 
     if (HasScrollRegion()) {

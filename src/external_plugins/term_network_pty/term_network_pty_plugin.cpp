@@ -46,7 +46,6 @@ public:
         , m_ReadBuffer(8192)
         , m_PtyReaderThread(this)
     {
-        std::cout << "$$$$$$$$$$$$$$$$$$$$$$$ term network pty created:" << this << std::endl;
     }
 
     virtual ~TermNetworkPty() = default;
@@ -108,9 +107,8 @@ public:
         char * token = strtok(m_CmdLine.get(), " ");
 
         m_Args.clear();
-        std::cout << "cmd line:" << cmd_line << std::endl;
+
         while(token != NULL) {
-            std::cout << "token:" << token << std::endl;
             m_Args.push_back(token);
             token = strtok(NULL, " ");
         }
@@ -146,9 +144,6 @@ public:
                 shell = std::string("/bin/bash -i -l");
         }
 
-        std::cout << "????? shell:"
-                  << shell
-                  << std::endl;
         BuildEnviron();
 
         BuildCmdLine(shell);
@@ -157,7 +152,7 @@ public:
 
         // impossible to fork
         if (pid < 0) {
-            std::cout << "pty fork failed" << std::endl;
+            std::cerr << "pty fork failed" << std::endl;
             return;
         }
         // child
@@ -203,14 +198,15 @@ public:
            0
         };
 
-        std::cout << "resize pty:" << row << "," << col << std::endl;
         int result = ioctl(m_MasterFD, TIOCSWINSZ, &ws);
-        std::cout << "resize result:" << result << "," << errno
-                  << ", " << EINVAL
-                  << ", " << ENOTTY
-                  << ", " << EPERM
-                  << ", " << strerror(errno)
-                  << std::endl;
+        if (result) {
+            std::cerr << "resize result:" << result << "," << errno
+                      << ", " << EINVAL
+                      << ", " << ENOTTY
+                      << ", " << EPERM
+                      << ", " << strerror(errno)
+                      << std::endl;
+        }
     }
 
     unsigned long Run(void * /*pArgument*/) override {
@@ -248,11 +244,10 @@ public:
                     continue;
                 }
 
-                std::cout << "select failed with err:" << errno << std::endl;
+                std::cerr << "select failed with err:" << errno << std::endl;
                 break;
             } else if (result == 0) {
                 //timeout
-                std::cout << "select timed out:...." << std::endl;
                 continue;
             }
 
@@ -268,7 +263,7 @@ public:
                     if (errno == EINTR)
                         continue;
 
-                    std::cout << "read failed\n" << std::endl;
+                    std::cerr << "read failed\n" << std::endl;
                     break;
                 }
 
@@ -288,13 +283,10 @@ private:
 };
 
 void delete_data(void * data) {
-    std::cout << "delete plugin:" << data << std::endl;
     delete (Plugin*)data;
 }
 
 extern "C"
 void register_plugins(PluginManagerPtr plugin_manager) {
-    std::cout << "register plugin term_network_pty"
-              << std::endl;
     plugin_manager->RegisterPlugin(PluginPtr {new TermNetworkPty, delete_data});;
 }

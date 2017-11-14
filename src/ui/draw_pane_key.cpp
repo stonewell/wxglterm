@@ -33,14 +33,16 @@ void DrawPane::OnKeyDown(wxKeyEvent& event)
         data.push_back(c);
     }
 
-    std::cout << "on key down:" << (int)c << ","
-              << event.AltDown() << ","
-              << event.RawControlDown()
-              << ","
-              << uc
-              << ","
-              << event.GetKeyCode()
-              << std::endl;
+    if (m_AppDebug) {
+        std::cout << "on key down:" << (int)c << ","
+                  << event.AltDown() << ","
+                  << event.RawControlDown()
+                  << ","
+                  << uc
+                  << ","
+                  << event.GetKeyCode()
+                  << std::endl;
+    }
 
     if (uc != WXK_NONE && event.GetModifiers() == wxMOD_RAW_CONTROL) {
         if (uc >= 'a' && uc <= 'z')
