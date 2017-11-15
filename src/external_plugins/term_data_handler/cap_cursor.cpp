@@ -22,6 +22,9 @@ DEFINE_CAP(parm_down_cursor);
 DEFINE_CAP(parm_up_cursor);
 DEFINE_CAP(save_cursor);
 DEFINE_CAP(restore_cursor);
+DEFINE_CAP(cursor_invisible);
+DEFINE_CAP(cursor_visible);
+DEFINE_CAP(cursor_normal);
 
 
 static
@@ -217,13 +220,19 @@ void restore_cursor(term_data_context_s & term_context,
 
     term_context.origin_mode = term_context.saved_origin_mode;
 }
-/*
-    def cursor_invisible(self, context):
-        self._cursor_visible = False
 
-    def cursor_normal(self, context):
-        self._cursor_visible = True
-
-    def cursor_visible(self, context):
-        self.cursor_normal(context)
-*/
+void cursor_invisible(term_data_context_s & term_context,
+                    const std::vector<int> & params) {
+    (void)params;
+    (void)term_context;
+}
+void cursor_visible(term_data_context_s & term_context,
+                    const std::vector<int> & params) {
+    (void)params;
+    (void)term_context;
+}
+void cursor_normal(term_data_context_s & term_context,
+                    const std::vector<int> & params) {
+    (void)params;
+    (void)term_context;
+}
