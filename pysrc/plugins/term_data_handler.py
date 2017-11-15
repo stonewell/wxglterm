@@ -24,6 +24,7 @@ LOGGER = logging.getLogger('TermDataHandler')
 class TempContext(object):
     pass
 
+
 class DefaultTermDataHandler(MultipleInstancePluginBase,
                              TermDataHandler,
                              TermCapHandler,
@@ -107,7 +108,7 @@ class DefaultTermDataHandler(MultipleInstancePluginBase,
                 if isinstance(data, str):
                     c = data[0]
                 else:
-                    c = chr(data)
+                    c = chr(data & 0xFF)
 
                 cap_turple, params, output_char = self.process_data(c)
 
@@ -115,7 +116,7 @@ class DefaultTermDataHandler(MultipleInstancePluginBase,
                     self.__on_control_data(cap_turple, params)
 
                 if output_char:
-                    self.__output_data(output_char)
+                    self.__output_data(output_char[0])
 
         except IndexError:
             cap_turple, params, output_char = self.process_data()
@@ -123,7 +124,7 @@ class DefaultTermDataHandler(MultipleInstancePluginBase,
                 self.__on_control_data(cap_turple, params)
 
             if output_char:
-                self.__output_data(output_char)
+                self.__output_data(output_char[0])
 
     def __read_queued_data(self):
         while True:

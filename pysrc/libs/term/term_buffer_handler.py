@@ -15,7 +15,7 @@ class TermBufferHandler(object):
         #take care utf_8
         self.remain_buffer.append(c)
 
-        c = bytes(''.join(self.remain_buffer), 'utf_8').decode('utf_8', errors='ignore')
+        c = bytes(''.join(self.remain_buffer),'iso8859-1').decode('utf_8', errors='ignore')
 
         if len(c) == 0:
             if self.is_debug():
@@ -30,7 +30,7 @@ class TermBufferHandler(object):
         w = char_width(c)
 
         if w == 0 or w == -1:
-            LOGGER.warning(u'save buffer get a invalid width char: w= {}, c={}'.format(w, c))
+            LOGGER.warning(u'save buffer get a invalid width char: w= {}, c={},{}'.format(w, c, ord(c)))
 
         wide_char = False
         if len(c.encode('utf_8')) > 1 and w > 1:

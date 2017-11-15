@@ -6,6 +6,7 @@
 #else
 #include <pybind11/embed.h>
 #endif
+#include <pybind11/stl.h>
 
 #include "py_term_cell.h"
 #include "py_term_line.h"

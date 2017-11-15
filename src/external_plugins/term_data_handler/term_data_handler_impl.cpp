@@ -25,7 +25,7 @@
 
 #include "cap_manager.h"
 
-using TermDataQueue = moodycamel::BlockingReaderWriterQueue<char, 4096>;
+using TermDataQueue = moodycamel::BlockingReaderWriterQueue<unsigned char, 4096>;
 
 namespace py = pybind11;
 
@@ -62,7 +62,7 @@ public:
     }
 
     unsigned long Run(void * /*pArgument*/) override;
-    void OnData(const char * data, size_t data_len) override;
+    void OnData(const std::vector<unsigned char> & data, size_t data_len) override;
     void Start() override;
     void Stop() override;
 
@@ -174,7 +174,7 @@ unsigned long TermDataHandlerImpl::Run(void * /*pArgument*/) {
     return 0;
 }
 
-void TermDataHandlerImpl::OnData(const char * data, size_t data_len) {
+void TermDataHandlerImpl::OnData(const std::vector<unsigned char> & data, size_t data_len) {
     for (size_t i = 0; i < data_len; i++) {
         m_TermDataQueue.enqueue(data[i]);
     }
@@ -236,7 +236,10 @@ void TermDataHandlerImpl::Stop() {
 
     m_Stopped = true;
 
-    OnData("A", 1);
+    std::vector<unsigned char> data;
+    data.push_back('A');
+
+    OnData(data, 1);
 
     m_DataHandlerThread.Join();
 }

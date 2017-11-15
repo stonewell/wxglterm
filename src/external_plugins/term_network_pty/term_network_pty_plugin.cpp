@@ -267,8 +267,9 @@ public:
                     break;
                 }
 
-                if (count > 0)
-                    term_data_handler->OnData(&m_ReadBuffer[0], count);
+                if (count > 0) {
+                    term_data_handler->OnData(m_ReadBuffer, count);
+                }
             }
         }
         return 0;
@@ -277,7 +278,7 @@ private:
     uint32_t m_Rows;
     uint32_t m_Cols;
     int m_MasterFD;
-    std::vector<char> m_ReadBuffer;
+    std::vector<unsigned char> m_ReadBuffer;
     PortableThread::CPortableThread m_PtyReaderThread;
     std::vector<char *> m_Envs;
 };
