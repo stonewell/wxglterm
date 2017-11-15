@@ -168,7 +168,7 @@ void parm_ich(term_data_context_s & term_context,
               const std::vector<int> & params) {
     for(int i=0;i < params[0];i++)
         output_char(term_context,
-                    " ",
+                    ' ',
                     true);
 }
 

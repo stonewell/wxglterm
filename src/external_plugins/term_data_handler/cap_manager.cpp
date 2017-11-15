@@ -71,13 +71,11 @@ void handle_cap(term_data_context_s & term_context, const std::string & cap_name
     }
 }
 
-void output_char(term_data_context_s & term_context, const std::string & data, bool insert) {
+void output_char(term_data_context_s & term_context, char data, bool insert) {
     if (term_context.in_status_line) {
         (void)data;
     } else {
-        term_context.remain_buffer.insert(term_context.remain_buffer.end(),
-                                          data.begin(),
-                                          data.end());
+        term_context.remain_buffer.push_back(data);
 
         std::wstring w_str;
         size_t converted = 0;
@@ -100,8 +98,9 @@ void output_char(term_data_context_s & term_context, const std::string & data, b
                                          term_context.remain_buffer.begin() + converted);
 
         for (auto it : w_str){
-            if (term_context.charset_modes_translate[term_context.charset_mode])
+            if (term_context.charset_modes_translate[term_context.charset_mode]) {
                 it = term_context.charset_modes_translate[term_context.charset_mode](it);
+            }
 
             auto width = char_width(it);
 

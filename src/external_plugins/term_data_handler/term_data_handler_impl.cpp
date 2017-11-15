@@ -117,8 +117,9 @@ void TermDataHandlerImpl::ProcessSingleChar(const char * ch) {
                    int_params);
     }
     if (!output_data.is_none()) {
-        std::string data = output_data.cast<std::string>();
-        output_char(m_DataContext, data, false);
+        char c = output_data.cast<char>() & 0xFF;
+
+        output_char(m_DataContext, c, false);
     }
 }
 
