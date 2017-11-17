@@ -24,13 +24,15 @@ class PtyTermNetwork(MultipleInstancePluginBase, TermNetwork):
             self._session.stop()
 
     def connect(self, host, port, user_name, password):
-        term_data_handler = self.plugin_context.get_term_data_handler()
-        self._session = PtySession(self.plugin_config, term_data_handler)
-        self._session.start()
+        try:
+            term_data_handler = self.get_plugin_context().get_term_data_handler()
+            self._session = PtySession(self.get_plugin_config(), term_data_handler)
+            self._session.start()
+        except:
+            LOGGER.exception("connect failed")
 
     def send(self, data, n):
-        LOGGER.debug(u'send data:{}, {}'.format(data, n))
-        self._session.send(bytes(data[:n], 'utf-8'))
+        self._session.send(bytes(data[:n]))
 
     def resize(self, row, col):
         if self._session:

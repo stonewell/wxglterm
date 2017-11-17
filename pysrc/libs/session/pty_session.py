@@ -26,7 +26,6 @@ class PtySession(Session):
             return None
 
         while True:
-            LOGGER.error('select....')
             rlist, wlist, elist = select.select([self.channel], [], [self.channel], 1)
 
             if self.stopped or len(elist) > 0:
@@ -64,7 +63,7 @@ class PtySession(Session):
 	    # make the PTY non-blocking
         fcntl.fcntl(self.channel, fcntl.F_SETFL, self.oldflags | os.O_NONBLOCK)
 
-        self.resize_pty()
+        #self.resize_pty()
 
         self._start_reader()
 

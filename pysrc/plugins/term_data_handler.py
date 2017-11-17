@@ -49,8 +49,8 @@ class DefaultTermDataHandler(MultipleInstancePluginBase,
         MultipleInstancePluginBase.init_plugin(self, context, plugin_config)
 
         #initialize term caps
-        term_name = self.plugin_context.get_app_config().get_entry("/term/term_name", "xterm-256color")
-        termcap_dir = self.plugin_context.get_app_config().get_entry('/term/termcap_dir', 'data')
+        term_name = self.get_plugin_context().get_app_config().get_entry("/term/term_name", "xterm-256color")
+        termcap_dir = self.get_plugin_context().get_app_config().get_entry('/term/termcap_dir', 'data')
 
         self.init_with_term_name(termcap_dir, term_name)
 

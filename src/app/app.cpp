@@ -60,6 +60,8 @@ bool wxGLTermApp::Run(int /*argc*/, char ** /*argv*/)
 void wxGLTermApp::Cleanup()
 {
     g_AppConfig.reset((AppConfig*)nullptr);
+    m_TermUIList.clear();
+    m_PluginManager.reset((PluginManager*)nullptr);
 }
 
 bool g_AppDebug = false;

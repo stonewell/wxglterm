@@ -11,7 +11,7 @@ def start_client(session, cfg):
 
         env = {}
         env.update(os.environ)
-        env['TERM'] = session.terminal._term_name
+        env['TERM'] = session.terminal.get_plugin_context().app_config.get_entry("/term/term_name", "xterm-256color")
 
         if len(shell) == 0:
             shell = os.environ['SHELL']

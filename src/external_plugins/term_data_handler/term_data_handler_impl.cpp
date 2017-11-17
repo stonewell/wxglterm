@@ -10,7 +10,7 @@
 #include <sys/select.h>
 #include <sys/wait.h>
 
-#include "plugin_base.h"
+#include "plugin.h"
 #include "term_network.h"
 #include "term_data_handler.h"
 #include "term_context.h"
@@ -31,13 +31,16 @@ namespace py = pybind11;
 
 #pragma GCC visibility push(hidden)
 class TermDataHandlerImpl
-        : public virtual PluginBase
+        : public virtual Plugin
         , public virtual TermDataHandler
         , public virtual PortableThread::IPortableRunnable
 {
 public:
     TermDataHandlerImpl() :
-        PluginBase("term_data_handler", "terminal data handler", 1)
+        Plugin()
+        , m_Name("term_data_handler")
+        , m_Description("terminal data handler")
+        , m_Version(1)
         , m_DataHandlerThread(this)
         , m_TermDataQueue {4096}
         , m_Stopped{true}
@@ -52,7 +55,8 @@ public:
 
     void InitPlugin(ContextPtr context,
                     AppConfigPtr plugin_config) override {
-        PluginBase::InitPlugin(context, plugin_config);
+        m_Context = context;
+        m_PluginConfig = plugin_config;
 
         bool app_debug = context->GetAppConfig()->GetEntryBool("app_debug", false);
 
@@ -65,6 +69,32 @@ public:
     void OnData(const std::vector<unsigned char> & data, size_t data_len) override;
     void Start() override;
     void Stop() override;
+
+    const char * GetName() override {
+        return m_Name.c_str();
+    }
+    const char * GetDescription() override {
+        return m_Description.c_str();
+    }
+
+    uint32_t GetVersion() override {
+        return m_Version;
+    }
+
+    ContextPtr GetPluginContext() const override {
+        return m_Context;
+    }
+    AppConfigPtr GetPluginConfig() const override {
+        return m_PluginConfig;
+    }
+private:
+    std::string m_Name;
+    std::string m_Description;
+    uint32_t m_Version;
+
+protected:
+    ContextPtr m_Context;
+    AppConfigPtr m_PluginConfig;
 
 private:
     void LoadPyDataHandler();
@@ -242,5 +272,11 @@ void TermDataHandlerImpl::Stop() {
     OnData(data, 1);
 
     m_DataHandlerThread.Join();
+
+    m_DataContext.term_buffer = nullptr;
+    m_DataContext.term_window = nullptr;
+    m_DataContext.term_network = nullptr;
+    m_DataContext.cell_template = nullptr;
+    m_DataContext.default_cell_template = nullptr;
 }
 #pragma GCC visibility pop

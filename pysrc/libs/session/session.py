@@ -9,7 +9,7 @@ class Session(object):
     def __init__(self, cfg, terminal):
         self.cfg = cfg
         self.terminal = terminal
-        self.terminal.session = self
+        #self.terminal.session = self
         self.reader_thread = None
         self.stopped = True
         self.on_session_stop = None

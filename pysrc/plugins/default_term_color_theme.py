@@ -21,7 +21,7 @@ class DefaultTermColorTheme(MultipleInstancePluginBase, TermColorTheme):
         self.__init_colors_map()
 
     def load(self, name):
-        color_theme_dir = self.plugin_context.app_config.get_entry("/term/color_theme_dir", "data/color_theme")
+        color_theme_dir = self.get_plugin_context().app_config.get_entry("/term/color_theme_dir", "data/color_theme")
 
         f_path = os.path.join(color_theme_dir, name+".json")
 

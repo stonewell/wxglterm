@@ -42,7 +42,7 @@ class TermCapHandler(object):
         return 8
 
     def resize_terminal(self):
-        self.plugin_context.term_buffer.resize(self.get_rows(), self.get_cols())
+        self.get_plugin_context().term_buffer.resize(self.get_rows(), self.get_cols())
 
         self.set_scroll_region(0, self.get_rows() - 1)
 
@@ -65,42 +65,42 @@ class TermCapHandler(object):
         self._cur_cell = c
 
     def create_default_cell(self):
-        return self.plugin_context.term_buffer.create_cell_with_defaults()
+        return self.get_plugin_context().term_buffer.create_cell_with_defaults()
 
     def get_rows(self):
         if self._force_column:
             return self._cap.flags['lines']
-        return self.plugin_context.term_buffer.rows
+        return self.get_plugin_context().term_buffer.rows
 
     def get_cols(self):
         if self._force_column:
             return self._force_column_count
-        return self.plugin_context.term_buffer.cols
+        return self.get_plugin_context().term_buffer.cols
 
     def set_cur_col(self, col):
-        self.plugin_context.term_buffer.col = col
+        self.get_plugin_context().term_buffer.col = col
 
     def get_cur_col(self):
-        return self.plugin_context.term_buffer.col
+        return self.get_plugin_context().term_buffer.col
 
     col = property(get_cur_col, set_cur_col)
 
     def set_cur_row(self, row):
-        self.plugin_context.term_buffer.row = row
+        self.get_plugin_context().term_buffer.row = row
 
     def get_cur_row(self):
-        return self.plugin_context.term_buffer.row
+        return self.get_plugin_context().term_buffer.row
 
     row = property(get_cur_row, set_cur_row)
 
     def get_cur_line(self):
-        return self.plugin_context.term_buffer.cur_line
+        return self.get_plugin_context().term_buffer.cur_line
 
     def get_line(self, row):
-        return self.plugin_context.term_buffer.get_line(row)
+        return self.get_plugin_context().term_buffer.get_line(row)
 
     def send_data(self, data):
-        self.plugin_context.term_network.send(data, len(data))
+        self.get_plugin_context().term_network.send(data, len(data))
 
     def get_cursor(self):
         return (self.col, self.row)
@@ -129,21 +129,21 @@ class TermCapHandler(object):
         return threading.Timer(interval, self.__do_refresh)
 
     def __do_refresh(self):
-        self.plugin_context.term_window.refresh()
+        self.get_plugin_context().term_window.refresh()
 
     def refresh_display(self, interval=0.005):
         # self._refresh_timer.cancel()
         # self._refresh_timer = self.__create_refresh_timer(interval)
         # self._refresh_timer.start()
-        self.plugin_context.term_window.refresh()
+        self.get_plugin_context().term_window.refresh()
 
     def get_scroll_region(self):
-        return (self.plugin_context.term_buffer.scroll_region_begin,
-                self.plugin_context.term_buffer.scroll_region_end)
+        return (self.get_plugin_context().term_buffer.scroll_region_begin,
+                self.get_plugin_context().term_buffer.scroll_region_end)
 
     def set_scroll_region(self, begin, end):
-        (self.plugin_context.term_buffer.scroll_region_begin,
-         self.plugin_context.term_buffer.scroll_region_end) = begin, end
+        (self.get_plugin_context().term_buffer.scroll_region_begin,
+         self.get_plugin_context().term_buffer.scroll_region_end) = begin, end
 
     scroll_region = property(get_scroll_region, set_scroll_region)
 
@@ -151,11 +151,11 @@ class TermCapHandler(object):
         return False
 
     def create_new_buffer(self):
-        new_buffer = self.plugin_context.term_buffer.new_instance()
+        new_buffer = self.get_plugin_context().term_buffer.new_instance()
         new_buffer.__class__ = TermBuffer
 
-        new_buffer.resize(self.plugin_context.term_buffer.rows,
-                          self.plugin_context.term_buffer.cols)
+        new_buffer.resize(self.get_plugin_context().term_buffer.rows,
+                          self.get_plugin_context().term_buffer.cols)
         return new_buffer;
 
     def get_line_cells(self, line):
@@ -431,7 +431,7 @@ class TermCapHandler(object):
 
         c_to_delete = context.params[0] if len(context.params) > 0 else 1
 
-        self.plugin_context.term_buffer.delete_lines(self.row, c_to_delete)
+        self.get_plugin_context().term_buffer.delete_lines(self.row, c_to_delete)
 
         self.refresh_display()
 
@@ -466,7 +466,7 @@ class TermCapHandler(object):
 
         c_to_insert = context.params[0] if len(context.params) > 0 else 1
 
-        self.plugin_context.term_buffer.insert_lines(self.row, c_to_insert)
+        self.get_plugin_context().term_buffer.insert_lines(self.row, c_to_insert)
 
         self.refresh_display()
 
@@ -493,14 +493,14 @@ class TermCapHandler(object):
         self.savedcur_cell, self.cur_cell = \
             self.cur_cell, self.create_default_cell()
 
-        self.plugin_context.term_buffer.enable_alter_buffer(True)
+        self.get_plugin_context().term_buffer.enable_alter_buffer(True)
 
         self.refresh_display()
 
     def exit_ca_mode(self, context):
         self.cur_cell = self.savedcur_cell
 
-        self.plugin_context.term_buffer.enable_alter_buffer(False)
+        self.get_plugin_context().term_buffer.enable_alter_buffer(False)
 
         self.refresh_display()
 
@@ -556,7 +556,7 @@ class TermCapHandler(object):
         if self.is_debug():
             LOGGER.debug('before parm down cursor:{} {} {} {} {}'.format(begin, end, self.row, count, do_scroll))
 
-        scrolled = self.plugin_context.term_buffer.move_cur_row(count, True, do_scroll)
+        scrolled = self.get_plugin_context().term_buffer.move_cur_row(count, True, do_scroll)
 
         if self.is_debug():
             LOGGER.debug('after parm down cursor:{} {} {} {}'.format(begin, end, self.row, count))
@@ -665,7 +665,7 @@ class TermCapHandler(object):
         if self.is_debug():
             LOGGER.debug('before parm up cursor:{} {} {} {}'.format(begin, end, self.row, count))
 
-        scrolled = self.plugin_context.term_buffer.move_cur_row(count, False, do_scroll)
+        scrolled = self.get_plugin_context().term_buffer.move_cur_row(count, False, do_scroll)
 
         if self.is_debug():
             LOGGER.debug('after parm up cursor:{} {} {} {}'.format(begin, end, self.row, count))

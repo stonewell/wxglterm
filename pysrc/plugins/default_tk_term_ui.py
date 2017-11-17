@@ -22,10 +22,10 @@ class DefaultTkTermWindow(TermPluginBase, TermWindow):
             pass
 
     def __refresh(self):
-        rows = self.plugin_context.term_buffer.rows
-        cols = self.plugin_context.term_buffer.cols
+        rows = self.get_plugin_context().term_buffer.rows
+        cols = self.get_plugin_context().term_buffer.cols
 
-        term_buff = self.plugin_context.term_buffer
+        term_buff = self.get_plugin_context().term_buffer
 
         self.text.delete('1.0', tkinter.END)
         for row in range(rows):
@@ -78,8 +78,8 @@ class DefaultTkTermUI(TermPluginBase, TermUI):
     def create_window(self):
         w = DefaultTkTermWindow()
 
-        w.init_plugin(self.plugin_context,
-                      self.plugin_config)
+        w.init_plugin(self.get_plugin_context(),
+                      self.get_plugin_config())
 
         if not self.__root_window:
             w.top = self.__get_top_window()

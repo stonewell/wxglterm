@@ -17,7 +17,7 @@ public:
         PYBIND11_OVERLOAD_PURE_NAME(void, TermNetworkBase, "connect", Connect, host, port, user_name, password);
     }
 
-    void Send(const char * data, size_t n) override {
+    void Send(const std::vector<unsigned char> & data, size_t n) override {
         PYBIND11_OVERLOAD_PURE_NAME(void, TermNetworkBase, "send", Send, data, n);
     }
 

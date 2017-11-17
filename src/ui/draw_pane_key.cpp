@@ -26,7 +26,7 @@ void DrawPane::OnKeyDown(wxKeyEvent& event)
 
     TermNetworkPtr network = context->GetTermNetwork();
 
-    std::vector<char> data;
+    std::vector<unsigned char> data;
 
     if (uc != WXK_NONE && event.GetModifiers() == wxMOD_ALT){
         data.push_back('\x1B');
@@ -71,7 +71,7 @@ void DrawPane::OnKeyDown(wxKeyEvent& event)
     {
         pybind11::gil_scoped_acquire acquire;
 
-        network->Send(&data[0], data.size());
+        network->Send(data, data.size());
     }
     catch(std::exception & e)
     {
@@ -110,7 +110,7 @@ void DrawPane::OnChar(wxKeyEvent& event)
 
     TermNetworkPtr network = context->GetTermNetwork();
 
-    std::vector<char> data;
+    std::vector<unsigned char> data;
 
     data.push_back(uc);
 
@@ -118,7 +118,7 @@ void DrawPane::OnChar(wxKeyEvent& event)
     {
         pybind11::gil_scoped_acquire acquire;
 
-        network->Send(&data[0], data.size());
+        network->Send(data, data.size());
     }
     catch(std::exception & e)
     {

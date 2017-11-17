@@ -10,12 +10,22 @@ DEFINE_CAP(user7);
 DEFINE_CAP(send_primary_device_attributes);
 DEFINE_CAP(user9);
 
+static
+void send(term_data_context_s & term_context,
+          const char * data) {
+    std::vector<unsigned char> _data;
+    std::copy(data, data + strlen(data),
+              std::back_inserter(_data));
+
+    term_context.term_network->Send(_data, _data.size());
+};
+
 void client_report_version(term_data_context_s & term_context,
                            const std::vector<int> & params){
     (void)params;
     const char * client_version = "\033[>0;136;0c";
 
-    term_context.term_network->Send(client_version, strlen(client_version));
+    send(term_context, client_version);
 }
 
 void user7(term_data_context_s & term_context,
@@ -31,10 +41,10 @@ void user7(term_data_context_s & term_context,
         char buf[256]{0};
         sprintf(buf, "\x1B[%d;%dR", row + 1, col + 1);
 
-        term_context.term_network->Send(buf, strlen(buf));
+        send(term_context, buf);
     } else if (params[0] == 5) {
         const char * user7_str_5 = "\033[0n";
-        term_context.term_network->Send(user7_str_5, strlen(user7_str_5));
+        send(term_context, user7_str_5);
     }
 }
 
@@ -42,14 +52,14 @@ void send_primary_device_attributes(term_data_context_s & term_context,
                                     const std::vector<int> & params){
     (void)params;
     const char * data = "\033[?62;c";
-    term_context.term_network->Send(data, strlen(data));
+    send(term_context, data);
 }
 
 void user9(term_data_context_s & term_context,
            const std::vector<int> & params){
     (void)params;
     const char * data = "\033[?1;2c";
-    term_context.term_network->Send(data, strlen(data));
+    send(term_context, data);
 }
 
 /*

@@ -42,7 +42,7 @@ class TermBufferHandler(object):
         if not self._auto_wrap and self.col >= self.get_cols():
             self.col = self.get_cols() - 1
 
-        self.plugin_context.term_buffer.set_cur_cell_data(ord(c),
+        self.get_plugin_context().term_buffer.set_cur_cell_data(ord(c),
                                                           wide_char,
                                                           insert,
                                                           self.cur_cell)

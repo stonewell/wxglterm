@@ -20,7 +20,7 @@ class FileTermNetwork(MultipleInstancePluginBase, TermNetwork):
         pass
 
     def connect(self, host, port, user_name, password):
-        self._file_path = file_path = self.plugin_config.get_entry("/file", "NOT FOUND")
+        self._file_path = file_path = self.get_plugin_config().get_entry("/file", "NOT FOUND")
 
         if not os.path.exists(file_path):
             LOGGER.error("term data file is not exist:{}".format(file_path))
@@ -28,7 +28,7 @@ class FileTermNetwork(MultipleInstancePluginBase, TermNetwork):
         self.start_reader()
 
     def start_reader(self):
-        term_data_handler = self.plugin_context.get_term_data_handler()
+        term_data_handler = self.get_plugin_context().get_term_data_handler()
 
         def __read_term_data():
             with open(self._file_path, 'rb') as f:
