@@ -59,6 +59,8 @@ class Session(object):
         if self.on_session_stop:
             self.on_session_stop(self)
 
+        self.terminal = None
+
     def _stop_reader(self):
         pass
 
