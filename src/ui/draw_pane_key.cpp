@@ -32,9 +32,8 @@ void DrawPane::OnKeyDown(wxKeyEvent& event)
 
     std::vector<unsigned char> data;
 
-    if (uc != WXK_NONE && event.GetModifiers() == wxMOD_ALT){
+    if (uc != WXK_NONE && (event.GetModifiers() & wxMOD_ALT)){
         data.push_back('\x1B');
-        data.push_back(c);
     }
 
     if (m_AppDebug) {
@@ -48,7 +47,7 @@ void DrawPane::OnKeyDown(wxKeyEvent& event)
                   << std::endl;
     }
 
-    if (uc != WXK_NONE && event.GetModifiers() == wxMOD_RAW_CONTROL) {
+    if (uc != WXK_NONE && (event.GetModifiers() & wxMOD_RAW_CONTROL)) {
         if (uc >= 'a' && uc <= 'z')
             data.push_back((char)(uc - 'a' + 1));
         if (uc >= 'A' && uc <= 'Z')
@@ -70,6 +69,10 @@ void DrawPane::OnKeyDown(wxKeyEvent& event)
         event.Skip();
         return;
     }
+
+    //add char when there only ALT pressed
+    if (data[0] == '\x1B')
+        data.push_back(c);
 
     try
     {

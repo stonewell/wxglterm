@@ -145,8 +145,8 @@ generic-cap|generic ansi escape:\
 	operating_system_control=\E]%d\E\\:\
 	operating_system_control=\E]%d^G:\
 	operating_system_control=\E]%d\352:\
-	operating_system_control=\E];%s^G:\
-	operating_system_control=\E];%s\E\\:\
-	operating_system_control=\E];%s\352:\
-	operating_system_control=\E];%s\234:
+	operating_system_control_0=\E];%s^G:\
+	operating_system_control_0=\E];%s\E\\:\
+	operating_system_control_0=\E];%s\352:\
+	operating_system_control_0=\E];%s\234:
 	
