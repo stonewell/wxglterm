@@ -136,9 +136,17 @@ generic-cap|generic ansi escape:\
 	reset_mode=\E[%dl:\
 #	request_background_color=\E]11;?^G:\
 #	qet_attributes=\E]%d;?\234:\
-	reset_text_cursor_color=\E]112:\
-	operating_system_control=\E]%d;\.^G:\
-	operating_system_control=\E]%d;\.\E\\:\
-	operating_system_control=\E]%d;\.\352:\
-	operating_system_control=\E]%d;\.\234:
+#	reset_text_cursor_color=\E]112:\
+	operating_system_control=\E]%d;%s^G:\
+	operating_system_control=\E]%d;%s\E\\:\
+	operating_system_control=\E]%d;%s\352:\
+	operating_system_control=\E]%d;%s\234:\
+	operating_system_control=\E]%d\234:\
+	operating_system_control=\E]%d\E\\:\
+	operating_system_control=\E]%d^G:\
+	operating_system_control=\E]%d\352:\
+	operating_system_control=\E];%s^G:\
+	operating_system_control=\E];%s\E\\:\
+	operating_system_control=\E];%s\352:\
+	operating_system_control=\E];%s\234:
 	

@@ -272,11 +272,6 @@ def build_parser_state_machine(cap_str_value, start_state):
                     pos -= 1
 
                 c = chr(v)
-            elif c == '.':
-                cur_state = cur_state.add_any_state(AnyState())
-                params.append('***')
-                pos += 1
-                continue
             else:
                 raise ValueError("unknown escape string:" + c + "," + str(pos) + "," + value)
         elif c == '^':
@@ -296,6 +291,11 @@ def build_parser_state_machine(cap_str_value, start_state):
 
             if c == '%':
                 c = '%'
+            elif c == 's':
+                cur_state = cur_state.add_any_state(AnyState())
+                params.append('***')
+                pos += 1
+                continue
             elif c == 'i':
                 increase_param = True
                 pos += 1
