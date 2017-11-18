@@ -29,6 +29,19 @@ using TermDataQueue = moodycamel::BlockingReaderWriterQueue<unsigned char, 4096>
 
 namespace py = pybind11;
 
+class __SimpleGILStateLock {
+public:
+    __SimpleGILStateLock() {
+        gstate = PyGILState_Ensure();
+    }
+    ~__SimpleGILStateLock() {
+        PyGILState_Release(gstate);
+    }
+
+    PyGILState_STATE gstate;
+};
+
+
 #pragma GCC visibility push(hidden)
 class TermDataHandlerImpl
         : public virtual Plugin
@@ -115,59 +128,60 @@ TermDataHandlerPtr CreateTermDataHandler()
 }
 
 void TermDataHandlerImpl::ProcessSingleChar(const char * ch) {
-    if (ch)
-        m_DataHandler.attr("on_term_data")(*ch, m_DataContext.cap_debug);
-    else
-        m_DataHandler.attr("on_term_data")(py::arg("cap_debug") = m_DataContext.cap_debug);
+    std::vector<int> int_params;
+    std::string str_cap_name {};
+    bool has_cap = false;
+    bool has_output_char = false;
+    char c = 0;
 
-    py::object cap_name = m_DataHandler.attr("cap_name");
-    py::object params = m_DataHandler.attr("params");
-    py::object output_data = m_DataHandler.attr("output_char");
-    py::object increase_param = m_DataHandler.attr("increase_param");
+    {
+        __SimpleGILStateLock lock;
 
-    if (!cap_name.is_none()) {
-        std::string str_cap_name = cap_name.cast<std::string>();
-        bool b_increase_param = increase_param.cast<bool>();
+        if (ch)
+            m_DataHandler.attr("on_term_data")(*ch, m_DataContext.cap_debug);
+        else
+            m_DataHandler.attr("on_term_data")(py::arg("cap_debug") = m_DataContext.cap_debug);
 
-        std::vector<int> int_params;
+        py::object cap_name = m_DataHandler.attr("cap_name");
+        py::object params = m_DataHandler.attr("params");
+        py::object output_data = m_DataHandler.attr("output_char");
+        py::object increase_param = m_DataHandler.attr("increase_param");
 
-        if (!params.is_none()) {
-            py::list l = params;
-            for(auto i : l) {
-                int ii = i.cast<int>();
+        if (!cap_name.is_none()) {
+            str_cap_name = cap_name.cast<std::string>();
+            bool b_increase_param = increase_param.cast<bool>();
+            has_cap = true;
 
-                if (b_increase_param && ii > 0)
-                    ii--;
-                int_params.push_back(ii);
+            if (!params.is_none()) {
+                py::list l = params;
+                for(auto i : l) {
+                    int ii = i.cast<int>();
+
+                    if (b_increase_param && ii > 0)
+                        ii--;
+                    int_params.push_back(ii);
+                }
             }
         }
 
+        if (!output_data.is_none()) {
+            c = output_data.cast<char>() & 0xFF;
+            has_output_char = true;
+        }
+    }
+
+    if (has_cap) {
         handle_cap(m_DataContext,
                    str_cap_name,
                    int_params);
     }
-    if (!output_data.is_none()) {
-        char c = output_data.cast<char>() & 0xFF;
 
+    if (has_output_char) {
         output_char(m_DataContext, c, false);
     }
 }
 
-class __SimpleGILStateLock {
-public:
-    __SimpleGILStateLock() {
-        gstate = PyGILState_Ensure();
-    }
-    ~__SimpleGILStateLock() {
-        PyGILState_Release(gstate);
-    }
-
-    PyGILState_STATE gstate;
-};
-
 void TermDataHandlerImpl::ProcessAllChars(char ch) {
-    __SimpleGILStateLock lock;
-
     do {
         ProcessSingleChar(&ch);
     } while (!m_Stopped && m_TermDataQueue.try_dequeue(ch));

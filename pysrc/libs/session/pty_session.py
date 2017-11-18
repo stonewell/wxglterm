@@ -34,7 +34,6 @@ class PtySession(Session):
             if len(rlist) > 0:
                 break
 
-        LOGGER.error('select done ....')
         data = [1]
 
         while True:
@@ -63,7 +62,7 @@ class PtySession(Session):
 	    # make the PTY non-blocking
         fcntl.fcntl(self.channel, fcntl.F_SETFL, self.oldflags | os.O_NONBLOCK)
 
-        #self.resize_pty()
+        self.resize_pty()
 
         self._start_reader()
 
@@ -79,11 +78,11 @@ class PtySession(Session):
                 n = os.write(self.channel, data)
                 data = data[n:]
 
-    def resize_pty(self, col = None, row = None, w = 0, h = 0):
+    def resize_pty(self, col=None, row=None, w=0, h=0):
         if not col:
-            col = self.terminal.get_cols()
+            col = self.terminal.get_plugin_context().term_buffer.cols
         if not row:
-            row = self.terminal.get_rows()
+            row = self.terminal.get_plugin_context().term_buffer.rows
 
         if self.channel and not self.stopped:
             LOGGER.error('resize pty row:{}, col:{}, w:{}, h:{}'.format(row, col, w, h))
