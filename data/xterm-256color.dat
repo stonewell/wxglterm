@@ -45,7 +45,6 @@ xterm-256color|xterm with 256 colors:\
 	exit_underline_mode=\E[24m:\
 	flash_screen=\E[?5h$<100/>\E[?5l:\
 	init_2string=\E[\041p\E[?3;4l\E[4l\E>:\
-	initialize_color=\E]4;%d;rgb\072%X/%X/%X\E\\:\
 	insert_line=\E[L:\
 	key_b2=\EOE:\
 	key_dc=\E[3~:\

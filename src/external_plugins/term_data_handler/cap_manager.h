@@ -4,6 +4,7 @@
 #include <string>
 #include <vector>
 #include <unordered_map>
+#include <iostream>
 
 using charset_mode_func_t = std::function<wchar_t(wchar_t)>;
 
@@ -40,10 +41,30 @@ struct term_data_context_s {
     bool cap_debug;
 };
 
+struct term_data_param_s {
+    std::string str_value;
+    int int_value;
+
+    operator int () const {
+        return int_value;
+    }
+
+    operator const char * () const {
+        return str_value.c_str();
+    }
+
+    friend std::ostream& operator<<(std::ostream& os, const term_data_param_s& dt) {
+        os << "[int:" << dt.int_value << ", str:" << dt.str_value << "]";
+        return os;
+    }
+};
+
+using term_data_param_list = std::vector<term_data_param_s>;
+
 #define TAB_MAX (999)
 #define TAB_WIDTH (8)
 
-using cap_func_t = std::function<void(term_data_context_s & , const std::vector<int> &)>;
+using cap_func_t = std::function<void(term_data_context_s & , const term_data_param_list &)>;
 
 struct term_cap_s {
     term_cap_s(const std::string & name,
@@ -51,10 +72,10 @@ struct term_cap_s {
 };
 
 #define DEFINE_CAP(cap) \
-    static void cap(term_data_context_s & term_context, const std::vector<int>& params);\
+    static void cap(term_data_context_s & term_context, const term_data_param_list& params);\
     static term_cap_s __##cap{ #cap, cap};
 
-void handle_cap(term_data_context_s & term_context, const std::string & cap_name, const std::vector<int> params);
+void handle_cap(term_data_context_s & term_context, const std::string & cap_name, const term_data_param_list params);
 void output_char(term_data_context_s & term_context, char data, bool insert);
 void resize_terminal(term_data_context_s & term_context);
 void set_cursor(term_data_context_s & term_context,

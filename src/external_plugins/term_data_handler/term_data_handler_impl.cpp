@@ -128,7 +128,7 @@ TermDataHandlerPtr CreateTermDataHandler()
 }
 
 void TermDataHandlerImpl::ProcessSingleChar(const char * ch) {
-    std::vector<int> int_params;
+    std::vector<term_data_param_s> int_params;
     std::string str_cap_name {};
     bool has_cap = false;
     bool has_output_char = false;
@@ -155,11 +155,19 @@ void TermDataHandlerImpl::ProcessSingleChar(const char * ch) {
             if (!params.is_none()) {
                 py::list l = params;
                 for(auto i : l) {
-                    int ii = i.cast<int>();
+                    term_data_param_s param {"", 0};
 
-                    if (b_increase_param && ii > 0)
-                        ii--;
-                    int_params.push_back(ii);
+                    try {
+                        int ii = i.cast<int>();
+                        if (b_increase_param && ii > 0)
+                            ii--;
+
+                        param.int_value = ii;
+                    }catch(...) {
+                        param.str_value = i.cast<std::string>();
+                    }
+
+                    int_params.push_back(param);
                 }
             }
         }

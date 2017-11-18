@@ -40,7 +40,7 @@ void __do_set_attributes(term_data_context_s & term_context,
 }
 
 void set_a_foreground(term_data_context_s & term_context,
-                  const std::vector<int> & params){
+                  const term_data_param_list & params){
     bool light = false;
     uint16_t color_idx = 0;
 
@@ -65,7 +65,7 @@ void set_a_foreground(term_data_context_s & term_context,
 }
 
 void set_a_background(term_data_context_s & term_context,
-                  const std::vector<int> & params){
+                  const term_data_param_list & params){
     bool light = false;
     uint16_t color_idx = 0;
 
@@ -90,7 +90,7 @@ void set_a_background(term_data_context_s & term_context,
 }
 
 void orig_pair(term_data_context_s & term_context,
-                  const std::vector<int> & params){
+                  const term_data_param_list & params){
     (void)params;
 
     term_context.cell_template->SetForeColorIndex(term_context.default_cell_template->GetForeColorIndex());
@@ -98,7 +98,7 @@ void orig_pair(term_data_context_s & term_context,
 }
 
 void set_attributes(term_data_context_s & term_context,
-                  const std::vector<int> & params){
+                  const term_data_param_list & params){
     std::bitset<32> mode {};
     int32_t fore_color_idx = VALUE_NOT_CHANGE;
     int32_t back_color_idx = VALUE_NOT_CHANGE;

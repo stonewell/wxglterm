@@ -24,9 +24,10 @@ DEFINE_CAP(bell);
 DEFINE_CAP(to_status_line);
 DEFINE_CAP(from_status_line);
 DEFINE_CAP(meta_on);
+DEFINE_CAP(operating_system_control)
 
 term_cap_s::term_cap_s(const std::string & name,
-                   cap_func_t cap_func) {
+                       cap_func_t cap_func) {
     CapFuncs.emplace(name, cap_func);
 }
 
@@ -45,20 +46,21 @@ term_data_context_s::term_data_context_s():
     , saved_charset_mode {0}
     , saved_charset_modes_translate {nullptr, nullptr}
     , saved_origin_mode {false}
-    , cap_debug {false} {
+    , cap_debug {false}
+{
 
     for(int i = 0; i < TAB_MAX; i += TAB_WIDTH) {
         tab_stops.emplace(i, true);
     }
 }
 
-void handle_cap(term_data_context_s & term_context, const std::string & cap_name, const std::vector<int> params) {
+void handle_cap(term_data_context_s & term_context, const std::string & cap_name, const term_data_param_list params) {
     cap_map_t::iterator it = CapFuncs.find(cap_name);
 
     if (term_context.cap_debug) {
         std::cerr << "handle cap:" << cap_name;
         std::cerr << ",params:[";
-        std::copy(params.begin(), params.end(), std::ostream_iterator<int>(std::cerr, ","));
+        std::copy(params.begin(), params.end(), std::ostream_iterator<term_data_param_s>(std::cerr, ","));
         std::cerr << "]" << std::endl;
     }
 
@@ -66,7 +68,7 @@ void handle_cap(term_data_context_s & term_context, const std::string & cap_name
         it->second(term_context, params);
     } else {
         std::cerr << "unknown cap found:" << cap_name << ", with params:[";
-        std::copy(params.begin(), params.end(), std::ostream_iterator<int>(std::cerr, ","));
+        std::copy(params.begin(), params.end(), std::ostream_iterator<term_data_param_s>(std::cerr, ","));
         std::cerr << "]" << std::endl;
     }
 }
@@ -120,25 +122,25 @@ void output_char(term_data_context_s & term_context, char data, bool insert) {
 }
 
 void bell(term_data_context_s & term_context,
-          const std::vector<int> & params) {
+          const term_data_param_list & params) {
     (void)params;
     term_context.in_status_line = false;
 }
 
 void to_status_line(term_data_context_s & term_context,
-                    const std::vector<int> & params) {
+                    const term_data_param_list & params) {
     (void)params;
     term_context.in_status_line = true;
 }
 
 void from_status_line(term_data_context_s & term_context,
-                    const std::vector<int> & params) {
+                      const term_data_param_list & params) {
     (void)params;
     term_context.in_status_line = false;
 }
 
 void meta_on(term_data_context_s & term_context,
-                    const std::vector<int> & params) {
+             const term_data_param_list & params) {
     (void)term_context;
     (void)params;
 }
@@ -178,4 +180,34 @@ void set_cursor(term_data_context_s & term_context,
 
     term_context.term_buffer->SetCol(col);
     term_context.term_buffer->SetRow(row);
+}
+
+void operating_system_control(term_data_context_s & term_context,
+                              const term_data_param_list & params)
+{
+    std::function<void()> output_str_param
+    { [params]()
+        {
+            for(auto it = params.begin() + 1, it_end = params.end();
+                it != it_end;
+                it++) {
+                std::cerr << it->str_value;
+            }
+        }
+    };
+
+    if (params[0] == 0) {
+        if (term_context.cap_debug) {
+            std::cerr << "handle status line:";
+            std::cerr << ",params:[";
+            output_str_param();
+            std::cerr << "]" << std::endl;
+        }
+
+        return;
+    }
+
+    std::cerr << "unimplemented operating system control:" << params[0] << ", with params:[";
+    output_str_param();
+    std::cerr << "]" << std::endl;
 }

@@ -41,6 +41,7 @@ class ControlDataState:
         self.cap_name = {}
         self.next_states = {}
         self.digit_state = None
+        self.any_state = None
 
     def reset(self):
         pass
@@ -59,6 +60,13 @@ class ControlDataState:
         self.digit_state = state
         return state
 
+    def add_any_state(self, state):
+        if self.any_state:
+            return self.any_state
+
+        self.any_state = state
+        return state
+
     def handle(self, context, c):
         if c in self.next_states:
             next_state = self.next_states[c]
@@ -67,12 +75,26 @@ class ControlDataState:
 
             return next_state
 
-        return self.digit_state.handle(context, c) \
-            if self.digit_state else None
+        if self.digit_state:
+            next_state = self.digit_state.handle(context, c)
+
+            if next_state:
+                return next_state
+
+        if self.any_state:
+            return self.any_state.handle(context, c)
+
+        return None
 
     def get_cap(self, params):
         if len(params) == 0:
-            return self.cap_name[''] if '' in self.cap_name else None
+            if '' in self.cap_name:
+                return self.cap_name['']
+
+            if '***' in self.cap_name:
+                return self.cap_name['***']
+
+            return None
 
         str_match = ','.join([str(x) for x in params])
 
@@ -86,10 +108,12 @@ class ControlDataState:
                 else:
                     continue
 
-            re_str = k.replace(',**', '(,[0-9]+)?')
+            re_str = k.replace('***', '(.:)')
+            re_str = re_str.replace(',**', '(,[0-9]+)?')
             re_str = re_str.replace('**', '([0-9]+)?')
             re_str = re_str.replace('*', '[0-9]+')
             re_str = re_str.replace('?', '*')
+            re_str = re_str.replace(':', '*')
 
             if re.match(re_str, str_match):
                 return self.cap_name[k]
@@ -122,6 +146,21 @@ class DigitState(ControlDataState):
 
     def reset(self):
         self.value = None
+
+
+class AnyState(ControlDataState):
+    def __init__(self):
+        ControlDataState.__init__(self)
+
+    def handle(self, context, cc):
+        next_state = ControlDataState.handle(self, context, cc)
+
+        if next_state:
+            return next_state
+
+        context.push_param(cc)
+
+        return self
 
 
 class CapStringValue:
@@ -233,6 +272,11 @@ def build_parser_state_machine(cap_str_value, start_state):
                     pos -= 1
 
                 c = chr(v)
+            elif c == '.':
+                cur_state = cur_state.add_any_state(AnyState())
+                params.append('***')
+                pos += 1
+                continue
             else:
                 raise ValueError("unknown escape string:" + c + "," + str(pos) + "," + value)
         elif c == '^':

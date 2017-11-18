@@ -19,6 +19,10 @@ void DrawPane::OnKeyDown(wxKeyEvent& event)
 
     char c= uc & 0xFF;
 
+    if (c >= 'A' && c <= 'Z' && !event.ShiftDown()) {
+        c = c - 'A' + 'a';
+    }
+
     TermContextPtr context = std::dynamic_pointer_cast<TermContext>(m_TermWindow->GetPluginContext());
 
     if (!context)

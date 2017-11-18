@@ -18,7 +18,7 @@ DEFINE_CAP(parm_dch);
 DEFINE_CAP(erase_chars);
 
 void screen_alignment_test(term_data_context_s & term_context,
-                           const std::vector<int> & params) {
+                           const term_data_param_list & params) {
     handle_cap(term_context, "save_cursor", params);
     auto rows = term_context.term_buffer->GetRows();
     auto cols = term_context.term_buffer->GetCols();
@@ -37,13 +37,13 @@ void screen_alignment_test(term_data_context_s & term_context,
 }
 
 void insert_line(term_data_context_s & term_context,
-                 const std::vector<int> & params) {
+                 const term_data_param_list & params) {
     parm_insert_line(term_context,
                      params);
 }
 
 void parm_insert_line(term_data_context_s & term_context,
-                      const std::vector<int> & params) {
+                      const term_data_param_list & params) {
     auto count = 1;
 
     if (params.size() > 0)
@@ -54,13 +54,13 @@ void parm_insert_line(term_data_context_s & term_context,
 }
 
 void delete_line(term_data_context_s & term_context,
-                 const std::vector<int> & params) {
+                 const term_data_param_list & params) {
     parm_delete_line(term_context,
                      params);
 }
 
 void parm_delete_line(term_data_context_s & term_context,
-                      const std::vector<int> & params) {
+                      const term_data_param_list & params) {
     auto count = 1;
 
     if (params.size() > 0)
@@ -71,7 +71,7 @@ void parm_delete_line(term_data_context_s & term_context,
 }
 
 void clr_eos(term_data_context_s & term_context,
-             const std::vector<int> & params) {
+             const term_data_param_list & params) {
     uint32_t begin = 0, end = term_context.term_buffer->GetRows();
     uint32_t cols = term_context.term_buffer->GetCols();
 
@@ -100,7 +100,7 @@ void clr_eos(term_data_context_s & term_context,
 }
 
 void clr_line(term_data_context_s & term_context,
-              const std::vector<int> & params) {
+              const term_data_param_list & params) {
     (void)params;
     auto line = term_context.term_buffer->GetCurLine();
 
@@ -119,7 +119,7 @@ void clr_line(term_data_context_s & term_context,
 }
 
 void clr_eol(term_data_context_s & term_context,
-             const std::vector<int> & params) {
+             const term_data_param_list & params) {
     (void)params;
     auto line = term_context.term_buffer->GetCurLine();
 
@@ -142,7 +142,7 @@ void clr_eol(term_data_context_s & term_context,
 }
 
 void clr_bol(term_data_context_s & term_context,
-             const std::vector<int> & params) {
+             const term_data_param_list & params) {
     (void)params;
     auto line = term_context.term_buffer->GetCurLine();
 
@@ -165,7 +165,7 @@ void clr_bol(term_data_context_s & term_context,
 }
 
 void parm_ich(term_data_context_s & term_context,
-              const std::vector<int> & params) {
+              const term_data_param_list & params) {
     for(int i=0;i < params[0];i++)
         output_char(term_context,
                     ' ',
@@ -202,14 +202,14 @@ void __do_delete_chars(term_data_context_s & term_context,
 }
 
 void parm_dch(term_data_context_s & term_context,
-              const std::vector<int> & params) {
+              const term_data_param_list & params) {
     __do_delete_chars(term_context,
                       params[0],
                       false);
 }
 
 void erase_chars(term_data_context_s & term_context,
-                 const std::vector<int> & params) {
+                 const term_data_param_list & params) {
     __do_delete_chars(term_context,
                       params[0],
                       true);

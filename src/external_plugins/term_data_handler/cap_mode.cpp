@@ -77,10 +77,10 @@ wchar_t translate_char_british(wchar_t c) {
 }
 
 void enable_mode(term_data_context_s & term_context,
-                 const std::vector<int> & params) {
+                 const term_data_param_list & params) {
     auto mode = params[0];
 
-    const std::vector<int> empty_params {};
+    const term_data_param_list empty_params {};
 
     if (mode == 25) {
         handle_cap(term_context, "cursor_normal", params);
@@ -118,10 +118,10 @@ void enable_mode(term_data_context_s & term_context,
 }
 
 void disable_mode(term_data_context_s & term_context,
-                  const std::vector<int> & params) {
+                  const term_data_param_list & params) {
     auto mode = params[0];
 
-    const std::vector<int> empty_params {};
+    const term_data_param_list empty_params {};
 
     if (mode == 25) {
         handle_cap(term_context, "cursor_invisible", params);
@@ -159,81 +159,81 @@ void disable_mode(term_data_context_s & term_context,
 }
 
 void enter_bold_mode(term_data_context_s & term_context,
-                     const std::vector<int> & params) {
+                     const term_data_param_list & params) {
     (void)params;
     term_context.cell_template->AddMode(TermCell::Bold);
     term_context.term_buffer->AddMode(TermCell::Bold);
 }
 void keypad_xmit(term_data_context_s & term_context,
-                 const std::vector<int> & params) {
+                 const term_data_param_list & params) {
     (void)params;
     term_context.keypad_transmit_mode = true;
 }
 void enter_reverse_mode(term_data_context_s & term_context,
-                        const std::vector<int> & params) {
+                        const term_data_param_list & params) {
     (void)params;
     term_context.cell_template->AddMode(TermCell::Reverse);
     term_context.term_buffer->AddMode(TermCell::Reverse);
 }
 
 void exit_standout_mode(term_data_context_s & term_context,
-                        const std::vector<int> & params) {
+                        const term_data_param_list & params) {
     (void)params;
     term_context.cell_template->SetMode(term_context.default_cell_template->GetMode());
     term_context.term_buffer->SetMode(term_context.default_cell_template->GetMode());
 }
 
 void enter_ca_mode(term_data_context_s & term_context,
-                   const std::vector<int> & params) {
+                   const term_data_param_list & params) {
     (void)params;
     term_context.saved_cell_template = term_context.cell_template;
     term_context.cell_template = term_context.term_buffer->CreateCellWithDefaults();
     term_context.term_buffer->EnableAlterBuffer(true);
 }
 void exit_ca_mode(term_data_context_s & term_context,
-                  const std::vector<int> & params) {
+                  const term_data_param_list & params) {
     (void)params;
     term_context.cell_template = term_context.saved_cell_template;
     term_context.term_buffer->EnableAlterBuffer(false);
 }
 
 void exit_alt_charset_mode(term_data_context_s & term_context,
-                  const std::vector<int> & params) {
+                  const term_data_param_list & params) {
     term_context.charset_modes_translate[0] = nullptr;
     exit_standout_mode(term_context, params);
 }
 void enter_alt_charset_mode(term_data_context_s & term_context,
-                  const std::vector<int> & params) {
+                  const term_data_param_list & params) {
     (void)params;
     term_context.charset_modes_translate[0] = translate_char;
 }
 void enter_alt_charset_mode_british(term_data_context_s & term_context,
-                  const std::vector<int> & params) {
+                  const term_data_param_list & params) {
     (void)params;
     term_context.charset_modes_translate[0] = translate_char_british;
 }
 void enter_alt_charset_mode_g1(term_data_context_s & term_context,
-                  const std::vector<int> & params) {
+                  const term_data_param_list & params) {
     (void)params;
     term_context.charset_modes_translate[1] = translate_char;
 }
 void enter_alt_charset_mode_g1_british(term_data_context_s & term_context,
-                  const std::vector<int> & params) {
+                  const term_data_param_list & params) {
     (void)params;
     term_context.charset_modes_translate[1] = translate_char_british;
 }
 void exit_alt_charset_mode_g1_british(term_data_context_s & term_context,
-                  const std::vector<int> & params) {
+                  const term_data_param_list & params) {
     term_context.charset_modes_translate[1] = nullptr;
     exit_standout_mode(term_context, params);
 }
 void shift_in_to_charset_mode_g0(term_data_context_s & term_context,
-                  const std::vector<int> & params) {
+                  const term_data_param_list & params) {
     (void)params;
     term_context.charset_mode = 0;
 }
 void shift_in_to_charset_mode_g1(term_data_context_s & term_context,
-                  const std::vector<int> & params) {
+                  const term_data_param_list & params) {
     (void)params;
     term_context.charset_mode = 1;
 }

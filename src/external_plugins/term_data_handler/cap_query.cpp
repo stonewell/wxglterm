@@ -41,7 +41,7 @@ void send(term_data_context_s & term_context,
 };
 
 void client_report_version(term_data_context_s & term_context,
-                           const std::vector<int> & params){
+                           const term_data_param_list & params){
     (void)params;
     const char * client_version = "\033[>0;136;0c";
 
@@ -49,7 +49,7 @@ void client_report_version(term_data_context_s & term_context,
 }
 
 void user7(term_data_context_s & term_context,
-           const std::vector<int> & params){
+           const term_data_param_list & params){
     if (params[0] == 6) {
         auto col = term_context.term_buffer->GetCol();
         auto row = term_context.term_buffer->GetRow();
@@ -69,14 +69,14 @@ void user7(term_data_context_s & term_context,
 }
 
 void send_primary_device_attributes(term_data_context_s & term_context,
-                                    const std::vector<int> & params){
+                                    const term_data_param_list & params){
     (void)params;
     const char * data = "\033[?62;c";
     send(term_context, data);
 }
 
 void user9(term_data_context_s & term_context,
-           const std::vector<int> & params){
+           const term_data_param_list & params){
     (void)params;
     const char * data = "\033[?1;2c";
     send(term_context, data);
