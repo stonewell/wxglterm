@@ -71,7 +71,7 @@ void DrawPane::OnKeyDown(wxKeyEvent& event)
     }
 
     //add char when there only ALT pressed
-    if (data[0] == '\x1B')
+    if (data.size() == 1 && data[0] == '\x1B')
         data.push_back(c);
 
     try
