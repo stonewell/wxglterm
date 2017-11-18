@@ -1,9 +1,12 @@
+#include <pybind11/embed.h>
+
 #include "term_buffer.h"
 #include "term_window.h"
 #include "term_network.h"
 #include "cap_manager.h"
 
 #include <string.h>
+#include <iostream>
 
 DEFINE_CAP(client_report_version);
 DEFINE_CAP(user7);
@@ -17,7 +20,24 @@ void send(term_data_context_s & term_context,
     std::copy(data, data + strlen(data),
               std::back_inserter(_data));
 
-    term_context.term_network->Send(_data, _data.size());
+    try
+    {
+        term_context.term_network->Send(_data, _data.size());
+    }
+    catch(std::exception & e)
+    {
+        std::cerr << "!!Error Send:"
+                  << std::endl
+                  << e.what()
+                  << std::endl;
+        PyErr_Print();
+    }
+    catch(...)
+    {
+        std::cerr << "!!Error Send"
+                  << std::endl;
+        PyErr_Print();
+    }
 };
 
 void client_report_version(term_data_context_s & term_context,
