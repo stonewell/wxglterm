@@ -182,26 +182,15 @@ void set_cursor(term_data_context_s & term_context,
     term_context.term_buffer->SetRow(row);
 }
 
-static
-std::function<void(const term_data_param_list & params)> output_str_param
-{ [](const term_data_param_list & params)
-    {
-        for(auto it = params.begin() + 1, it_end = params.end();
-            it != it_end;
-            it++) {
-            std::cerr << it->str_value;
-        }
-    }
-};
-
 void operating_system_control(term_data_context_s & term_context,
                               const term_data_param_list & params)
 {
-    if (params[0] == 0) {
+    if (params[0] >= 0 && params[0] <= 3) {
         if (term_context.cap_debug) {
             std::cerr << "handle status line:";
             std::cerr << ",params:[";
-            output_str_param(params);
+            std::copy(params.begin() + 1, params.end(),
+                      std::ostream_iterator<term_data_param_s>(std::cerr, ""));
             std::cerr << "]" << std::endl;
         }
 
@@ -209,7 +198,8 @@ void operating_system_control(term_data_context_s & term_context,
     }
 
     std::cerr << "unimplemented operating system control:" << params[0] << ", with params:[";
-    output_str_param(params);
+    std::copy(params.begin() + 1, params.end(),
+              std::ostream_iterator<term_data_param_s>(std::cerr, ""));
     std::cerr << "]" << std::endl;
 }
 
@@ -219,7 +209,8 @@ void operating_system_control_0(term_data_context_s & term_context,
     if (term_context.cap_debug) {
         std::cerr << "handle status line:";
         std::cerr << ",params:[";
-        output_str_param(params);
+        std::copy(params.begin(), params.end(),
+                  std::ostream_iterator<term_data_param_s>(std::cerr, ""));
         std::cerr << "]" << std::endl;
     }
 }

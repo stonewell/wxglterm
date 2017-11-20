@@ -155,7 +155,7 @@ void TermDataHandlerImpl::ProcessSingleChar(const char * ch) {
             if (!params.is_none()) {
                 py::list l = params;
                 for(auto i : l) {
-                    term_data_param_s param {"", 0};
+                    term_data_param_s param {};
 
                     try {
                         int ii = i.cast<int>();
@@ -163,8 +163,10 @@ void TermDataHandlerImpl::ProcessSingleChar(const char * ch) {
                             ii--;
 
                         param.int_value = ii;
+                        param.has_int_value = true;
                     }catch(...) {
                         param.str_value = i.cast<std::string>();
+                        param.has_str_value = true;
                     }
 
                     int_params.push_back(param);
