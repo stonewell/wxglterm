@@ -160,6 +160,7 @@ PYBIND11_EMBEDDED_MODULE(wxglterm_interface, m)
     term_window.def(py::init<>())
             .def("refresh", &TermWindow::Refresh)
             .def("show", &TermWindow::Show)
+            .def("set_window_title", &TermWindow::SetWindowTitle)
             ;
 
     py::class_<TermNetwork, PyTermNetwork<>, std::shared_ptr<TermNetwork>> term_network(m, "TermNetwork", multiple_instance_plugin);

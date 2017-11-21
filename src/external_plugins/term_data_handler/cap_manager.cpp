@@ -8,6 +8,7 @@
 #include <locale>
 #include <codecvt>
 #include <unordered_map>
+#include <sstream>
 
 #include "char_width.h"
 
@@ -186,14 +187,21 @@ void operating_system_control(term_data_context_s & term_context,
                               const term_data_param_list & params)
 {
     if (params[0] >= 0 && params[0] <= 3) {
+        std::stringstream ss;
+        std::copy(params.begin() + 1, params.end(),
+                  std::ostream_iterator<term_data_param_s>(ss, ""));
+
         if (term_context.cap_debug) {
-            std::cerr << "handle status line:";
-            std::cerr << ",params:[";
-            std::copy(params.begin() + 1, params.end(),
-                      std::ostream_iterator<term_data_param_s>(std::cerr, ""));
-            std::cerr << "]" << std::endl;
+            std::cerr << "handle status line:"
+                      << params[0]
+                      << ",params:["
+                      << ss.str()
+                      << "]" << std::endl;
         }
 
+        set_window_properties(term_context,
+                              params[0],
+                              ss.str());
         return;
     }
 
@@ -206,11 +214,19 @@ void operating_system_control(term_data_context_s & term_context,
 void operating_system_control_0(term_data_context_s & term_context,
                               const term_data_param_list & params)
 {
+    std::stringstream ss;
+    std::copy(params.begin(), params.end(),
+              std::ostream_iterator<term_data_param_s>(ss, ""));
+
     if (term_context.cap_debug) {
-        std::cerr << "handle status line:";
-        std::cerr << ",params:[";
-        std::copy(params.begin(), params.end(),
-                  std::ostream_iterator<term_data_param_s>(std::cerr, ""));
-        std::cerr << "]" << std::endl;
+        std::cerr << "handle status line:"
+                  << 0
+                  << ",params:["
+                  << ss.str()
+                  << "]" << std::endl;
     }
+
+    set_window_properties(term_context,
+                          0,
+                          ss.str());
 }

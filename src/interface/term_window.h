@@ -10,4 +10,5 @@ public:
 public:
     virtual void Refresh() = 0;
     virtual void Show() = 0;
+    virtual void SetWindowTitle(const std::string & title) = 0;
 };

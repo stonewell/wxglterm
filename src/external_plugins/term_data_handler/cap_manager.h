@@ -97,3 +97,6 @@ void resize_terminal(term_data_context_s & term_context);
 void set_cursor(term_data_context_s & term_context,
                 uint32_t col,
                 uint32_t row);
+void set_window_properties(term_data_context_s & term_context,
+                           int mode,
+                           const std::string & data);

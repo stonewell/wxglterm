@@ -78,6 +78,10 @@ public:
         m_MainDlg->Maximize(true);
     }
 
+    void SetWindowTitle(const std::string & title) override {
+        m_MainDlg->SetTitle(title);
+    }
+
 private:
     MainDialog * m_MainDlg;
     wxCriticalSection m_MainWndLock;
