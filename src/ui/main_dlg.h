@@ -24,7 +24,9 @@ public:
 public:
     void RequestRefresh();
     void onClose(wxCloseEvent& evt);
-
+    uint32_t GetColorByIndex(uint32_t index) {
+        return m_DrawPane->GetColorByIndex(index);
+    }
 private:
     DrawPane * m_DrawPane;
     WindowManager * m_WindowManager;

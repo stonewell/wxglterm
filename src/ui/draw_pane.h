@@ -15,6 +15,9 @@ public:
 public:
     void RequestRefresh();
 
+    uint32_t GetColorByIndex(uint32_t index) {
+        return m_ColorTable[index].GetRGBA();
+    }
 private:
     void OnPaint(wxPaintEvent &evt);
     void OnIdle(wxIdleEvent& evt);

@@ -161,6 +161,7 @@ PYBIND11_EMBEDDED_MODULE(wxglterm_interface, m)
             .def("refresh", &TermWindow::Refresh)
             .def("show", &TermWindow::Show)
             .def("set_window_title", &TermWindow::SetWindowTitle)
+            .def("get_color_by_index", &TermWindow::GetColorByIndex)
             ;
 
     py::class_<TermNetwork, PyTermNetwork<>, std::shared_ptr<TermNetwork>> term_network(m, "TermNetwork", multiple_instance_plugin);

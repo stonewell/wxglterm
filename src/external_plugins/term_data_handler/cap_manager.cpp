@@ -203,7 +203,11 @@ void operating_system_control(term_data_context_s & term_context,
                               params[0],
                               ss.str());
         return;
+    } else if (params[0] >= 10 && params[0] <= 19) {
+        handle_cap(term_context, "osc_color_request", params);
+        return;
     }
+
 
     std::cerr << "unimplemented operating system control:" << params[0] << ", with params:[";
     std::copy(params.begin() + 1, params.end(),
@@ -212,7 +216,7 @@ void operating_system_control(term_data_context_s & term_context,
 }
 
 void operating_system_control_0(term_data_context_s & term_context,
-                              const term_data_param_list & params)
+                                const term_data_param_list & params)
 {
     std::stringstream ss;
     std::copy(params.begin(), params.end(),

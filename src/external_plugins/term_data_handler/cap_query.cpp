@@ -13,7 +13,6 @@ DEFINE_CAP(user7);
 DEFINE_CAP(send_primary_device_attributes);
 DEFINE_CAP(user9);
 
-static
 void send(term_data_context_s & term_context,
           const char * data) {
     std::vector<unsigned char> _data;
@@ -81,12 +80,3 @@ void user9(term_data_context_s & term_context,
     const char * data = "\033[?1;2c";
     send(term_context, data);
 }
-
-/*
-  def request_background_color(self, context):
-  rbg_response = '\033]11;rgb:%04x/%04x/%04x/%04x\007' % (self.cfg.default_background_color[0], self.cfg.default_background_color[1], self.cfg.default_background_color[2], self.cfg.default_background_color[3])
-
-  if self.is_debug():
-  LOGGER.debug("response background color request:{}".format(rbg_response.replace('\033', '\\E')))
-  self.send_data(rbg_response)
-*/

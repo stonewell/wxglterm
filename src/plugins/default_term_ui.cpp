@@ -82,6 +82,11 @@ public:
         m_MainDlg->SetTitle(wxString(title.c_str()));
     }
 
+    uint32_t GetColorByIndex(uint32_t index) override {
+        return m_MainDlg->GetColorByIndex(index);
+    }
+
+
 private:
     MainDialog * m_MainDlg;
     wxCriticalSection m_MainWndLock;

@@ -100,3 +100,5 @@ void set_cursor(term_data_context_s & term_context,
 void set_window_properties(term_data_context_s & term_context,
                            int mode,
                            const std::string & data);
+void send(term_data_context_s & term_context,
+          const char * data);

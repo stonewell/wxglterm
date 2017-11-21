@@ -11,4 +11,5 @@ public:
     virtual void Refresh() = 0;
     virtual void Show() = 0;
     virtual void SetWindowTitle(const std::string & title) = 0;
+    virtual uint32_t GetColorByIndex(uint32_t index) = 0;
 };
