@@ -99,8 +99,12 @@ public:
                 wxTextDataObject data;
                 wxTheClipboard->GetData( data );
 
-                sel_data = wxBase64Encode(data.GetText(),
-                                          data.GetTextLength()).utf8_str();
+                wxString s = data.GetText();
+                const auto & s_buf = s.utf8_str();
+                const char * s_begin = s_buf;
+
+                sel_data = wxBase64Encode(s_begin,
+                                          s_buf.length()).utf8_str();
             }
             wxTheClipboard->Close();
         }
