@@ -162,6 +162,7 @@ PYBIND11_EMBEDDED_MODULE(wxglterm_interface, m)
             .def("show", &TermWindow::Show)
             .def("set_window_title", &TermWindow::SetWindowTitle)
             .def("get_color_by_index", &TermWindow::GetColorByIndex)
+            .def_property("selection_data", &TermWindow::GetSelectionData, &TermWindow::SetSelectionData)
             ;
 
     py::class_<TermNetwork, PyTermNetwork<>, std::shared_ptr<TermNetwork>> term_network(m, "TermNetwork", multiple_instance_plugin);

@@ -206,6 +206,9 @@ void operating_system_control(term_data_context_s & term_context,
     } else if (params[0] >= 10 && params[0] <= 19) {
         handle_cap(term_context, "osc_color_request", params);
         return;
+    } else if (params[0] == 52) {
+        handle_cap(term_context, "osc_selection_request", params);
+        return;
     }
 
 

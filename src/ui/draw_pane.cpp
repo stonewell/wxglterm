@@ -4,7 +4,9 @@
 
 #include "term_window.h"
 #include "draw_pane.h"
+
 #include <wx/dcbuffer.h>
+#include <wx/clipbrd.h>
 
 #include "term_context.h"
 #include "term_buffer.h"

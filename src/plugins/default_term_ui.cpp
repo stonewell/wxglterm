@@ -10,6 +10,9 @@
 
 #include "main_dlg.h"
 
+#include <wx/clipbrd.h>
+#include <wx/base64.h>
+
 class __wxGLTermApp : public wxApp {
 public:
     virtual bool OnInit() {
@@ -86,6 +89,46 @@ public:
         return m_MainDlg->GetColorByIndex(index);
     }
 
+    std::string GetSelectionData() override {
+        std::string sel_data {};
+
+        if (wxTheClipboard->Open()) {
+            if (wxTheClipboard->IsSupported( wxDF_TEXT ) ||
+                wxTheClipboard->IsSupported( wxDF_UNICODETEXT) ||
+                wxTheClipboard->IsSupported( wxDF_OEMTEXT)) {
+                wxTextDataObject data;
+                wxTheClipboard->GetData( data );
+
+                sel_data = wxBase64Encode(data.GetText(),
+                                          data.GetTextLength()).utf8_str();
+            }
+            wxTheClipboard->Close();
+        }
+
+        return sel_data;
+    }
+
+    void SetSelectionData(const std::string & sel_data) override {
+        if (sel_data.size() == 0) {
+            m_MainDlg->SetSelectionData("");
+        } else {
+            size_t pos_err = (size_t)-1;
+
+            auto buf = wxBase64Decode(sel_data.c_str(),
+                                      wxBase64DecodeMode_Strict,
+                                      &pos_err);
+
+            if (pos_err != (size_t)-1) {
+                m_MainDlg->SetSelectionData("");
+            } else {
+                auto str_data = wxString::FromUTF8((char*)buf.GetData(), buf.GetDataLen());
+
+                std::cerr << "set selection data:" << str_data.utf8_str() << std::endl;
+
+                m_MainDlg->SetSelectionData(str_data);
+            }
+        }
+    }
 
 private:
     MainDialog * m_MainDlg;

@@ -27,8 +27,12 @@ public:
     uint32_t GetColorByIndex(uint32_t index) {
         return m_DrawPane->GetColorByIndex(index);
     }
+
+    void SetSelectionData(const wxString & data);
 private:
     DrawPane * m_DrawPane;
     WindowManager * m_WindowManager;
     TermWindow * m_TermWindow;
+
+    void OnSetSelectionEvent(wxCommandEvent& event);
 };

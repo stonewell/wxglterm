@@ -1,10 +1,13 @@
 #include <pybind11/embed.h>
 
 #include <iostream>
+#include <iterator>
 
 #include "term_window.h"
 #include "draw_pane.h"
+
 #include <wx/dcbuffer.h>
+#include <wx/clipbrd.h>
 
 #include "term_context.h"
 #include "term_buffer.h"
@@ -30,7 +33,60 @@ void DrawPane::OnKeyDown(wxKeyEvent& event)
 
     TermNetworkPtr network = context->GetTermNetwork();
 
+    std::function<void(const std::vector<unsigned char> & data)> send_data {
+        [network](const std::vector<unsigned char> & data) {
+            try
+            {
+                pybind11::gil_scoped_acquire acquire;
+
+                network->Send(data, data.size());
+            }
+            catch(std::exception & e)
+            {
+                std::cerr << "!!Error Send:"
+                          << std::endl
+                          << e.what()
+                          << std::endl;
+                PyErr_Print();
+            }
+            catch(...)
+            {
+                std::cerr << "!!Error Send"
+                          << std::endl;
+                PyErr_Print();
+            }
+        }
+    };
+
     std::vector<unsigned char> data;
+
+    if (event.GetModifiers() == wxMOD_SHIFT && uc == WXK_NONE && event.GetKeyCode() == WXK_INSERT) {
+        //paste from clipboard
+        if (wxTheClipboard->Open()) {
+            if (wxTheClipboard->IsSupported( wxDF_TEXT ) ||
+                wxTheClipboard->IsSupported( wxDF_UNICODETEXT) ||
+                wxTheClipboard->IsSupported( wxDF_OEMTEXT)) {
+                wxTextDataObject txt_data;
+                wxTheClipboard->GetData( txt_data );
+
+                if (txt_data.GetTextLength() > 0) {
+                    wxString s = txt_data.GetText();
+                    const auto & s_buf = s.utf8_str();
+                    const char * s_begin = s_buf;
+                    const char * s_end = s_begin + s_buf.length();
+
+                    std::copy(s_begin,
+                              s_end,
+                              std::back_inserter(data));
+
+                    send_data(data);
+                }
+            }
+            wxTheClipboard->Close();
+        }
+
+        return;
+    }
 
     if (uc != WXK_NONE && (event.GetModifiers() & wxMOD_ALT)){
         data.push_back('\x1B');
@@ -74,26 +130,7 @@ void DrawPane::OnKeyDown(wxKeyEvent& event)
     if (data.size() == 1 && data[0] == '\x1B')
         data.push_back(c);
 
-    try
-    {
-        pybind11::gil_scoped_acquire acquire;
-
-        network->Send(data, data.size());
-    }
-    catch(std::exception & e)
-    {
-        std::cerr << "!!Error Send:"
-                  << std::endl
-                  << e.what()
-                  << std::endl;
-        PyErr_Print();
-    }
-    catch(...)
-    {
-        std::cerr << "!!Error Send"
-                  << std::endl;
-        PyErr_Print();
-    }
+    send_data(data);
 }
 
 void DrawPane::OnKeyUp(wxKeyEvent& event)
