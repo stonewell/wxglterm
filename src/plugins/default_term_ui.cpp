@@ -79,7 +79,7 @@ public:
     }
 
     void SetWindowTitle(const std::string & title) override {
-        m_MainDlg->SetTitle(title);
+        m_MainDlg->SetTitle(wxString(title.c_str()));
     }
 
 private:
