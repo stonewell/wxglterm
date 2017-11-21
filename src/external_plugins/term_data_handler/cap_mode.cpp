@@ -112,7 +112,7 @@ void enable_mode(term_data_context_s & term_context,
     }
     else {
         std::cerr << "enable mode not implemented, with params:[";
-        std::copy(params.begin(), params.end(), std::ostream_iterator<int>(std::cerr, ","));
+        std::copy(params.begin(), params.end(), std::ostream_iterator<term_data_param_s>(std::cerr, ","));
         std::cerr << "]" << std::endl;
     }
 }
@@ -151,9 +151,14 @@ void disable_mode(term_data_context_s & term_context,
     else if (mode == 7) {
         term_context.auto_wrap = false;
     }
+    else if (mode == 12) {
+        if (term_context.cap_debug) {
+            std::cerr << "disable cursor blinking" << std::endl;
+        }
+    }
     else {
         std::cerr << "disable mode not implemented, with params:[";
-        std::copy(params.begin(), params.end(), std::ostream_iterator<int>(std::cerr, ","));
+        std::copy(params.begin(), params.end(), std::ostream_iterator<term_data_param_s>(std::cerr, ","));
         std::cerr << "]" << std::endl;
     }
 }
