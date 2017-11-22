@@ -127,8 +127,6 @@ public:
             } else {
                 auto str_data = wxString::FromUTF8((char*)buf.GetData(), buf.GetDataLen());
 
-                std::cerr << "set selection data:" << str_data.utf8_str() << std::endl;
-
                 m_MainDlg->SetSelectionData(str_data);
             }
         }

@@ -60,7 +60,13 @@ void DrawPane::OnKeyDown(wxKeyEvent& event)
 
     std::vector<unsigned char> data;
 
-    if (event.GetModifiers() == wxMOD_SHIFT && uc == WXK_NONE && event.GetKeyCode() == WXK_INSERT) {
+    bool paste_data =
+            (event.GetModifiers() == wxMOD_SHIFT && uc == WXK_NONE && event.GetKeyCode() == WXK_INSERT)
+#ifdef __APPLE__
+            || (event.GetModifiers() == wxMOD_CONTROL && uc == 'V')
+#endif
+            ;
+    if (paste_data) {
         //paste from clipboard
         if (wxTheClipboard->Open()) {
             if (wxTheClipboard->IsSupported( wxDF_TEXT ) ||
