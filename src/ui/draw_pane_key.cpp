@@ -2,6 +2,7 @@
 
 #include <iostream>
 #include <iterator>
+#include <functional>
 
 #include "term_window.h"
 #include "draw_pane.h"
