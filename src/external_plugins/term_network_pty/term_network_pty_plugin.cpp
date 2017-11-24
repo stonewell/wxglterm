@@ -119,16 +119,22 @@ public:
                 free(data);
             }};
 
+        bool term_updated = false;
         while(*tmp) {
             if (term_name != "NOT FOUND" && !strncmp(*tmp, "TERM=", strlen("TERM=")))
             {
                 m_Envs.push_back(m_TermName.get());
+                term_updated = true;
             }
             else
             {
                 m_Envs.push_back(*tmp);
             }
             tmp++;
+        }
+
+        if (!term_updated) {
+            m_Envs.push_back(m_TermName.get());
         }
 
         m_Envs.push_back(NULL);
@@ -163,11 +169,11 @@ public:
 
         pid_t pid;
         struct winsize ws {
-           (unsigned short)m_Rows,
-           (unsigned short)m_Cols,
-           0,
-           0
-        };
+            (unsigned short)m_Rows,
+                    (unsigned short)m_Cols,
+                    0,
+                    0
+                    };
 
         std::string shell = GetPluginConfig()->GetEntry("shell", "NOT FOUND");
 
@@ -217,23 +223,23 @@ public:
         m_Rows = row;
         m_Cols = col;
         /*
-        struct winsize {
-               unsigned short ws_row;
-               unsigned short ws_col;
-               unsigned short ws_xpixel;   / unused /
-               unsigned short ws_ypixel;   / unused /
-           };
+          struct winsize {
+          unsigned short ws_row;
+          unsigned short ws_col;
+          unsigned short ws_xpixel;   / unused /
+          unsigned short ws_ypixel;   / unused /
+          };
         */
 
         if (m_MasterFD == -1)
             return;
 
         struct winsize ws {
-           (unsigned short)row,
-           (unsigned short)col,
-           0,
-           0
-        };
+            (unsigned short)row,
+                    (unsigned short)col,
+                    0,
+                    0
+                    };
 
         int result = ioctl(m_MasterFD, TIOCSWINSZ, &ws);
         if (result) {

@@ -34,7 +34,7 @@
     },
 
     "term":{
-	"termcap_dir":"data",
+	"termcap_dir":"@CMAKE_INSTALL_PREFIX@/share/wxglterm/data",
 	"color_theme_dir":"@CMAKE_INSTALL_PREFIX@/share/wxglterm/data/color_theme",
 	"color_theme":{
 	    "name":"zenburn_light"

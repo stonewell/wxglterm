@@ -107,6 +107,7 @@ bool wxGLTermApp::DoInit()
     if (!wxApp::GetInstance()) {
         wxCreateApp();
         wxGetApp().SetAppName("wxglterm");
+        wxGetApp().SetAppDisplayName("wxglterm");
     }
 
     m_PyInterpreter = std::make_shared<py::scoped_interpreter>();
