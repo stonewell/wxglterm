@@ -23,3 +23,5 @@ TARGET_LINK_LIBRARIES(term_network_pty
   ${pybind11_LIBRARIES}
   ${PYTHON_LIBRARIES}
   )
+
+INSTALL(TARGETS term_network_pty DESTINATION share/wxglterm/plugins)

@@ -1,6 +1,12 @@
 CMAKE_MINIMUM_REQUIRED(VERSION 2.8)
 
-PROJECT (wxglTerm)
+CMAKE_POLICY(
+    SET CMP0048 NEW
+    )
+
+PROJECT (wxglTerm
+	VERSION 1.0.0
+	)
 
 IF(APPLE)
   SET(CMAKE_MACOSX_RPATH 1)
@@ -39,6 +45,8 @@ FIND_PACKAGE(wxWidgets 3 REQUIRED
   )
 
 configure_file(wxglterm.json.in wxglterm.json)
+configure_file(wxglterm_install.json.in wxglterm_install.json)
+configure_file(wxglterm.desktop.in wxglterm.desktop)
 
 ADD_SUBDIRECTORY(src/interface)
 ADD_SUBDIRECTORY(src/controller)
@@ -58,4 +66,20 @@ ADD_CUSTOM_COMMAND(OUTPUT ${CMAKE_BINARY_DIR}/termdata.stamp
   VERBATIM
   )
 
+# uninstall target
+if(NOT TARGET uninstall)
+    configure_file(
+        "${CMAKE_CURRENT_SOURCE_DIR}/cmake_uninstall.cmake.in"
+        "${CMAKE_CURRENT_BINARY_DIR}/cmake_uninstall.cmake"
+        IMMEDIATE @ONLY)
+
+    add_custom_target(uninstall
+        COMMAND ${CMAKE_COMMAND} -P ${CMAKE_CURRENT_BINARY_DIR}/cmake_uninstall.cmake)
+endif()
+
 ADD_CUSTOM_TARGET(copy_term_data ALL DEPENDS ${CMAKE_BINARY_DIR}/termdata.stamp wxglterm)
+
+INSTALL(FILES ${CMAKE_BINARY_DIR}/wxglterm.desktop DESTINATION share/applications)
+INSTALL(DIRECTORY ${CMAKE_SOURCE_DIR}/data DESTINATION share/wxglterm)
+INSTALL(DIRECTORY ${CMAKE_SOURCE_DIR}/pysrc/libs DESTINATION share/wxglterm)
+INSTALL(FILES ${CMAKE_BINARY_DIR}/wxglterm_install.json DESTINATION share/wxglterm/etc RENAME wxglterm.json)

@@ -1,0 +1,48 @@
+{
+    "app_debug":false,
+
+    "plugins":{
+	"dir":"@CMAKE_INSTALL_PREFIX@/share/wxglterm/plugins",
+	"python_lib":"@CMAKE_INSTALL_PREFIX@/share/wxglterm/libs",
+	"ui":{
+	    "name":"default_term_ui"
+	},
+	"network":{
+	    "name":"term_network_use_pty",
+	    "config":{
+		"shell":"/bin/bash"
+	    }
+	},
+	"buffer":{
+	    "name":"default_term_buffer"
+	},
+	"data_handler":{
+	    "name":"term_data_handler",
+	    "config":{
+		"cap_debug":false
+	    }
+	},
+	"context":{
+	    "name":"default_term_context"
+	},
+	"show_context_window_task":{
+	    "name":"show_context_window_task"
+	},
+	"color_theme":{
+	    "name":"default_term_color_theme"
+	}
+    },
+
+    "term":{
+	"termcap_dir":"data",
+	"color_theme_dir":"@CMAKE_INSTALL_PREFIX@/share/wxglterm/data/color_theme",
+	"color_theme":{
+	    "name":"zenburn_light"
+	},
+	"use_system_ssh_config":true,
+	"use_ssh_config":"global_ssh_config_file_path",
+	"font": {
+	    "size":14
+	}
+    }
+}

@@ -1,0 +1,7 @@
+[Desktop Entry]
+Name=wxglTerm Terminal
+Version=${wxglTerm_VERSION}
+Comment=A simple terminal emualtor support python plugin
+Exec=${CMAKE_INSTALL_PREFIX}/bin/wxglterm
+Icon=utilities-terminal
+Type=Application

@@ -40,3 +40,6 @@ ADD_CUSTOM_COMMAND(OUTPUT ${CMAKE_BINARY_DIR}/pyplugins.stamp
   "Copying python plugins..."
   VERBATIM
   )
+
+INSTALL(TARGETS wxglterm DESTINATION bin)
+INSTALL(DIRECTORY ${CMAKE_SOURCE_DIR}/pysrc/plugins DESTINATION share/wxglterm)
