@@ -22,6 +22,15 @@
 #include <iostream>
 namespace py = pybind11;
 
+class __wxGLTermApp : public wxApp {
+public:
+    virtual bool OnInit() {
+        return true;
+    }
+};
+
+wxIMPLEMENT_APP_NO_MAIN(__wxGLTermApp);
+
 wxGLTermApp::~wxGLTermApp()
 {
     Cleanup();
@@ -66,13 +75,50 @@ void wxGLTermApp::Cleanup()
 
 bool g_AppDebug = false;
 
+static
+std::string FindConfigFile() {
+    //1. home dir ~/.wxglterm/wxglterm.json
+    wxFileName f(wxStandardPaths::Get().GetUserDataDir(), "wxglterm", "json");
+
+    if (f.IsFileReadable()) {
+        return std::string(f.GetFullPath());
+    }
+
+    //2. prefix/share/wxglterm/etc/wxglterm.json
+    wxFileName f1(wxStandardPaths::Get().GetDataDir(), "wxglterm", "json");
+    f1.AppendDir("etc");
+
+    if (f1.IsFileReadable()) {
+        return std::string(f1.GetFullPath());
+    }
+
+    wxString env_Config;
+    if (wxGetEnv("WXGLTERM_CONFIG_PATH", &env_Config) && wxFileName::IsFileReadable(env_Config)) {
+        return std::string(env_Config.utf8_str());
+    }
+
+    std::cerr << "unable find the config file, use current directory wxglterm.json instead"<< std::endl;
+
+    return "wxglterm.json";
+}
+
 bool wxGLTermApp::DoInit()
 {
+    if (!wxApp::GetInstance()) {
+        wxCreateApp();
+        wxGetApp().SetAppName("wxglterm");
+    }
+
     m_PyInterpreter = std::make_shared<py::scoped_interpreter>();
 
     init_wxglterm_interface_module();
 
-    g_AppConfig->LoadFromFile("wxglterm.json");
+    auto config_path = FindConfigFile();
+
+    if (config_path.length() == 0)
+        return false;
+
+    g_AppConfig->LoadFromFile(config_path.c_str());
 
     g_AppDebug = g_AppConfig->GetEntryBool("app_debug", false);
 

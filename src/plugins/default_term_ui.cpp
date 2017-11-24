@@ -13,13 +13,6 @@
 #include <wx/clipbrd.h>
 #include <wx/base64.h>
 
-class __wxGLTermApp : public wxApp {
-public:
-    virtual bool OnInit() {
-        return true;
-    }
-};
-
 class __wxGLTimer : public wxTimer {
 public:
     __wxGLTimer(TaskPtr task, int miliseconds, bool repeated):
@@ -45,8 +38,6 @@ private:
     int m_Interval;
     bool m_Repeated;
 };
-
-wxIMPLEMENT_APP_NO_MAIN(__wxGLTermApp);
 
 class DefaultTermWindow : public virtual PluginBase, public virtual TermWindow, public WindowManager {
 public:
@@ -211,8 +202,6 @@ private:
 
 TermUIPtr CreateDefaultTermUI()
 {
-    if (!wxApp::GetInstance())
-        wxCreateApp();
     return TermUIPtr{ new DefaultTermUI()};
 }
 
