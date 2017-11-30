@@ -83,3 +83,5 @@ INSTALL(FILES ${CMAKE_BINARY_DIR}/wxglterm.desktop DESTINATION share/application
 INSTALL(DIRECTORY ${CMAKE_SOURCE_DIR}/data DESTINATION share/wxglterm)
 INSTALL(DIRECTORY ${CMAKE_SOURCE_DIR}/pysrc/libs DESTINATION share/wxglterm)
 INSTALL(FILES ${CMAKE_BINARY_DIR}/wxglterm_install.json DESTINATION share/wxglterm/etc RENAME wxglterm.json)
+
+INCLUDE(CPACK)

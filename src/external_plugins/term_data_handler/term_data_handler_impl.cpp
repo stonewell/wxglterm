@@ -3,6 +3,7 @@
 #include <iostream>
 #include <vector>
 #include <list>
+#include <chrono>
 
 #include <unistd.h>
 #include <string.h>
@@ -192,8 +193,18 @@ void TermDataHandlerImpl::ProcessSingleChar(const char * ch) {
 }
 
 void TermDataHandlerImpl::ProcessAllChars(char ch) {
+    std::chrono::high_resolution_clock::time_point start = std::chrono::high_resolution_clock::now();
+
     do {
         ProcessSingleChar(&ch);
+
+        std::chrono::high_resolution_clock::time_point end = std::chrono::high_resolution_clock::now();
+
+        if (std::chrono::duration_cast<std::chrono::microseconds>(end - start).count() >= 50 * 1000) {
+            start = end;
+
+            m_DataContext.term_window->Refresh();
+        }
     } while (!m_Stopped && m_TermDataQueue.try_dequeue(ch));
 
     if (!m_Stopped)
