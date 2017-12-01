@@ -17,7 +17,8 @@ SET(term_data_handler_src
   cap_window_properties.cpp
   cap_osc_colors.cpp
   cap_osc_selection.cpp
-  read_termdata.cpp)
+  read_termdata.cpp
+  read_termdata.h)
 
 SET(PY_STMT_GENERATOR
   ${CMAKE_CURRENT_SOURCE_DIR}/../../../utils/pystmt_generator/pystmt_generator.py)

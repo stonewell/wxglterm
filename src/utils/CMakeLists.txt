@@ -1,17 +1,15 @@
-FILE(GLOB utils_src
-    "*.h"
-    "*.cpp"
+SET(utils_src
+    app_config_impl.cpp  load_module.cpp  string_utils.cpp
+    app_config_impl.h  load_module.h  string_utils.h
     )
 
 IF (WIN32)
-  FILE(GLOB utils_platform_src
-    "platform_specific/windows/*.h"
-    "platform_specific/windows/*.cpp"
+  SET(utils_platform_src
+    platform_specific/windows/load_module_win.cpp
     )
 ELSE()
-  FILE(GLOB utils_platform_src
-    "platform_specific/unix_like/*.h"
-    "platform_specific/unix_like/*.cpp"
+  SET(utils_platform_src
+    platform_specific/unix_like/load_module_unix_like.cpp
     )
 ENDIF()
 
