@@ -14,4 +14,5 @@ public:
     virtual uint32_t GetColorByIndex(uint32_t index) = 0;
     virtual std::string GetSelectionData() = 0;
     virtual void SetSelectionData(const std::string & sel_data) = 0;
+    virtual void Close() = 0;
 };

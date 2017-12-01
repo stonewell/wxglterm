@@ -24,6 +24,7 @@
 #include "term_network.h"
 #include "term_data_handler.h"
 #include "term_context.h"
+#include "term_window.h"
 
 #include "PortableThread.h"
 
@@ -262,6 +263,8 @@ public:
 
         TermDataHandlerPtr term_data_handler =
                 context->GetTermDataHandler();
+        TermWindowPtr term_window =
+                context->GetTermWindow();
 
         for (;;) {
 
@@ -307,6 +310,7 @@ public:
                         continue;
 
                     std::cerr << "read failed\n" << std::endl;
+                    term_window->Close();
                     break;
                 }
 

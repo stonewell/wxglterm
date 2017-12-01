@@ -16,6 +16,10 @@ public:
         PYBIND11_OVERLOAD_PURE_NAME(void, TermWindowBase, "show", Show, );
     }
 
+    void Close() override {
+        PYBIND11_OVERLOAD_PURE_NAME(void, TermWindowBase, "close", Close, );
+    }
+
     void SetWindowTitle(const std::string & title) override {
         PYBIND11_OVERLOAD_PURE_NAME(void, TermWindowBase, "set_window_title", SetWindowTitle, title );
     }

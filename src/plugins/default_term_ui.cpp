@@ -72,6 +72,10 @@ public:
         m_MainDlg->Maximize(true);
     }
 
+    void Close() override {
+        m_MainDlg->Destroy();
+    }
+
     void SetWindowTitle(const std::string & title) override {
         m_MainDlg->SetTitle(wxString(title.c_str()));
     }
