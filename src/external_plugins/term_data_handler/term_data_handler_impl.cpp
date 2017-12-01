@@ -25,6 +25,7 @@
 #include "load_module.h"
 
 #include "cap_manager.h"
+#include "read_termdata.h"
 
 using TermDataQueue = moodycamel::BlockingReaderWriterQueue<unsigned char, 4096>;
 
@@ -254,6 +255,18 @@ void TermDataHandlerImpl::LoadPyDataHandler() {
 
         std::string termcap_dir = GetPluginContext()->GetAppConfig()->GetEntry("/term/termcap_dir", "data");
         std::string term_name = GetPluginContext()->GetAppConfig()->GetEntry("/term/term_name", "xterm-256color");
+
+        std::string file_path = termcap_dir;
+        file_path.append("/").append(term_name).append(".dat");
+
+        std::string term_entry;
+
+        if (!get_entry(file_path, term_name, term_entry)) {
+            std::cerr << "get entry error"
+                      << std::endl;
+        } else {
+            std::cerr << "entry:" << term_entry << std::endl;
+        }
 
         m_DataHandler =
                 LoadPyModuleFromString(module_content,
