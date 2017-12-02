@@ -13,6 +13,7 @@
 
 #include <termios.h>
 #include <fcntl.h>
+#include <signal.h>
 
 #include <string.h>
 
@@ -209,6 +210,7 @@ public:
         }
         // parent
         else {
+            m_PtyPid = pid;
             int flags = fcntl(m_MasterFD, F_GETFL, 0);
             fcntl(m_MasterFD, F_SETFL, flags | O_NONBLOCK);
 
@@ -299,6 +301,7 @@ public:
 
             if (FD_ISSET(m_MasterFD, &except_fd))
             {
+                term_window->Close();
                 break;
             }
 
@@ -328,6 +331,7 @@ private:
     std::vector<unsigned char> m_ReadBuffer;
     PortableThread::CPortableThread m_PtyReaderThread;
     std::vector<char *> m_Envs;
+    pid_t m_PtyPid;
 };
 
 void delete_data(void * data) {
