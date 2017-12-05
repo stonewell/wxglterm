@@ -85,11 +85,7 @@ void expand_cap(const std::string & termcap_file_path,
         }
     }
 
-    std::stringstream ss;
-    std::copy(cap_parts.begin(), cap_parts.end(),
-              std::ostream_iterator<std::string>(ss, ":"));
-
-    expanded_cap_value = ss.str();
+    expanded_cap_value = join(cap_parts, ":");
 }
 
 bool get_entry(const std::string & termcap_file_path,
@@ -135,7 +131,7 @@ bool get_entry(const std::string & termcap_file_path,
 
         auto parts = tokenize(entry.str(), "|:", true);
 
-        std::stringstream cap;
+        std::string cap_value("");
         string_vector_t names;
 
         for(string_vector_t::iterator it=parts.begin(),
@@ -146,8 +142,7 @@ bool get_entry(const std::string & termcap_file_path,
             auto p = *it;
             if (p == ":") {
                 if (it + 1 != it_end) {
-                    std::copy(it + 1, it_end,
-                              std::ostream_iterator<std::string>(cap, ""));
+                    cap_value = join(it + 1, it_end, "");
                 }
                 break;
             } else if (p == "|") {
@@ -156,7 +151,6 @@ bool get_entry(const std::string & termcap_file_path,
             names.push_back(p);
         }
 
-        std::string cap_value = cap.str();
         bool term_name_found = false;
         if (std::find(names.begin(), names.end(), term_name) != names.end()) {
             term_name_found = true;

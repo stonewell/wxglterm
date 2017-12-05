@@ -3,6 +3,7 @@
 #include "term_cell.h"
 
 #include "cap_manager.h"
+#include "string_utils.h"
 
 #include <iostream>
 #include <iterator> // for ostream_iterator
@@ -111,8 +112,8 @@ void enable_mode(term_data_context_s & term_context,
         term_context.auto_wrap = true;
     }
     else {
-        std::cerr << "enable mode not implemented, with params:[";
-        std::copy(params.begin(), params.end(), std::ostream_iterator<term_data_param_s>(std::cerr, ","));
+        std::cerr << "enable mode not implemented, with params:["
+                  << join(params, ",");
         std::cerr << "]" << std::endl;
     }
 }
@@ -157,8 +158,8 @@ void disable_mode(term_data_context_s & term_context,
         }
     }
     else {
-        std::cerr << "disable mode not implemented, with params:[";
-        std::copy(params.begin(), params.end(), std::ostream_iterator<term_data_param_s>(std::cerr, ","));
+        std::cerr << "disable mode not implemented, with params:["
+                  << join(params, ",");
         std::cerr << "]" << std::endl;
     }
 }

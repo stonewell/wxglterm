@@ -26,6 +26,7 @@
 
 #include "cap_manager.h"
 #include "read_termdata.h"
+#include "parse_termdata.h"
 
 using TermDataQueue = moodycamel::BlockingReaderWriterQueue<unsigned char, 4096>;
 
@@ -268,6 +269,8 @@ void TermDataHandlerImpl::LoadPyDataHandler() {
             std::cerr << "entry:" << term_entry << std::endl;
         }
 
+        auto cap = parse_cap(term_entry);
+
         m_DataHandler =
                 LoadPyModuleFromString(module_content,
                                        "term_data_handler_impl",
@@ -278,6 +281,12 @@ void TermDataHandlerImpl::LoadPyDataHandler() {
         std::cerr << "load python data handler failed!"
                   << std::endl
                   << e.what()
+                  << std::endl;
+    }
+    catch(std::string & e) {
+        std::cerr << "load python data handler failed!"
+                  << std::endl
+                  << e
                   << std::endl;
     }
     catch(...)

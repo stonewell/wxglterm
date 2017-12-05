@@ -5,6 +5,7 @@
 #include "term_network.h"
 #include "cap_manager.h"
 #include "term_cell.h"
+#include "string_utils.h"
 
 #include <string.h>
 #include <iostream>
@@ -17,7 +18,7 @@ void osc_selection_request(term_data_context_s & term_context,
                            const term_data_param_list & params){
     if (params[0] == 52) {
         std::string buffer_index = "0";
-        std::stringstream ss_data;
+        std::string ss_data;
 
         for(auto it = params.begin() + 1,
                     it_end = params.end();
@@ -25,13 +26,12 @@ void osc_selection_request(term_data_context_s & term_context,
             it++) {
             buffer_index = (const char*)*it;
             if (!strncmp(*it, ";", 1)) {
-                std::copy(it + 1, it_end,
-                          std::ostream_iterator<term_data_param_s>(ss_data, ""));
+                ss_data = join(it + 1, it_end, "");
                 break;
             }
         }
 
-        if (ss_data.str() == "?") {
+        if (ss_data == "?") {
             std::string sel_data = term_context.term_window->GetSelectionData();
 
             std::stringstream ss;
@@ -41,7 +41,7 @@ void osc_selection_request(term_data_context_s & term_context,
 
             send(term_context, ss.str().c_str());
         } else{
-            term_context.term_window->SetSelectionData(ss_data.str());
+            term_context.term_window->SetSelectionData(ss_data);
         }
     }
 }

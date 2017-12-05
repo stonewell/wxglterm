@@ -11,6 +11,7 @@
 #include <sstream>
 
 #include "char_width.h"
+#include "string_utils.h"
 
 using cap_map_t = std::unordered_map<std::string, cap_func_t>;
 
@@ -34,7 +35,7 @@ term_cap_s::term_cap_s(const std::string & name,
 
 term_data_context_s::term_data_context_s():
     in_status_line(false)
-    , auto_wrap(false)
+    , auto_wrap(true)
     , origin_mode(false)
     , dec_mode(false)
     , force_column(false)
@@ -61,15 +62,15 @@ void handle_cap(term_data_context_s & term_context, const std::string & cap_name
     if (term_context.cap_debug) {
         std::cerr << "handle cap:" << cap_name;
         std::cerr << ",params:[";
-        std::copy(params.begin(), params.end(), std::ostream_iterator<term_data_param_s>(std::cerr, ","));
+        std::cerr << join(params, ",");
         std::cerr << "]" << std::endl;
     }
 
     if (it != CapFuncs.end()) {
         it->second(term_context, params);
     } else {
-        std::cerr << "unknown cap found:" << cap_name << ", with params:[";
-        std::copy(params.begin(), params.end(), std::ostream_iterator<term_data_param_s>(std::cerr, ","));
+        std::cerr << "unknown cap found:" << cap_name << ", with params:["
+                  << join(params, ",");
         std::cerr << "]" << std::endl;
     }
 }
@@ -187,21 +188,19 @@ void operating_system_control(term_data_context_s & term_context,
                               const term_data_param_list & params)
 {
     if (params[0] >= 0 && params[0] <= 3) {
-        std::stringstream ss;
-        std::copy(params.begin() + 1, params.end(),
-                  std::ostream_iterator<term_data_param_s>(ss, ""));
+        std::string ss = join(params.begin() + 1, params.end(), "");
 
         if (term_context.cap_debug) {
             std::cerr << "handle status line:"
                       << params[0]
                       << ",params:["
-                      << ss.str()
+                      << ss
                       << "]" << std::endl;
         }
 
         set_window_properties(term_context,
                               params[0],
-                              ss.str());
+                              ss);
         return;
     } else if (params[0] >= 10 && params[0] <= 19) {
         handle_cap(term_context, "osc_color_request", params);
@@ -212,28 +211,25 @@ void operating_system_control(term_data_context_s & term_context,
     }
 
 
-    std::cerr << "unimplemented operating system control:" << params[0] << ", with params:[";
-    std::copy(params.begin() + 1, params.end(),
-              std::ostream_iterator<term_data_param_s>(std::cerr, ""));
+    std::cerr << "unimplemented operating system control:" << params[0] << ", with params:["
+              << join(params.begin() + 1, params.end(), "");
     std::cerr << "]" << std::endl;
 }
 
 void operating_system_control_0(term_data_context_s & term_context,
                                 const term_data_param_list & params)
 {
-    std::stringstream ss;
-    std::copy(params.begin(), params.end(),
-              std::ostream_iterator<term_data_param_s>(ss, ""));
+    std::string ss = join(params, "");
 
     if (term_context.cap_debug) {
         std::cerr << "handle status line:"
                   << 0
                   << ",params:["
-                  << ss.str()
+                  << ss
                   << "]" << std::endl;
     }
 
     set_window_properties(term_context,
                           0,
-                          ss.str());
+                          ss);
 }
