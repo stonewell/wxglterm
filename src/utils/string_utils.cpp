@@ -1,8 +1,5 @@
 #include "string_utils.h"
 
-#include <sstream>
-#include <iterator>
-
 string_vector_t tokenize(const std::string& str,
                          const std::string& delimiters,
                          bool include_delimiter)
@@ -55,20 +52,4 @@ std::string strip(const std::string & txt,
         return txt;
 
     return txt.substr(pos, last_pos + 1 - pos);
-}
-
-template<class InputIterator, class value_type>
-std::string join(const InputIterator & begin,
-                 const InputIterator & end,
-                 const std::string & delimiters) {
-    std::stringstream ss1;
-    std::copy(begin, end,
-              std::ostream_iterator<value_type>(ss1, delimiters.c_str()));
-
-    return ss1.str();
-}
-
-template<class v_t, class value_type>
-std::string join(const v_t & v, const std::string & delimiters) {
-    return join<v_t::iterator, value_type>(v.begin(), v.end(), delimiters);
 }
