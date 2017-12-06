@@ -222,6 +222,9 @@ public:
         if (write(m_MasterFD, &data[0], n) <= 0) {
             std::cerr << "write failed:" << strerror(errno) << std::endl;
         }
+
+        if (tcdrain(m_MasterFD))
+            std::cerr << "tcdrain failed:" << strerror(errno) << std::endl;
     }
 
     void Resize(uint32_t row, uint32_t col) override {
