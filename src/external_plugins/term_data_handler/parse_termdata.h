@@ -66,6 +66,17 @@ public:
     using ordered_cap_name_keys_t = std::vector<std::tuple<std::string, std::regex, bool>>;
 
     ordered_cap_name_keys_t ordered_cap_name_keys;
+
+    friend std::ostream& operator<<(std::ostream& os, const ControlDataState& dt) {
+        for(auto & p : dt.cap_name) {
+            os << "[" <<p.first << ", " << std::get<0>(p.second) << "]" << std::endl;
+        }
+
+        for(auto & p : dt.next_states) {
+            os << "[" << (int)p.first << "," << p.first << "]" << std::endl;
+        }
+        return os;
+    }
 };
 
 class DigitState : public ControlDataState {

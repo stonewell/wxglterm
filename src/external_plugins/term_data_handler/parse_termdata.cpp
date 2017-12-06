@@ -16,10 +16,10 @@ CapPtr parse_cap(const std::string & cap_str)
         if (field.length() == 0)
             continue;
 
-        if (field.find("=") > 0) {
+        if (field.find("=") != std::string::npos) {
             parse_str_cap(field,
                           cap);
-        } else if (field.find("#") > 0) {
+        } else if (field.find("#") != std::string::npos) {
             auto parts = tokenize(field, "#");
 
             cap->flags.emplace(parts[0], atoi(parts[1].c_str()));
@@ -86,7 +86,7 @@ void build_parser_state_machine(CapStringValuePtr & cap_str_value,
     bool const_digit_state = false;
     std::string const_digit;
 
-    while (pos < value.length()) {
+     while (pos < value.length()) {
         char c = value[pos];
 
         switch (c) {

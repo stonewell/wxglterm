@@ -113,6 +113,7 @@ void TermDataHandlerImpl::ProcessSingleCharNative(const char * ch) {
 
 void TermDataHandlerImpl::HandleCap(bool check_unknown, char c) {
     CapNameMapValue cap_tuple;
+    (void)c;
 
     auto result = m_State->get_cap(m_ParseContext->params, cap_tuple);
 
@@ -141,9 +142,6 @@ void TermDataHandlerImpl::HandleCap(bool check_unknown, char c) {
             m_ControlData.clear();
         }
     } else if (check_unknown && m_ControlData.size() > 0) {
-        if (!m_Cap->control_data_start_state->handle(m_ParseContext, c)) {
-            std::cerr << "unknown control data:" << join(m_ControlData, "") << std::endl;
-        }
         m_CapStateStack.push_front(std::make_tuple(m_State,
                                                    m_ParseContext->params,
                                                    m_ControlData));
