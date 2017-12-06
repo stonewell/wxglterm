@@ -180,7 +180,7 @@ ControlDataStatePtr AnyState::handle(ControlDataParserContextPtr context, char c
     if (next_state)
         return next_state;
 
-    context->push_param(c);
+    context->push_param(std::string(&c, 1));
 
     return shared_from_this();
 }

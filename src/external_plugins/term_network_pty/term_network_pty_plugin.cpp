@@ -219,7 +219,9 @@ public:
     }
 
     void Send(const std::vector<unsigned char> & data, size_t n) override {
-        write(m_MasterFD, &data[0], n);
+        if (write(m_MasterFD, &data[0], n) <= 0) {
+            std::cerr << "write failed:" << strerror(errno) << std::endl;
+        }
     }
 
     void Resize(uint32_t row, uint32_t col) override {
