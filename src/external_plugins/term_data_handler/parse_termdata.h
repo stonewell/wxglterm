@@ -52,7 +52,7 @@ public:
     virtual DigitStatePtr add_digit_state(DigitStatePtr digit_state);
     virtual void reset();
     virtual ControlDataStatePtr handle(ControlDataParserContextPtr context, char c);
-    virtual bool get_cap(term_data_param_vector_t params,
+    virtual bool get_cap(const term_data_param_vector_t & params,
                          CapNameMapValue & cap_name_value);
 
     void init_ordered_cap_name_keys();

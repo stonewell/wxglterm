@@ -21,14 +21,9 @@
 #include "PortableThread.h"
 
 #include "term_data_handler_impl.h"
-#include "read_write_queue.h"
+#include "term_data_handler_impl_decl.h"
+
 #include "load_module.h"
-
-#include "cap_manager.h"
-#include "read_termdata.h"
-#include "parse_termdata.h"
-
-using TermDataQueue = moodycamel::BlockingReaderWriterQueue<unsigned char, 4096>;
 
 namespace py = pybind11;
 
@@ -44,86 +39,7 @@ public:
     PyGILState_STATE gstate;
 };
 
-
 #pragma GCC visibility push(hidden)
-class TermDataHandlerImpl
-        : public virtual Plugin
-        , public virtual TermDataHandler
-        , public virtual PortableThread::IPortableRunnable
-{
-public:
-    TermDataHandlerImpl() :
-        Plugin()
-        , m_Name("term_data_handler")
-        , m_Description("terminal data handler")
-        , m_Version(1)
-        , m_DataHandlerThread(this)
-        , m_TermDataQueue {4096}
-        , m_Stopped{true}
-    {
-    }
-
-    virtual ~TermDataHandlerImpl() = default;
-
-    MultipleInstancePluginPtr NewInstance() override {
-        return MultipleInstancePluginPtr{new TermDataHandlerImpl};
-    }
-
-    void InitPlugin(ContextPtr context,
-                    AppConfigPtr plugin_config) override {
-        m_Context = context;
-        m_PluginConfig = plugin_config;
-
-        bool app_debug = context->GetAppConfig()->GetEntryBool("app_debug", false);
-
-        m_DataContext.cap_debug = plugin_config->GetEntryBool("cap_debug", app_debug);
-
-        LoadPyDataHandler();
-    }
-
-    unsigned long Run(void * /*pArgument*/) override;
-    void OnData(const std::vector<unsigned char> & data, size_t data_len) override;
-    void Start() override;
-    void Stop() override;
-
-    const char * GetName() override {
-        return m_Name.c_str();
-    }
-    const char * GetDescription() override {
-        return m_Description.c_str();
-    }
-
-    uint32_t GetVersion() override {
-        return m_Version;
-    }
-
-    ContextPtr GetPluginContext() const override {
-        return m_Context;
-    }
-    AppConfigPtr GetPluginConfig() const override {
-        return m_PluginConfig;
-    }
-private:
-    std::string m_Name;
-    std::string m_Description;
-    uint32_t m_Version;
-
-protected:
-    ContextPtr m_Context;
-    AppConfigPtr m_PluginConfig;
-
-private:
-    void LoadPyDataHandler();
-    void ProcessSingleChar(const char * ch);
-    void ProcessAllChars(char ch);
-
-    PortableThread::CPortableThread m_DataHandlerThread;
-    TermDataQueue m_TermDataQueue;
-    bool m_Stopped;
-    py::object m_DataHandler;
-
-    term_data_context_s m_DataContext;
-};
 
 TermDataHandlerPtr CreateTermDataHandler()
 {
@@ -131,6 +47,14 @@ TermDataHandlerPtr CreateTermDataHandler()
 }
 
 void TermDataHandlerImpl::ProcessSingleChar(const char * ch) {
+    if (m_UsePythonImpl) {
+        ProcessSingleCharPy(ch);
+    } else {
+        ProcessSingleCharNative(ch);
+    }
+}
+
+void TermDataHandlerImpl::ProcessSingleCharPy(const char * ch) {
     std::vector<term_data_param_s> int_params;
     std::string str_cap_name {};
     bool has_cap = false;
@@ -256,20 +180,6 @@ void TermDataHandlerImpl::LoadPyDataHandler() {
 
         std::string termcap_dir = GetPluginContext()->GetAppConfig()->GetEntry("/term/termcap_dir", "data");
         std::string term_name = GetPluginContext()->GetAppConfig()->GetEntry("/term/term_name", "xterm-256color");
-
-        std::string file_path = termcap_dir;
-        file_path.append("/").append(term_name).append(".dat");
-
-        std::string term_entry;
-
-        if (!get_entry(file_path, term_name, term_entry)) {
-            std::cerr << "get entry error"
-                      << std::endl;
-        } else {
-            std::cerr << "entry:" << term_entry << std::endl;
-        }
-
-        auto cap = parse_cap(term_entry);
 
         m_DataHandler =
                 LoadPyModuleFromString(module_content,

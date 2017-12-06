@@ -96,7 +96,7 @@ void ControlDataState::init_ordered_cap_name_keys()
               });
 }
 
-bool ControlDataState::get_cap(term_data_param_vector_t params,
+bool ControlDataState::get_cap(const term_data_param_vector_t & params,
                                CapNameMapValue & cap_name_value) {
 #define CHECK_AND_RETURN(name) \
     { \

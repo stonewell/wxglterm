@@ -22,7 +22,9 @@ SET(term_data_handler_src
   parse_termdata.cpp
   parse_termdata.h
   term_data_param.h
-  cap_state.cpp)
+  cap_state.cpp
+  term_data_handler_impl_decl.h
+  term_data_handler_impl_native.cpp)
 
 SET(PY_STMT_GENERATOR
   ${CMAKE_CURRENT_SOURCE_DIR}/../../../utils/pystmt_generator/pystmt_generator.py)

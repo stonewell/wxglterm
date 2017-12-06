@@ -38,6 +38,8 @@ void clear_entry_map(entry_map_t & m) {
     for(auto & it : v) {
         delete it;
     }
+
+    m.clear();
 }
 
 bool get_entry(const std::string & termcap_file_path,
