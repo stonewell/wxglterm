@@ -29,3 +29,5 @@ template<class v_t, class value_type = typename v_t::value_type>
 std::string join(const v_t & v, const std::string & delimiters) {
     return join<typename v_t::const_iterator, value_type>(v.begin(), v.end(), delimiters);
 }
+
+std::string replace(std::string str, const std::string & target, const std::string & repl);

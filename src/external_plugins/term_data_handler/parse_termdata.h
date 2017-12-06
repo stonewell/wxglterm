@@ -4,6 +4,7 @@
 #include <unordered_map>
 #include <string>
 #include <tuple>
+#include <regex>
 
 #include "term_data_param.h"
 #include "string_utils.h"
@@ -37,8 +38,12 @@ public:
 
 using ControlDataParserContextPtr = std::shared_ptr<ControlDataParserContext>;
 
-class ControlDataState {
+class ControlDataState : public std::enable_shared_from_this<ControlDataState> {
 public:
+    ControlDataState() :
+        ordered_cap_name_keys_initialized {false}
+    {
+    }
     virtual ~ControlDataState() {}
 
 public:
@@ -46,30 +51,49 @@ public:
     virtual AnyStatePtr add_any_state(AnyStatePtr any_state);
     virtual DigitStatePtr add_digit_state(DigitStatePtr digit_state);
     virtual void reset();
-    virtual ControlDataStatePtr handle(ControlDataParserContext context, char c);
+    virtual ControlDataStatePtr handle(ControlDataParserContextPtr context, char c);
     virtual bool get_cap(term_data_param_vector_t params,
                          CapNameMapValue & cap_name_value);
+
+    void init_ordered_cap_name_keys();
 public:
     CapNameMap cap_name;
     CapStateMap next_states;
     DigitStatePtr digit_state;
     AnyStatePtr any_state;
+
+    bool ordered_cap_name_keys_initialized;
+    using ordered_cap_name_keys_t = std::vector<std::tuple<std::string, std::regex, bool>>;
+
+    ordered_cap_name_keys_t ordered_cap_name_keys;
 };
 
 class DigitState : public ControlDataState {
 public:
     DigitState() :
-        digit_base {10} {
+        digit_base {10}
+        , has_value {false}
+        , value {0}
+    {
     }
 
     virtual ~DigitState() {}
 
+    virtual ControlDataStatePtr handle(ControlDataParserContextPtr context, char c);
+
     int digit_base;
+    bool has_value;
+    int value;
+
+    virtual void reset() {
+        has_value = false;
+    }
 };
 
 class AnyState : public ControlDataState {
 public:
     virtual ~AnyState() {}
+    virtual ControlDataStatePtr handle(ControlDataParserContextPtr context, char c);
 };
 
 using flag_map_t = std::unordered_map<std::string, uint32_t>;

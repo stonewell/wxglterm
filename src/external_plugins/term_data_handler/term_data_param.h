@@ -18,6 +18,30 @@ struct term_data_param_s {
     {
     }
 
+    term_data_param_s(int v) :
+        str_value {}
+        , has_str_value{false}
+        , int_value {v}
+        , has_int_value {true}
+    {
+    }
+
+    term_data_param_s(const std::string & v) :
+        str_value {v}
+        , has_str_value{true}
+        , int_value {0}
+        , has_int_value {false}
+    {
+    }
+
+    term_data_param_s(const term_data_param_s & v) :
+        str_value {v.str_value}
+        , has_str_value{v.has_str_value}
+        , int_value {v.int_value}
+        , has_int_value {v.has_int_value}
+    {
+    }
+
     operator int () const {
         return int_value;
     }
@@ -35,6 +59,14 @@ struct term_data_param_s {
             os << "None Value";
 
         return os;
+    }
+
+    term_data_param_s & operator = (const term_data_param_s & v) {
+        this->str_value = v.str_value;
+        this->has_str_value = v.has_str_value;
+        this->int_value = v.int_value;
+        this->has_int_value = v.has_int_value;
+        return *this;
     }
 };
 
