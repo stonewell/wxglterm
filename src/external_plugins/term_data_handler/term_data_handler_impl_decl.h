@@ -9,7 +9,7 @@
 
 using TermDataQueue = moodycamel::BlockingReaderWriterQueue<unsigned char, 4096>;
 
-class TermDataHandlerImpl
+class __attribute__ ((visibility ("hidden"))) TermDataHandlerImpl
         : public virtual Plugin
         , public virtual TermDataHandler
         , public virtual PortableThread::IPortableRunnable
