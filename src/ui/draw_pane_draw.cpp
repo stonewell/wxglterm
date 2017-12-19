@@ -154,7 +154,17 @@ void DrawPane::CalculateClipRegion(wxRegion & clipRegion, TermBufferPtr buffer)
     }
 }
 
-void DrawPane::DoPaint(wxDC & dc, TermBufferPtr buffer, bool full_paint)
+static
+bool contains(const std::vector<uint32_t> & rowsToDraw, uint32_t row) {
+    for(auto & it : rowsToDraw) {
+        if (it == row)
+            return true;
+    }
+
+    return false;
+}
+
+void DrawPane::DoPaint(wxDC & dc, TermBufferPtr buffer, bool full_paint, const std::vector<uint32_t> & rowsToDraw)
 {
     __DCAttributesChanger changer(&dc);
 
@@ -181,6 +191,9 @@ void DrawPane::DoPaint(wxDC & dc, TermBufferPtr buffer, bool full_paint)
 
     for (auto row = 0u; row < rows; row++) {
         auto line = buffer->GetLine(row);
+
+        if (rowsToDraw.size() > 0 && !contains(rowsToDraw, row))
+            continue;
 
         if (!full_paint &&
             row == line->GetLastRenderLineIndex()

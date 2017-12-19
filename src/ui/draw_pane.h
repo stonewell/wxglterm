@@ -32,7 +32,10 @@ private:
     wxFont * GetFont();
 
     void PaintOnDemand();
-    void DoPaint(wxDC & dc, TermBufferPtr buffer, bool full_paint);
+    void DoPaint(wxDC & dc
+                 , TermBufferPtr buffer
+                 , bool full_paint
+                 , const std::vector<uint32_t> & rowsToDraw = std::vector<uint32_t>());
     void CalculateClipRegion(wxRegion & clipRegion, TermBufferPtr buffer);
 
     void DrawContent(wxDC &dc,

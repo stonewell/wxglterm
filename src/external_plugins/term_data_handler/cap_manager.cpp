@@ -112,7 +112,8 @@ void output_char(term_data_context_s & term_context, char data, bool insert) {
                 continue;
             }
 
-            if (!term_context.auto_wrap && term_context.term_buffer->GetCol() >= term_context.term_buffer->GetCols())
+            if (!term_context.auto_wrap
+                && term_context.term_buffer->GetCol() >= term_context.term_buffer->GetCols())
                 term_context.term_buffer->SetCol(term_context.term_buffer->GetCols() - 1);
 
             term_context.term_buffer->SetCurCellData(static_cast<uint32_t>(it),

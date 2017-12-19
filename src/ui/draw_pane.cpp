@@ -104,7 +104,7 @@ void DrawPane::RequestRefresh()
     //     upd++;
     // }
 
-    //m_RefreshTimer.Start(20);
+    //m_RefreshTimer.StartOnce(20);
 }
 
 void DrawPane::OnEraseBackground(wxEraseEvent & /*event*/)
@@ -123,13 +123,6 @@ void DrawPane::OnPaint(wxPaintEvent & /*event*/)
     if (!buffer)
         return;
 
-    int refreshNow = 0;
-
-    {
-        wxCriticalSectionLocker locker(m_RefreshLock);
-        refreshNow = m_RefreshNow;
-    }
-
     {
         __ScopeLocker locker(buffer);
         wxAutoBufferedPaintDC dc(this);
@@ -137,17 +130,34 @@ void DrawPane::OnPaint(wxPaintEvent & /*event*/)
         TermCellPtr cell = buffer->GetCurCell();
         if (cell)
             cell->AddMode(TermCell::Cursor);
-        DoPaint(dc, buffer, true);
+        else {
+            TermLinePtr line = buffer->GetCurLine();
+
+            if (line)
+                line->SetModified(true);
+        }
+
+        wxRegion upd(GetUpdateRegion()); // get the update rect list
+
+        auto rows = buffer->GetRows();
+
+        std::vector<uint32_t> updateRows;
+        wxRect clientSize = GetClientSize();
+
+        for (auto row = 0u; row < rows; row++) {
+            auto line = buffer->GetLine(row);
+
+            wxRect rowRect(0, PADDING + row * m_LineHeight, clientSize.GetWidth(), m_LineHeight);
+
+            if (wxOutRegion != upd.Contains(rowRect)) {
+                updateRows.push_back(row);
+            }
+        }
+
+        DoPaint(dc, buffer, true, updateRows);
 
         if (cell)
             cell->RemoveMode(TermCell::Cursor);
-    }
-
-    {
-        wxCriticalSectionLocker locker(m_RefreshLock);
-        if (refreshNow && m_AppDebug)
-            std::cout << "on paint end refresh:" << m_RefreshNow << "," << refreshNow << std::endl;
-        m_RefreshNow -= refreshNow;
     }
 }
 
@@ -283,7 +293,7 @@ void DrawPane::OnRefreshEvent(wxCommandEvent& event)
 
     //     wxPostEvent(this, event);
     // }
-    m_RefreshTimer.Start(20);
+    m_RefreshTimer.StartOnce(20);
 }
 
 TermBufferPtr DrawPane::EnsureTermBuffer()
