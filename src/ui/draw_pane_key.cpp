@@ -3,6 +3,8 @@
 #include <iostream>
 #include <iterator>
 #include <functional>
+#include <locale>
+#include <codecvt>
 
 #include "term_window.h"
 #include "draw_pane.h"
@@ -16,6 +18,9 @@
 #include "term_cell.h"
 #include "term_network.h"
 #include "color_theme.h"
+
+static
+std::wstring_convert<std::codecvt_utf8<wchar_t>, wchar_t> wcharconv;
 
 void DrawPane::OnKeyDown(wxKeyEvent& event)
 {
@@ -163,7 +168,10 @@ void DrawPane::OnChar(wxKeyEvent& event)
 
     std::vector<unsigned char> data;
 
-    data.push_back(uc);
+    std::string bytes = wcharconv.to_bytes(uc);
+
+    for(std::string::size_type i=0; i < bytes.length(); i++)
+        data.push_back(bytes[i]);
 
     try
     {
