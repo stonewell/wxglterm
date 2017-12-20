@@ -3,6 +3,7 @@
 #include <wx/wx.h>
 #include "term_cell.h"
 #include <bitset>
+#include <vector>
 
 class DrawPane : public wxPanel {
 public:

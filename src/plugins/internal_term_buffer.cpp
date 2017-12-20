@@ -196,6 +196,9 @@ void __InternalTermBuffer::SetCurCellData(uint32_t ch,
         }
 
         TermCellPtr cell = GetCurCell();
+
+        if (!cell) return;
+
         cell->Reset(cell_template);
         cell->SetChar((wchar_t)ch);
         cell->SetWideChar(wide_char);
