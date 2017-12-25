@@ -13,6 +13,7 @@
 #include "term_network.h"
 #include "color_theme.h"
 #include "scope_locker.h"
+#include "char_width.h"
 
 #include <bitset>
 
@@ -52,7 +53,7 @@ void DrawPane::DrawContent(wxDC &dc,
                            uint16_t mode,
                            wxCoord & last_x,
                            wxCoord & last_y,
-                           wxCoord y)
+                           bool drawBySingleChar)
 {
     wxSize content_size = dc.GetMultiLineTextExtent(content);
     bool multi_line = content.Find('\n', true) > 0;
@@ -123,16 +124,36 @@ void DrawPane::DrawContent(wxDC &dc,
 
     dc.SetTextForeground(m_ColorTable[fore_color_use]);
     dc.SetTextBackground(m_ColorTable[back_color_use]);
-    dc.DrawText(content, last_x, last_y);
 
-    if (multi_line)
-    {
-        last_x = PADDING + content_last_line_size.GetWidth();
+    if (!drawBySingleChar) {
+        dc.DrawText(content, last_x, last_y);
+
+        if (multi_line)
+        {
+            last_x = PADDING + content_last_line_size.GetWidth();
+        } else {
+            last_x += content_size.GetWidth();
+        }
+
+        last_y += content_size.GetHeight();
     } else {
-        last_x += content_size.GetWidth();
+        for(const auto & c : content) {
+            if (c == '\n') {
+                last_y += m_LineHeight;
+                last_x = PADDING;
+                continue;
+            }
+
+            auto w = char_width(c);
+
+            if (!w || w == (size_t)-1) continue;
+
+            dc.DrawText(c, last_x, last_y);
+
+            last_x += w * m_CellWidth;
+        }
     }
 
-    last_y = y;
     content.Clear();
     last_fore_color = fore_color;
     last_back_color = back_color;
@@ -198,12 +219,10 @@ void DrawPane::DoPaint(wxDC & dc, TermBufferPtr buffer, bool full_paint, const s
     for (auto row = 0u; row < rows; row++) {
         auto line = buffer->GetLine(row);
 
-        if (rowsToDraw.size() > 0 && !contains(rowsToDraw, row))
-            continue;
-
-        if (!full_paint &&
-            row == line->GetLastRenderLineIndex()
-            && !line->IsModified())
+        if ((!full_paint &&
+             row == line->GetLastRenderLineIndex()
+             && !line->IsModified())
+            || (rowsToDraw.size() > 0 && !contains(rowsToDraw, row)))
         {
             y += m_LineHeight;
 
@@ -218,8 +237,7 @@ void DrawPane::DoPaint(wxDC & dc, TermBufferPtr buffer, bool full_paint, const s
                             TermCell::DefaultBackColorIndex,
                             0,
                             last_x,
-                            last_y,
-                            y);
+                            last_y);
             }
 
             last_x = PADDING;
@@ -263,9 +281,8 @@ void DrawPane::DoPaint(wxDC & dc, TermBufferPtr buffer, bool full_paint, const s
                                 back_color,
                                 mode,
                                 last_x,
-                                last_y,
-                                y);
-
+                                last_y);
+                    last_y = y;
                 }
 
                 content.append(ch);
@@ -291,8 +308,8 @@ void DrawPane::DoPaint(wxDC & dc, TermBufferPtr buffer, bool full_paint, const s
                         TermCell::DefaultBackColorIndex,
                         0,
                         last_x,
-                        last_y,
-                        y);
+                        last_y);
+
             last_x = PADDING;
             last_y = y;
         }

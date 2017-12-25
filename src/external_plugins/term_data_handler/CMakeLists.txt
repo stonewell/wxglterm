@@ -5,8 +5,6 @@ SET(term_data_handler_src
   term_data_handler_impl.h
   cap_manager.cpp
   cap_manager.h
-  char_width.cpp
-  char_width.h
   cap_cursor.cpp
   cap_attrs.cpp
   cap_query.cpp

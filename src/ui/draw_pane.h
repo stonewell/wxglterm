@@ -59,7 +59,7 @@ private:
                      uint16_t mode,
                      wxCoord & last_x,
                      wxCoord & last_y,
-                     wxCoord y);
+                     bool drawBySingleChar = false);
 
     void InitColorTable();
 

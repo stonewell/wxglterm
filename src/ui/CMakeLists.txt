@@ -14,4 +14,5 @@ TARGET_INCLUDE_DIRECTORIES(wxglterm_ui PRIVATE
     "${PYTHON_INCLUDE_DIRS}"
     "../controller"
     "../interface"
+    "../utils"
     )
