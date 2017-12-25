@@ -18,7 +18,7 @@ def convert_color(c):
     r = c['Red Component']
     g = c['Green Component']
     b = c['Blue Component']
-    a = c['Alpha Component']
+    a = c['Alpha Component'] if 'Alpha Component' in c else 1
 
     result = [int(float(x) * 255) & 0xFF for x in [r, g, b, a]]
     result = map(lambda x: hex(x).replace('0x', ''), result)
