@@ -48,7 +48,7 @@ DrawPane::DrawPane(wxFrame * parent, TermWindow * termWindow) : wxPanel(parent)
         , m_RefreshNow(0)
         , m_RefreshLock()
         , m_TermWindow(termWindow)
-        , m_Font(nullptr)
+        , m_Fonts{nullptr}
         , m_RefreshTimer(this, TIMER_ID)
         , m_Buffer{}
         , m_AppDebug{false}
@@ -207,28 +207,46 @@ void DrawPane::OnSize(wxSizeEvent& /*event*/)
     RequestRefresh();
 }
 
-wxFont * DrawPane::GetFont()
+wxFont * DrawPane::GetFont(FontCategoryEnum font_category)
 {
-    if (m_Font)
-        return m_Font;
+    if (font_category >= DrawPane::FontCategoryCount)
+        font_category = DrawPane::Default;
+
+    if (m_Fonts[font_category])
+        return m_Fonts[font_category];
 
     TermContextPtr context = std::dynamic_pointer_cast<TermContext>(m_TermWindow->GetPluginContext());
 
     if (!context)
-        return nullptr;
+        return wxFont::New(16, wxFONTFAMILY_TELETYPE);
 
     AppConfigPtr appConfig = context->GetAppConfig();
 
     pybind11::gil_scoped_acquire acquire;
     auto font_size = appConfig->GetEntryUInt64("/term/font/size", 16);
-    auto font_name = appConfig->GetEntry("/term/font/name", "Monospace");
+    auto font_name = appConfig->GetEntry("/term/font/name", "");
 
-    m_Font = new wxFont(wxFontInfo(font_size)
+    m_Fonts[font_category] = new wxFont(wxFontInfo(font_size)
                         .FaceName(font_name.c_str())
                         .Family(wxFONTFAMILY_TELETYPE)
                         .Encoding(wxFONTENCODING_UTF8));
 
-    return m_Font;
+    switch(font_category) {
+    case Bold:
+        m_Fonts[font_category]->MakeBold();
+        break;
+    case Underlined:
+        m_Fonts[font_category]->MakeUnderlined();
+        break;
+    case BoldUnderlined:
+        m_Fonts[font_category]->MakeBold();
+        m_Fonts[font_category]->MakeUnderlined();
+        break;
+    default:
+        break;
+    };
+
+    return m_Fonts[font_category];
 }
 
 void DrawPane::OnIdle(wxIdleEvent& evt)

@@ -20,6 +20,7 @@ void __do_set_attributes(term_data_context_s & term_context,
                       int32_t back_color_idx) {
     if (mode.test(0)) {
         term_context.cell_template->SetMode(term_context.default_cell_template->GetMode());
+        term_context.term_buffer->SetMode(term_context.default_cell_template->GetMode());
     } else if (mode.test(1)) {
         term_context.cell_template->AddMode(TermCell::Bold);
     } else if (mode.test(2)) {
@@ -95,6 +96,8 @@ void orig_pair(term_data_context_s & term_context,
 
     term_context.cell_template->SetForeColorIndex(term_context.default_cell_template->GetForeColorIndex());
     term_context.cell_template->SetBackColorIndex(term_context.default_cell_template->GetBackColorIndex());
+    term_context.cell_template->SetMode(term_context.default_cell_template->GetMode());
+    term_context.term_buffer->SetMode(term_context.default_cell_template->GetMode());
 }
 
 void set_attributes(term_data_context_s & term_context,

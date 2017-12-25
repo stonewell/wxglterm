@@ -14,6 +14,15 @@ public:
     DECLARE_EVENT_TABLE();
 
 public:
+    enum FontCategoryEnum {
+        Default = 0,
+        Bold,
+        Underlined,
+        BoldUnderlined,
+
+        FontCategoryCount
+    };
+
     void RequestRefresh();
 
     uint32_t GetColorByIndex(uint32_t index) {
@@ -30,7 +39,7 @@ private:
     void OnTimer(wxTimerEvent& event);
     void OnRefreshEvent(wxCommandEvent& event);
 
-    wxFont * GetFont();
+    wxFont * GetFont(FontCategoryEnum font_category = DrawPane::Default);
 
     void PaintOnDemand();
     void DoPaint(wxDC & dc
@@ -60,7 +69,7 @@ private:
     wxCriticalSection m_RefreshLock;
     TermWindow * m_TermWindow;
 
-    wxFont * m_Font;
+    wxFont * m_Fonts[DrawPane::FontCategoryCount];
     wxCoord m_LineHeight;
     wxCoord m_CellWidth;
 

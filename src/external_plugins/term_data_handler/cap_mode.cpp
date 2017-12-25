@@ -168,7 +168,6 @@ void enter_bold_mode(term_data_context_s & term_context,
                      const term_data_param_list & params) {
     (void)params;
     term_context.cell_template->AddMode(TermCell::Bold);
-    term_context.term_buffer->AddMode(TermCell::Bold);
 }
 void keypad_xmit(term_data_context_s & term_context,
                  const term_data_param_list & params) {
@@ -179,14 +178,12 @@ void enter_reverse_mode(term_data_context_s & term_context,
                         const term_data_param_list & params) {
     (void)params;
     term_context.cell_template->AddMode(TermCell::Reverse);
-    term_context.term_buffer->AddMode(TermCell::Reverse);
 }
 
 void exit_standout_mode(term_data_context_s & term_context,
                         const term_data_param_list & params) {
     (void)params;
     term_context.cell_template->SetMode(term_context.default_cell_template->GetMode());
-    term_context.term_buffer->SetMode(term_context.default_cell_template->GetMode());
 }
 
 void enter_ca_mode(term_data_context_s & term_context,

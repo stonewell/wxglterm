@@ -72,6 +72,8 @@ void DrawPane::DrawContent(wxDC &dc,
     uint16_t back_color_use = last_back_color;
     uint16_t fore_color_use = last_fore_color;
 
+    wxFont * font(GetFont());
+
     if (m.test(TermCell::Bold) ||
         buffer_mode.test(TermCell::Bold)) {
         if (back_color_use < 8)
@@ -79,7 +81,11 @@ void DrawPane::DrawContent(wxDC &dc,
 
         if (fore_color_use < 8)
             fore_color_use += 8;
+
+        font = GetFont(DrawPane::Bold);
     }
+
+    dc.SetFont(*font);
 
     if (m.test(TermCell::Cursor))
     {
