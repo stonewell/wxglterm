@@ -359,8 +359,15 @@ void DrawPane::PaintOnDemand()
 
         TermCellPtr cell = m_Buffer->GetCurCell();
 
-        if (cell)
-            cell->AddMode(TermCell::Cursor);
+        if (cell) {
+            if (cell->GetChar() == 0 && m_Buffer->GetCol() > 0) {
+                cell = m_Buffer->GetCell(m_Buffer->GetRow(), m_Buffer->GetCol() - 1);
+            }
+
+            if (cell) {
+                cell->AddMode(TermCell::Cursor);
+            }
+        }
         else {
             TermLinePtr line = m_Buffer->GetCurLine();
 

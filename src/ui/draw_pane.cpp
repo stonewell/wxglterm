@@ -128,9 +128,15 @@ void DrawPane::OnPaint(wxPaintEvent & /*event*/)
         wxAutoBufferedPaintDC dc(this);
 
         TermCellPtr cell = buffer->GetCurCell();
-        if (cell)
-            cell->AddMode(TermCell::Cursor);
-        else {
+        if (cell) {
+            if (cell->GetChar() == 0 && buffer->GetCol() > 0) {
+                cell = buffer->GetCell(buffer->GetRow(), buffer->GetCol() - 1);
+            }
+
+            if (cell) {
+                cell->AddMode(TermCell::Cursor);
+            }
+        } else {
             TermLinePtr line = buffer->GetCurLine();
 
             if (line)
