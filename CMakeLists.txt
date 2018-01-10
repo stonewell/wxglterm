@@ -50,7 +50,6 @@ configure_file(wxglterm.desktop.in wxglterm.desktop)
 
 ADD_SUBDIRECTORY(src/interface)
 ADD_SUBDIRECTORY(src/controller)
-ADD_SUBDIRECTORY(src/ui)
 ADD_SUBDIRECTORY(src/utils)
 ADD_SUBDIRECTORY(src/plugins)
 ADD_SUBDIRECTORY(src/app)

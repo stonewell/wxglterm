@@ -1,6 +1,6 @@
 #include <pybind11/embed.h>
 
-#include "plugin_base.h"
+#include "plugin.h"
 #include "default_term_ui.h"
 #include "term_window.h"
 #include "task.h"
@@ -12,6 +12,15 @@
 
 #include <wx/clipbrd.h>
 #include <wx/base64.h>
+
+class __wxGLTermApp : public wxApp {
+public:
+    virtual bool OnInit() {
+        return true;
+    }
+};
+
+wxIMPLEMENT_APP_NO_MAIN(__wxGLTermApp);
 
 class __wxGLTimer : public wxTimer {
 public:
@@ -38,6 +47,53 @@ private:
     int m_Interval;
     bool m_Repeated;
 };
+
+class PluginBase : public virtual Plugin {
+public:
+    PluginBase(const char * name, const char * description, uint32_t version);
+    virtual ~PluginBase() = default;
+
+public:
+    const char * GetName() override {
+        return m_Name.c_str();
+    }
+    const char * GetDescription() override {
+        return m_Description.c_str();
+    }
+
+    uint32_t GetVersion() override {
+        return m_Version;
+    }
+
+    virtual void InitPlugin(ContextPtr context,
+                    AppConfigPtr plugin_config) override {
+        m_Context = context;
+        m_PluginConfig = plugin_config;
+    }
+    ContextPtr GetPluginContext() const override {
+        return m_Context;
+    }
+    AppConfigPtr GetPluginConfig() const override {
+        return m_PluginConfig;
+    }
+private:
+    std::string m_Name;
+    std::string m_Description;
+    uint32_t m_Version;
+
+protected:
+    ContextPtr m_Context;
+    AppConfigPtr m_PluginConfig;
+};
+
+PluginBase::PluginBase(const char * name, const char * description, uint32_t version) :
+    m_Name(name)
+    , m_Description(description)
+    , m_Version(version)
+    , m_Context{}
+    , m_PluginConfig{}
+{
+}
 
 class DefaultTermWindow : public virtual PluginBase, public virtual TermWindow, public WindowManager {
 public:
@@ -151,6 +207,12 @@ public:
 
     int32_t StartMainUILoop() {
         int argc = 0;
+
+        if (!wxApp::GetInstance()) {
+            wxCreateApp();
+            wxGetApp().SetAppName("wxglterm");
+            wxGetApp().SetAppDisplayName("wxglterm");
+        }
 
         pybind11::gil_scoped_release release;
         return wxEntry(argc, (char **)nullptr);

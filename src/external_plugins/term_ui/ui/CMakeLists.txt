@@ -12,7 +12,7 @@ TARGET_INCLUDE_DIRECTORIES(wxglterm_ui PRIVATE
     ${wxWidgets_INCLUDE_DIRS}
     "${pybind11_INCLUDE_DIRS}"
     "${PYTHON_INCLUDE_DIRS}"
-    "../controller"
-    "../interface"
-    "../utils"
+    "../../../controller"
+    "../../../interface"
+    "../../../utils"
     )

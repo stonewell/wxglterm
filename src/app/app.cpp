@@ -16,20 +16,10 @@
 
 #include "task.h"
 
-#include "default_term_ui.h"
 #include "default_term_buffer.h"
 
 #include <iostream>
 namespace py = pybind11;
-
-class __wxGLTermApp : public wxApp {
-public:
-    virtual bool OnInit() {
-        return true;
-    }
-};
-
-wxIMPLEMENT_APP_NO_MAIN(__wxGLTermApp);
 
 wxGLTermApp::~wxGLTermApp()
 {
@@ -104,12 +94,6 @@ std::string FindConfigFile() {
 
 bool wxGLTermApp::DoInit()
 {
-    if (!wxApp::GetInstance()) {
-        wxCreateApp();
-        wxGetApp().SetAppName("wxglterm");
-        wxGetApp().SetAppDisplayName("wxglterm");
-    }
-
     m_PyInterpreter = std::make_shared<py::scoped_interpreter>();
 
     init_wxglterm_interface_module();
@@ -255,9 +239,7 @@ TermUIPtr wxGLTermApp::CreateTermUI(TermContextPtr term_context)
 
 void wxGLTermApp::InitDefaultPlugins()
 {
-    m_PluginManager->RegisterPlugin(std::dynamic_pointer_cast<Plugin>(CreateDefaultTermUI()));
     m_PluginManager->RegisterPlugin(std::dynamic_pointer_cast<Plugin>(CreateDefaultTermBuffer()));
-    m_PluginManager->RegisterPlugin(std::dynamic_pointer_cast<Plugin>(::CreateShowContextWindowTask()));
 }
 
 TermContextPtr wxGLTermApp::CreateTermContext()

@@ -1,8 +1,8 @@
 SET(plugins_src
 default_term_line.h
 default_term_buffer.cpp       default_term_selection_decl.h
-default_term_buffer_decl.h    default_term_ui.cpp
-default_term_buffer.h         default_term_ui.h
+default_term_buffer_decl.h
+default_term_buffer.h
 default_term_buffer_impl.cpp  internal_term_buffer.cpp
 default_term_cell.cpp         internal_term_buffer.h
 default_term_cell.h           plugin_base.cpp
