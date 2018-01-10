@@ -3,31 +3,37 @@ FILE(GLOB wxglterm_src
   "*.cpp"
   )
 
-ADD_CUSTOM_TARGET(copy_py_plugins ALL DEPENDS ${CMAKE_BINARY_DIR}/pyplugins.stamp wxglterm)
+ADD_CUSTOM_TARGET(copy_py_plugins
+    ALL
+    DEPENDS
+    ${CMAKE_BINARY_DIR}/pyplugins.stamp
+    wxglterm)
 
-ADD_EXECUTABLE(wxglterm ${wxglterm_src})
+ADD_EXECUTABLE(wxglterm
+    ${wxglterm_src}
+    app_utils.inc)
+
+ADD_CUSTOM_COMMAND(OUTPUT app_utils.inc
+  COMMAND ${PYTHON_EXECUTABLE} ${CMAKE_CURRENT_SOURCE_DIR}/../../utils/pystmt_generator/pystmt_generator.py -i ${CMAKE_CURRENT_SOURCE_DIR}/app_utils.py -o app_utils.inc
+  DEPENDS ${CMAKE_CURRENT_SOURCE_DIR}/app_utils.py ${CMAKE_CURRENT_SOURCE_DIR}/../../utils/pystmt_generator/pystmt_generator.py
+  )
 
 TARGET_COMPILE_DEFINITIONS(wxglterm PRIVATE
-  ${wxWidgets_DEFINITIONS}
   )
 TARGET_INCLUDE_DIRECTORIES(wxglterm PRIVATE
-  ${wxWidgets_INCLUDE_DIRS}
   "${pybind11_INCLUDE_DIRS}"
   "${PYTHON_INCLUDE_DIRS}"
   "../controller"
   "../interface"
-  "../ui"
   "../utils"
   "../plugins"
   ${CMAKE_CURRENT_BINARY_DIR}
   )
 TARGET_LINK_LIBRARIES(wxglterm
   plugins
-  wxglterm_ui
   controller
   wxglterm_interface_static
   utils
-  ${wxWidgets_LIBRARIES}
   ${pybind11_LIBRARIES}
   ${PYTHON_LIBRARIES}
   ${CMAKE_DL_LIBS}

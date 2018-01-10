@@ -1,17 +1,21 @@
 #include <pybind11/embed.h>
 
 #include "plugin.h"
+#include "plugin_manager.h"
 #include "default_term_ui.h"
 #include "term_window.h"
 #include "task.h"
 #include "term_context.h"
 #include "term_network.h"
 #include "term_data_handler.h"
+#include "app_config_impl.h"
 
 #include "main_dlg.h"
 
 #include <wx/clipbrd.h>
 #include <wx/base64.h>
+
+#include <iostream>
 
 class __wxGLTermApp : public wxApp {
 public:
@@ -98,7 +102,7 @@ PluginBase::PluginBase(const char * name, const char * description, uint32_t ver
 class DefaultTermWindow : public virtual PluginBase, public virtual TermWindow, public WindowManager {
 public:
     DefaultTermWindow() :
-        PluginBase("default_term_window", "default terminal window plugin", 0)
+        PluginBase("default_term_window", "default terminal window plugin", 1)
         , m_MainDlg(nullptr) {
     }
 
@@ -191,7 +195,7 @@ private:
 class DefaultTermUI : public virtual PluginBase, public virtual TermUI {
 public:
     DefaultTermUI() :
-        PluginBase("default_term_ui", "default terminal ui plugin", 0)
+        PluginBase("default_term_ui", "default terminal ui plugin", 1)
     {
     }
 
@@ -205,6 +209,20 @@ public:
         return window;
     }
 
+    TaskPtr CreateShowContextWindowTask(TermContextPtr term_context)
+    {
+        std::string plugin_config = GetPluginContext()->GetAppConfig()->GetEntry("plugins/show_context_window_task/config", "{}");
+
+        auto new_instance = ::CreateShowContextWindowTask();
+
+        auto new_instance_config = CreateAppConfigFromString(plugin_config.c_str());
+
+        new_instance->InitPlugin(std::dynamic_pointer_cast<Context>(term_context),
+                                 new_instance_config);
+
+        return new_instance;
+    }
+
     int32_t StartMainUILoop() {
         int argc = 0;
 
@@ -213,6 +231,11 @@ public:
             wxGetApp().SetAppName("wxglterm");
             wxGetApp().SetAppDisplayName("wxglterm");
         }
+
+        auto mainwnd_task = CreateShowContextWindowTask(std::dynamic_pointer_cast<TermContext>(GetPluginContext()));
+
+        ScheduleTask(mainwnd_task, 5, false);
+
 
         pybind11::gil_scoped_release release;
         return wxEntry(argc, (char **)nullptr);
@@ -227,7 +250,7 @@ public:
 class __ShowContextWindowTask : public virtual PluginBase, public virtual Task {
 public:
     __ShowContextWindowTask() :
-        PluginBase("show_context_window_task", "default task show main window", 0)
+        PluginBase("show_context_window_task", "default task show main window", 1)
         , m_Cancelled(false)
     {
     }

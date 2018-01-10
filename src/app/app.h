@@ -1,6 +1,5 @@
 #pragma once
 
-#include <wx/wx.h>
 #include <memory>
 #include <list>
 
@@ -27,7 +26,6 @@ private:
     TermContextPtr CreateTermContext();
     TermNetworkPtr CreateTermNetwork(TermContextPtr term_context);
     TermDataHandlerPtr CreateTermDataHandler(TermContextPtr term_context);
-    TaskPtr CreateShowContextWindowTask(TermContextPtr term_context);
     TermBufferPtr CreateTermBuffer(TermContextPtr term_context);
     TermColorThemePtr CreateTermColorTheme(TermContextPtr term_context);
 };

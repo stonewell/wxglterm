@@ -1,9 +1,7 @@
 #include <pybind11/embed.h>
 
-#include <wx/filename.h>
-#include <wx/stdpaths.h>
-
 #include "app.h"
+#include "load_module.h"
 
 #include "controller.h"
 #include "wxglterm_interface.h"
@@ -67,24 +65,30 @@ bool g_AppDebug = false;
 
 static
 std::string FindConfigFile() {
-    //1. home dir ~/.wxglterm/wxglterm.json
-    wxFileName f(wxStandardPaths::Get().GetUserDataDir(), "wxglterm", "json");
+    try
+    {
+        const char *module_content =
+#include "app_utils.inc"
+                ;
 
-    if (f.IsFileReadable()) {
-        return std::string(f.GetFullPath());
+        return LoadPyModuleFromString(module_content,
+                                      "app_utils",
+                                      "app_utils.py")
+                .attr("find_config_file")()
+                .cast<std::string>();
     }
-
-    //2. prefix/share/wxglterm/etc/wxglterm.json
-    wxFileName f1(wxStandardPaths::Get().GetDataDir(), "wxglterm", "json");
-    f1.AppendDir("etc");
-
-    if (f1.IsFileReadable()) {
-        return std::string(f1.GetFullPath());
+    catch(std::exception & e)
+    {
+        std::cerr << "find config file failed!"
+                  << std::endl
+                  << e.what()
+                  << std::endl;
     }
-
-    wxString env_Config;
-    if (wxGetEnv("WXGLTERM_CONFIG_PATH", &env_Config) && wxFileName::IsFileReadable(env_Config)) {
-        return std::string(env_Config.utf8_str());
+    catch(...)
+    {
+        std::cerr << "find config file failed!"
+                  << std::endl;
+        PyErr_Print();
     }
 
     std::cerr << "unable find the config file, use current directory wxglterm.json instead"<< std::endl;
@@ -117,21 +121,9 @@ bool wxGLTermApp::DoInit()
                   << std::endl;
     }
 
-    wxFileName f(wxStandardPaths::Get().GetExecutablePath());
-    f.AppendDir("plugins");
-    std::string pluginPath(f.GetPath());
+    std::string pluginPath("plugins");
 
-    wxFileName f2(wxStandardPaths::Get().GetExecutablePath());
-    f2.AppendDir("libs");
-    std::string libsPath(f2.GetPath());
-
-    if (g_AppDebug) {
-        std::cout << "app path:"
-                  << pluginPath
-                  << ", libs:"
-                  << libsPath
-                  << std::endl;
-    }
+    std::string libsPath("libs");
 
     std::string plugins_dir = g_AppConfig->GetEntry("plugins/dir", pluginPath.c_str());
     std::string python_lib_dir = g_AppConfig->GetEntry("plugins/python_lib", libsPath.c_str());
@@ -184,10 +176,6 @@ bool wxGLTermApp::DoInit()
         term_context->SetTermColorTheme(term_color_theme);
 
         m_TermUIList.push_back(term_ui);
-
-        auto mainwnd_task = CreateShowContextWindowTask(term_context);
-
-        term_ui->ScheduleTask(mainwnd_task, 5, false);
 
         term_ui->StartMainUILoop();
 
@@ -348,34 +336,6 @@ TermDataHandlerPtr wxGLTermApp::CreateTermDataHandler(TermContextPtr term_contex
                              new_instance_config);
 
     return std::dynamic_pointer_cast<TermDataHandler>(new_instance);
-}
-
-TaskPtr wxGLTermApp::CreateShowContextWindowTask(TermContextPtr term_context)
-{
-    std::string plugin_name = g_AppConfig->GetEntry("plugins/show_context_window_task/name", "show_context_window_task");
-    uint64_t plugin_version = g_AppConfig->GetEntryUInt64("plugins/show_context_window_task/version", PluginManager::Latest);
-    std::string plugin_config = g_AppConfig->GetEntry("plugins/show_context_window_task/config", "{}");
-
-    if (g_AppDebug)
-        std::cout << "show_context_window task plugin config:"
-                  << plugin_config
-                  << std::endl;
-
-    auto plugin = std::dynamic_pointer_cast<Task>(m_PluginManager->GetPlugin(plugin_name.c_str(), plugin_version));
-
-    if (!plugin)
-    {
-        //TODO: error or create default
-        return TaskPtr{};
-    }
-
-    auto new_instance = plugin->NewInstance();
-    auto new_instance_config = CreateAppConfigFromString(plugin_config.c_str());
-
-    new_instance->InitPlugin(std::dynamic_pointer_cast<Context>(term_context),
-                             new_instance_config);
-
-    return std::dynamic_pointer_cast<Task>(new_instance);
 }
 
 TermColorThemePtr wxGLTermApp::CreateTermColorTheme(TermContextPtr term_context)
