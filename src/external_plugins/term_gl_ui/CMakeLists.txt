@@ -1,5 +1,5 @@
-find_package(OpenGL REQUIRED)
-find_package(Freetype REQUIRED)
+FIND_PACKAGE(OpenGL REQUIRED)
+FIND_PACKAGE(Freetype REQUIRED)
 FIND_PACKAGE(glfw3 3.2 REQUIRED)
 
 INCLUDE(ExternalProject)
@@ -26,6 +26,8 @@ SET(term_gl_ui_src
 )
 
 ADD_LIBRARY(term_gl_ui SHARED ${term_gl_ui_src})
+
+ADD_DEPENDENCIES(term_gl_ui freetype-gl)
 
 SET_TARGET_PROPERTIES( term_gl_ui
     PROPERTIES

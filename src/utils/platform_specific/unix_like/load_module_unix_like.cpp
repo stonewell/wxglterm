@@ -4,7 +4,7 @@
 Handle LoadDyModuleFromFile(const char * file_path)
 {
     Handle h {
-        dlopen(file_path, RTLD_LAZY | RTLD_GLOBAL),
+        dlopen(file_path, RTLD_LAZY | RTLD_LOCAL),
         [](void* module)
         {
             if (module)
