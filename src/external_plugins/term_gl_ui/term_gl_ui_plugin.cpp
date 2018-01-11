@@ -3,9 +3,9 @@
 
 #include "term_ui.h"
 #include "task.h"
-#include "default_term_ui.h"
+#include "term_gl_ui.h"
 
 extern "C"
 void register_plugins(PluginManagerPtr plugin_manager) {
-    plugin_manager->RegisterPlugin(std::dynamic_pointer_cast<Plugin>(CreateDefaultTermUI()));
+    plugin_manager->RegisterPlugin(std::dynamic_pointer_cast<Plugin>(CreateOpenGLTermUI()));
    }

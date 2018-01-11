@@ -22,7 +22,7 @@ EXTERNALPROJECT_ADD(
 
 SET(term_gl_ui_src
   term_gl_ui_plugin.cpp
-  default_term_ui.cpp default_term_ui.h
+  term_gl_ui.cpp term_gl_ui.h
 )
 
 ADD_LIBRARY(term_gl_ui SHARED ${term_gl_ui_src})

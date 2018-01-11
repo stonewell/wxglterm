@@ -2,4 +2,4 @@
 
 #include "term_ui.h"
 
-TermUIPtr CreateDefaultTermUI();
+TermUIPtr CreateOpenGLTermUI();

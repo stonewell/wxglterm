@@ -2,7 +2,7 @@
 
 #include "plugin.h"
 #include "plugin_manager.h"
-#include "default_term_ui.h"
+#include "term_gl_ui.h"
 #include "term_window.h"
 #include "task.h"
 #include "term_context.h"
@@ -208,6 +208,6 @@ public:
     }
 };
 
-TermUIPtr CreateDefaultTermUI() {
+TermUIPtr CreateOpenGLTermUI() {
     return TermUIPtr{ new DefaultTermUI()};
 }
