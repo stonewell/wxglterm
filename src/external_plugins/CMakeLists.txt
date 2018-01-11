@@ -5,3 +5,4 @@ ENDIF()
 
 ADD_SUBDIRECTORY(term_data_handler)
 ADD_SUBDIRECTORY(term_ui)
+ADD_SUBDIRECTORY(term_gl_ui)
