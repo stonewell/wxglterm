@@ -9,5 +9,4 @@
 extern "C"
 void register_plugins(PluginManagerPtr plugin_manager) {
     plugin_manager->RegisterPlugin(std::dynamic_pointer_cast<Plugin>(CreateDefaultTermUI()));
-    plugin_manager->RegisterPlugin(std::dynamic_pointer_cast<Plugin>(::CreateShowContextWindowTask()));
 }

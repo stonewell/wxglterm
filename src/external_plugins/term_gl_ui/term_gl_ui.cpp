@@ -103,6 +103,14 @@ void error_callback( int error, const char* description )
     fputs( description, stderr );
 }
 
+int has_window = 0;
+
+void close( GLFWwindow* window )
+{
+    glfwSetWindowShouldClose( window, GL_TRUE );
+    has_window--;
+}
+
 class DefaultTermWindow :
         public virtual PluginBase
         , public virtual TermWindow {
@@ -122,27 +130,28 @@ public:
     }
 
     void Show() override {
-        if (!m_MainDlg)
+        if (!m_MainDlg) {
             m_MainDlg = glfwCreateWindow( 800, 640, "wxglTerm", NULL, NULL );
+
+            glfwSetFramebufferSizeCallback(m_MainDlg, reshape );
+            glfwSetWindowRefreshCallback(m_MainDlg, display );
+            glfwSetKeyCallback(m_MainDlg, keyboard );
+            glfwSetWindowCloseCallback(m_MainDlg, close);
+        }
 
         glfwShowWindow(m_MainDlg);
         glfwMakeContextCurrent(m_MainDlg);
-
-        glfwSwapInterval( 1 );
-
-        glfwSetFramebufferSizeCallback(m_MainDlg, reshape );
-        glfwSetWindowRefreshCallback(m_MainDlg, display );
-        glfwSetKeyCallback(m_MainDlg, keyboard );
     }
 
     void Close() override {
         if (!m_MainDlg) return;
 
         glfwSetWindowShouldClose( m_MainDlg, GL_TRUE );
+        has_window--;
     }
 
     void SetWindowTitle(const std::string & title) override {
-        (void)title;
+        glfwSetWindowTitle(m_MainDlg, title.c_str());
     }
 
     uint32_t GetColorByIndex(uint32_t index) override {
@@ -169,42 +178,83 @@ public:
     DefaultTermUI() :
         PluginBase("term_gl_ui", "opengl terminal ui plugin", 1)
     {
+        glfwSetErrorCallback( error_callback );
+
+        glfwInit();
+
+        glfwSwapInterval( 1 );
     }
 
-    virtual ~DefaultTermUI() = default;
+    virtual ~DefaultTermUI() {
+        glfwTerminate();
+    }
+
+    struct TaskEntry {
+        TaskPtr task;
+        double end_time;
+        bool repeated;
+        bool done;
+        int interval;
+    };
+
+    std::vector<TaskEntry> m_Tasks;
 
     TermWindowPtr CreateWindow() {
         auto window = TermWindowPtr { new DefaultTermWindow() };
         window->InitPlugin(GetPluginContext(),
                            GetPluginConfig());
 
+        has_window++;
         return window;
     }
 
+    void ProcessTasks() {
+        auto cur_time = glfwGetTime();
+
+        for(auto & entry : m_Tasks) {
+            if (entry.done) continue;
+
+            if (cur_time * 1000 >= entry.end_time) {
+                if (entry.task && !entry.task->IsCancelled()) {
+                    entry.task->Run();
+                }
+
+                if (entry.repeated) {
+                    entry.end_time = cur_time * 1000 + entry.interval;
+                } else {
+                    entry.done = true;
+                }
+            }
+        }
+    }
+
     int32_t StartMainUILoop() {
-        glfwSetErrorCallback( error_callback );
-
-        glfwInit();
-
         glfwWindowHint( GLFW_VISIBLE, GL_FALSE );
         glfwWindowHint( GLFW_RESIZABLE, GL_FALSE );
 
         pybind11::gil_scoped_release release;
 
-        while (true)
+        while (has_window)
         {
             glfwPollEvents( );
+            ProcessTasks();
         }
 
         return 0;
     }
 
     bool ScheduleTask(TaskPtr task, int miliseconds, bool repeated) {
-        (void)task;
-        (void)miliseconds;
-        (void)repeated;
+        TaskEntry entry {
+            .task = task,
+            .end_time = glfwGetTime() * 1000 + miliseconds,
+                    .repeated = repeated,
+                    .done = false,
+                    .interval = miliseconds
+        };
 
-        return false;
+        m_Tasks.push_back(entry);
+
+        return true;
     }
 };
 

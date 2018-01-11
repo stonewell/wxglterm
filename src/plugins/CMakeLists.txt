@@ -8,6 +8,7 @@ default_term_cell.cpp         internal_term_buffer.h
 default_term_cell.h           plugin_base.cpp
 default_term_line.cpp         plugin_base.h
 default_term_buffer_clone_impl.cpp
+default_show_context_window_task.cpp default_show_context_window_task.h
 )
 
 ADD_LIBRARY(plugins STATIC ${plugins_src})
