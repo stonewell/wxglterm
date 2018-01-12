@@ -194,9 +194,7 @@ private:
 
 class DefaultTermUI : public virtual PluginBase, public virtual TermUI {
 public:
-    DefaultTermUI() :
-        PluginBase("default_term_ui", "default terminal ui plugin", 1)
-    {
+    static void Initialize() {
         if (!wxApp::GetInstance()) {
             wxCreateApp();
             wxGetApp().SetAppName("wxglterm");
@@ -204,9 +202,16 @@ public:
         }
     }
 
+    DefaultTermUI() :
+        PluginBase("default_term_ui", "default terminal ui plugin", 1)
+    {
+    }
+
     virtual ~DefaultTermUI() = default;
 
     TermWindowPtr CreateWindow() {
+        DefaultTermUI::Initialize();
+
         auto window = TermWindowPtr { new DefaultTermWindow() };
         window->InitPlugin(GetPluginContext(),
                            GetPluginConfig());
