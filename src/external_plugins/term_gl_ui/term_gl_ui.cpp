@@ -137,6 +137,7 @@ public:
             glfwSetWindowRefreshCallback(m_MainDlg, display );
             glfwSetKeyCallback(m_MainDlg, keyboard );
             glfwSetWindowCloseCallback(m_MainDlg, close);
+            glfwSwapInterval( 1 );
         }
 
         glfwShowWindow(m_MainDlg);
@@ -173,20 +174,36 @@ private:
     GLFWwindow * m_MainDlg;
 };
 
+class __GLTermUIInitializer {
+public:
+    bool init;
+
+    __GLTermUIInitializer() : init(false) {
+    }
+
+    void Initialize() {
+        if (init) return;
+
+        glfwSetErrorCallback( error_callback );
+
+        init = glfwInit();
+    }
+
+    ~__GLTermUIInitializer() {
+        if (init)
+            glfwTerminate();
+    }
+};
+
 class DefaultTermUI : public virtual PluginBase, public virtual TermUI {
+    static __GLTermUIInitializer _initializer;
 public:
     DefaultTermUI() :
         PluginBase("term_gl_ui", "opengl terminal ui plugin", 1)
     {
-        glfwSetErrorCallback( error_callback );
-
-        glfwInit();
-
-        glfwSwapInterval( 1 );
     }
 
     virtual ~DefaultTermUI() {
-        glfwTerminate();
     }
 
     struct TaskEntry {
@@ -200,6 +217,8 @@ public:
     std::vector<TaskEntry> m_Tasks;
 
     TermWindowPtr CreateWindow() {
+        DefaultTermUI::_initializer.Initialize();
+
         auto window = TermWindowPtr { new DefaultTermWindow() };
         window->InitPlugin(GetPluginContext(),
                            GetPluginConfig());
@@ -257,6 +276,8 @@ public:
         return true;
     }
 };
+
+__GLTermUIInitializer DefaultTermUI::_initializer;
 
 TermUIPtr CreateOpenGLTermUI() {
     return TermUIPtr{ new DefaultTermUI()};
