@@ -7,6 +7,7 @@
 #include "task.h"
 #include "term_context.h"
 #include "term_network.h"
+#include "term_buffer.h"
 #include "term_data_handler.h"
 #include "app_config_impl.h"
 
@@ -17,7 +18,6 @@
 #include "text-buffer.h"
 
 #include <GLFW/glfw3.h>
-
 
 class PluginBase : public virtual Plugin {
 public:
@@ -66,11 +66,70 @@ PluginBase::PluginBase(const char * name, const char * description, uint32_t ver
 {
 }
 
+class DefaultTermWindow :
+        public virtual PluginBase
+        , public virtual TermWindow {
+public:
+    DefaultTermWindow() :
+        PluginBase("term_gl_window", "opengl terminal window plugin", 1)
+        , m_MainDlg(nullptr) {
+    }
+
+    virtual ~DefaultTermWindow() {
+        if (m_MainDlg)
+            glfwDestroyWindow(m_MainDlg);
+    }
+
+public:
+    void Refresh() override;
+
+    void Show() override;
+
+    void Close() override;
+
+    void SetWindowTitle(const std::string & title) override;
+
+    uint32_t GetColorByIndex(uint32_t index) override;
+
+    std::string GetSelectionData() override;
+
+    void SetSelectionData(const std::string & sel_data) override;
+
+private:
+    GLFWwindow * m_MainDlg;
+};
+
+#define PADDING (5)
+
 // ---------------------------------------------------------------- reshape ---
 void reshape( GLFWwindow* window, int width, int height )
 {
     (void)window;
     glViewport(0, 0, width, height);
+
+    DefaultTermWindow * plugin = (DefaultTermWindow *)glfwGetWindowUserPointer(window);
+
+    if (!plugin)
+        return;
+
+    TermContextPtr context = std::dynamic_pointer_cast<TermContext>(plugin->GetPluginContext());
+
+    if (!context)
+        return;
+
+    TermBufferPtr buffer = context->GetTermBuffer();
+
+    if (!buffer)
+        return;
+
+    buffer->Resize((height - PADDING * 2) / 16,
+                   (width - PADDING * 2) / 9);
+
+    TermNetworkPtr network = context->GetTermNetwork();
+
+    if (network)
+        network->Resize(buffer->GetRows(),
+                        buffer->GetCols());
 }
 
 
@@ -98,9 +157,7 @@ void display( GLFWwindow* window )
 // --------------------------------------------------------- error-callback ---
 void error_callback( int error, const char* description )
 {
-    (void)error;
-    (void)description;
-    fputs( description, stderr );
+    std::cerr << "error:" << error << ", description:" << description << std::endl;
 }
 
 int has_window = 0;
@@ -111,71 +168,53 @@ void close( GLFWwindow* window )
     has_window--;
 }
 
-class DefaultTermWindow :
-        public virtual PluginBase
-        , public virtual TermWindow {
-public:
-    DefaultTermWindow() :
-        PluginBase("term_gl_window", "opengl terminal window plugin", 1)
-        , m_MainDlg(nullptr) {
+void DefaultTermWindow::Refresh() {
+}
+
+void DefaultTermWindow::Show() {
+    if (!m_MainDlg) {
+        const GLFWvidmode* mode = glfwGetVideoMode(glfwGetPrimaryMonitor());
+        m_MainDlg = glfwCreateWindow( mode->width, mode->height, "wxglTerm",
+                                      NULL,
+                                      NULL );
+
+        glfwSetFramebufferSizeCallback(m_MainDlg, reshape );
+        glfwSetWindowRefreshCallback(m_MainDlg, display );
+        glfwSetKeyCallback(m_MainDlg, keyboard );
+        glfwSetWindowCloseCallback(m_MainDlg, close);
+        glfwSetWindowUserPointer(m_MainDlg, this);
     }
 
-    virtual ~DefaultTermWindow() {
-        if (m_MainDlg)
-            glfwDestroyWindow(m_MainDlg);
-    }
+    glfwShowWindow(m_MainDlg);
+    glfwMakeContextCurrent(m_MainDlg);
+    glfwSwapInterval( 1 );
+}
 
-public:
-    void Refresh() override {
-    }
+void DefaultTermWindow::Close() {
+    if (!m_MainDlg) return;
 
-    void Show() override {
-        if (!m_MainDlg) {
-            const GLFWvidmode* mode = glfwGetVideoMode(glfwGetPrimaryMonitor());
-            m_MainDlg = glfwCreateWindow( mode->width, mode->height, "wxglTerm",
-                                          glfwGetPrimaryMonitor(),
-                                          NULL );
+    glfwSetWindowShouldClose( m_MainDlg, GL_TRUE );
+    has_window--;
+}
 
-            glfwSetFramebufferSizeCallback(m_MainDlg, reshape );
-            glfwSetWindowRefreshCallback(m_MainDlg, display );
-            glfwSetKeyCallback(m_MainDlg, keyboard );
-            glfwSetWindowCloseCallback(m_MainDlg, close);
-            glfwSwapInterval( 1 );
-        }
+void DefaultTermWindow::SetWindowTitle(const std::string & title) {
+    glfwSetWindowTitle(m_MainDlg, title.c_str());
+}
 
-        glfwShowWindow(m_MainDlg);
-        glfwMakeContextCurrent(m_MainDlg);
-    }
+uint32_t DefaultTermWindow::GetColorByIndex(uint32_t index) {
+    (void)index;
+    return 0;
+}
 
-    void Close() override {
-        if (!m_MainDlg) return;
+std::string DefaultTermWindow::GetSelectionData() {
+    std::string sel_data {};
 
-        glfwSetWindowShouldClose( m_MainDlg, GL_TRUE );
-        has_window--;
-    }
+    return sel_data;
+}
 
-    void SetWindowTitle(const std::string & title) override {
-        glfwSetWindowTitle(m_MainDlg, title.c_str());
-    }
-
-    uint32_t GetColorByIndex(uint32_t index) override {
-        (void)index;
-        return 0;
-    }
-
-    std::string GetSelectionData() override {
-        std::string sel_data {};
-
-        return sel_data;
-    }
-
-    void SetSelectionData(const std::string & sel_data) override {
-        (void)sel_data;
-    }
-
-private:
-    GLFWwindow * m_MainDlg;
-};
+void DefaultTermWindow::SetSelectionData(const std::string & sel_data) {
+    (void)sel_data;
+}
 
 class __GLTermUIInitializer {
 public:
@@ -268,11 +307,11 @@ public:
     bool ScheduleTask(TaskPtr task, int miliseconds, bool repeated) {
         TaskEntry entry {
             .task = task,
-            .end_time = glfwGetTime() * 1000 + miliseconds,
+                    .end_time = glfwGetTime() * 1000 + miliseconds,
                     .repeated = repeated,
                     .done = false,
                     .interval = miliseconds
-        };
+                    };
 
         m_Tasks.push_back(entry);
 
