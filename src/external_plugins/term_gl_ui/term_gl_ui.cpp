@@ -131,7 +131,10 @@ public:
 
     void Show() override {
         if (!m_MainDlg) {
-            m_MainDlg = glfwCreateWindow( 800, 640, "wxglTerm", NULL, NULL );
+            const GLFWvidmode* mode = glfwGetVideoMode(glfwGetPrimaryMonitor());
+            m_MainDlg = glfwCreateWindow( mode->width, mode->height, "wxglTerm",
+                                          glfwGetPrimaryMonitor(),
+                                          NULL );
 
             glfwSetFramebufferSizeCallback(m_MainDlg, reshape );
             glfwSetWindowRefreshCallback(m_MainDlg, display );
@@ -249,7 +252,7 @@ public:
 
     int32_t StartMainUILoop() {
         glfwWindowHint( GLFW_VISIBLE, GL_FALSE );
-        glfwWindowHint( GLFW_RESIZABLE, GL_FALSE );
+        glfwWindowHint( GLFW_RESIZABLE, GL_TRUE );
 
         pybind11::gil_scoped_release release;
 
