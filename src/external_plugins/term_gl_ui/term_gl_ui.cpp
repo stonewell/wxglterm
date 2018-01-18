@@ -10,6 +10,7 @@
 #include "term_buffer.h"
 #include "term_data_handler.h"
 #include "app_config_impl.h"
+#include "plugin_base.h"
 
 #include <iostream>
 
@@ -19,201 +20,12 @@
 
 #include <GLFW/glfw3.h>
 
-class PluginBase : public virtual Plugin {
-public:
-    PluginBase(const char * name, const char * description, uint32_t version);
-    virtual ~PluginBase() = default;
-
-public:
-    const char * GetName() override {
-        return m_Name.c_str();
-    }
-    const char * GetDescription() override {
-        return m_Description.c_str();
-    }
-
-    uint32_t GetVersion() override {
-        return m_Version;
-    }
-
-    virtual void InitPlugin(ContextPtr context,
-                            AppConfigPtr plugin_config) override {
-        m_Context = context;
-        m_PluginConfig = plugin_config;
-    }
-    ContextPtr GetPluginContext() const override {
-        return m_Context;
-    }
-    AppConfigPtr GetPluginConfig() const override {
-        return m_PluginConfig;
-    }
-private:
-    std::string m_Name;
-    std::string m_Description;
-    uint32_t m_Version;
-
-protected:
-    ContextPtr m_Context;
-    AppConfigPtr m_PluginConfig;
-};
-
-PluginBase::PluginBase(const char * name, const char * description, uint32_t version) :
-    m_Name(name)
-    , m_Description(description)
-    , m_Version(version)
-    , m_Context{}
-    , m_PluginConfig{}
-{
-}
-
-class DefaultTermWindow :
-        public virtual PluginBase
-        , public virtual TermWindow {
-public:
-    DefaultTermWindow() :
-        PluginBase("term_gl_window", "opengl terminal window plugin", 1)
-        , m_MainDlg(nullptr) {
-    }
-
-    virtual ~DefaultTermWindow() {
-        if (m_MainDlg)
-            glfwDestroyWindow(m_MainDlg);
-    }
-
-public:
-    void Refresh() override;
-
-    void Show() override;
-
-    void Close() override;
-
-    void SetWindowTitle(const std::string & title) override;
-
-    uint32_t GetColorByIndex(uint32_t index) override;
-
-    std::string GetSelectionData() override;
-
-    void SetSelectionData(const std::string & sel_data) override;
-
-private:
-    GLFWwindow * m_MainDlg;
-};
-
-#define PADDING (5)
-
-// ---------------------------------------------------------------- reshape ---
-void reshape( GLFWwindow* window, int width, int height )
-{
-    (void)window;
-    glViewport(0, 0, width, height);
-
-    DefaultTermWindow * plugin = (DefaultTermWindow *)glfwGetWindowUserPointer(window);
-
-    if (!plugin)
-        return;
-
-    TermContextPtr context = std::dynamic_pointer_cast<TermContext>(plugin->GetPluginContext());
-
-    if (!context)
-        return;
-
-    TermBufferPtr buffer = context->GetTermBuffer();
-
-    if (!buffer)
-        return;
-
-    buffer->Resize((height - PADDING * 2) / 16,
-                   (width - PADDING * 2) / 9);
-
-    TermNetworkPtr network = context->GetTermNetwork();
-
-    if (network)
-        network->Resize(buffer->GetRows(),
-                        buffer->GetCols());
-}
-
-
-// --------------------------------------------------------------- keyboard ---
-void keyboard( GLFWwindow* window, int key, int scancode, int action, int mods )
-{
-    (void)window;
-    (void)key;
-    (void)scancode;
-    (void)action;
-    (void)mods;
-
-    if ( key == GLFW_KEY_ESCAPE && action == GLFW_PRESS )
-    {
-        glfwSetWindowShouldClose( window, GL_TRUE );
-    }
-}
-
-// ---------------------------------------------------------------- display ---
-void display( GLFWwindow* window )
-{
-    (void)window;
-}
+#include "default_term_window.h"
 
 // --------------------------------------------------------- error-callback ---
 void error_callback( int error, const char* description )
 {
     std::cerr << "error:" << error << ", description:" << description << std::endl;
-}
-
-int has_window = 0;
-
-void close( GLFWwindow* window )
-{
-    glfwSetWindowShouldClose( window, GL_TRUE );
-    has_window--;
-}
-
-void DefaultTermWindow::Refresh() {
-}
-
-void DefaultTermWindow::Show() {
-    if (!m_MainDlg) {
-        const GLFWvidmode* mode = glfwGetVideoMode(glfwGetPrimaryMonitor());
-        m_MainDlg = glfwCreateWindow( mode->width, mode->height, "wxglTerm",
-                                      NULL,
-                                      NULL );
-
-        glfwSetFramebufferSizeCallback(m_MainDlg, reshape );
-        glfwSetWindowRefreshCallback(m_MainDlg, display );
-        glfwSetKeyCallback(m_MainDlg, keyboard );
-        glfwSetWindowCloseCallback(m_MainDlg, close);
-        glfwSetWindowUserPointer(m_MainDlg, this);
-    }
-
-    glfwShowWindow(m_MainDlg);
-    glfwMakeContextCurrent(m_MainDlg);
-    glfwSwapInterval( 1 );
-}
-
-void DefaultTermWindow::Close() {
-    if (!m_MainDlg) return;
-
-    glfwSetWindowShouldClose( m_MainDlg, GL_TRUE );
-    has_window--;
-}
-
-void DefaultTermWindow::SetWindowTitle(const std::string & title) {
-    glfwSetWindowTitle(m_MainDlg, title.c_str());
-}
-
-uint32_t DefaultTermWindow::GetColorByIndex(uint32_t index) {
-    (void)index;
-    return 0;
-}
-
-std::string DefaultTermWindow::GetSelectionData() {
-    std::string sel_data {};
-
-    return sel_data;
-}
-
-void DefaultTermWindow::SetSelectionData(const std::string & sel_data) {
-    (void)sel_data;
 }
 
 class __GLTermUIInitializer {
@@ -257,6 +69,7 @@ public:
     };
 
     std::vector<TaskEntry> m_Tasks;
+    std::vector<TermWindowPtr> m_Windows;
 
     TermWindowPtr CreateWindow() {
         DefaultTermUI::_initializer.Initialize();
@@ -265,7 +78,7 @@ public:
         window->InitPlugin(GetPluginContext(),
                            GetPluginConfig());
 
-        has_window++;
+        m_Windows.push_back(window);
         return window;
     }
 
@@ -289,13 +102,25 @@ public:
         }
     }
 
+    bool AllWindowClosed() {
+        for(auto & window : m_Windows) {
+            DefaultTermWindow * pWindow =
+                    dynamic_cast<DefaultTermWindow*>(window.get());
+
+            if (!pWindow->ShouldClose())
+                return false;
+        }
+
+        return true;
+    }
+
     int32_t StartMainUILoop() {
         glfwWindowHint( GLFW_VISIBLE, GL_FALSE );
         glfwWindowHint( GLFW_RESIZABLE, GL_TRUE );
 
         pybind11::gil_scoped_release release;
 
-        while (has_window)
+        while (!AllWindowClosed())
         {
             glfwPollEvents( );
             ProcessTasks();
