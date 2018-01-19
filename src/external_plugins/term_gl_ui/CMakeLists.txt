@@ -25,6 +25,7 @@ SET(term_gl_ui_src
   term_gl_ui.cpp term_gl_ui.h
   default_term_window.h default_term_window.cpp
   plugin_base.h
+  freetype_gl.cpp freetype_gl.h
 )
 
 ADD_LIBRARY(term_gl_ui SHARED ${term_gl_ui_src})

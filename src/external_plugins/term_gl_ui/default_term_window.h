@@ -3,14 +3,16 @@
 #include "plugin_base.h"
 #include "term_window.h"
 #include <GLFW/glfw3.h>
+#include "freetype_gl.h"
 
 class DefaultTermWindow :
         public virtual PluginBase
         , public virtual TermWindow {
 public:
-    DefaultTermWindow() :
+    DefaultTermWindow(freetype_gl_context_ptr context) :
         PluginBase("term_gl_window", "opengl terminal window plugin", 1)
-        , m_MainDlg(nullptr) {
+        , m_MainDlg {nullptr}
+        , m_FreeTypeGLContext {context}{
     }
 
     virtual ~DefaultTermWindow() {
@@ -37,4 +39,5 @@ public:
     bool ShouldClose();
 private:
     GLFWwindow * m_MainDlg;
+    freetype_gl_context_ptr m_FreeTypeGLContext;
 };

@@ -21,6 +21,7 @@
 #include <GLFW/glfw3.h>
 
 #include "default_term_window.h"
+#include "freetype_gl.h"
 
 // --------------------------------------------------------- error-callback ---
 void error_callback( int error, const char* description )
@@ -70,11 +71,13 @@ public:
 
     std::vector<TaskEntry> m_Tasks;
     std::vector<TermWindowPtr> m_Windows;
+    static freetype_gl_context_ptr m_FreeTypeGLContext;
 
     TermWindowPtr CreateWindow() {
         DefaultTermUI::_initializer.Initialize();
+        InitFreeTypeGLContext();
 
-        auto window = TermWindowPtr { new DefaultTermWindow() };
+        auto window = TermWindowPtr { new DefaultTermWindow(DefaultTermUI::m_FreeTypeGLContext) };
         window->InitPlugin(GetPluginContext(),
                            GetPluginConfig());
 
@@ -114,9 +117,28 @@ public:
         return true;
     }
 
+    void InitFreeTypeGLContext() {
+        if (!DefaultTermUI::m_FreeTypeGLContext) {
+            DefaultTermUI::m_FreeTypeGLContext = freetype_gl_init();
+
+            TermContextPtr context = std::dynamic_pointer_cast<TermContext>(GetPluginContext());
+
+            if (context) {
+                AppConfigPtr appConfig = context->GetAppConfig();
+
+                auto font_size = appConfig->GetEntryUInt64("/term/font/size", 16);
+                auto font_name = appConfig->GetEntry("/term/font/name", "Mono");
+
+                DefaultTermUI::m_FreeTypeGLContext->init_font(font_name, font_size);
+            }
+        }
+    }
+
     int32_t StartMainUILoop() {
         glfwWindowHint( GLFW_VISIBLE, GL_FALSE );
         glfwWindowHint( GLFW_RESIZABLE, GL_TRUE );
+
+        InitFreeTypeGLContext();
 
         pybind11::gil_scoped_release release;
 
@@ -145,6 +167,7 @@ public:
 };
 
 __GLTermUIInitializer DefaultTermUI::_initializer;
+freetype_gl_context_ptr DefaultTermUI::m_FreeTypeGLContext;
 
 TermUIPtr CreateOpenGLTermUI() {
     return TermUIPtr{ new DefaultTermUI()};
