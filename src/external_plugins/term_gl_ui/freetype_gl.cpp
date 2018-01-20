@@ -1,5 +1,7 @@
 #include "freetype_gl.h"
 
+#include <string.h>
+
 freetype_gl_context_ptr freetype_gl_init() {
     freetype_gl_context_ptr ptr = std::make_shared<freetype_gl_context>();
 
@@ -32,13 +34,10 @@ ftgl::texture_font_t * freetype_gl_context::get_font(FontCategoryEnum font_categ
     if (fonts_markup[font_category].font)
         return fonts_markup[font_category].font;
 
-    fonts_markup[font_category] = {
-        .family = strdup(font_name.c_str()),
-        .size = (float)font_size,
-        .bold = (font_category == FontCategoryEnum::Bold || font_category == FontCategoryEnum::BoldUnderlined),
-        .underline = (font_category == FontCategoryEnum::Underlined || font_category == FontCategoryEnum::BoldUnderlined)
-    };
-
+    fonts_markup[font_category].family = strdup(font_name.c_str());
+    fonts_markup[font_category].size = (float)font_size;
+    fonts_markup[font_category].bold = (font_category == FontCategoryEnum::Bold || font_category == FontCategoryEnum::BoldUnderlined);
+    fonts_markup[font_category].underline = (font_category == FontCategoryEnum::Underlined || font_category == FontCategoryEnum::BoldUnderlined);
     fonts_markup[font_category].font =
             font_manager_get_from_markup(font_manager,
                                          &fonts_markup[font_category]);
