@@ -4,6 +4,8 @@
 #include "term_context.h"
 #include "term_network.h"
 
+#include <iostream>
+
 #define PADDING (5)
 
 // ---------------------------------------------------------------- reshape ---
@@ -112,8 +114,12 @@ void DefaultTermWindow::OnSize(int width, int height) {
     if (!buffer)
         return;
 
-    buffer->Resize((height - PADDING * 2) / 16,
-                   (width - PADDING * 2) / 9);
+    buffer->Resize((height - PADDING * 2) / m_FreeTypeGLContext->line_height,
+                   (width - PADDING * 2) / m_FreeTypeGLContext->col_width);
+
+    std::cout << "row:" << buffer->GetRows()
+              << ", cols:" << buffer->GetCols()
+              << std::endl;
 
     TermNetworkPtr network = context->GetTermNetwork();
 

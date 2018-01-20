@@ -100,7 +100,6 @@ ftgl::texture_font_t * freetype_gl_context::get_font(FontCategoryEnum font_categ
             font_manager_get_from_markup(font_manager,
                                          &fonts_markup[font_category]);
 
-
     return fonts_markup[font_category].font;
 }
 
@@ -112,19 +111,24 @@ void freetype_gl_context::init_font(const std::string & name, uint64_t size) {
 
     ftgl::texture_font_t * f = get_font(FontCategoryEnum::Default);
 
-    float line_height = font_size, col_width = 0.0f;
+    std::cout << "a:" << f->ascender
+              << ",d:" << f->descender
+              << ",l:" << f->linegap
+              << ",h:" << f->height
+              << std::endl;
+
+    this->line_height = f->height;
+    this->col_width = 0.0f;
 
     (void)f;
     for(size_t i=0;i < strlen(SINGLE_WIDTH_CHARACTERS); i++) {
         ftgl::texture_glyph_t *glyph =
                 texture_font_get_glyph(f,
                                        &SINGLE_WIDTH_CHARACTERS[i]);
-        if( glyph != NULL ) {
-            if (line_height < glyph->advance_y)
-                line_height = glyph->advance_y;
 
-            if (col_width < glyph->advance_x) {
-                col_width = glyph->advance_x;
+        if( glyph != NULL ) {
+            if (this->col_width < glyph->advance_x) {
+                this->col_width = glyph->advance_x;
             }
         }
     }
