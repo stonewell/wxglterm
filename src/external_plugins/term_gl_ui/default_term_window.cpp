@@ -101,9 +101,9 @@ uint32_t DefaultTermWindow::GetColorByIndex(uint32_t index) {
 #define COLOR(x) ((uint8_t)((x) * 255))
 
     return (COLOR(c.r) << 24)
-            || (COLOR(c.g) << 16)
-            || (COLOR(c.b) << 8)
-            || (COLOR(c.a));
+            | (COLOR(c.g) << 16)
+            | (COLOR(c.b) << 8)
+            | (COLOR(c.a));
 #undef COLOR
 }
 
@@ -319,6 +319,7 @@ void DefaultTermWindow::DrawContent(std::wstring & content,
 
     auto font {m_FreeTypeGLContext->get_font(FontCategoryEnum::Default)};
 
+    (void)font;
     if (m.test(TermCell::Bold) ||
         buffer_mode.test(TermCell::Bold)) {
         if (back_color_use < 8)
