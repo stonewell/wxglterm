@@ -84,23 +84,29 @@ match_description(const char * description )
     return filename;
 }
 
-ftgl::texture_font_t * freetype_gl_context::get_font(FontCategoryEnum font_category) {
+ftgl::markup_t * freetype_gl_context::get_font(FontCategoryEnum font_category) {
     if (fonts_markup[font_category].font)
-        return fonts_markup[font_category].font;
+        return &fonts_markup[font_category];
+
+    bool bold = (font_category == FontCategoryEnum::Bold || font_category == FontCategoryEnum::BoldUnderlined);
 
     std::stringstream ss;
     ss << font_name << ":size=" << font_size;
 
+    if (bold)
+        ss << ":weight=bold";
+
     fonts_markup[font_category].family = match_description(ss.str().c_str());
     fonts_markup[font_category].size = (float)font_size;
-    fonts_markup[font_category].bold = (font_category == FontCategoryEnum::Bold || font_category == FontCategoryEnum::BoldUnderlined);
+    fonts_markup[font_category].bold = bold;
     fonts_markup[font_category].underline = (font_category == FontCategoryEnum::Underlined || font_category == FontCategoryEnum::BoldUnderlined);
 
     fonts_markup[font_category].font =
             font_manager_get_from_markup(font_manager,
                                          &fonts_markup[font_category]);
+    fonts_markup[font_category].font->kerning = 0.0f;
 
-    return fonts_markup[font_category].font;
+    return &fonts_markup[font_category];
 }
 
 void freetype_gl_context::init_font(const std::string & name, uint64_t size) {
@@ -109,12 +115,13 @@ void freetype_gl_context::init_font(const std::string & name, uint64_t size) {
 
     cleanup();
 
-    ftgl::texture_font_t * f = get_font(FontCategoryEnum::Default);
+    ftgl::texture_font_t * f = get_font(FontCategoryEnum::Default)->font;
 
     std::cout << "a:" << f->ascender
               << ",d:" << f->descender
               << ",l:" << f->linegap
               << ",h:" << f->height
+              << "," << f->filename
               << std::endl;
 
     this->line_height = f->height;

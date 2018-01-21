@@ -24,7 +24,7 @@ public:
     float line_height;
     float col_width;
 
-    ftgl::texture_font_t * get_font(FontCategoryEnum font_category);
+    ftgl::markup_t * get_font(FontCategoryEnum font_category);
     void init_font(const std::string & name, uint64_t size);
 
 private:
