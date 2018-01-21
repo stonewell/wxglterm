@@ -27,9 +27,15 @@ SET(term_gl_ui_src
   default_term_window.h default_term_window.cpp
   plugin_base.h
   freetype_gl.cpp freetype_gl.h
+  shader.cpp shader.h
+  mat4.cpp mat4.h
 )
 
-ADD_LIBRARY(term_gl_ui SHARED ${term_gl_ui_src})
+EXTERNALPROJECT_GET_PROPERTY(freetype-gl SOURCE_DIR BINARY_DIR)
+
+ADD_LIBRARY(term_gl_ui SHARED ${term_gl_ui_src}
+		       text_vert.inc text_frag.inc
+		       )
 
 ADD_DEPENDENCIES(term_gl_ui freetype-gl)
 
@@ -38,11 +44,17 @@ SET_TARGET_PROPERTIES( term_gl_ui
     LIBRARY_OUTPUT_DIRECTORY "${CMAKE_BINARY_DIR}/plugins"
 )
 
-EXTERNALPROJECT_GET_PROPERTY(freetype-gl SOURCE_DIR BINARY_DIR)
-
-SET(CMAKE_MODULE_PATH ${CMAKE_MODULE_PATH} "${SOURCE_DIR}/cmake/Modules/")
 
 FIND_PACKAGE(FontConfig REQUIRED)
+
+ADD_CUSTOM_COMMAND(OUTPUT text_vert.inc
+  COMMAND ${PYTHON_EXECUTABLE} ${CMAKE_CURRENT_SOURCE_DIR}/../../../utils/pystmt_generator/pystmt_generator.py -i ${SOURCE_DIR}/shaders/text.vert -o text_vert.inc
+  DEPENDS ${SOURCE_DIR}/shaders/text.vert ${CMAKE_CURRENT_SOURCE_DIR}/../../../utils/pystmt_generator/pystmt_generator.py
+  )
+ADD_CUSTOM_COMMAND(OUTPUT text_frag.inc
+  COMMAND ${PYTHON_EXECUTABLE} ${CMAKE_CURRENT_SOURCE_DIR}/../../../utils/pystmt_generator/pystmt_generator.py -i ${SOURCE_DIR}/shaders/text.frag -o text_frag.inc
+  DEPENDS ${SOURCE_DIR}/shaders/text.frag ${CMAKE_CURRENT_SOURCE_DIR}/../../../utils/pystmt_generator/pystmt_generator.py
+  )
 
 SET(freetype-gl_INCLUDE_DIR ${SOURCE_DIR})
 SET(freetype-gl_LIBRARIES ${BINARY_DIR}/${CMAKE_STATIC_LIBRARY_PREFIX}freetype-gl${CMAKE_STATIC_LIBRARY_SUFFIX})
@@ -52,6 +64,7 @@ TARGET_INCLUDE_DIRECTORIES(term_gl_ui
 	$<TARGET_PROPERTY:glfw,INTERFACE_INCLUDE_DIRECTORIES>
     PRIVATE
 	"${CMAKE_CURRENT_SRC_DIR}"
+	"${CMAKE_CURRENT_BINARY_DIR}"
         "${pybind11_INCLUDE_DIRS}"
 	"${PYTHON_INCLUDE_DIRS}"
   	"ui"

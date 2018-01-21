@@ -4,8 +4,13 @@
 #include "term_window.h"
 #include "term_cell.h"
 
-#include <GLFW/glfw3.h>
 #include "freetype_gl.h"
+#include "text-buffer.h"
+#include "markup.h"
+#include "mat4.h"
+
+#include <GLFW/glfw3.h>
+#include <vec234.h>
 
 #include <bitset>
 #include <string>
@@ -17,7 +22,8 @@ public:
     DefaultTermWindow(freetype_gl_context_ptr context) :
         PluginBase("term_gl_window", "opengl terminal window plugin", 1)
         , m_MainDlg {nullptr}
-        , m_FreeTypeGLContext {context}{
+        , m_FreeTypeGLContext {context}
+        , m_TextBuffer {nullptr}{
     }
 
     virtual ~DefaultTermWindow() {
@@ -48,8 +54,14 @@ private:
     GLFWwindow * m_MainDlg;
     freetype_gl_context_ptr m_FreeTypeGLContext;
     ftgl::vec4 m_ColorTable[TermCell::ColorIndexCount];
+    ftgl::text_buffer_t * m_TextBuffer;
+    GLuint m_TextShader;
+    ftgl::mat4 model, view, projection;
 
-    void DrawContent(std::wstring & content,
+    void Init();
+    void DoDraw();
+    void DrawContent(ftgl::text_buffer_t * buf,
+                     std::wstring & content,
                      std::bitset<16> & buffer_mode,
                      uint16_t & last_fore_color,
                      uint16_t & last_back_color,
@@ -59,4 +71,5 @@ private:
                      uint16_t mode,
                      float & last_x,
                      float & last_y);
+    void InitColorTable();
 };

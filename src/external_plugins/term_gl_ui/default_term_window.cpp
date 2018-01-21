@@ -1,14 +1,26 @@
+#include <pybind11/embed.h>
+
 #include "default_term_window.h"
 
 #include "term_buffer.h"
 #include "term_context.h"
 #include "term_network.h"
+#include "color_theme.h"
 
 #include "char_width.h"
 
+#include "shader.h"
+
 #include <iostream>
+#include <iterator>
+#include <functional>
+#include <locale>
+#include <codecvt>
 
 #define PADDING (5)
+
+static
+std::wstring_convert<std::codecvt_utf8<wchar_t>, wchar_t> wcharconv;
 
 // ---------------------------------------------------------------- reshape ---
 static
@@ -77,11 +89,15 @@ void DefaultTermWindow::Show() {
         glfwSetKeyCallback(m_MainDlg, keyboard );
         glfwSetWindowCloseCallback(m_MainDlg, close);
         glfwSetWindowUserPointer(m_MainDlg, this);
+
+        InitColorTable();
     }
 
     glfwShowWindow(m_MainDlg);
     glfwMakeContextCurrent(m_MainDlg);
     glfwSwapInterval( 1 );
+
+    Init();
 }
 
 void DefaultTermWindow::Close() {
@@ -119,6 +135,8 @@ void DefaultTermWindow::SetSelectionData(const std::string & sel_data) {
 
 void DefaultTermWindow::OnSize(int width, int height) {
 
+    mat4_set_orthographic( &projection, 0, width, 0, height, -1, 1);
+
     TermContextPtr context = std::dynamic_pointer_cast<TermContext>(GetPluginContext());
 
     if (!context)
@@ -149,6 +167,45 @@ bool DefaultTermWindow::ShouldClose() {
     return glfwWindowShouldClose(m_MainDlg);
 }
 
+void DefaultTermWindow::InitColorTable()
+{
+#define C2V(x) ((float)(x) / 255)
+    TermContextPtr context = std::dynamic_pointer_cast<TermContext>(GetPluginContext());
+    TermColorThemePtr color_theme = context->GetTermColorTheme();
+
+    try
+    {
+        pybind11::gil_scoped_acquire acquire;
+
+        for(int i = 0; i < TermCell::ColorIndexCount;i++)
+        {
+            TermColorPtr color = color_theme->GetColor(i);
+
+            m_ColorTable[i] = {{C2V(color->r),
+                                C2V(color->g),
+                                C2V(color->b),
+                                C2V(color->a)
+                }};
+        }
+    }
+    catch(std::exception & e)
+    {
+        std::cerr << "!!Error InitColorTable:"
+                  << std::endl
+                  << e.what()
+                  << std::endl;
+        PyErr_Print();
+    }
+    catch(...)
+    {
+        std::cerr << "!!Error InitColorTable"
+                  << std::endl;
+        PyErr_Print();
+    }
+
+#undef C2V
+}
+
 static
 bool contains(const std::vector<uint32_t> & rowsToDraw, uint32_t row) {
     for(auto & it : rowsToDraw) {
@@ -160,6 +217,53 @@ bool contains(const std::vector<uint32_t> & rowsToDraw, uint32_t row) {
 }
 
 void DefaultTermWindow::OnDraw() {
+    auto background_color = m_ColorTable[TermCell::DefaultBackColorIndex];
+
+    glClearColor(background_color.r,
+                 background_color.g,
+                 background_color.b,
+                 background_color.a);
+    glClear( GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT );
+
+    glColor4f(1.00,1.00,1.00,1.00);
+
+    DoDraw();
+
+    auto font_manager = m_FreeTypeGLContext->font_manager;
+
+    glUseProgram( m_TextShader );
+    {
+        glUniformMatrix4fv( glGetUniformLocation( m_TextShader, "model" ),
+                            1, 0, model.data);
+        glUniformMatrix4fv( glGetUniformLocation( m_TextShader, "view" ),
+                            1, 0, view.data);
+        glUniformMatrix4fv( glGetUniformLocation( m_TextShader, "projection" ),
+                            1, 0, projection.data);
+        glUniform1i( glGetUniformLocation( m_TextShader, "tex" ), 0 );
+        glUniform3f( glGetUniformLocation( m_TextShader, "pixel" ),
+                     1.0f/font_manager->atlas->width,
+                     1.0f/font_manager->atlas->height,
+                     (float)font_manager->atlas->depth );
+
+        glEnable( GL_BLEND );
+
+        glActiveTexture( GL_TEXTURE0 );
+        glBindTexture( GL_TEXTURE_2D, font_manager->atlas->id );
+
+        glBlendFunc( GL_SRC_ALPHA, GL_ONE_MINUS_SRC_ALPHA );
+        glBlendColor( 1, 1, 1, 1 );
+
+        vertex_buffer_render( m_TextBuffer->buffer, GL_TRIANGLES );
+        glBindTexture( GL_TEXTURE_2D, 0 );
+        glBlendColor( 0, 0, 0, 0 );
+        glUseProgram( 0 );
+    }
+
+    glfwSwapBuffers(m_MainDlg);
+    std::cout << "repaint............" << std::endl;
+}
+
+void DefaultTermWindow::DoDraw() {
     TermContextPtr context = std::dynamic_pointer_cast<TermContext>(GetPluginContext());
 
     if (!context)
@@ -200,7 +304,8 @@ void DefaultTermWindow::OnDraw() {
 
             if (content.size() > 0)
             {
-                DrawContent(content,
+                DrawContent(m_TextBuffer,
+                            content,
                             m,
                             last_fore_color,
                             last_back_color,
@@ -244,7 +349,8 @@ void DefaultTermWindow::OnDraw() {
                     || last_back_color != back_color
                     || last_mode != mode)
                 {
-                    DrawContent(content,
+                    DrawContent(m_TextBuffer,
+                                content,
                                 m,
                                 last_fore_color,
                                 last_back_color,
@@ -271,7 +377,8 @@ void DefaultTermWindow::OnDraw() {
         }
         else if (content.size() > 0)
         {
-            DrawContent(content,
+            DrawContent(m_TextBuffer,
+                        content,
                         m,
                         last_fore_color,
                         last_back_color,
@@ -289,7 +396,8 @@ void DefaultTermWindow::OnDraw() {
 
     if (content.size() > 0)
     {
-        DrawContent(content,
+        DrawContent(m_TextBuffer,
+                    content,
                     m,
                     last_fore_color,
                     last_back_color,
@@ -302,24 +410,24 @@ void DefaultTermWindow::OnDraw() {
     }
 }
 
-void DefaultTermWindow::DrawContent(std::wstring & content,
-                           std::bitset<16> & buffer_mode,
-                           uint16_t & last_fore_color,
-                           uint16_t & last_back_color,
-                           uint16_t & last_mode,
-                           uint16_t fore_color,
-                           uint16_t back_color,
-                           uint16_t mode,
-                           float & last_x,
-                           float & last_y) {
+void DefaultTermWindow::DrawContent(ftgl::text_buffer_t * buf,
+                                    std::wstring & content,
+                                    std::bitset<16> & buffer_mode,
+                                    uint16_t & last_fore_color,
+                                    uint16_t & last_back_color,
+                                    uint16_t & last_mode,
+                                    uint16_t fore_color,
+                                    uint16_t back_color,
+                                    uint16_t mode,
+                                    float & last_x,
+                                    float & last_y) {
     std::bitset<16> m(last_mode);
 
     uint16_t back_color_use = last_back_color;
     uint16_t fore_color_use = last_fore_color;
 
-    auto font {m_FreeTypeGLContext->get_font(FontCategoryEnum::Default)};
+    auto font {*m_FreeTypeGLContext->get_font(FontCategoryEnum::Default)};
 
-    (void)font;
     if (m.test(TermCell::Bold) ||
         buffer_mode.test(TermCell::Bold)) {
         if (back_color_use < 8)
@@ -328,7 +436,7 @@ void DefaultTermWindow::DrawContent(std::wstring & content,
         if (fore_color_use < 8)
             fore_color_use += 8;
 
-        font = m_FreeTypeGLContext->get_font(FontCategoryEnum::Bold);
+        font = *m_FreeTypeGLContext->get_font(FontCategoryEnum::Bold);
     }
 
     if (m.test(TermCell::Cursor))
@@ -345,23 +453,50 @@ void DefaultTermWindow::DrawContent(std::wstring & content,
         fore_color_use = tmp;
     }
 
-    for(const auto & c : content) {
-        if (c == '\n') {
-            last_y += m_FreeTypeGLContext->line_height;
-            last_x = PADDING;
-            continue;
-        }
+    font.foreground_color = m_ColorTable[fore_color_use];
+    font.background_color = m_ColorTable[back_color_use];
 
-        auto w = char_width(c);
+    std::string bytes = wcharconv.to_bytes(content);
 
-        if (!w || w == (size_t)-1) continue;
+    ftgl::vec2 pen = {{last_x, last_y}};
 
-
-        last_x += w * m_FreeTypeGLContext->col_width;
-    }
+    ftgl::text_buffer_printf(buf,
+                             &pen,
+                             &font,
+                             bytes.c_str(),
+                             NULL);
 
     content.clear();
+
+    last_x = pen.x;
+    last_y = pen.y;
+
     last_fore_color = fore_color;
     last_back_color = back_color;
     last_mode = mode;
+
+    std::cout << bytes << "," << std::endl << last_x << "," << last_y << std::endl;
+}
+
+void DefaultTermWindow::Init() {
+    if (!m_TextBuffer) {
+        m_TextShader = shader_load();
+        m_TextBuffer = ftgl::text_buffer_new( );
+    }
+
+    auto font_manager = m_FreeTypeGLContext->font_manager;
+
+    glGenTextures( 1, &font_manager->atlas->id );
+    glBindTexture( GL_TEXTURE_2D, font_manager->atlas->id );
+    glTexParameteri( GL_TEXTURE_2D, GL_TEXTURE_WRAP_S, GL_CLAMP_TO_EDGE );
+    glTexParameteri( GL_TEXTURE_2D, GL_TEXTURE_WRAP_T, GL_CLAMP_TO_EDGE );
+    glTexParameteri( GL_TEXTURE_2D, GL_TEXTURE_MAG_FILTER, GL_LINEAR );
+    glTexParameteri( GL_TEXTURE_2D, GL_TEXTURE_MIN_FILTER, GL_LINEAR );
+    glTexImage2D( GL_TEXTURE_2D, 0, GL_RGB, font_manager->atlas->width,
+                  font_manager->atlas->height, 0, GL_RGB, GL_UNSIGNED_BYTE,
+                  font_manager->atlas->data );
+
+    mat4_set_identity( &projection );
+    mat4_set_identity( &model );
+    mat4_set_identity( &view );
 }

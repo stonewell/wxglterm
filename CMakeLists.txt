@@ -20,6 +20,8 @@ IF(NOT CMAKE_BUILD_TYPE)
   #SET(CMAKE_BUILD_TYPE "MINSIZEREL")
 ENDIF()
 
+SET(CMAKE_MODULE_PATH ${CMAKE_MODULE_PATH} "${CMAKE_CURRENT_SOURCE_DIR}/cmake/Modules/")
+
 if ("${CMAKE_CXX_COMPILER_ID}" STREQUAL "GNU")
   set(warnings "-Wall -Wextra -Werror")
 elseif ("${CMAKE_CXX_COMPILER_ID}" STREQUAL "Clang")
@@ -29,10 +31,11 @@ elseif ("${CMAKE_CXX_COMPILER_ID}" STREQUAL "MSVC")
 endif()
 
 if (NOT CONFIGURED_ONCE)
-    set(CMAKE_CXX_FLAGS "-std=c++14 -fPIC ${warnings}"
+    set(CMAKE_CXX_FLAGS "-fPIC ${warnings}"
         CACHE STRING "Flags used by the compiler during all build types." FORCE)
-    set(CMAKE_C_FLAGS   "-fPIC ${warnings}"
+    set(CMAKE_C_FLAGS "-fPIC ${warnings}"
         CACHE STRING "Flags used by the compiler during all build types." FORCE)
+    ADD_COMPILE_OPTIONS($<$<COMPILE_LANGUAGE:CXX>:-std=c++14> $<$<COMPILE_LANGUAGE:C>:-std=c99>)
 endif()
 
 FIND_PACKAGE(pybind11 REQUIRED)
