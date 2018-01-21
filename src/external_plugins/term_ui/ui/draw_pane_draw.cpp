@@ -317,10 +317,16 @@ void DrawPane::DoPaint(wxDC & dc, TermBufferPtr buffer, bool full_paint, const s
 
     if (content.Length() > 0)
     {
-        dc.SetTextForeground(m_ColorTable[last_fore_color]);
-        dc.SetTextBackground(m_ColorTable[last_back_color]);
-
-        dc.DrawText(content, last_x, last_y);
+        DrawContent(dc, content,
+                    m,
+                    last_fore_color,
+                    last_back_color,
+                    last_mode,
+                    TermCell::DefaultForeColorIndex,
+                    TermCell::DefaultBackColorIndex,
+                    0,
+                    last_x,
+                    last_y);
     }
 }
 
