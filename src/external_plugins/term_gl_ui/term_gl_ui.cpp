@@ -85,8 +85,10 @@ public:
         return window;
     }
 
-    void ProcessTasks() {
+    double ProcessTasks() {
         auto cur_time = glfwGetTime();
+
+        double next_end_time = 0.0;
 
         for(auto & entry : m_Tasks) {
             if (entry.done) continue;
@@ -101,8 +103,13 @@ public:
                 } else {
                     entry.done = true;
                 }
+            } else if (next_end_time == 0.0
+                       || entry.end_time < next_end_time) {
+                next_end_time = entry.end_time;
             }
         }
+
+        return next_end_time == 0.0 ? 0.0 : (next_end_time - cur_time);
     }
 
     bool AllWindowClosed() {
@@ -151,12 +158,16 @@ public:
 
         pybind11::gil_scoped_release release;
 
-        ProcessTasks();
+        double delta = ProcessTasks();
 
         while (!AllWindowClosed())
         {
-            glfwPollEvents( );
-            ProcessTasks();
+            if (delta) {
+                glfwWaitEventsTimeout(delta / 1000);
+            } else {
+                glfwWaitEvents();
+            }
+            delta = ProcessTasks();
             UpdateAllWindows();
         }
 
@@ -174,6 +185,7 @@ public:
 
         m_Tasks.push_back(entry);
 
+        glfwPostEmptyEvent();
         return true;
     }
 };
