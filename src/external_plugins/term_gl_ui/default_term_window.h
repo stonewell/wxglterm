@@ -47,6 +47,9 @@ public:
     void OnDraw();
     void UpdateWindow();
 
+    void OnKeyDown(int key, int scancode, int mods);
+    void OnChar(unsigned int codepoint, int mods);
+
 private:
     GLFWwindow * m_MainDlg;
     freetype_gl_context_ptr m_FreeTypeGLContext;
