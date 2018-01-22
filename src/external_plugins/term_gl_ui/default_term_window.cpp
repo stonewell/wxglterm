@@ -74,7 +74,24 @@ void close( GLFWwindow* window )
 }
 
 
+DefaultTermWindow::DefaultTermWindow(freetype_gl_context_ptr context) :
+    PluginBase("term_gl_window", "opengl terminal window plugin", 1)
+    , m_MainDlg {nullptr}
+    , m_FreeTypeGLContext {context}
+    , m_TextBuffer {nullptr}
+    , m_RefreshNow {0} {
+
+    mat4_set_identity( &m_Projection );
+    mat4_set_identity( &m_Model );
+    mat4_set_identity( &m_View );
+      }
+
 void DefaultTermWindow::Refresh() {
+    {
+        std::lock_guard<std::mutex> lk(m_RefreshLock);
+        m_RefreshNow++;
+    }
+    glfwPostEmptyEvent();
 }
 
 void DefaultTermWindow::Show() {
@@ -106,8 +123,6 @@ void DefaultTermWindow::Show() {
     Init();
 
     glfwShowWindow(m_MainDlg);
-    glViewport(0, 0, width, height);
-    mat4_set_orthographic( &projection, 0, width, 0, height, -1, 1);
 }
 
 void DefaultTermWindow::Close() {
@@ -145,7 +160,7 @@ void DefaultTermWindow::SetSelectionData(const std::string & sel_data) {
 
 void DefaultTermWindow::OnSize(int width, int height) {
 
-    mat4_set_orthographic( &projection, 0, width, 0, height, -1, 1);
+    mat4_set_orthographic( &m_Projection, 0, width, 0, height, -1, 1);
 
     TermContextPtr context = std::dynamic_pointer_cast<TermContext>(GetPluginContext());
 
@@ -162,6 +177,8 @@ void DefaultTermWindow::OnSize(int width, int height) {
 
     std::cout << "row:" << buffer->GetRows()
               << ", cols:" << buffer->GetCols()
+              << ", w:" << width
+              << ", h:" << height
               << std::endl;
 
     TermNetworkPtr network = context->GetTermNetwork();
@@ -247,11 +264,11 @@ void DefaultTermWindow::OnDraw() {
     glUseProgram( m_TextShader );
     {
         glUniformMatrix4fv( glGetUniformLocation( m_TextShader, "model" ),
-                            1, 0, model.data);
+                            1, 0, m_Model.data);
         glUniformMatrix4fv( glGetUniformLocation( m_TextShader, "view" ),
-                            1, 0, view.data);
+                            1, 0, m_View.data);
         glUniformMatrix4fv( glGetUniformLocation( m_TextShader, "projection" ),
-                            1, 0, projection.data);
+                            1, 0, m_Projection.data);
         glUniform1i( glGetUniformLocation( m_TextShader, "tex" ), 0 );
         glUniform3f( glGetUniformLocation( m_TextShader, "pixel" ),
                      1.0f/font_manager->atlas->width,
@@ -431,8 +448,6 @@ void DefaultTermWindow::DoDraw() {
                     last_x,
                     last_y);
     }
-
-    mat4_set_orthographic( &projection, 0, width, 0, height, -1, 1);
 }
 
 void DefaultTermWindow::DrawContent(ftgl::text_buffer_t * buf,
@@ -518,8 +533,21 @@ void DefaultTermWindow::Init() {
     glTexImage2D( GL_TEXTURE_2D, 0, GL_RGB, font_manager->atlas->width,
                   font_manager->atlas->height, 0, GL_RGB, GL_UNSIGNED_BYTE,
                   font_manager->atlas->data );
+}
 
-    mat4_set_identity( &projection );
-    mat4_set_identity( &model );
-    mat4_set_identity( &view );
+void DefaultTermWindow::UpdateWindow() {
+    int refresh_now = 0;
+
+    {
+        std::lock_guard<std::mutex> lk(m_RefreshLock);
+        refresh_now = m_RefreshNow;
+    }
+
+    if (refresh_now && m_MainDlg)
+        OnDraw();
+
+    {
+        std::lock_guard<std::mutex> lk(m_RefreshLock);
+        m_RefreshNow -= refresh_now;
+    }
 }

@@ -117,6 +117,15 @@ public:
         return true;
     }
 
+    void UpdateAllWindows() {
+        for(auto & window : m_Windows) {
+            DefaultTermWindow * pWindow =
+                    dynamic_cast<DefaultTermWindow*>(window.get());
+
+            pWindow->UpdateWindow();
+        }
+    }
+
     void InitFreeTypeGLContext() {
         if (!DefaultTermUI::m_FreeTypeGLContext) {
             DefaultTermUI::m_FreeTypeGLContext = freetype_gl_init();
@@ -148,6 +157,7 @@ public:
         {
             glfwPollEvents( );
             ProcessTasks();
+            UpdateAllWindows();
         }
 
         return 0;

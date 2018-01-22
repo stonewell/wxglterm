@@ -14,17 +14,13 @@
 
 #include <bitset>
 #include <string>
+#include <mutex>
 
 class DefaultTermWindow :
         public virtual PluginBase
         , public virtual TermWindow {
 public:
-    DefaultTermWindow(freetype_gl_context_ptr context) :
-        PluginBase("term_gl_window", "opengl terminal window plugin", 1)
-        , m_MainDlg {nullptr}
-        , m_FreeTypeGLContext {context}
-        , m_TextBuffer {nullptr}{
-    }
+    DefaultTermWindow(freetype_gl_context_ptr context);
 
     virtual ~DefaultTermWindow() {
         if (m_MainDlg)
@@ -49,6 +45,7 @@ public:
     void OnSize(int width, int height);
     bool ShouldClose();
     void OnDraw();
+    void UpdateWindow();
 
 private:
     GLFWwindow * m_MainDlg;
@@ -56,7 +53,9 @@ private:
     ftgl::vec4 m_ColorTable[TermCell::ColorIndexCount];
     ftgl::text_buffer_t * m_TextBuffer;
     GLuint m_TextShader;
-    ftgl::mat4 model, view, projection;
+    ftgl::mat4 m_Model, m_View, m_Projection;
+    std::mutex m_RefreshLock;
+    int m_RefreshNow;
 
     void Init();
     void DoDraw();
