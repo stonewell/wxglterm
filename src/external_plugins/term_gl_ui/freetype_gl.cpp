@@ -97,10 +97,20 @@ ftgl::markup_t * freetype_gl_context::get_font(FontCategoryEnum font_category) {
     if (bold)
         ss << ":weight=bold";
 
-    fonts_markup[font_category].family = match_description(ss.str().c_str());
-    fonts_markup[font_category].size = (float)font_size;
-    fonts_markup[font_category].bold = bold;
-    fonts_markup[font_category].underline = (font_category == FontCategoryEnum::Underlined || font_category == FontCategoryEnum::BoldUnderlined);
+    ftgl::vec4 white  = {{1.0, 1.0, 1.0, 1.0}};
+    ftgl::vec4 none   = {{1.0, 1.0, 1.0, 0.0}};
+
+    fonts_markup[font_category] = {
+        .family  = match_description(ss.str().c_str()),
+        .size    = (float)font_size, .bold    = bold,   .italic  = 0,
+        .spacing = 0.0,  .gamma   = 2.,
+        .foreground_color    = white, .background_color    = none,
+        .underline           = (font_category == FontCategoryEnum::Underlined || font_category == FontCategoryEnum::BoldUnderlined),
+        .underline_color     = white,
+        .overline            = 0,     .overline_color      = white,
+        .strikethrough       = 0,     .strikethrough_color = white,
+        .font = 0,
+    };
 
     fonts_markup[font_category].font =
             font_manager_get_from_markup(font_manager,

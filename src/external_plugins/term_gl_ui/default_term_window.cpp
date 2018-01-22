@@ -330,6 +330,24 @@ void DefaultTermWindow::DoDraw() {
     if (!buffer)
         return;
 
+    TermCellPtr cell = buffer->GetCurCell();
+
+    if (cell) {
+        if (cell->GetChar() == 0 && buffer->GetCol() > 0) {
+            cell = buffer->GetCell(buffer->GetRow(), buffer->GetCol() - 1);
+        }
+
+        if (cell) {
+            cell->AddMode(TermCell::Cursor);
+        }
+    }
+    else {
+        TermLinePtr line = buffer->GetCurLine();
+
+        if (line)
+            line->SetModified(true);
+    }
+
     if (m_TextBuffer)
         ftgl::text_buffer_delete(m_TextBuffer);
 
@@ -472,6 +490,19 @@ void DefaultTermWindow::DoDraw() {
                     last_x,
                     last_y);
     }
+
+    auto font_manager = m_FreeTypeGLContext->font_manager;
+    glBindTexture( GL_TEXTURE_2D, font_manager->atlas->id );
+    glTexParameteri( GL_TEXTURE_2D, GL_TEXTURE_WRAP_S, GL_CLAMP_TO_EDGE );
+    glTexParameteri( GL_TEXTURE_2D, GL_TEXTURE_WRAP_T, GL_CLAMP_TO_EDGE );
+    glTexParameteri( GL_TEXTURE_2D, GL_TEXTURE_MAG_FILTER, GL_LINEAR );
+    glTexParameteri( GL_TEXTURE_2D, GL_TEXTURE_MIN_FILTER, GL_LINEAR );
+    glTexImage2D( GL_TEXTURE_2D, 0, GL_RGB, font_manager->atlas->width,
+                  font_manager->atlas->height, 0, GL_RGB, GL_UNSIGNED_BYTE,
+                  font_manager->atlas->data );
+
+    if (cell)
+        cell->RemoveMode(TermCell::Cursor);
 }
 
 void DefaultTermWindow::DrawContent(ftgl::text_buffer_t * buf,
@@ -549,14 +580,6 @@ void DefaultTermWindow::Init() {
     auto font_manager = m_FreeTypeGLContext->font_manager;
 
     glGenTextures( 1, &font_manager->atlas->id );
-    glBindTexture( GL_TEXTURE_2D, font_manager->atlas->id );
-    glTexParameteri( GL_TEXTURE_2D, GL_TEXTURE_WRAP_S, GL_CLAMP_TO_EDGE );
-    glTexParameteri( GL_TEXTURE_2D, GL_TEXTURE_WRAP_T, GL_CLAMP_TO_EDGE );
-    glTexParameteri( GL_TEXTURE_2D, GL_TEXTURE_MAG_FILTER, GL_LINEAR );
-    glTexParameteri( GL_TEXTURE_2D, GL_TEXTURE_MIN_FILTER, GL_LINEAR );
-    glTexImage2D( GL_TEXTURE_2D, 0, GL_RGB, font_manager->atlas->width,
-                  font_manager->atlas->height, 0, GL_RGB, GL_UNSIGNED_BYTE,
-                  font_manager->atlas->data );
 }
 
 void DefaultTermWindow::UpdateWindow() {
@@ -579,6 +602,7 @@ void DefaultTermWindow::UpdateWindow() {
 void DefaultTermWindow::OnKeyDown(int key, int scancode, int mods) {
     (void)scancode;
 
+    std::cout << "key:" << key << ", scancode:" << scancode << ", mods:" << mods << std::endl;
     TermContextPtr context = std::dynamic_pointer_cast<TermContext>(GetPluginContext());
 
     if (!context)
