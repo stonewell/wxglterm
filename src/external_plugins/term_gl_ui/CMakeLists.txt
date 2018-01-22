@@ -30,6 +30,7 @@ SET(term_gl_ui_src
   freetype_gl.cpp freetype_gl.h
   shader.cpp shader.h
   mat4.cpp mat4.h
+  key_code_map.c
 )
 
 EXTERNALPROJECT_GET_PROPERTY(freetype-gl SOURCE_DIR BINARY_DIR)

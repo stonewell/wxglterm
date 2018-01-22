@@ -30,14 +30,17 @@ elseif ("${CMAKE_CXX_COMPILER_ID}" STREQUAL "MSVC")
     set(warnings "/W4 /WX /EHsc")
 endif()
 
+SET(CXX_STANDARD_REQUIRED OFF)
+SET(CXX_EXTENSION NO)
+
 if (NOT CONFIGURED_ONCE)
-    set(CMAKE_CXX_FLAGS "-fPIC ${warnings}"
-        CACHE STRING "Flags used by the compiler during all build types." FORCE)
     set(CMAKE_C_FLAGS "-fPIC ${warnings}"
         CACHE STRING "Flags used by the compiler during all build types." FORCE)
-    ADD_COMPILE_OPTIONS($<$<COMPILE_LANGUAGE:CXX>:-std=c++14> $<$<COMPILE_LANGUAGE:C>:-std=c99>)
+    set(CMAKE_CXX_FLAGS "-fPIC ${warnings} -std=c++14 -DXXX"
+        CACHE STRING "Flags used by the compiler during all build types." FORCE)
 endif()
 
+SET(PYBIND11_CPP_STANDARD "-DAVOID_STD_CXX_FLAG")
 FIND_PACKAGE(pybind11 REQUIRED)
 
 FIND_PACKAGE(PythonLibs 3 REQUIRED)

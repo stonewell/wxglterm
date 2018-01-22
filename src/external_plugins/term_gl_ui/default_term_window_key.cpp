@@ -11,6 +11,8 @@
 
 #include "shader.h"
 
+#include "key_code_map.h"
+
 #include <iostream>
 #include <iterator>
 #include <functional>
@@ -28,12 +30,6 @@ void DefaultTermWindow::OnKeyDown(int key, int scancode, int mods) {
 
     if (!context)
         return;
-
-    char c = key & 0xFF;
-
-    if (c >= 'A' && c <= 'Z' && (mods & GLFW_MOD_SHIFT)) {
-        c = c - 'A' + 'a';
-    }
 
     TermNetworkPtr network = context->GetTermNetwork();
 
@@ -98,7 +94,7 @@ void DefaultTermWindow::OnKeyDown(int key, int scancode, int mods) {
         return;
     }
 
-    if (key == GLFW_KEY_UNKNOWN && (mods & GLFW_MOD_ALT)){
+    if (mods & GLFW_MOD_ALT){
         data.push_back('\x1B');
     }
 
@@ -115,9 +111,13 @@ void DefaultTermWindow::OnKeyDown(int key, int scancode, int mods) {
             data.push_back((char)('_' - '[' + 27));
     }
 
-    if (key == GLFW_KEY_ENTER && (mods == 0))
-    {
-        data.push_back((char)13);
+    if (mods == 0) {
+        const char * c = get_mapped_key_code(key);
+
+        if (c) {
+            for(size_t i=0;i<strlen(c);i++)
+                data.push_back(c[i]);
+        }
     }
 
     if (data.size() == 0) {
@@ -125,14 +125,68 @@ void DefaultTermWindow::OnKeyDown(int key, int scancode, int mods) {
     }
 
     //add char when there only ALT pressed
-    if (data.size() == 1 && data[0] == '\x1B')
-        data.push_back(c);
+    if (data.size() == 1 && data[0] == '\x1B' && key >= 0 && key <0x80)
+        data.push_back((char)key);
 
     send_data(data);
 }
 
+static
+unsigned int translate_shift(unsigned int codepoint) {
+    static bool init = false;
+    static char code[0x80] = {0};
+
+    if (codepoint >= 0x80)
+        return codepoint;
+
+    if (!init) {
+        for(int i=0;i<0x80;i++) {
+            code[i] = i;
+        }
+
+        for(int i='a';i<='z';i++) {
+            code[i] = 'A' + i - 'a';
+        }
+        code['`'] = '~';
+        code['1'] = '!';
+        code['2'] = '@';
+        code['3'] = '#';
+        code['4'] = '$';
+        code['5'] = '%';
+        code['6'] = '^';
+        code['7'] = '&';
+        code['8'] = '*';
+        code['9'] = '(';
+        code['0'] = ')';
+        code['-'] = '_';
+        code['='] = '+';
+        code['['] = '{';
+        code[']'] = '}';
+        code['\\'] = '|';
+        code[';'] = ':';
+        code['\''] = '"';
+        code[','] = '<';
+        code['.'] = '>';
+        code['/'] = '?';
+
+        init = true;
+    }
+
+    return code[codepoint];
+}
+
 void DefaultTermWindow::OnChar(unsigned int codepoint, int mods) {
     (void)mods;
+    std::cout << "char:" << codepoint << ", mods:" << mods << std::endl;
+
+    //do not handle other modifiers in char callback except shift only
+    if (mods != 0) {
+        if (mods == GLFW_MOD_SHIFT) {
+            codepoint = translate_shift(codepoint);
+        } else {
+            return;
+        }
+    }
 
     TermContextPtr context = std::dynamic_pointer_cast<TermContext>(GetPluginContext());
 
