@@ -139,6 +139,16 @@ void DefaultTermWindow::Show() {
 
         glfwSetWindowUserPointer(m_MainDlg, this);
 
+#ifndef __APPLE__
+        GLenum err = glewInit();
+        if (GLEW_OK != err)
+        {
+            /* Problem: glewInit failed, something is seriously wrong. */
+            fprintf( stderr, "Error: %s\n", glewGetErrorString(err) );
+        }
+        fprintf( stderr, "Using GLEW %s\n", glewGetString(GLEW_VERSION) );
+#endif
+
         InitColorTable();
     } else {
         glfwMakeContextCurrent(m_MainDlg);

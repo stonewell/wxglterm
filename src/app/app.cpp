@@ -200,6 +200,13 @@ bool wxGLTermApp::DoInit()
     }
     else
     {
+        std::cerr << "fail to create plugins:"
+                  << "term_ui:" << term_ui
+                  << ",term_network:" << term_network
+                  << ",term_data_handler:" << term_data_handler
+                  << ",term_buffer:" << term_buffer
+                  << ",term_color_theme:" << term_color_theme
+                  << std::endl;
         return false;
     }
 }

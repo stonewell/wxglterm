@@ -46,6 +46,9 @@ SET_TARGET_PROPERTIES( term_gl_ui
 
 
 FIND_PACKAGE(FontConfig REQUIRED)
+IF(NOT APPLE)
+    find_package(GLEW REQUIRED)
+ENDIF()
 
 ADD_CUSTOM_COMMAND(OUTPUT text_vert.inc
   COMMAND ${PYTHON_EXECUTABLE} ${CMAKE_CURRENT_SOURCE_DIR}/../../../utils/pystmt_generator/pystmt_generator.py -i ${SOURCE_DIR}/shaders/text.vert -o text_vert.inc
@@ -84,6 +87,7 @@ TARGET_LINK_LIBRARIES(term_gl_ui
   ${FREETYPE_LIBRARIES}
   ${freetype-gl_LIBRARIES}
   ${FONTCONFIG_LIBRARY}
+  ${GLEW_LIBRARY}
   )
 
 INSTALL(TARGETS term_gl_ui DESTINATION share/wxglterm/plugins)
