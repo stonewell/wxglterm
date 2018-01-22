@@ -92,7 +92,7 @@ ftgl::markup_t * freetype_gl_context::get_font(FontCategoryEnum font_category) {
     bool bold = (font_category == FontCategoryEnum::Bold || font_category == FontCategoryEnum::BoldUnderlined);
 
     std::stringstream ss;
-    ss << font_name << ":size=" << font_size;
+    ss << font_name << ":size=" << font_size << ":lang=" << font_lang;
 
     if (bold)
         ss << ":weight=bold";
@@ -123,9 +123,10 @@ ftgl::markup_t * freetype_gl_context::get_font(FontCategoryEnum font_category) {
     return &fonts_markup[font_category];
 }
 
-void freetype_gl_context::init_font(const std::string & name, uint64_t size) {
+void freetype_gl_context::init_font(const std::string & name, uint64_t size, const std::string & lang) {
     this->font_name = name;
     this->font_size = size;
+    this->font_lang = lang;
 
     cleanup();
 

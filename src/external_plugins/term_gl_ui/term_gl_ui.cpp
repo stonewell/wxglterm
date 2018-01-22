@@ -144,8 +144,9 @@ public:
 
                 auto font_size = appConfig->GetEntryUInt64("/term/font/size", 16);
                 auto font_name = appConfig->GetEntry("/term/font/name", "Monospace");
+                auto font_lang = appConfig->GetEntry("/term/font/lang", "zh");
 
-                DefaultTermUI::m_FreeTypeGLContext->init_font(font_name, font_size);
+                DefaultTermUI::m_FreeTypeGLContext->init_font(font_name, font_size, font_lang);
             }
         }
     }
