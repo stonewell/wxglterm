@@ -142,6 +142,8 @@ public:
 
         pybind11::gil_scoped_release release;
 
+        ProcessTasks();
+
         while (!AllWindowClosed())
         {
             glfwPollEvents( );

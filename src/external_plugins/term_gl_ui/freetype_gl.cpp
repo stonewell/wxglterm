@@ -1,4 +1,5 @@
 #include "freetype_gl.h"
+#include "text-buffer.h"
 
 #include <string.h>
 #include <iostream>
@@ -21,7 +22,7 @@ freetype_gl_context_ptr freetype_gl_init() {
 }
 
 freetype_gl_context::freetype_gl_context()
-    : font_manager {ftgl::font_manager_new(512, 512, 1)}
+    : font_manager {ftgl::font_manager_new(512, 512, LCD_FILTERING_ON)}
     , font_name {"Mono"}
     , font_size {16} {
         memset(fonts_markup, 0, sizeof(fonts_markup));

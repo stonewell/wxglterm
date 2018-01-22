@@ -78,11 +78,18 @@ void DefaultTermWindow::Refresh() {
 }
 
 void DefaultTermWindow::Show() {
+    const GLFWvidmode* mode = glfwGetVideoMode(glfwGetPrimaryMonitor());
+
+    int width = mode->width;
+    int height = mode->height;
+
     if (!m_MainDlg) {
-        const GLFWvidmode* mode = glfwGetVideoMode(glfwGetPrimaryMonitor());
-        m_MainDlg = glfwCreateWindow( mode->width, mode->height, "wxglTerm",
+        m_MainDlg = glfwCreateWindow( width, height, "wxglTerm",
                                       NULL,
                                       NULL );
+
+        glfwMakeContextCurrent(m_MainDlg);
+        glfwSwapInterval( 1 );
 
         glfwSetFramebufferSizeCallback(m_MainDlg, reshape );
         glfwSetWindowRefreshCallback(m_MainDlg, display );
@@ -91,13 +98,16 @@ void DefaultTermWindow::Show() {
         glfwSetWindowUserPointer(m_MainDlg, this);
 
         InitColorTable();
+    } else {
+        glfwMakeContextCurrent(m_MainDlg);
+        glfwSwapInterval( 1 );
     }
 
-    glfwShowWindow(m_MainDlg);
-    glfwMakeContextCurrent(m_MainDlg);
-    glfwSwapInterval( 1 );
-
     Init();
+
+    glfwShowWindow(m_MainDlg);
+    glViewport(0, 0, width, height);
+    mat4_set_orthographic( &projection, 0, width, 0, height, -1, 1);
 }
 
 void DefaultTermWindow::Close() {
@@ -217,6 +227,10 @@ bool contains(const std::vector<uint32_t> & rowsToDraw, uint32_t row) {
 }
 
 void DefaultTermWindow::OnDraw() {
+    DoDraw();
+
+    auto font_manager = m_FreeTypeGLContext->font_manager;
+
     auto background_color = m_ColorTable[TermCell::DefaultBackColorIndex];
 
     glClearColor(background_color.r,
@@ -225,11 +239,10 @@ void DefaultTermWindow::OnDraw() {
                  background_color.a);
     glClear( GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT );
 
-    glColor4f(1.00,1.00,1.00,1.00);
-
-    DoDraw();
-
-    auto font_manager = m_FreeTypeGLContext->font_manager;
+    glColor4f(background_color.r,
+              background_color.g,
+              background_color.b,
+              background_color.a);
 
     glUseProgram( m_TextShader );
     {
@@ -251,7 +264,10 @@ void DefaultTermWindow::OnDraw() {
         glBindTexture( GL_TEXTURE_2D, font_manager->atlas->id );
 
         glBlendFunc( GL_SRC_ALPHA, GL_ONE_MINUS_SRC_ALPHA );
-        glBlendColor( 1, 1, 1, 1 );
+        glBlendColor(background_color.r,
+                     background_color.g,
+                     background_color.b,
+                     background_color.a);
 
         vertex_buffer_render( m_TextBuffer->buffer, GL_TRIANGLES );
         glBindTexture( GL_TEXTURE_2D, 0 );
@@ -260,7 +276,6 @@ void DefaultTermWindow::OnDraw() {
     }
 
     glfwSwapBuffers(m_MainDlg);
-    std::cout << "repaint............" << std::endl;
 }
 
 void DefaultTermWindow::DoDraw() {
@@ -274,14 +289,22 @@ void DefaultTermWindow::DoDraw() {
     if (!buffer)
         return;
 
+    if (m_TextBuffer)
+        ftgl::text_buffer_delete(m_TextBuffer);
+
+    m_TextBuffer = ftgl::text_buffer_new( );
+
     auto rows = buffer->GetRows();
     auto cols = buffer->GetCols();
 
-    float y = PADDING;
+    int width = 0, height = 0;
+    glfwGetFramebufferSize(m_MainDlg, &width, &height);
+
+    float y = height - PADDING;
 
     uint16_t last_fore_color = TermCell::DefaultForeColorIndex;
     uint16_t last_back_color = TermCell::DefaultBackColorIndex;
-    float last_y = PADDING;
+    float last_y = height - PADDING;
     float last_x = PADDING;
     uint16_t last_mode = 0;
     std::wstring content{L""};
@@ -300,7 +323,7 @@ void DefaultTermWindow::DoDraw() {
              && !line->IsModified())
             || (rowsToDraw.size() > 0 && !contains(rowsToDraw, row)))
         {
-            y += m_FreeTypeGLContext->line_height;
+            y -= m_FreeTypeGLContext->line_height;
 
             if (content.size() > 0)
             {
@@ -368,7 +391,7 @@ void DefaultTermWindow::DoDraw() {
 
         }
 
-        y += m_FreeTypeGLContext->line_height;
+        y -= m_FreeTypeGLContext->line_height;
 
         if (last_x == PADDING)
         {
@@ -408,6 +431,8 @@ void DefaultTermWindow::DoDraw() {
                     last_x,
                     last_y);
     }
+
+    mat4_set_orthographic( &projection, 0, width, 0, height, -1, 1);
 }
 
 void DefaultTermWindow::DrawContent(ftgl::text_buffer_t * buf,
@@ -474,8 +499,6 @@ void DefaultTermWindow::DrawContent(ftgl::text_buffer_t * buf,
     last_fore_color = fore_color;
     last_back_color = back_color;
     last_mode = mode;
-
-    std::cout << bytes << "," << std::endl << last_x << "," << last_y << std::endl;
 }
 
 void DefaultTermWindow::Init() {
