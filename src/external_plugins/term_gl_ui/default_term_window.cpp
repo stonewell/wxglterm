@@ -53,7 +53,7 @@ void keyboard( GLFWwindow* window, int key, int scancode, int action, int mods )
     if (!plugin)
         return;
 
-    if (action == GLFW_PRESS)
+    if (action == GLFW_PRESS || action == GLFW_REPEAT)
         plugin->OnKeyDown(key, scancode, mods);
 }
 

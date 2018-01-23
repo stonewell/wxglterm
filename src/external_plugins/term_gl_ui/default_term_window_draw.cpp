@@ -124,8 +124,6 @@ void DefaultTermWindow::DoDraw() {
     int width = 0, height = 0;
     glfwGetFramebufferSize(m_MainDlg, &width, &height);
 
-    float y = height - PADDING;
-
     uint16_t last_fore_color = TermCell::DefaultForeColorIndex;
     uint16_t last_back_color = TermCell::DefaultBackColorIndex;
     float last_y = height - PADDING;
@@ -147,10 +145,10 @@ void DefaultTermWindow::DoDraw() {
              && !line->IsModified())
             || (rowsToDraw.size() > 0 && !contains(rowsToDraw, row)))
         {
-            y -= m_FreeTypeGLContext->line_height;
-
             if (content.size() > 0)
             {
+                //append \n to make sure the last_y moving to next line
+                content.append(L"\n");
                 DrawContent(m_TextBuffer,
                             content,
                             m,
@@ -165,7 +163,6 @@ void DefaultTermWindow::DoDraw() {
             }
 
             last_x = PADDING;
-            last_y = y;
 
             continue;
         }
@@ -207,15 +204,12 @@ void DefaultTermWindow::DoDraw() {
                                 mode,
                                 last_x,
                                 last_y);
-                    last_y = y;
                 }
 
                 content.append(&ch, 1);
             }
 
         }
-
-        y -= m_FreeTypeGLContext->line_height;
 
         if (last_x == PADDING)
         {
@@ -224,6 +218,8 @@ void DefaultTermWindow::DoDraw() {
         }
         else if (content.size() > 0)
         {
+            //append \n to make sure the last_y moving to next line
+            content.append(L"\n");
             DrawContent(m_TextBuffer,
                         content,
                         m,
@@ -237,7 +233,6 @@ void DefaultTermWindow::DoDraw() {
                         last_y);
 
             last_x = PADDING;
-            last_y = y;
         }
     }
 
