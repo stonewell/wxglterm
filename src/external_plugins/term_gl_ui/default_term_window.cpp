@@ -170,11 +170,13 @@ uint32_t DefaultTermWindow::GetColorByIndex(uint32_t index) {
 
 #define COLOR(x) ((uint8_t)((x) * 255))
 
-    return (COLOR(c.r) << 24)
+    uint32_t cv = (COLOR(c.r) << 24)
             | (COLOR(c.g) << 16)
             | (COLOR(c.b) << 8)
             | (COLOR(c.a));
 #undef COLOR
+
+    return cv;
 }
 
 std::string DefaultTermWindow::GetSelectionData() {

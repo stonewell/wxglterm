@@ -106,6 +106,18 @@ void set_attributes(term_data_context_s & term_context,
     int32_t fore_color_idx = VALUE_NOT_CHANGE;
     int32_t back_color_idx = VALUE_NOT_CHANGE;
 
+    if (params.size() == 3
+        && (params[0] == 38 || params[0] == 48)
+        && (params[1] == 5)) {
+
+        if (params[0] == 38)
+            set_a_foreground(term_context, params);
+        else
+            set_a_background(term_context, params);
+
+        return;
+    }
+
     for(int v : params) {
         if (v == 0) {
             orig_pair(term_context, params);
