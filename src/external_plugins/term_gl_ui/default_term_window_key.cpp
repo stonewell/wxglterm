@@ -25,7 +25,6 @@ std::wstring_convert<std::codecvt_utf8<wchar_t>, wchar_t> wcharconv;
 void DefaultTermWindow::OnKeyDown(int key, int scancode, int mods) {
     (void)scancode;
 
-    std::cout << "key:" << key << ", scancode:" << scancode << ", mods:" << mods << std::endl;
     TermContextPtr context = std::dynamic_pointer_cast<TermContext>(GetPluginContext());
 
     if (!context)
@@ -177,7 +176,6 @@ unsigned int translate_shift(unsigned int codepoint) {
 
 void DefaultTermWindow::OnChar(unsigned int codepoint, int mods) {
     (void)mods;
-    std::cout << "char:" << codepoint << ", mods:" << mods << std::endl;
 
     //do not handle other modifiers in char callback except shift only
     if (mods != 0) {

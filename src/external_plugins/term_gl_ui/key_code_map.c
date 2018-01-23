@@ -3,6 +3,7 @@
 static
 const char * KEY_DATA[] = {
     0,
+    [GLFW_KEY_ESCAPE] = "\x1b",
     [GLFW_KEY_ENTER] = "\x0d",
     [GLFW_KEY_TAB] = "\x09",
     [GLFW_KEY_BACKSPACE] = "\x7f",
@@ -17,6 +18,7 @@ const char * KEY_DATA[] = {
     [GLFW_KEY_HOME] = "\x1BOH",
     [GLFW_KEY_END] = "\x1BOF",
     0,
+    [GLFW_KEY_LAST] = 0,
 };
 
 const char * get_mapped_key_code(int key) {
