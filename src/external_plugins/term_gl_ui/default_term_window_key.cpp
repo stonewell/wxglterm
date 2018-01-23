@@ -147,27 +147,27 @@ unsigned int translate_shift(unsigned int codepoint) {
         for(int i='a';i<='z';i++) {
             code[i] = 'A' + i - 'a';
         }
-        code['`'] = '~';
-        code['1'] = '!';
-        code['2'] = '@';
-        code['3'] = '#';
-        code['4'] = '$';
-        code['5'] = '%';
-        code['6'] = '^';
-        code['7'] = '&';
-        code['8'] = '*';
-        code['9'] = '(';
-        code['0'] = ')';
-        code['-'] = '_';
-        code['='] = '+';
-        code['['] = '{';
-        code[']'] = '}';
-        code['\\'] = '|';
-        code[';'] = ':';
-        code['\''] = '"';
-        code[','] = '<';
-        code['.'] = '>';
-        code['/'] = '?';
+        code[(int)'`'] = '~';
+        code[(int)'1'] = '!';
+        code[(int)'2'] = '@';
+        code[(int)'3'] = '#';
+        code[(int)'4'] = '$';
+        code[(int)'5'] = '%';
+        code[(int)'6'] = '^';
+        code[(int)'7'] = '&';
+        code[(int)'8'] = '*';
+        code[(int)'9'] = '(';
+        code[(int)'0'] = ')';
+        code[(int)'-'] = '_';
+        code[(int)'='] = '+';
+        code[(int)'['] = '{';
+        code[(int)']'] = '}';
+        code[(int)'\\'] = '|';
+        code[(int)';'] = ':';
+        code[(int)'\''] = '"';
+        code[(int)','] = '<';
+        code[(int)'.'] = '>';
+        code[(int)'/'] = '?';
 
         init = true;
     }
