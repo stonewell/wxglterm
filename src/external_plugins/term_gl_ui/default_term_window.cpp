@@ -112,6 +112,7 @@ void DefaultTermWindow::Refresh() {
     glfwPostEmptyEvent();
 }
 
+
 void DefaultTermWindow::Show() {
     const GLFWvidmode* mode = glfwGetVideoMode(glfwGetPrimaryMonitor());
 

@@ -146,6 +146,15 @@ public:
                 auto font_name = appConfig->GetEntry("/term/font/name", "Monospace");
                 auto font_lang = appConfig->GetEntry("/term/font/lang", "zh");
 
+                //convert font size to pixel
+                int widthMM, heightMM;
+                glfwGetMonitorPhysicalSize(glfwGetPrimaryMonitor(), &widthMM, &heightMM);
+                const GLFWvidmode* mode = glfwGetVideoMode(glfwGetPrimaryMonitor());
+
+                const double dpi = mode->width / (widthMM / 25.4);
+
+                font_size = font_size * dpi / 72;
+
                 DefaultTermUI::m_FreeTypeGLContext->init_font(font_name, font_size, font_lang);
             }
         }
