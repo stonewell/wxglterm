@@ -21,6 +21,8 @@ EXTERNALPROJECT_ADD(
   INSTALL_COMMAND ""
 )
 
+EXTERNALPROJECT_GET_PROPERTY(freetype-gl SOURCE_DIR BINARY_DIR)
+
 SET(term_gl_ui_src
   term_gl_ui_plugin.cpp
   term_gl_ui.cpp term_gl_ui.h
@@ -29,15 +31,14 @@ SET(term_gl_ui_src
   plugin_base.h
   freetype_gl.cpp freetype_gl.h
   shader.cpp shader.h
-  mat4.cpp mat4.h
+  ${SOURCE_DIR}/demos/mat4.c ${SOURCE_DIR}/demos/mat4.h
   key_code_map.c
-  term_text_buffer.c
+  term_text_buffer.h
 )
-
-EXTERNALPROJECT_GET_PROPERTY(freetype-gl SOURCE_DIR BINARY_DIR)
 
 ADD_LIBRARY(term_gl_ui SHARED ${term_gl_ui_src}
 		       text_vert.inc text_frag.inc
+		       term_text_buffer.c
 		       )
 
 ADD_DEPENDENCIES(term_gl_ui freetype-gl)
@@ -61,6 +62,10 @@ ADD_CUSTOM_COMMAND(OUTPUT text_frag.inc
   COMMAND ${PYTHON_EXECUTABLE} ${CMAKE_CURRENT_SOURCE_DIR}/../../../utils/pystmt_generator/pystmt_generator.py -i ${SOURCE_DIR}/shaders/text.frag -o text_frag.inc
   DEPENDS ${SOURCE_DIR}/shaders/text.frag ${CMAKE_CURRENT_SOURCE_DIR}/../../../utils/pystmt_generator/pystmt_generator.py
   )
+ADD_CUSTOM_COMMAND(OUTPUT term_text_buffer.c
+  COMMAND patch ${SOURCE_DIR}/text-buffer.c -i ${CMAKE_CURRENT_SOURCE_DIR}/term_text_buffer.c.patch -o term_text_buffer.c
+  DEPENDS ${SOURCE_DIR}/text-buffer.c ${CMAKE_CURRENT_SOURCE_DIR}/term_text_buffer.c.patch
+  )
 
 SET(freetype-gl_INCLUDE_DIR ${SOURCE_DIR})
 SET(freetype-gl_LIBRARIES ${BINARY_DIR}/${CMAKE_STATIC_LIBRARY_PREFIX}freetype-gl${CMAKE_STATIC_LIBRARY_SUFFIX})
@@ -78,6 +83,7 @@ TARGET_INCLUDE_DIRECTORIES(term_gl_ui
   	"../../utils"
   	"../../utils/portable_thread/includes"
 	"${freetype-gl_INCLUDE_DIR}"
+	"${freetype-gl_INCLUDE_DIR}/demos"
 	"${FONTCONFIG_INCLUDE_DIR}"
 )
 
