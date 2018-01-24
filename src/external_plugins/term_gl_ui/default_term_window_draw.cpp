@@ -10,6 +10,7 @@
 #include "char_width.h"
 
 #include "shader.h"
+#include "term_text_buffer.h"
 
 #include <iostream>
 #include <iterator>
@@ -315,12 +316,12 @@ void DefaultTermWindow::DrawContent(ftgl::text_buffer_t * buf,
 
     ftgl::vec2 pen = {{last_x, last_y}};
 
-    ftgl::text_buffer_printf(buf,
-                             &pen,
-                             &font,
-                             bytes.c_str(),
-                             NULL);
-
+    term_text_buffer_printf(buf,
+                            m_FreeTypeGLContext->col_width,
+                       &pen,
+                       &font,
+                       bytes.c_str(),
+                       NULL);
     content.clear();
 
     last_x = pen.x;
