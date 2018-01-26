@@ -111,6 +111,25 @@ void enable_mode(term_data_context_s & term_context,
     else if (mode == 7) {
         term_context.auto_wrap = true;
     }
+    else if (mode == 1047) {
+        if (term_context.cap_debug) {
+            std::cerr << "enable alter buffer" << std::endl;
+        }
+        handle_cap(term_context, "enter_ca_mode", empty_params);
+    }
+    else if (mode == 1048) {
+        if (term_context.cap_debug) {
+            std::cerr << "save cursor" << std::endl;
+        }
+        handle_cap(term_context, "save_cursor", empty_params);
+    }
+    else if (mode == 1049) {
+        if (term_context.cap_debug) {
+            std::cerr << "enter alter buffer and save cursor" << std::endl;
+        }
+        handle_cap(term_context, "save_cursor", empty_params);
+        handle_cap(term_context, "enter_ca_mode", empty_params);
+    }
     else {
         std::cerr << "enable mode not implemented, with params:["
                   << join(params, ",");
@@ -156,6 +175,25 @@ void disable_mode(term_data_context_s & term_context,
         if (term_context.cap_debug) {
             std::cerr << "disable cursor blinking" << std::endl;
         }
+    }
+    else if (mode == 1047) {
+        if (term_context.cap_debug) {
+            std::cerr << "disable alter buffer" << std::endl;
+        }
+        handle_cap(term_context, "exit_ca_mode", empty_params);
+    }
+    else if (mode == 1048) {
+        if (term_context.cap_debug) {
+            std::cerr << "restore cursor" << std::endl;
+        }
+        handle_cap(term_context, "restore_cursor", empty_params);
+    }
+    else if (mode == 1049) {
+        if (term_context.cap_debug) {
+            std::cerr << "disable alter buffer and restore cursor" << std::endl;
+        }
+        handle_cap(term_context, "exit_ca_mode", empty_params);
+        handle_cap(term_context, "restore_cursor", empty_params);
     }
     else {
         std::cerr << "disable mode not implemented, with params:["
