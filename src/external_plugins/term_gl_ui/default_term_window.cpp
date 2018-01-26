@@ -54,7 +54,7 @@ void keyboard( GLFWwindow* window, int key, int scancode, int action, int mods )
         return;
 
     if (action == GLFW_PRESS || action == GLFW_REPEAT)
-        plugin->OnKeyDown(key, scancode, mods);
+        plugin->OnKeyDown(key, scancode, mods, action == GLFW_REPEAT);
 }
 
 static
@@ -97,7 +97,9 @@ DefaultTermWindow::DefaultTermWindow(freetype_gl_context_ptr context) :
     , m_MainDlg {nullptr}
     , m_FreeTypeGLContext {context}
     , m_TextBuffer {nullptr}
-    , m_RefreshNow {0} {
+    , m_RefreshNow {0}
+    , m_ProcessedKey {0}
+    , m_ProcessedMod {0} {
 
     mat4_set_identity( &m_Projection );
     mat4_set_identity( &m_Model );

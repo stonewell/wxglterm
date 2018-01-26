@@ -22,8 +22,9 @@
 static
 std::wstring_convert<std::codecvt_utf8<wchar_t>, wchar_t> wcharconv;
 
-void DefaultTermWindow::OnKeyDown(int key, int scancode, int mods) {
+void DefaultTermWindow::OnKeyDown(int key, int scancode, int mods, bool repeat) {
     (void)scancode;
+    m_ProcessedKey = m_ProcessedMod = 0;
 
     TermContextPtr context = std::dynamic_pointer_cast<TermContext>(GetPluginContext());
 
@@ -120,12 +121,24 @@ void DefaultTermWindow::OnKeyDown(int key, int scancode, int mods) {
     }
 
     if (data.size() == 0) {
+        if (repeat) {
+            if (!(mods & GLFW_MOD_SHIFT) && (key >= 'A' && key <= 'Z')) {
+                key = key - 'A' + 'a';
+            }
+            OnChar(key, mods);
+            m_ProcessedKey = key;
+            m_ProcessedMod = mods;
+        }
         return;
     }
 
     //add char when there only ALT pressed
-    if (data.size() == 1 && data[0] == '\x1B' && key >= 0 && key <0x80)
+    if (data.size() == 1 && data[0] == '\x1B' && key >= 0 && key <0x80) {
+        if (!(mods & GLFW_MOD_SHIFT) && (key >= 'A' && key <= 'Z')) {
+            key = key - 'A' + 'a';
+        }
         data.push_back((char)key);
+    }
 
     send_data(data);
 }
@@ -176,6 +189,9 @@ unsigned int translate_shift(unsigned int codepoint) {
 
 void DefaultTermWindow::OnChar(unsigned int codepoint, int mods) {
     (void)mods;
+
+    if (codepoint == m_ProcessedKey && mods == m_ProcessedMod)
+        return;
 
     //do not handle other modifiers in char callback except shift only
     if (mods != 0) {

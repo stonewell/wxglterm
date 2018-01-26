@@ -47,7 +47,7 @@ public:
     void OnDraw();
     void UpdateWindow();
 
-    void OnKeyDown(int key, int scancode, int mods);
+    void OnKeyDown(int key, int scancode, int mods, bool repeat);
     void OnChar(unsigned int codepoint, int mods);
 
 private:
@@ -59,6 +59,8 @@ private:
     ftgl::mat4 m_Model, m_View, m_Projection;
     std::mutex m_RefreshLock;
     int m_RefreshNow;
+    unsigned int m_ProcessedKey;
+    int m_ProcessedMod;
 
     void Init();
     void DoDraw();
