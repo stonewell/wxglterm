@@ -46,8 +46,11 @@ void save_number(std::vector<unsigned char> & data, uint32_t v) {
         data.push_back(buf[i]);
 }
 
-void DefaultTermWindow::OnMouseWheel(bool wheel_up, double xpos, double ypos)
+void DefaultTermWindow::OnMouseWheel(double xoffset, double yoffset)
 {
+    (void)xoffset;
+    (void)yoffset;
+
     TermContextPtr context = std::dynamic_pointer_cast<TermContext>(GetPluginContext());
 
     if (!context)
@@ -61,21 +64,30 @@ void DefaultTermWindow::OnMouseWheel(bool wheel_up, double xpos, double ypos)
     data.push_back('[');
     data.push_back('<');
 
-    auto row = ypos / m_FreeTypeGLContext->line_height;
-    auto col = xpos / m_FreeTypeGLContext->col_width;
+    int height = 0;
+    glfwGetFramebufferSize(m_MainDlg, NULL, &height);
 
-    if (wheel_up) {
+    int w_height;
+    glfwGetWindowSize(m_MainDlg, NULL, &w_height);
+
+    double ypos;
+    glfwGetCursorPos(m_MainDlg, NULL, &ypos);
+
+    ypos = (ypos / w_height) * height;
+
+    auto row = (ypos > PADDING ? ypos - PADDING : 0) / m_FreeTypeGLContext->line_height;
+    auto col = buffer->GetCol();
+
+    if (yoffset > 0) {
         save_number(data, 64);
     } else {
         save_number(data, 65);
     }
 
-    (void)col;
-    (void)row;
     data.push_back(';');
-    save_number(data, 1);
+    save_number(data, col + 1);
     data.push_back(';');
-    save_number(data, 1);
+    save_number(data, row + 1);
     data.push_back('M');
 
     send_data(network, data);

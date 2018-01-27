@@ -71,13 +71,11 @@ public:
 
     std::vector<TaskEntry> m_Tasks;
     std::vector<TermWindowPtr> m_Windows;
-    static freetype_gl_context_ptr m_FreeTypeGLContext;
 
     TermWindowPtr CreateWindow() {
         DefaultTermUI::_initializer.Initialize();
-        InitFreeTypeGLContext();
 
-        auto window = TermWindowPtr { new DefaultTermWindow(DefaultTermUI::m_FreeTypeGLContext) };
+        auto window = TermWindowPtr { new DefaultTermWindow() };
         window->InitPlugin(GetPluginContext(),
                            GetPluginConfig());
 
@@ -133,38 +131,9 @@ public:
         }
     }
 
-    void InitFreeTypeGLContext() {
-        if (!DefaultTermUI::m_FreeTypeGLContext) {
-            DefaultTermUI::m_FreeTypeGLContext = freetype_gl_init();
-
-            TermContextPtr context = std::dynamic_pointer_cast<TermContext>(GetPluginContext());
-
-            if (context) {
-                AppConfigPtr appConfig = context->GetAppConfig();
-
-                auto font_size = appConfig->GetEntryUInt64("/term/font/size", 16);
-                auto font_name = appConfig->GetEntry("/term/font/name", "Monospace");
-                auto font_lang = appConfig->GetEntry("/term/font/lang", "zh");
-
-                //convert font size to pixel
-                int widthMM, heightMM;
-                glfwGetMonitorPhysicalSize(glfwGetPrimaryMonitor(), &widthMM, &heightMM);
-                const GLFWvidmode* mode = glfwGetVideoMode(glfwGetPrimaryMonitor());
-
-                const double dpi = mode->width / (widthMM / 25.4);
-
-                font_size = font_size * dpi / 72;
-
-                DefaultTermUI::m_FreeTypeGLContext->init_font(font_name, font_size, font_lang);
-            }
-        }
-    }
-
     int32_t StartMainUILoop() {
         glfwWindowHint( GLFW_VISIBLE, GL_FALSE );
         glfwWindowHint( GLFW_RESIZABLE, GL_TRUE );
-
-        InitFreeTypeGLContext();
 
         pybind11::gil_scoped_release release;
 
@@ -201,7 +170,6 @@ public:
 };
 
 __GLTermUIInitializer DefaultTermUI::_initializer;
-freetype_gl_context_ptr DefaultTermUI::m_FreeTypeGLContext;
 
 TermUIPtr CreateOpenGLTermUI() {
     return TermUIPtr{ new DefaultTermUI()};

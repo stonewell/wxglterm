@@ -20,7 +20,11 @@ class DefaultTermWindow :
         public virtual PluginBase
         , public virtual TermWindow {
 public:
-    DefaultTermWindow(freetype_gl_context_ptr context);
+    enum {
+        PADDING = 5,
+    };
+
+    DefaultTermWindow();
 
     virtual ~DefaultTermWindow() {
         if (m_MainDlg)
@@ -49,7 +53,7 @@ public:
 
     void OnKeyDown(int key, int scancode, int mods, bool repeat);
     void OnChar(unsigned int codepoint, int mods);
-    void OnMouseWheel(bool wheel_up, double xoffset, double yoffset);
+    void OnMouseWheel(double xoffset, double yoffset);
     void OnMouseButton(int button, int action, int mods, double xpos, double ypos);
     void OnMouseMove(double xpos, double ypos);
 
@@ -79,4 +83,5 @@ private:
                      float & last_x,
                      float & last_y);
     void InitColorTable();
+    void InitFreeTypeGLContext();
 };

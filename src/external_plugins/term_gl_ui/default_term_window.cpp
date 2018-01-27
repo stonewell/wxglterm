@@ -99,11 +99,7 @@ void scroll_callback(GLFWwindow* window, double xoffset, double yoffset)
     if (!plugin)
         return;
 
-    (void)xoffset;
-    (void)yoffset;
-    double xpos, ypos;
-    glfwGetCursorPos(window, &xpos, &ypos);
-    plugin->OnMouseWheel(yoffset > 0, xpos, ypos);
+    plugin->OnMouseWheel(xoffset, yoffset);
 }
 
 static
@@ -131,10 +127,10 @@ void cursor_position_callback(GLFWwindow* window, double xpos, double ypos)
     plugin->OnMouseMove(xpos, ypos);
 }
 
-DefaultTermWindow::DefaultTermWindow(freetype_gl_context_ptr context)
+DefaultTermWindow::DefaultTermWindow()
     : PluginBase("term_gl_window", "opengl terminal window plugin", 1)
     , m_MainDlg {nullptr}
-    , m_FreeTypeGLContext {context}
+    , m_FreeTypeGLContext {nullptr}
     , m_TextBuffer {nullptr}
     , m_RefreshNow {0}
     , m_ProcessedKey {0}
@@ -154,6 +150,32 @@ void DefaultTermWindow::Refresh() {
 }
 
 
+void DefaultTermWindow::InitFreeTypeGLContext() {
+    if (!m_FreeTypeGLContext) {
+        m_FreeTypeGLContext = freetype_gl_init();
+
+        TermContextPtr context = std::dynamic_pointer_cast<TermContext>(GetPluginContext());
+
+        if (context) {
+            AppConfigPtr appConfig = context->GetAppConfig();
+
+            auto font_size = appConfig->GetEntryUInt64("/term/font/size", 16);
+            auto font_name = appConfig->GetEntry("/term/font/name", "Monospace");
+            auto font_lang = appConfig->GetEntry("/term/font/lang", "zh");
+
+            int height = 0;
+            glfwGetFramebufferSize(m_MainDlg, NULL, &height);
+
+            int w_height;
+            glfwGetWindowSize(m_MainDlg, NULL, &w_height);
+
+            font_size = ceil((double)font_size / w_height * height);
+
+            m_FreeTypeGLContext->init_font(font_name, font_size, font_lang);
+        }
+    }
+}
+
 void DefaultTermWindow::Show() {
     const GLFWvidmode* mode = glfwGetVideoMode(glfwGetPrimaryMonitor());
 
@@ -169,6 +191,8 @@ void DefaultTermWindow::Show() {
         glfwSwapInterval( 1 );
 
         glfwSetWindowUserPointer(m_MainDlg, this);
+
+        InitFreeTypeGLContext();
 
         glfwSetFramebufferSizeCallback(m_MainDlg, reshape );
         glfwSetWindowRefreshCallback(m_MainDlg, display );
