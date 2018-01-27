@@ -46,12 +46,8 @@ void save_number(std::vector<unsigned char> & data, uint32_t v) {
         data.push_back(buf[i]);
 }
 
-void DefaultTermWindow::OnMouseWheel(double xoffset, double yoffset)
+void DefaultTermWindow::OnMouseWheel(bool wheel_up, double xpos, double ypos)
 {
-    (void)xoffset;
-    (void)yoffset;
-    std::cout << "wheel mouse, x:" << xoffset << ", y:" << yoffset << std::endl;
-
     TermContextPtr context = std::dynamic_pointer_cast<TermContext>(GetPluginContext());
 
     if (!context)
@@ -65,35 +61,23 @@ void DefaultTermWindow::OnMouseWheel(double xoffset, double yoffset)
     data.push_back('[');
     data.push_back('<');
 
-    auto rows = buffer->GetRows();
+    auto row = ypos / m_FreeTypeGLContext->line_height;
+    auto col = xpos / m_FreeTypeGLContext->col_width;
 
-    auto row = buffer->GetRow(), old_row = row;
-    auto col = buffer->GetCol();
-
-    if (yoffset > 0) {
+    if (wheel_up) {
         save_number(data, 64);
-        if (row > yoffset) {
-            row -= yoffset;
-        } else {
-            row = 0;
-        }
     } else {
         save_number(data, 65);
-        if (row - yoffset < rows) {
-            row -= yoffset;
-        } else {
-            row = rows - 1;
-        }
     }
 
+    (void)col;
+    (void)row;
     data.push_back(';');
-    save_number(data, col + 1);
+    save_number(data, 1);
     data.push_back(';');
-    save_number(data, row + 1);
+    save_number(data, 1);
     data.push_back('M');
 
-    if (old_row == row)
-        return;
     send_data(network, data);
 }
 

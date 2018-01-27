@@ -99,7 +99,11 @@ void scroll_callback(GLFWwindow* window, double xoffset, double yoffset)
     if (!plugin)
         return;
 
-    plugin->OnMouseWheel(xoffset, yoffset);
+    (void)xoffset;
+    (void)yoffset;
+    double xpos, ypos;
+    glfwGetCursorPos(window, &xpos, &ypos);
+    plugin->OnMouseWheel(yoffset > 0, xpos, ypos);
 }
 
 static
