@@ -91,9 +91,44 @@ void close( GLFWwindow* window )
     glfwSetWindowShouldClose( window, GL_TRUE );
 }
 
+static
+void scroll_callback(GLFWwindow* window, double xoffset, double yoffset)
+{
+    DefaultTermWindow * plugin = (DefaultTermWindow *)glfwGetWindowUserPointer(window);
 
-DefaultTermWindow::DefaultTermWindow(freetype_gl_context_ptr context) :
-    PluginBase("term_gl_window", "opengl terminal window plugin", 1)
+    if (!plugin)
+        return;
+
+    plugin->OnMouseWheel(xoffset, yoffset);
+}
+
+static
+void mouse_button_callback(GLFWwindow* window, int button, int action, int mods)
+{
+    DefaultTermWindow * plugin = (DefaultTermWindow *)glfwGetWindowUserPointer(window);
+
+    if (!plugin)
+        return;
+
+    double xpos, ypos;
+    glfwGetCursorPos(window, &xpos, &ypos);
+
+    plugin->OnMouseButton(button, action, mods, xpos, ypos);
+}
+
+static
+void cursor_position_callback(GLFWwindow* window, double xpos, double ypos)
+{
+    DefaultTermWindow * plugin = (DefaultTermWindow *)glfwGetWindowUserPointer(window);
+
+    if (!plugin)
+        return;
+
+    plugin->OnMouseMove(xpos, ypos);
+}
+
+DefaultTermWindow::DefaultTermWindow(freetype_gl_context_ptr context)
+    : PluginBase("term_gl_window", "opengl terminal window plugin", 1)
     , m_MainDlg {nullptr}
     , m_FreeTypeGLContext {context}
     , m_TextBuffer {nullptr}
@@ -101,9 +136,9 @@ DefaultTermWindow::DefaultTermWindow(freetype_gl_context_ptr context) :
     , m_ProcessedKey {0}
     , m_ProcessedMod {0} {
 
-    mat4_set_identity( &m_Projection );
-    mat4_set_identity( &m_Model );
-    mat4_set_identity( &m_View );
+        mat4_set_identity( &m_Projection );
+        mat4_set_identity( &m_Model );
+        mat4_set_identity( &m_View );
       }
 
 void DefaultTermWindow::Refresh() {
@@ -129,13 +164,16 @@ void DefaultTermWindow::Show() {
         glfwMakeContextCurrent(m_MainDlg);
         glfwSwapInterval( 1 );
 
+        glfwSetWindowUserPointer(m_MainDlg, this);
+
         glfwSetFramebufferSizeCallback(m_MainDlg, reshape );
         glfwSetWindowRefreshCallback(m_MainDlg, display );
         glfwSetKeyCallback(m_MainDlg, keyboard );
         glfwSetWindowCloseCallback(m_MainDlg, close);
         glfwSetCharModsCallback(m_MainDlg, charmods_callback);
-
-        glfwSetWindowUserPointer(m_MainDlg, this);
+        glfwSetCursorPosCallback(m_MainDlg, cursor_position_callback);
+        glfwSetMouseButtonCallback(m_MainDlg, mouse_button_callback);
+        glfwSetScrollCallback(m_MainDlg, scroll_callback);
 
 #ifndef __APPLE__
         GLenum err = glewInit();

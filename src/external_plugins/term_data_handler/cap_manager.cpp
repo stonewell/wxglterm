@@ -49,6 +49,9 @@ term_data_context_s::term_data_context_s():
     , saved_charset_modes_translate {nullptr, nullptr}
     , saved_origin_mode {false}
     , cap_debug {false}
+    , cell_motion_mouse_track {false}
+    , sgr_mouse_mode {false}
+    , send_focus_in_out {false}
 {
 
     for(int i = 0; i < TAB_MAX; i += TAB_WIDTH) {

@@ -41,6 +41,10 @@ struct term_data_context_s {
 
     bool saved_origin_mode;
     bool cap_debug;
+
+    bool cell_motion_mouse_track;
+    bool sgr_mouse_mode;
+    bool send_focus_in_out;
 };
 
 using term_data_param_list = std::vector<term_data_param_s>;

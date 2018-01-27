@@ -130,6 +130,27 @@ void enable_mode(term_data_context_s & term_context,
         handle_cap(term_context, "save_cursor", empty_params);
         handle_cap(term_context, "enter_ca_mode", empty_params);
     }
+    else if (mode == 1002) {
+        if (term_context.cap_debug) {
+            std::cerr << "enable cell motion mouse tracking" << std::endl;
+        }
+
+        term_context.cell_motion_mouse_track = true;
+    }
+    else if (mode == 1004) {
+        if (term_context.cap_debug) {
+            std::cerr << "send focus in and out event" << std::endl;
+        }
+
+        term_context.send_focus_in_out = true;
+    }
+    else if (mode == 1006) {
+        if (term_context.cap_debug) {
+            std::cerr << "enable sgr mouse mode" << std::endl;
+        }
+
+        term_context.sgr_mouse_mode = true;
+    }
     else {
         std::cerr << "enable mode not implemented, with params:["
                   << join(params, ",");
@@ -194,6 +215,27 @@ void disable_mode(term_data_context_s & term_context,
         }
         handle_cap(term_context, "exit_ca_mode", empty_params);
         handle_cap(term_context, "restore_cursor", empty_params);
+    }
+    else if (mode == 1002) {
+        if (term_context.cap_debug) {
+            std::cerr << "disable cell motion mouse tracking" << std::endl;
+        }
+
+        term_context.cell_motion_mouse_track = false;
+    }
+    else if (mode == 1004) {
+        if (term_context.cap_debug) {
+            std::cerr << "disable send focus in and out event" << std::endl;
+        }
+
+        term_context.send_focus_in_out = false;
+    }
+    else if (mode == 1006) {
+        if (term_context.cap_debug) {
+            std::cerr << "disable sgr mouse mode" << std::endl;
+        }
+
+        term_context.sgr_mouse_mode = false;
     }
     else {
         std::cerr << "disable mode not implemented, with params:["

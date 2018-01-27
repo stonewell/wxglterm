@@ -28,6 +28,7 @@ SET(term_gl_ui_src
   term_gl_ui.cpp term_gl_ui.h
   default_term_window.h default_term_window.cpp
   default_term_window_draw.cpp default_term_window_key.cpp
+  default_term_window_mouse.cpp
   plugin_base.h
   freetype_gl.cpp freetype_gl.h
   shader.cpp shader.h

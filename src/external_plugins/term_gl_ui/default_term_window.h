@@ -49,6 +49,9 @@ public:
 
     void OnKeyDown(int key, int scancode, int mods, bool repeat);
     void OnChar(unsigned int codepoint, int mods);
+    void OnMouseWheel(double xoffset, double yoffset);
+    void OnMouseButton(int button, int action, int mods, double xpos, double ypos);
+    void OnMouseMove(double xpos, double ypos);
 
 private:
     GLFWwindow * m_MainDlg;
