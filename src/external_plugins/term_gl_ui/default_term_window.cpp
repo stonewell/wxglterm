@@ -17,6 +17,8 @@
 #include <locale>
 #include <codecvt>
 
+#include "base64.h"
+
 #define PADDING (5)
 
 static
@@ -251,11 +253,30 @@ uint32_t DefaultTermWindow::GetColorByIndex(uint32_t index) {
 std::string DefaultTermWindow::GetSelectionData() {
     std::string sel_data {};
 
+    auto data = glfwGetClipboardString(m_MainDlg);
+
+    if (data) {
+        if (!Base64::Encode(data, &sel_data)) {
+            sel_data.clear();
+        }
+    }
+
     return sel_data;
 }
 
 void DefaultTermWindow::SetSelectionData(const std::string & sel_data) {
-    (void)sel_data;
+    std::string decoded {};
+
+    if (sel_data.size() == 0) {
+        decoded.clear();
+        return;
+    } else {
+        if (!Base64::Decode(sel_data, &decoded)) {
+            decoded.clear();
+        }
+    }
+
+    glfwSetClipboardString(m_MainDlg, decoded.c_str());
 }
 
 void DefaultTermWindow::OnSize(int width, int height) {

@@ -5,7 +5,7 @@
 	"dir":"@CMAKE_INSTALL_PREFIX@/share/wxglterm/plugins",
 	"python_lib":"@CMAKE_INSTALL_PREFIX@/share/wxglterm/libs",
 	"ui":{
-	    "name":"default_term_ui"
+	    "name":"term_gl_ui"
 	},
 	"network":{
 	    "name":"term_network_use_pty",
@@ -42,7 +42,8 @@
 	"use_system_ssh_config":true,
 	"use_ssh_config":"global_ssh_config_file_path",
 	"font": {
-	    "size":14
+	    "size":16,
+	    "name":"WenQuanYi Micro Hei Mono"
 	}
     }
 }

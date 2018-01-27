@@ -68,28 +68,18 @@ void DefaultTermWindow::OnKeyDown(int key, int scancode, int mods, bool repeat) 
             ;
     if (paste_data) {
         //paste from clipboard
-        // if (wxTheClipboard->Open()) {
-        //     if (wxTheClipboard->IsSupported( wxDF_TEXT ) ||
-        //         wxTheClipboard->IsSupported( wxDF_UNICODETEXT) ||
-        //         wxTheClipboard->IsSupported( wxDF_OEMTEXT)) {
-        //         wxTextDataObject txt_data;
-        //         wxTheClipboard->GetData( txt_data );
+        auto clipboard_data = glfwGetClipboardString(m_MainDlg);
 
-        //         if (txt_data.GetTextLength() > 0) {
-        //             wxString s = txt_data.GetText();
-        //             const auto & s_buf = s.utf8_str();
-        //             const char * s_begin = s_buf;
-        //             const char * s_end = s_begin + s_buf.length();
+        if (clipboard_data) {
+            const char * s_begin = clipboard_data;
+            const char * s_end = clipboard_data + strlen(clipboard_data);
 
-        //             std::copy(s_begin,
-        //                       s_end,
-        //                       std::back_inserter(data));
+            std::copy(s_begin,
+                      s_end,
+                      std::back_inserter(data));
 
-        //             send_data(data);
-        //         }
-        //     }
-        //     wxTheClipboard->Close();
-        // }
+            send_data(data);
+        }
 
         return;
     }

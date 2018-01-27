@@ -2,6 +2,7 @@ SET(utils_src
     app_config_impl.cpp  load_module.cpp  string_utils.cpp
     app_config_impl.h  load_module.h  string_utils.h
     char_width.cpp char_width.h
+    base64.h
     )
 
 IF (WIN32)
