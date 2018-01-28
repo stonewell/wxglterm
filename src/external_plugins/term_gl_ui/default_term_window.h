@@ -68,6 +68,7 @@ private:
     int m_RefreshNow;
     unsigned int m_ProcessedKey;
     int m_ProcessedMod;
+    int m_SavedMouseButton;
 
     void Init();
     void DoDraw();
@@ -84,4 +85,5 @@ private:
                      float & last_y);
     void InitColorTable();
     void InitFreeTypeGLContext();
+    void SendMouseEvent(int button, bool press, bool motion);
 };

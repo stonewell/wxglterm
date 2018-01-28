@@ -136,7 +136,8 @@ DefaultTermWindow::DefaultTermWindow()
     , m_TextBuffer {nullptr}
     , m_RefreshNow {0}
     , m_ProcessedKey {0}
-    , m_ProcessedMod {0} {
+    , m_ProcessedMod {0}
+    , m_SavedMouseButton {-1} {
 
         mat4_set_identity( &m_Projection );
         mat4_set_identity( &m_Model );
