@@ -137,7 +137,8 @@ DefaultTermWindow::DefaultTermWindow()
     , m_RefreshNow {0}
     , m_ProcessedKey {0}
     , m_ProcessedMod {0}
-    , m_SavedMouseButton {-1} {
+    , m_SavedMouseButton {-1}
+    , m_EnableMouseTrack {false} {
 
         mat4_set_identity( &m_Projection );
         mat4_set_identity( &m_Model );
@@ -382,4 +383,8 @@ void DefaultTermWindow::UpdateWindow() {
         std::lock_guard<std::mutex> lk(m_RefreshLock);
         m_RefreshNow -= refresh_now;
     }
+}
+
+void DefaultTermWindow::EnableMouseTrack(bool enable) {
+    m_EnableMouseTrack = enable;
 }

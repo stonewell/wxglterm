@@ -187,6 +187,9 @@ public:
         }
     }
 
+    void EnableMouseTrack(bool enable) override {
+        (void)enable;
+    }
 private:
     MainDialog * m_MainDlg;
     wxCriticalSection m_MainWndLock;

@@ -136,6 +136,7 @@ void enable_mode(term_data_context_s & term_context,
         }
 
         term_context.cell_motion_mouse_track = true;
+        term_context.term_window->EnableMouseTrack(true);
     }
     else if (mode == 1004) {
         if (term_context.cap_debug) {
@@ -150,6 +151,7 @@ void enable_mode(term_data_context_s & term_context,
         }
 
         term_context.sgr_mouse_mode = true;
+        term_context.term_window->EnableMouseTrack(true);
     }
     else {
         std::cerr << "enable mode not implemented, with params:["
@@ -222,6 +224,7 @@ void disable_mode(term_data_context_s & term_context,
         }
 
         term_context.cell_motion_mouse_track = false;
+        term_context.term_window->EnableMouseTrack(false);
     }
     else if (mode == 1004) {
         if (term_context.cap_debug) {
@@ -236,6 +239,7 @@ void disable_mode(term_data_context_s & term_context,
         }
 
         term_context.sgr_mouse_mode = false;
+        term_context.term_window->EnableMouseTrack(false);
     }
     else {
         std::cerr << "disable mode not implemented, with params:["

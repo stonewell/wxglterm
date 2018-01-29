@@ -65,6 +65,7 @@ mouse_btn_code(int button, bool motion)
 }
 
 void DefaultTermWindow::SendMouseEvent(int button, bool press, bool motion) {
+    if (!m_EnableMouseTrack) return;
 
     TermContextPtr context = std::dynamic_pointer_cast<TermContext>(GetPluginContext());
 

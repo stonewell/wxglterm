@@ -15,4 +15,5 @@ public:
     virtual std::string GetSelectionData() = 0;
     virtual void SetSelectionData(const std::string & sel_data) = 0;
     virtual void Close() = 0;
+    virtual void EnableMouseTrack(bool enable) = 0;
 };

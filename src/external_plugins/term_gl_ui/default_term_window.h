@@ -45,6 +45,7 @@ public:
     std::string GetSelectionData() override;
 
     void SetSelectionData(const std::string & sel_data) override;
+    void EnableMouseTrack(bool enable) override;
 
     void OnSize(int width, int height);
     bool ShouldClose();
@@ -69,6 +70,7 @@ private:
     unsigned int m_ProcessedKey;
     int m_ProcessedMod;
     int m_SavedMouseButton;
+    bool m_EnableMouseTrack;
 
     void Init();
     void DoDraw();

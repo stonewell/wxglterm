@@ -164,6 +164,7 @@ PYBIND11_EMBEDDED_MODULE(wxglterm_interface, m)
             .def("get_color_by_index", &TermWindow::GetColorByIndex)
             .def_property("selection_data", &TermWindow::GetSelectionData, &TermWindow::SetSelectionData)
             .def("close", &TermWindow::Close)
+            .def("enable_mouse_track", &TermWindow::EnableMouseTrack)
             ;
 
     py::class_<TermNetwork, PyTermNetwork<>, std::shared_ptr<TermNetwork>> term_network(m, "TermNetwork", multiple_instance_plugin);

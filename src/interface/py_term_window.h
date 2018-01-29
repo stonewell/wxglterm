@@ -35,4 +35,8 @@ public:
     void SetSelectionData(const std::string & sel_data) override {
         PYBIND11_OVERLOAD_PURE_NAME(void, TermWindowBase, "set_selection_data", SetSelectionData, sel_data );
     }
+
+    void EnableMouseTrack(bool enable) override {
+        PYBIND11_OVERLOAD_PURE_NAME(void, TermWindowBase, "enable_mouse_track", EnableMouseTrack, enable );
+    }
 };
