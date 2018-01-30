@@ -1,5 +1,5 @@
---- src/external_plugins/term_gl_ui/freetype-gl-prefix/src/freetype-gl/text-buffer.c	2018-01-24 14:10:39.000000000 -0800
-+++ ../src/external_plugins/term_gl_ui/term_text_buffer.c	2018-01-24 14:30:24.000000000 -0800
+--- ./src/external_plugins/term_gl_ui/freetype-gl-prefix/src/freetype-gl/text-buffer.c	2018-01-22 14:54:00.616458842 -0800
++++ src/external_plugins/term_gl_ui/term_text_buffer.c	2018-01-29 11:09:19.733406253 -0800
 @@ -12,66 +12,33 @@
  #include "opengl.h"
  #include "text-buffer.h"
@@ -128,6 +128,15 @@
  static void
  text_buffer_finish_line( text_buffer_t * self, vec2 * pen, bool advancePen )
  {
+@@ -166,7 +106,7 @@ text_buffer_finish_line( text_buffer_t *
+     if ( advancePen )
+     {
+         pen->x = self->origin.x;
+-        pen->y += (int)(self->line_descender);
++        pen->y += (self->line_descender);
+     }
+ 
+     self->line_descender = 0;
 @@ -177,9 +117,10 @@ text_buffer_finish_line( text_buffer_t *
  
  // ----------------------------------------------------------------------------
@@ -165,7 +174,15 @@
  {
      size_t vcount = 0;
      size_t icount = 0;
-@@ -450,91 +392,8 @@ text_buffer_add_char( text_buffer_t * se
+@@ -267,6 +209,7 @@ text_buffer_add_char( text_buffer_t * se
+     if( *current == '\n' )
+     {
+         text_buffer_finish_line(self, pen, true);
++        pen->y += markup->font->linegap;
+         return;
+     }
+ 
+@@ -450,91 +393,8 @@ text_buffer_add_char( text_buffer_t * se
          icount += 6;
  
          vertex_buffer_push_back( buffer, vertices, vcount, indices, icount );
