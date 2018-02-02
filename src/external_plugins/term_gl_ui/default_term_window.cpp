@@ -191,6 +191,10 @@ void DefaultTermWindow::Show() {
                                       NULL,
                                       NULL );
 
+        GLFWcursor* cursor = glfwCreateStandardCursor(GLFW_IBEAM_CURSOR);
+
+        glfwSetCursor(m_MainDlg, cursor);
+
         glfwMakeContextCurrent(m_MainDlg);
         glfwSwapInterval( 1 );
 
