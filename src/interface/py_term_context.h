@@ -47,11 +47,11 @@ public:
     void SetTermColorTheme(TermColorThemePtr term_color_theme) override {
         PYBIND11_OVERLOAD_PURE_NAME(void, TermContextBase, "set_term_color_theme", SetTermColorTheme, term_color_theme);
     }
-    InputPluginPtr GetInputPlugin() const override {
-        PYBIND11_OVERLOAD_PURE_NAME(InputPluginPtr, TermContextBase, "get_input_plugin", GetInputPlugin, );
+    InputHandlerPtr GetInputHandler() const override {
+        PYBIND11_OVERLOAD_PURE_NAME(InputHandlerPtr, TermContextBase, "get_input_handler", GetInputHandler, );
     }
 
-    void SetInputPlugin(InputPluginPtr input_plugin) override {
-        PYBIND11_OVERLOAD_PURE_NAME(void, TermContextBase, "set_input_plugin", SetInputPlugin, input_plugin);
+    void SetInputHandler(InputHandlerPtr input_plugin) override {
+        PYBIND11_OVERLOAD_PURE_NAME(void, TermContextBase, "set_input_handler", SetInputHandler, input_plugin);
     }
 };

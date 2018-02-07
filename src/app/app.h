@@ -29,4 +29,5 @@ private:
     TermBufferPtr CreateTermBuffer(TermContextPtr term_context);
     TermColorThemePtr CreateTermColorTheme(TermContextPtr term_context);
     TaskPtr CreateShowContextWindowTask(TermContextPtr term_context);
+    InputHandlerPtr CreateInputHandler(TermContextPtr term_context);
 };

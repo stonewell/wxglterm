@@ -21,6 +21,6 @@ public:
 
     virtual TermColorThemePtr GetTermColorTheme() const = 0;
     virtual void SetTermColorTheme(TermColorThemePtr term_color_theme) = 0;
-    virtual InputPluginPtr GetInputPlugin() const = 0;
-    virtual void SetInputPlugin(InputPluginPtr term_color_theme) = 0;
+    virtual InputHandlerPtr GetInputHandler() const = 0;
+    virtual void SetInputHandler(InputHandlerPtr term_color_theme) = 0;
 };

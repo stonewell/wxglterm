@@ -3,22 +3,22 @@
 #include "input.h"
 #include "py_multiple_instance_plugin.h"
 
-template<class InputPluginBase = InputPlugin>
-class PyInputPlugin : public virtual PyMultipleInstancePlugin<InputPluginBase> {
+template<class InputHandlerBase = InputHandler>
+class PyInputHandler : public virtual PyMultipleInstancePlugin<InputHandlerBase> {
 public:
-    using PyMultipleInstancePlugin<InputPluginBase>::PyMultipleInstancePlugin;
+    using PyMultipleInstancePlugin<InputHandlerBase>::PyMultipleInstancePlugin;
 
-    bool ProcessKey(InputPlugin::KeyCodeEnum keycode, InputPlugin::ModifierEnum modifier, bool down) override {
-        PYBIND11_OVERLOAD_PURE_NAME(bool, InputPluginBase, "process_key", ProcessKey, keycode, modifier, down);
+    bool ProcessKey(InputHandler::KeyCodeEnum keycode, InputHandler::ModifierEnum modifier, bool down) override {
+        PYBIND11_OVERLOAD_PURE_NAME(bool, InputHandlerBase, "process_key", ProcessKey, keycode, modifier, down);
     }
-    bool ProcessCharInput(int32_t c, InputPlugin::ModifierEnum modifier) override {
-        PYBIND11_OVERLOAD_PURE_NAME(bool, InputPluginBase, "process_char_input", ProcessCharInput, c, modifier);
+    bool ProcessCharInput(int32_t c, InputHandler::ModifierEnum modifier) override {
+        PYBIND11_OVERLOAD_PURE_NAME(bool, InputHandlerBase, "process_char_input", ProcessCharInput, c, modifier);
     }
-    bool ProcessMouseButton(InputPlugin::MouseButtonEnum btn, uint32_t x, uint32_t y, InputPlugin::ModifierEnum modifier, bool down) override {
-        PYBIND11_OVERLOAD_PURE_NAME(bool, InputPluginBase, "process_mouse_button", ProcessMouseButton, btn, x, y, modifier, down);
+    bool ProcessMouseButton(InputHandler::MouseButtonEnum btn, uint32_t x, uint32_t y, InputHandler::ModifierEnum modifier, bool down) override {
+        PYBIND11_OVERLOAD_PURE_NAME(bool, InputHandlerBase, "process_mouse_button", ProcessMouseButton, btn, x, y, modifier, down);
     }
 
-    bool ProcessMouseMove(InputPlugin::MouseButtonEnum btn, uint32_t x, uint32_t y, InputPlugin::ModifierEnum modifier) override {
-        PYBIND11_OVERLOAD_PURE_NAME(bool, InputPluginBase, "process_mouse_move", ProcessMouseMove, btn, x, y, modifier);
+    bool ProcessMouseMove(InputHandler::MouseButtonEnum btn, uint32_t x, uint32_t y, InputHandler::ModifierEnum modifier) override {
+        PYBIND11_OVERLOAD_PURE_NAME(bool, InputHandlerBase, "process_mouse_move", ProcessMouseMove, btn, x, y, modifier);
     }
 };

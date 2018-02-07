@@ -2,7 +2,7 @@
 
 #include "multiple_instance_plugin.h"
 
-class InputPlugin : public virtual MultipleInstancePlugin  {
+class InputHandler : public virtual MultipleInstancePlugin  {
 public:
     enum KeyCodeEnum {
         KEY_UNKNOWN = -1,

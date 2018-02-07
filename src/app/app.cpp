@@ -11,6 +11,7 @@
 #include "term_network.h"
 #include "term_data_handler.h"
 #include "color_theme.h"
+#include "input.h"
 
 #include "task.h"
 
@@ -157,13 +158,15 @@ bool wxGLTermApp::DoInit()
     auto term_data_handler = CreateTermDataHandler(term_context);
     auto term_buffer = CreateTermBuffer(term_context);
     auto term_color_theme = CreateTermColorTheme(term_context);
+    auto input_handler = CreateInputHandler(term_context);
 
     if (term_context
         && term_ui
         && term_network
         && term_data_handler
         && term_buffer
-        && term_color_theme)
+        && term_color_theme
+        && input_handler)
     {
         std::string color_theme { g_AppConfig->GetEntry("/term/color_theme/name", "NOT FOUND") };
 
@@ -176,6 +179,7 @@ bool wxGLTermApp::DoInit()
         term_context->SetTermDataHandler(term_data_handler);
         term_context->SetTermBuffer(term_buffer);
         term_context->SetTermColorTheme(term_color_theme);
+        term_context->SetInputHandler(input_handler);
 
         m_TermUIList.push_back(term_ui);
 
@@ -195,6 +199,7 @@ bool wxGLTermApp::DoInit()
         term_context->SetTermBuffer(TermBufferPtr{});
         term_context->SetTermColorTheme(TermColorThemePtr{});
         term_context->SetAppConfig(AppConfigPtr{});
+        term_context->SetInputHandler(InputHandlerPtr{});
 
         return true;
     }
@@ -206,6 +211,7 @@ bool wxGLTermApp::DoInit()
                   << ",term_data_handler:" << term_data_handler
                   << ",term_buffer:" << term_buffer
                   << ",term_color_theme:" << term_color_theme
+                  << ",input_handler:" << input_handler
                   << std::endl;
         return false;
     }
@@ -412,6 +418,40 @@ TermColorThemePtr wxGLTermApp::CreateTermColorTheme(TermContextPtr term_context)
                              new_instance_config);
 
     return std::dynamic_pointer_cast<TermColorTheme>(new_instance);
+}
+
+InputHandlerPtr wxGLTermApp::CreateInputHandler(TermContextPtr term_context)
+{
+    std::string plugin_name = g_AppConfig->GetEntry("plugins/input_handler/name", "default_input_handler");
+    uint64_t plugin_version = g_AppConfig->GetEntryUInt64("plugins/input_handler/version", PluginManager::Latest);
+    std::string plugin_config = g_AppConfig->GetEntry("plugins/input_handler/config", "{}");
+
+    if (g_AppDebug)
+        std::cout << "input handler plugin config:"
+                  << plugin_config
+                  << std::endl;
+
+    auto plugin = std::dynamic_pointer_cast<InputHandler>(m_PluginManager->GetPlugin(plugin_name.c_str(), plugin_version));
+
+    if (!plugin)
+    {
+        //TODO: error or create default
+        std::cerr << "unable to find input handler plguin:"
+                  << plugin_name
+                  << ", version:"
+                  << plugin_version
+                  << std::endl;
+
+        return InputHandlerPtr{};
+    }
+
+    auto new_instance = plugin->NewInstance();
+    auto new_instance_config = CreateAppConfigFromString(plugin_config.c_str());
+
+    new_instance->InitPlugin(std::dynamic_pointer_cast<Context>(term_context),
+                             new_instance_config);
+
+    return std::dynamic_pointer_cast<InputHandler>(new_instance);
 }
 
 int main(int argc, char ** argv) {
