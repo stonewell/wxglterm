@@ -23,7 +23,7 @@ class DefaultInputHandler
 {
 public:
     DefaultInputHandler() :
-        PluginBase("default_input_handler", "default input handler plugin for keyboard and mouse", 1)
+        PluginBase("default_term_input_handler", "default input handler plugin for keyboard and mouse", 1)
     {
     }
 

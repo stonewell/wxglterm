@@ -422,7 +422,7 @@ TermColorThemePtr wxGLTermApp::CreateTermColorTheme(TermContextPtr term_context)
 
 InputHandlerPtr wxGLTermApp::CreateInputHandler(TermContextPtr term_context)
 {
-    std::string plugin_name = g_AppConfig->GetEntry("plugins/input_handler/name", "default_input_handler");
+    std::string plugin_name = g_AppConfig->GetEntry("plugins/input_handler/name", "default_term_input_handler");
     uint64_t plugin_version = g_AppConfig->GetEntryUInt64("plugins/input_handler/version", PluginManager::Latest);
     std::string plugin_config = g_AppConfig->GetEntry("plugins/input_handler/config", "{}");
 

@@ -13,4 +13,4 @@ IF (BUILD_OPENGL_UI)
 ADD_SUBDIRECTORY(term_gl_ui)
 ENDIF()
 
-ADD_SUBDIRECTORY(input_handler)
+ADD_SUBDIRECTORY(term_input_handler)
