@@ -4,5 +4,11 @@ ADD_SUBDIRECTORY(term_network_pty)
 ENDIF()
 
 ADD_SUBDIRECTORY(term_data_handler)
+
+IF (BUILD_WXWIDGETS_UI)
 ADD_SUBDIRECTORY(term_ui)
+ENDIF()
+
+IF (BUILD_OPENGL_UI)
 ADD_SUBDIRECTORY(term_gl_ui)
+ENDIF()

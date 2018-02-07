@@ -19,6 +19,6 @@ A cross platform terminal emulator. Buildin plugin system support python and c/c
 ...
 mkdir build
 cd build
-cmake .. -DPYTHON_INCLUDE_DIR=$(python3 -c "from distutils.sysconfig import get_python_inc; print(get_python_inc())")
+cmake .. -DPYTHON_INCLUDE_DIR=$(python3 -c "from distutils.sysconfig import get_python_inc; print(get_python_inc())") -DBUILD_WXWIDGETS_UI=ON -DBUILD_OPENGL_UI=ON
 make
 ...
