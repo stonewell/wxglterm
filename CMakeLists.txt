@@ -49,11 +49,6 @@ FIND_PACKAGE(pybind11 REQUIRED)
 
 FIND_PACKAGE(PythonLibs 3 REQUIRED)
 
-FIND_PACKAGE(wxWidgets 3 REQUIRED
-  std
-  richtext
-  )
-
 configure_file(wxglterm.json.in wxglterm.json)
 configure_file(wxglterm_install.json.in wxglterm_install.json)
 configure_file(wxglterm.desktop.in wxglterm.desktop)

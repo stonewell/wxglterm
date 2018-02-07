@@ -38,7 +38,6 @@ SET(term_gl_ui_src
   plugin_base.h
   freetype_gl.cpp freetype_gl.h
   shader.cpp shader.h
-  ${SOURCE_DIR}/demos/mat4.c ${SOURCE_DIR}/demos/mat4.h
   key_code_map.c
   term_text_buffer.h
 )
@@ -46,6 +45,7 @@ SET(term_gl_ui_src
 ADD_LIBRARY(term_gl_ui SHARED ${term_gl_ui_src}
 		       text_vert.inc text_frag.inc
 		       term_text_buffer.c
+		       mat4.c mat4.h
 		       )
 
 ADD_DEPENDENCIES(term_gl_ui freetype-gl)
@@ -72,6 +72,15 @@ ADD_CUSTOM_COMMAND(OUTPUT text_frag.inc
 ADD_CUSTOM_COMMAND(OUTPUT term_text_buffer.c
   COMMAND patch ${SOURCE_DIR}/text-buffer.c -i ${CMAKE_CURRENT_SOURCE_DIR}/term_text_buffer.c.patch -o term_text_buffer.c
   DEPENDS ${SOURCE_DIR}/text-buffer.c ${CMAKE_CURRENT_SOURCE_DIR}/term_text_buffer.c.patch
+  )
+ADD_CUSTOM_COMMAND(OUTPUT mat4.c mat4.h
+  COMMAND
+  ${CMAKE_COMMAND} -E copy ${SOURCE_DIR}/demos/mat4.c mat4.c
+  COMMAND
+  ${CMAKE_COMMAND} -E copy ${SOURCE_DIR}/demos/mat4.h mat4.h
+  COMMENT
+  "Copying mat4 source code..."
+  VERBATIM
   )
 
 SET(freetype-gl_INCLUDE_DIR ${SOURCE_DIR})

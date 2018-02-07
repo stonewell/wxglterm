@@ -1,4 +1,9 @@
 #
+FIND_PACKAGE(wxWidgets 3 REQUIRED
+  std
+  richtext
+  )
+
 ADD_SUBDIRECTORY(ui)
 
 SET(term_ui_src
