@@ -2,6 +2,8 @@
 SET(term_network_pty_src
   term_network_pty_plugin.cpp)
 
+FIND_LIBRARY(UTIL_LIB util REQUIRED)
+
 ADD_LIBRARY(term_network_pty SHARED ${term_network_pty_src})
 
 set_target_properties( term_network_pty
@@ -22,6 +24,7 @@ TARGET_LINK_LIBRARIES(term_network_pty
   utils
   ${pybind11_LIBRARIES}
   ${PYTHON_LIBRARIES}
+  ${UTIL_LIB}
   )
 
 INSTALL(TARGETS term_network_pty DESTINATION share/wxglterm/plugins)
