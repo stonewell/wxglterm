@@ -24,3 +24,4 @@ DECL_SHARED_PTR(Task);
 DECL_SHARED_PTR(TermSelection);
 DECL_SHARED_PTR(TermColor);
 DECL_SHARED_PTR(TermColorTheme);
+DECL_SHARED_PTR(InputPlugin);
