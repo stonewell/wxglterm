@@ -1,42 +1,42 @@
 language: c++
 sudo: true
 
+services:
+  - docker
+
 matrix:
   exclude:
     - env: TRAVIS_EMPTY_JOB_WORKAROUND=true
 
   include:
-    ##########################################################################
-    # Check for code formatting errors
-    ##########################################################################
     - os: osx
       env:
       osx_image: xcode9.2
       before_install:
         - brew install glfw python3 freetype fontconfig
+      script:
+        - mkdir -p build
+        - cd build
+        - cmake .. -DPYTHON_INCLUDE_DIR=$(python3 -c "from distutils.sysconfig import get_python_inc; print(get_python_inc())") -DBUILD_WXWIDGETS_UI=OFF -DBUILD_OPENGL_UI=ON
+        - make
 
     - os: linux
       env:
       compiler:
         - gcc
-      addons:
-        apt:
-          sources:
-            - ubuntu-toolchain-r-test
-          packages:
-            - gcc
-            - g++
-            - cmake
-            - libglfw-dev
-            - libglew-dev
-            - libfontconfig1-dev
-            - libfreetype6-dev
+      before_install:
+        - docker run -d --name ubuntu-test -v $(pwd):/travis ubuntu:latest tail -f /dev/null
+        - docker ps
+      install:
+        - docker exec -t ubuntu-test bash -c "apt-get update;
+            apt-get install -y software-properties-common python-software-properties;
+            apt-get install -y build-essential cmake libboost-thread-dev libboost-date-time-dev;
+            add-apt-repository -y ppa:ubuntu-toolchain-r/test;
+            apt-get update;
+            apt-get install -y gcc g++ cmake libglfw3-dev libglew-dev libfontconfig1-dev libfreetype6-dev python-dev"
+      script:
+        - docker exec -t ubuntu-test bash -c "cd /travis;
+            mkdir -p build; cd build
+            cmake .. -DPYTHON_INCLUDE_DIR=$(python3 -c \"from distutils.sysconfig import get_python_inc; print(get_python_inc())\") -DBUILD_WXWIDGETS_UI=OFF -DBUILD_OPENGL_UI=ON &&
+            make"
 
-script:
-    ############################################################################
-    # Build main and tests
-    ############################################################################
-     - mkdir -p build
-     - cd build
-     - cmake .. -DPYTHON_INCLUDE_DIR=$(python3 -c "from distutils.sysconfig import get_python_inc; print(get_python_inc())") -DBUILD_WXWIDGETS_UI=OFF -DBUILD_OPENGL_UI=ON
-     - make
