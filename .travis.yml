@@ -19,12 +19,12 @@ matrix:
         - gcc
       addons:
         apt:
-	  sources:
-	    - ubuntu-toolchain-r-test
+          sources:
+            - ubuntu-toolchain-r-test
           packages:
-	    - gcc
-	    - g++
-	    - cmake
+            - gcc
+            - g++
+            - cmake
 
 script:
     ############################################################################
