@@ -1,6 +1,5 @@
 FIND_PACKAGE(OpenGL REQUIRED)
 FIND_PACKAGE(Freetype REQUIRED)
-FIND_PACKAGE(glfw3 REQUIRED)
 
 INCLUDE(ExternalProject)
 
@@ -25,13 +24,15 @@ EXTERNALPROJECT_ADD(
 
 EXTERNALPROJECT_GET_PROPERTY(freetype-gl SOURCE_DIR BINARY_DIR)
 
+INCLUDE(FindPkgConfig)
+PKG_CHECK_MODULES(GLFW REQUIRED glfw3)
+
 SET(term_gl_ui_src
   term_gl_ui_plugin.cpp
   term_gl_ui.cpp term_gl_ui.h
   default_term_window.h default_term_window.cpp
   default_term_window_draw.cpp default_term_window_key.cpp
   default_term_window_mouse.cpp
-  plugin_base.h
   freetype_gl.cpp freetype_gl.h
   shader.cpp shader.h
   key_code_map.c
@@ -83,8 +84,6 @@ SET(freetype-gl_INCLUDE_DIR ${SOURCE_DIR})
 SET(freetype-gl_LIBRARIES ${BINARY_DIR}/${CMAKE_STATIC_LIBRARY_PREFIX}freetype-gl${CMAKE_STATIC_LIBRARY_SUFFIX})
 
 TARGET_INCLUDE_DIRECTORIES(term_gl_ui
-    PUBLIC
-	$<TARGET_PROPERTY:glfw,INTERFACE_INCLUDE_DIRECTORIES>
     PRIVATE
 	"${CMAKE_CURRENT_SRC_DIR}"
 	"${CMAKE_CURRENT_BINARY_DIR}"
@@ -94,16 +93,19 @@ TARGET_INCLUDE_DIRECTORIES(term_gl_ui
   	"../../interface"
   	"../../utils"
   	"../../utils/portable_thread/includes"
+	"../../plugins"
 	"${freetype-gl_INCLUDE_DIR}"
 	"${freetype-gl_INCLUDE_DIR}/demos"
 	"${FONTCONFIG_INCLUDE_DIR}"
+	"${GLFW_INCLUDE_DIRS}"
 )
 
 TARGET_LINK_LIBRARIES(term_gl_ui
   utils
+  plugins
   ${pybind11_LIBRARIES}
   ${PYTHON_LIBRARIES}
-  glfw
+  ${GLFW_LDFLAGS}
   ${OPENGL_LIBRARY}
   ${FREETYPE_LIBRARIES}
   ${freetype-gl_LIBRARIES}

@@ -31,10 +31,12 @@ TARGET_INCLUDE_DIRECTORIES(term_ui PRIVATE
   "../../interface"
   "../../utils"
   "../../utils/portable_thread/includes"
+  "../../plugins"
   )
 
 TARGET_LINK_LIBRARIES(term_ui
   utils
+  plugins
   wxglterm_ui
   ${pybind11_LIBRARIES}
   ${PYTHON_LIBRARIES}

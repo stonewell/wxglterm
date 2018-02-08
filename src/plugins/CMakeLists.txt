@@ -12,6 +12,7 @@ default_show_context_window_task.cpp default_show_context_window_task.h
 )
 
 ADD_LIBRARY(plugins STATIC ${plugins_src})
+ADD_DEPENDENCIES(plugins pybind11)
 
 TARGET_COMPILE_DEFINITIONS(plugins PRIVATE
     ${wxWidgets_DEFINITIONS}

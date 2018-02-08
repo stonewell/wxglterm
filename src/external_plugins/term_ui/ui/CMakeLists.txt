@@ -4,6 +4,7 @@ FILE(GLOB wxglterm_ui_src
     )
 
 ADD_LIBRARY(wxglterm_ui ${wxglterm_ui_src})
+ADD_DEPENDENCIES(wxglterm_ui pybind11)
 
 TARGET_COMPILE_DEFINITIONS(wxglterm_ui PRIVATE
     ${wxWidgets_DEFINITIONS}

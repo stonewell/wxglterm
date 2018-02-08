@@ -4,6 +4,7 @@ FILE(GLOB controller_src
     )
 
 ADD_LIBRARY(controller STATIC ${controller_src})
+ADD_DEPENDENCIES(controller pybind11)
 
 TARGET_INCLUDE_DIRECTORIES(controller PRIVATE
   "../interface"

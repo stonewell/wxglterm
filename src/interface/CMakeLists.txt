@@ -6,6 +6,9 @@ FILE(GLOB wxglterm_interface_src
 ADD_LIBRARY(wxglterm_interface SHARED ${wxglterm_interface_src})
 ADD_LIBRARY(wxglterm_interface_static ${wxglterm_interface_src})
 
+ADD_DEPENDENCIES(wxglterm_interface_static pybind11)
+ADD_DEPENDENCIES(wxglterm_interface pybind11)
+
 SET_TARGET_PROPERTIES(wxglterm_interface PROPERTIES
     PREFIX "${PYTHON_MODULE_PREFIX}"
     SUFFIX "${PYTHON_MODULE_EXTENSION}"

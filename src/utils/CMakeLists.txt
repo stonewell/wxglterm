@@ -26,6 +26,7 @@ ADD_LIBRARY(utils STATIC
   portable_thread/src/PortableThread.cpp
   app_config.inc
   )
+ADD_DEPENDENCIES(utils pybind11)
 
 TARGET_INCLUDE_DIRECTORIES(utils PRIVATE
   "${CMAKE_CURRENT_SRC_DIR}"
