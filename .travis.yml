@@ -33,7 +33,7 @@ matrix:
             apt-get install -y build-essential cmake libboost-thread-dev libboost-date-time-dev;
             add-apt-repository -y ppa:ubuntu-toolchain-r/test;
             apt-get update;
-            apt-get install -y gcc g++ cmake libglfw3-dev libglew-dev libfontconfig1-dev libfreetype6-dev python-dev git"
+            apt-get install -y gcc g++ cmake libglfw3-dev libglew-dev libfontconfig1-dev libfreetype6-dev python3-dev git"
       script:
         - docker exec -t ubuntu-test bash -c "cd /travis;
             mkdir -p build; cd build;
