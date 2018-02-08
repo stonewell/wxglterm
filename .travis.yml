@@ -40,3 +40,5 @@ matrix:
             sh ../run_cmake.sh &&
             make"
 
+notifications:
+  email: false
