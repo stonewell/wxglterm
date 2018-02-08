@@ -1,6 +1,8 @@
 # wxglterm
 A cross platform terminal emulator. Buildin plugin system support python and c/c++ plugin.
 
+## [![Build Status](https://travis-ci.org/stonewell/wxglterm.svg?branch=master)](https://travis-ci.org/stonewell/wxglterm)
+
 ## Prerequisites
 * [pybind11](https://github.com/pybind/pybind11) for the python plugin system
 * Python 3
