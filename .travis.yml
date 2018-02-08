@@ -25,7 +25,7 @@ matrix:
       compiler:
         - gcc
       before_install:
-        - docker run -d --name ubuntu-test -v $(pwd):/travis ubuntu:latest tail -f /dev/null
+        - docker run -d --name ubuntu-test -v $(pwd):/travis ubuntu:17.10 tail -f /dev/null
         - docker ps
       install:
         - docker exec -t ubuntu-test bash -c "apt-get update;
