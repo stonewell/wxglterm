@@ -41,7 +41,7 @@ SET(CXX_EXTENSION NO)
 if (NOT CONFIGURED_ONCE)
     set(CMAKE_C_FLAGS "-fPIC ${warnings}"
         CACHE STRING "Flags used by the compiler during all build types." FORCE)
-    set(CMAKE_CXX_FLAGS "-fPIC ${warnings} -std=c++14 -DXXX"
+    set(CMAKE_CXX_FLAGS "-fPIC ${warnings} -std=c++14"
         CACHE STRING "Flags used by the compiler during all build types." FORCE)
 endif()
 
@@ -60,6 +60,7 @@ EXTERNALPROJECT_ADD(
 
 SET(pybind11_INCLUDE_DIRS ${CMAKE_BINARY_DIR}/pybind11_install/include)
 
+FIND_PACKAGE(PythonInterp 3 REQUIRED)
 FIND_PACKAGE(PythonLibs 3 REQUIRED)
 
 configure_file(wxglterm.json.in wxglterm.json)

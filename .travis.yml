@@ -11,6 +11,7 @@ matrix:
     ##########################################################################
     - os: osx
       env:
+      osx_image: xcode9.2
       before_install:
         - brew install glfw python3 freetype fontconfig
 
@@ -26,7 +27,7 @@ matrix:
             - gcc
             - g++
             - cmake
-            - libglfw3-dev
+            - libglfw-dev
             - libglew-dev
             - libfontconfig1-dev
             - libfreetype6-dev
