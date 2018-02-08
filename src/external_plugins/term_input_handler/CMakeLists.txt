@@ -20,6 +20,7 @@ TARGET_INCLUDE_DIRECTORIES(term_input_handler PRIVATE
 
 TARGET_LINK_LIBRARIES(term_input_handler
   utils
+  plugins
   ${pybind11_LIBRARIES}
   ${PYTHON_LIBRARIES}
   )

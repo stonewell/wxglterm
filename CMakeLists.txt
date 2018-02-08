@@ -8,6 +8,8 @@ PROJECT (wxglTerm
 	VERSION 1.0.0
 	)
 
+INCLUDE(ExternalProject)
+
 IF(APPLE)
   SET(CMAKE_MACOSX_RPATH 1)
   SET(CMAKE_PREFIX_PATH /usr/local)
@@ -43,8 +45,21 @@ if (NOT CONFIGURED_ONCE)
         CACHE STRING "Flags used by the compiler during all build types." FORCE)
 endif()
 
-SET(PYBIND11_CPP_STANDARD "-DAVOID_STD_CXX_FLAG")
-FIND_PACKAGE(pybind11 REQUIRED)
+EXTERNALPROJECT_ADD(
+  pybind11
+
+  GIT_REPOSITORY "https://github.com/pybind/pybind11.git"
+  GIT_TAG "master"
+
+  UPDATE_COMMAND git pull
+  PATCH_COMMAND ""
+
+  CMAKE_ARGS -DCMAKE_BUILD_TYPE=Debug -DPYBIND11_WERROR=ON -DDOWNLOAD_CATCH=ON -DPYBIND11_TEST=OFF -DPYBIND11_INSTALL=ON -DCMAKE_INSTALL_PREFIX=${CMAKE_BINARY_DIR}/pybind11_install
+
+  TEST_COMMAND ""
+)
+
+SET(pybind11_INCLUDE_DIRS ${CMAKE_BINARY_DIR}/pybind11_install/include)
 
 FIND_PACKAGE(PythonLibs 3 REQUIRED)
 
