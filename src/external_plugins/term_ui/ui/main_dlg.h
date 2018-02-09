@@ -29,6 +29,9 @@ public:
     }
 
     void SetSelectionData(const wxString & data);
+    void EnableMouseTrack(bool enable) {
+        m_DrawPane->EnableMouseTrack(enable);
+    }
 private:
     DrawPane * m_DrawPane;
     WindowManager * m_WindowManager;

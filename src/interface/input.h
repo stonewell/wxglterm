@@ -153,6 +153,6 @@ public:
 
     virtual bool ProcessKey(KeyCodeEnum keycode, ModifierEnum modifier, bool down) = 0;
     virtual bool ProcessCharInput(int32_t c, ModifierEnum modifier) = 0;
-    virtual bool ProcessMouseButton(MouseButtonEnum btn, uint32_t x, uint32_t y, ModifierEnum modifier, bool down) = 0;
-    virtual bool ProcessMouseMove(MouseButtonEnum btn, uint32_t x, uint32_t y, ModifierEnum modifier) = 0;
+    virtual bool ProcessMouseButton(MouseButtonEnum btn, uint32_t col, uint32_t row, ModifierEnum modifier, bool down) = 0;
+    virtual bool ProcessMouseMove(MouseButtonEnum btn, uint32_t col, uint32_t row, ModifierEnum modifier) = 0;
 };

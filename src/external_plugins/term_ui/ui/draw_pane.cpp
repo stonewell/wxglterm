@@ -52,6 +52,7 @@ DrawPane::DrawPane(wxFrame * parent, TermWindow * termWindow) : wxPanel(parent)
         , m_RefreshTimer(this, TIMER_ID)
         , m_Buffer{}
         , m_AppDebug{false}
+        , m_EnableMouseTrack{false}
 {
     SetBackgroundStyle(wxBG_STYLE_PAINT);
     InitColorTable();

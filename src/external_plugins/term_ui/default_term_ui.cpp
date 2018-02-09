@@ -143,7 +143,7 @@ public:
     }
 
     void EnableMouseTrack(bool enable) override {
-        (void)enable;
+        m_MainDlg->EnableMouseTrack(enable);
     }
 private:
     MainDialog * m_MainDlg;

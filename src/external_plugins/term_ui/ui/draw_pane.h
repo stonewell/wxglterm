@@ -28,6 +28,10 @@ public:
     uint32_t GetColorByIndex(uint32_t index) {
         return m_ColorTable[index].GetRGBA();
     }
+
+    void EnableMouseTrack(bool enable) {
+        m_EnableMouseTrack = enable;
+    }
 private:
     void OnPaint(wxPaintEvent &evt);
     void OnIdle(wxIdleEvent& evt);
@@ -78,4 +82,6 @@ private:
     TermBufferPtr m_Buffer;
 
     bool m_AppDebug;
+
+    bool m_EnableMouseTrack;
 };
