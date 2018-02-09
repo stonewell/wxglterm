@@ -87,5 +87,5 @@ private:
                      float & last_y);
     void InitColorTable();
     void InitFreeTypeGLContext();
-    void SendMouseEvent(int button, bool press, bool motion);
+    void GetMousePos(uint32_t & row, uint32_t & col);
 };

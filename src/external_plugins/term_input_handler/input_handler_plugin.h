@@ -21,22 +21,8 @@ protected:
 public:
     bool ProcessCharInput(int32_t codepoint, InputHandler::ModifierEnum modifier) override;
     bool ProcessKey(InputHandler::KeyCodeEnum key, InputHandler::ModifierEnum mods, bool down) override;
-
-    bool ProcessMouseButton(InputHandler::MouseButtonEnum btn, uint32_t x, uint32_t y, InputHandler::ModifierEnum modifier, bool down) override {
-        (void)btn;
-        (void)x;
-        (void)y;
-        (void)modifier;
-        (void)down;
-        return false;
-    }
-
-    bool ProcessMouseMove(InputHandler::MouseButtonEnum btn, uint32_t x, uint32_t y, InputHandler::ModifierEnum modifier) override {
-        (void)btn;
-        (void)x;
-        (void)y;
-        (void)modifier;
-        return false;
-    }
+    bool ProcessMouseButton(InputHandler::MouseButtonEnum btn, uint32_t col, uint32_t row, InputHandler::ModifierEnum modifier, bool down) override;
+    bool ProcessMouseMove(InputHandler::MouseButtonEnum btn, uint32_t col, uint32_t row, InputHandler::ModifierEnum modifier) override;
 private:
+    void SendMouseEvent(int button, bool press, bool motion, uint32_t col, uint32_t row);
 };
