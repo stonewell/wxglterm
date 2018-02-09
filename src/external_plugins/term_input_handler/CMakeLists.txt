@@ -1,6 +1,7 @@
 #
 SET(input_handler_src
-  input_handler_plugin.cpp)
+  input_handler_plugin.cpp
+  key_code_map.cpp key_code_map.h)
 
 ADD_LIBRARY(term_input_handler SHARED ${input_handler_src})
 

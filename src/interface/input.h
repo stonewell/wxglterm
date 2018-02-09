@@ -130,10 +130,10 @@ public:
     };
 
     enum ModifierEnum {
-        M_SHIFT = 1,
-        M_CONTROL = 2,
-        M_ALT = 4,
-        M_SUPER = 8
+        MOD_SHIFT = 1,
+        MOD_CONTROL = 2,
+        MOD_ALT = 4,
+        MOD_SUPER = 8
     };
 
     enum MouseButtonEnum {

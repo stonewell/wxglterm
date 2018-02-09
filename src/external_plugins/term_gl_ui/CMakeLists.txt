@@ -33,7 +33,6 @@ SET(term_gl_ui_src
   default_term_window_mouse.cpp
   freetype_gl.cpp freetype_gl.h
   shader.cpp shader.h
-  key_code_map.c
   term_text_buffer.h
 )
 
