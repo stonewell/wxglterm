@@ -42,6 +42,7 @@ BEGIN_EVENT_TABLE(DrawPane, wxPanel)
         EVT_ERASE_BACKGROUND(DrawPane::OnEraseBackground)
         EVT_TIMER(TIMER_ID, DrawPane::OnTimer)
         EVT_COMMAND(wxID_ANY, MY_REFRESH_EVENT, DrawPane::OnRefreshEvent)
+EVT_MOUSE_EVENTS(DrawPane::OnMouseEvent)
 END_EVENT_TABLE()
 
 DrawPane::DrawPane(wxFrame * parent, TermWindow * termWindow) : wxPanel(parent)
@@ -53,6 +54,7 @@ DrawPane::DrawPane(wxFrame * parent, TermWindow * termWindow) : wxPanel(parent)
         , m_Buffer{}
         , m_AppDebug{false}
         , m_EnableMouseTrack{false}
+        , m_SavedMouseButton(-1)
 {
     SetBackgroundStyle(wxBG_STYLE_PAINT);
     InitColorTable();

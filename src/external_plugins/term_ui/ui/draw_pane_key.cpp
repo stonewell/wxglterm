@@ -132,6 +132,8 @@ void DrawPane::OnKeyDown(wxKeyEvent& event)
     if (event.ShiftDown()) mods |= InputHandler::ModifierEnum::MOD_SHIFT;
     if (event.AltDown()) mods |= InputHandler::ModifierEnum::MOD_ALT;
     if (event.RawControlDown()) mods |= InputHandler::ModifierEnum::MOD_CONTROL;
+    if (event.MetaDown()) mods |= InputHandler::ModifierEnum::MOD_SUPER;
+    if (event.ControlDown() && !event.RawControlDown()) mods |= InputHandler::ModifierEnum::MOD_SUPER;
 
     if (!input_handler->ProcessKey((InputHandler::KeyCodeEnum)key,
                                   (InputHandler::ModifierEnum)mods,

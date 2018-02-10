@@ -42,6 +42,7 @@ private:
     void OnEraseBackground(wxEraseEvent & event);
     void OnTimer(wxTimerEvent& event);
     void OnRefreshEvent(wxCommandEvent& event);
+    void OnMouseEvent(wxMouseEvent& event);
 
     wxFont * GetFont(FontCategoryEnum font_category = DrawPane::Default);
 
@@ -68,6 +69,7 @@ private:
     void InitColorTable();
 
     TermBufferPtr EnsureTermBuffer();
+    void GetMousePos(wxMouseEvent & event, uint32_t & row, uint32_t & col);
 
     int m_RefreshNow;
     wxCriticalSection m_RefreshLock;
@@ -84,4 +86,5 @@ private:
     bool m_AppDebug;
 
     bool m_EnableMouseTrack;
+    int m_SavedMouseButton;
 };
