@@ -109,7 +109,9 @@ InputHandler::KeyCodeEnum wxKeyToInputHandlerKey(wxKeyCode uc) {
     case WXK_SHIFT : return InputHandler::KEY_LEFT_SHIFT;
     case WXK_RAW_CONTROL : return InputHandler::KEY_LEFT_CONTROL;
     case WXK_ALT : return InputHandler::KEY_LEFT_ALT;
+#if (WXK_COMMAND != WXK_RAW_CONTROL)
     case WXK_COMMAND : return InputHandler::KEY_LEFT_SUPER;
+#endif
     case WXK_MENU : return InputHandler::KEY_MENU;
     default:
         return InputHandler::KEY_UNKNOWN;
