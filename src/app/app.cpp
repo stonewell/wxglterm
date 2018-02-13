@@ -10,12 +10,13 @@
 #include "term_context.h"
 #include "term_network.h"
 #include "term_data_handler.h"
+#include "term_buffer.h"
+
 #include "color_theme.h"
 #include "input.h"
 
 #include "task.h"
 
-#include "default_term_buffer.h"
 #include "default_show_context_window_task.h"
 
 #include <iostream>
@@ -274,7 +275,6 @@ TermUIPtr wxGLTermApp::CreateTermUI(TermContextPtr term_context)
 
 void wxGLTermApp::InitDefaultPlugins()
 {
-    m_PluginManager->RegisterPlugin(std::dynamic_pointer_cast<Plugin>(CreateDefaultTermBuffer()));
     m_PluginManager->RegisterPlugin(std::dynamic_pointer_cast<Plugin>(CreateDefaultShowContextWindowTask()));
 }
 

@@ -14,6 +14,7 @@ ADD_SUBDIRECTORY(term_gl_ui)
 ENDIF()
 
 ADD_SUBDIRECTORY(term_input_handler)
+ADD_SUBDIRECTORY(term_buffer)
 
 IF (BUILD_SCINTILLA_EDITOR)
 ADD_SUBDIRECTORY(scintilla_editor)

@@ -11,7 +11,7 @@
 #include <iostream>
 
 DefaultTermBuffer::DefaultTermBuffer() :
-    PluginBase("default_term_buffer", "default terminal buffer plugin", 0)
+    PluginBase("default_term_buffer", "default terminal buffer plugin", 1)
     , m_UpdateLock{}
     , m_DefaultChar(' ')
     , m_DefaultForeColorIndex(TermCell::DefaultForeColorIndex)
