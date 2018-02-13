@@ -20,6 +20,8 @@ SET(scintilla_SOURCE_DIR ${SOURCE_DIR}/src)
 
 SET(scintilla_editor_src
   platform.cxx
+  scintilla_editor_plugin.cxx
+  scintilla_editor.cxx scintilla_editor.h
   ${CMAKE_CURRENT_BINARY_DIR}/Document.cxx
   ${CMAKE_CURRENT_BINARY_DIR}/CellBuffer.cxx
   ${CMAKE_CURRENT_BINARY_DIR}/PerLine.cxx
