@@ -156,3 +156,7 @@ void ScintillaEditor::AddMode(uint16_t m) {
 void ScintillaEditor::RemoveMode(uint16_t m) {
     (void)m;
 }
+
+TermBufferPtr ScintillaEditor::CloneBuffer() {
+    return TermBufferPtr {};
+}
