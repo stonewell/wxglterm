@@ -5,9 +5,59 @@
 #include <vector>
 #include <iostream>
 
+#include <cstddef>
+#include <cstdlib>
+#include <cassert>
+#include <cstring>
+#include <cmath>
+
+#include <stdexcept>
+#include <string>
+#include <vector>
+#include <map>
+#include <algorithm>
+#include <memory>
+
+#include "Platform.h"
+
+#include "ILoader.h"
+#include "ILexer.h"
+#include "Scintilla.h"
+
+#include "StringCopy.h"
+#include "Position.h"
+#include "UniqueString.h"
+#include "SplitVector.h"
+#include "Partitioning.h"
+#include "RunStyles.h"
+#include "ContractionState.h"
+#include "CellBuffer.h"
+#include "KeyMap.h"
+#include "Indicator.h"
+#include "XPM.h"
+#include "LineMarker.h"
+#include "Style.h"
+#include "ViewStyle.h"
+#include "CharClassify.h"
+#include "Decoration.h"
+#include "CaseFolder.h"
+#include "Document.h"
+#include "UniConversion.h"
+#include "Selection.h"
+#include "PositionCache.h"
+
+using namespace Scintilla;
+
 ScintillaEditor::ScintillaEditor() :
     PluginBase("scintilla_editor", "scintilla editor buffer plugin", 1)
+    , m_pDoc { new Document{SC_DOCUMENTOPTION_DEFAULT} }
 {
+    m_pDoc->AddRef();
+}
+
+ScintillaEditor::~ScintillaEditor() {
+    m_pDoc->Release();
+    m_pDoc = nullptr;
 }
 
 MultipleInstancePluginPtr ScintillaEditor::NewInstance() {

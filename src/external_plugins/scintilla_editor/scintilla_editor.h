@@ -4,10 +4,14 @@
 #include "plugin_base.h"
 #include "term_buffer.h"
 
+namespace Scintilla {
+class Document;
+};
+
 class ScintillaEditor : public virtual PluginBase, public virtual TermBuffer {
 public:
     ScintillaEditor();
-    virtual ~ScintillaEditor() = default;
+    virtual ~ScintillaEditor();
 
     MultipleInstancePluginPtr NewInstance() override;
 
@@ -73,4 +77,5 @@ public:
     void AddMode(uint16_t m) override;
     void RemoveMode(uint16_t m) override;
 private:
+    Scintilla::Document * m_pDoc;
 };
