@@ -78,4 +78,9 @@ public:
     void RemoveMode(uint16_t m) override;
 private:
     Scintilla::Document * m_pDoc;
+
+    uint32_t m_Rows;
+    uint32_t m_Cols;
+    uint32_t m_Row;
+    uint32_t m_Col;
 };

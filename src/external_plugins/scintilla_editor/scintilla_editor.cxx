@@ -51,6 +51,10 @@ using namespace Scintilla;
 ScintillaEditor::ScintillaEditor() :
     PluginBase("scintilla_editor", "scintilla editor buffer plugin", 1)
     , m_pDoc { new Document{SC_DOCUMENTOPTION_DEFAULT} }
+    , m_Rows {0}
+    , m_Cols {0}
+    , m_Row {0}
+    , m_Col {0}
 {
     m_pDoc->AddRef();
 }
@@ -65,32 +69,32 @@ MultipleInstancePluginPtr ScintillaEditor::NewInstance() {
 }
 
 void ScintillaEditor::Resize(uint32_t row, uint32_t col) {
-    (void)row;
-    (void)col;
+    m_Rows = row;
+    m_Cols = col;
 }
 
 uint32_t ScintillaEditor::GetRows() {
-    return 0;
+    return m_Rows;
 }
 
 uint32_t ScintillaEditor::GetCols() {
-    return 0;
+    return m_Cols;
 }
 
 uint32_t ScintillaEditor::GetRow() {
-    return 0;
+    return m_Row;
 }
 
 uint32_t ScintillaEditor::GetCol() {
-    return 0;
+    return m_Col;
 }
 
 void ScintillaEditor::SetRow(uint32_t row) {
-    (void)row;
+    m_Row = row;
 }
 
 void ScintillaEditor::SetCol(uint32_t col) {
-    (void)col;
+    m_Col = col;
 }
 
 TermLinePtr ScintillaEditor::GetLine(uint32_t row) {
@@ -105,11 +109,11 @@ TermCellPtr ScintillaEditor::GetCell(uint32_t row, uint32_t col) {
 }
 
 TermLinePtr ScintillaEditor::GetCurLine() {
-    return TermLinePtr {};
+    return GetLine(m_Row);
 }
 
 TermCellPtr ScintillaEditor::GetCurCell() {
-    return TermCellPtr {};
+    return GetCell(m_Row, m_Col);
 }
 
 uint32_t ScintillaEditor::GetScrollRegionBegin() {

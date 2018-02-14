@@ -24,7 +24,7 @@ ENDIF()
 
 OPTION(BUILD_OPENGL_UI "build opengl ui" ON)
 OPTION(BUILD_WXWIDGETS_UI "build wxwidgets ui" ON)
-OPTION(BUILD_SCINTILLA_EDITOR "build editor buffer using scintilla" ON)
+OPTION(BUILD_SCINTILLA_EDITOR "build editor buffer using scintilla" OFF)
 
 SET(CMAKE_MODULE_PATH ${CMAKE_MODULE_PATH} "${CMAKE_CURRENT_SOURCE_DIR}/cmake/Modules/")
 
