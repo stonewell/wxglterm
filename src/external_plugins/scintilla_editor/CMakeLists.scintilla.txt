@@ -1,0 +1,24 @@
+CMAKE_MINIMUM_REQUIRED(VERSION 2.8)
+
+PROJECT(scintilla)
+
+FILE(GLOB SCI_SRC src/*.h src/*.cxx)
+FILE(GLOB LEXERS_SRC lexers/*.h lexers/*.cxx)
+FILE(GLOB LEXLIB_SRC lexlib/*.h lexlib/*.cxx)
+
+ADD_LIBRARY(scintilla_cross_platform STATIC
+  ${SCI_SRC}
+  ${LEXERS_SRC}
+  ${LEXLIB_SRC}
+)
+
+SET_TARGET_PROPERTIES(scintilla_cross_platform
+    PROPERTIES
+    CXX_STANDARD 17
+)
+
+TARGET_INCLUDE_DIRECTORIES(scintilla_cross_platform
+    PRIVATE
+    "include"
+    "lexlib"
+)
