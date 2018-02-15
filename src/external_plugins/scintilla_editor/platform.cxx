@@ -25,4 +25,27 @@ void Platform::Assert(const char *c, const char *file, int line) {
 	printf("Assertion [%s] failed at %s %d\r\n", c, file, line);
 	abort();
 }
+
+ListBox::ListBox() {
+}
+
+ListBox::~ListBox() {
+}
+
+ListBox *ListBox::Allocate() {
+	return nullptr;
+}
+
+Window::~Window() {}
+
+void Window::Destroy() {
+}
+
+void Window::SetFont(Font &) {
+	// Can not be done generically but only needed for ListBox
+}
+
+void Window::Show(bool show) {
+    (void)show;
+}
 }
