@@ -33,6 +33,21 @@ SET(scintilla_editor_src
   ${CMAKE_CURRENT_BINARY_DIR}/XPM.cxx
   ${CMAKE_CURRENT_BINARY_DIR}/UniConversion.cxx
   ${CMAKE_CURRENT_BINARY_DIR}/CharacterCategory.cxx
+  ${CMAKE_CURRENT_BINARY_DIR}/Editor.cxx
+  ${CMAKE_CURRENT_BINARY_DIR}/EditModel.cxx
+  ${CMAKE_CURRENT_BINARY_DIR}/EditView.cxx
+  ${CMAKE_CURRENT_BINARY_DIR}/ViewStyle.cxx
+  ${CMAKE_CURRENT_BINARY_DIR}/ScintillaBase.cxx
+  ${CMAKE_CURRENT_BINARY_DIR}/Catalogue.cxx
+  ${CMAKE_CURRENT_BINARY_DIR}/CallTip.cxx
+  ${CMAKE_CURRENT_BINARY_DIR}/CaseConvert.cxx
+  ${CMAKE_CURRENT_BINARY_DIR}/CaseFolder.cxx
+  ${CMAKE_CURRENT_BINARY_DIR}/CaseFolder.cxx
+  ${CMAKE_CURRENT_BINARY_DIR}/AutoComplete.cxx
+  ${CMAKE_CURRENT_BINARY_DIR}/CharacterSet.cxx
+  ${CMAKE_CURRENT_BINARY_DIR}/Selection.cxx
+  ${CMAKE_CURRENT_BINARY_DIR}/RunStyles.cxx
+  ${CMAKE_CURRENT_BINARY_DIR}/Style.cxx
   )
 
 ADD_CUSTOM_COMMAND(OUTPUT Document.cxx
@@ -46,28 +61,71 @@ ADD_CUSTOM_COMMAND(OUTPUT Document.cxx
 			  XPM.cxx
 			  UniConversion.cxx
 			  CharacterCategory.cxx
+			  Editor.cxx
+			  EditModel.cxx
+			  EditView.cxx
+			  ViewStyle.cxx
+			  ScintillaBase.cxx
+			  Catalogue.cxx
+			  CallTip.cxx
+			  CaseConvert.cxx
+			  CaseFolder.cxx
+			  AutoComplete.cxx
+			  CharacterSet.cxx
+			  Selection.cxx
+			  RunStyles.cxx
+			  Style.cxx
+			  PositionCache.cxx
   COMMAND
-  ${CMAKE_COMMAND} -E copy ${scintilla_SOURCE_DIR}/Document.cxx ${CMAKE_CURRENT_BINARY_DIR}
+  ${CMAKE_COMMAND} -E copy_if_different ${scintilla_SOURCE_DIR}/ViewStyle.cxx ${CMAKE_CURRENT_BINARY_DIR}
   COMMAND
-  ${CMAKE_COMMAND} -E copy ${scintilla_SOURCE_DIR}/CellBuffer.cxx ${CMAKE_CURRENT_BINARY_DIR}
+  ${CMAKE_COMMAND} -E copy_if_different ${scintilla_SOURCE_DIR}/RunStyles.cxx ${CMAKE_CURRENT_BINARY_DIR}
   COMMAND
-  ${CMAKE_COMMAND} -E copy ${scintilla_SOURCE_DIR}/PerLine.cxx ${CMAKE_CURRENT_BINARY_DIR}
+  ${CMAKE_COMMAND} -E copy_if_different ${scintilla_SOURCE_DIR}/Style.cxx ${CMAKE_CURRENT_BINARY_DIR}
   COMMAND
-  ${CMAKE_COMMAND} -E copy ${scintilla_SOURCE_DIR}/LineMarker.cxx ${CMAKE_CURRENT_BINARY_DIR}
+  ${CMAKE_COMMAND} -E copy_if_different ${scintilla_SOURCE_DIR}/Selection.cxx ${CMAKE_CURRENT_BINARY_DIR}
   COMMAND
-  ${CMAKE_COMMAND} -E copy ${scintilla_SOURCE_DIR}/Decoration.cxx ${CMAKE_CURRENT_BINARY_DIR}
+  ${CMAKE_COMMAND} -E copy_if_different ${scintilla_SOURCE_DIR}/AutoComplete.cxx ${CMAKE_CURRENT_BINARY_DIR}
   COMMAND
-  ${CMAKE_COMMAND} -E copy ${scintilla_SOURCE_DIR}/RESearch.cxx ${CMAKE_CURRENT_BINARY_DIR}
+  ${CMAKE_COMMAND} -E copy_if_different ${scintilla_SOURCE_DIR}/CaseConvert.cxx ${CMAKE_CURRENT_BINARY_DIR}
   COMMAND
-  ${CMAKE_COMMAND} -E copy ${scintilla_SOURCE_DIR}/XPM.cxx ${CMAKE_CURRENT_BINARY_DIR}
+  ${CMAKE_COMMAND} -E copy_if_different ${scintilla_SOURCE_DIR}/CaseFolder.cxx ${CMAKE_CURRENT_BINARY_DIR}
   COMMAND
-  ${CMAKE_COMMAND} -E copy ${scintilla_SOURCE_DIR}/CharClassify.cxx ${CMAKE_CURRENT_BINARY_DIR}
+  ${CMAKE_COMMAND} -E copy_if_different ${scintilla_SOURCE_DIR}/Catalogue.cxx ${CMAKE_CURRENT_BINARY_DIR}
   COMMAND
-  ${CMAKE_COMMAND} -E copy ${scintilla_SOURCE_DIR}/RunStyles.cxx ${CMAKE_CURRENT_BINARY_DIR}
+  ${CMAKE_COMMAND} -E copy_if_different ${scintilla_SOURCE_DIR}/CallTip.cxx ${CMAKE_CURRENT_BINARY_DIR}
   COMMAND
-  ${CMAKE_COMMAND} -E copy ${scintilla_SOURCE_DIR}/UniConversion.cxx ${CMAKE_CURRENT_BINARY_DIR}
+  ${CMAKE_COMMAND} -E copy_if_different ${scintilla_SOURCE_DIR}/ScintillaBase.cxx ${CMAKE_CURRENT_BINARY_DIR}
   COMMAND
-  ${CMAKE_COMMAND} -E copy ${SOURCE_DIR}/lexlib/CharacterCategory.cxx ${CMAKE_CURRENT_BINARY_DIR}
+  ${CMAKE_COMMAND} -E copy_if_different ${scintilla_SOURCE_DIR}/Document.cxx ${CMAKE_CURRENT_BINARY_DIR}
+  COMMAND
+  ${CMAKE_COMMAND} -E copy_if_different ${scintilla_SOURCE_DIR}/Editor.cxx ${CMAKE_CURRENT_BINARY_DIR}
+  COMMAND
+  ${CMAKE_COMMAND} -E copy_if_different ${scintilla_SOURCE_DIR}/EditModel.cxx ${CMAKE_CURRENT_BINARY_DIR}
+  COMMAND
+  ${CMAKE_COMMAND} -E copy_if_different ${scintilla_SOURCE_DIR}/EditView.cxx ${CMAKE_CURRENT_BINARY_DIR}
+  COMMAND
+  ${CMAKE_COMMAND} -E copy_if_different ${scintilla_SOURCE_DIR}/CellBuffer.cxx ${CMAKE_CURRENT_BINARY_DIR}
+  COMMAND
+  ${CMAKE_COMMAND} -E copy_if_different ${scintilla_SOURCE_DIR}/PerLine.cxx ${CMAKE_CURRENT_BINARY_DIR}
+  COMMAND
+  ${CMAKE_COMMAND} -E copy_if_different ${scintilla_SOURCE_DIR}/LineMarker.cxx ${CMAKE_CURRENT_BINARY_DIR}
+  COMMAND
+  ${CMAKE_COMMAND} -E copy_if_different ${scintilla_SOURCE_DIR}/Decoration.cxx ${CMAKE_CURRENT_BINARY_DIR}
+  COMMAND
+  ${CMAKE_COMMAND} -E copy_if_different ${scintilla_SOURCE_DIR}/RESearch.cxx ${CMAKE_CURRENT_BINARY_DIR}
+  COMMAND
+  ${CMAKE_COMMAND} -E copy_if_different ${scintilla_SOURCE_DIR}/XPM.cxx ${CMAKE_CURRENT_BINARY_DIR}
+  COMMAND
+  ${CMAKE_COMMAND} -E copy_if_different ${scintilla_SOURCE_DIR}/CharClassify.cxx ${CMAKE_CURRENT_BINARY_DIR}
+  COMMAND
+  ${CMAKE_COMMAND} -E copy_if_different ${scintilla_SOURCE_DIR}/RunStyles.cxx ${CMAKE_CURRENT_BINARY_DIR}
+  COMMAND
+  ${CMAKE_COMMAND} -E copy_if_different ${scintilla_SOURCE_DIR}/UniConversion.cxx ${CMAKE_CURRENT_BINARY_DIR}
+  COMMAND
+  ${CMAKE_COMMAND} -E copy_if_different ${SOURCE_DIR}/lexlib/CharacterCategory.cxx ${CMAKE_CURRENT_BINARY_DIR}
+  COMMAND
+  ${CMAKE_COMMAND} -E copy_if_different ${SOURCE_DIR}/lexlib/CharacterSet.cxx ${CMAKE_CURRENT_BINARY_DIR}
   COMMENT
   "Copying scintilla source code..."
   VERBATIM
@@ -78,10 +136,11 @@ ADD_LIBRARY(scintilla_editor SHARED ${scintilla_editor_src}
 
 ADD_DEPENDENCIES(scintilla_editor scintilla)
 
-SET_TARGET_PROPERTIES( scintilla_editor
+SET_TARGET_PROPERTIES(scintilla_editor
     PROPERTIES
     LIBRARY_OUTPUT_DIRECTORY "${CMAKE_BINARY_DIR}/plugins"
     CXX_STANDARD 17
+    LINK_FLAGS "-Wl,--no-undefined"
 )
 
 SET(scintilla_INCLUDE_DIR ${SOURCE_DIR}/include
