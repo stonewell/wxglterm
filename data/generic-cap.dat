@@ -148,5 +148,5 @@ generic-cap|generic ansi escape:\
 	operating_system_control_0=\E];%s^G:\
 	operating_system_control_0=\E];%s\E\\:\
 	operating_system_control_0=\E];%s\352:\
-	operating_system_control_0=\E];%s\234:
-	
+	operating_system_control_0=\E];%s\234:\
+	window_manipulation=\E[%d;%d;%dt:
