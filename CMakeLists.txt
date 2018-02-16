@@ -53,12 +53,14 @@ EXTERNALPROJECT_ADD(
   GIT_TAG "master"
 
   PATCH_COMMAND ""
-  UPDATE_COMMAND ""
+  UPDATE_DISCONNECTED ON
 
   CMAKE_ARGS -DCMAKE_BUILD_TYPE=Debug -DPYBIND11_TEST=OFF -DPYBIND11_INSTALL=ON -DCMAKE_INSTALL_PREFIX=${CMAKE_BINARY_DIR}/pybind11_install
 
   TEST_COMMAND ""
 )
+
+ExternalProject_Add_StepTargets(pybind11 update)
 
 SET(pybind11_INCLUDE_DIRS ${CMAKE_BINARY_DIR}/pybind11_install/include)
 
@@ -68,6 +70,8 @@ FIND_PACKAGE(PythonLibs 3 REQUIRED)
 configure_file(wxglterm.json.in wxglterm.json)
 configure_file(wxglterm_install.json.in wxglterm_install.json)
 configure_file(wxglterm.desktop.in wxglterm.desktop)
+
+ADD_CUSTOM_TARGET(update_external DEPENDS pybind11-update)
 
 ADD_SUBDIRECTORY(src/interface)
 ADD_SUBDIRECTORY(src/controller)

@@ -7,10 +7,13 @@ EXTERNALPROJECT_ADD(
   GIT_TAG "master"
 
   PATCH_COMMAND ""
-  UPDATE_COMMAND ""
+  UPDATE_DISCONNECTED ON
   TEST_COMMAND ""
   INSTALL_COMMAND ""
 )
+
+ExternalProject_Add_StepTargets(scintilla update)
+ADD_DEPENDENCIES(update_external scintilla-update)
 
 EXTERNALPROJECT_GET_PROPERTY(scintilla SOURCE_DIR BINARY_DIR)
 

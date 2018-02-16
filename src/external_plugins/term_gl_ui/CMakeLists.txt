@@ -13,7 +13,7 @@ EXTERNALPROJECT_ADD(
   GIT_TAG "master"
 
   PATCH_COMMAND ""
-  UPDATE_COMMAND ""
+  UPDATE_DISCONNECTED ON
 
   CMAKE_ARGS -Dfreetype-gl_BUILD_APIDOC=OFF -Dfreetype-gl_BUILD_DEMOS=OFF -Dfreetype-gl_BUILD_TESTS=OFF -Dfreetype-gl_BUILD_MAKEFONT=OFF -DCMAKE_C_FLAGS=-fPIC
 
@@ -21,6 +21,9 @@ EXTERNALPROJECT_ADD(
 
   INSTALL_COMMAND ""
 )
+
+ExternalProject_Add_StepTargets(freetype-gl update)
+ADD_DEPENDENCIES(update_external freetype-gl-update)
 
 EXTERNALPROJECT_GET_PROPERTY(freetype-gl SOURCE_DIR BINARY_DIR)
 
