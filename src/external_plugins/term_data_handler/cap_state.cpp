@@ -70,6 +70,8 @@ void ControlDataState::init_ordered_cap_name_keys()
 
     ordered_cap_name_keys_initialized = true;
 
+    this->ordered_cap_name_keys.clear();
+
     for (auto & p : this->cap_name) {
         auto k = p.first;
 
@@ -92,7 +94,7 @@ void ControlDataState::init_ordered_cap_name_keys()
                   auto a_key = build_cmp_key(std::get<0>(a));
                   auto b_key = build_cmp_key(std::get<0>(b));
 
-                  return a_key.compare(b_key);
+                  return a_key.compare(b_key) < 0;
               });
 }
 

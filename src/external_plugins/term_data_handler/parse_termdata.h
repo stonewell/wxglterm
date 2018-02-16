@@ -42,6 +42,7 @@ class ControlDataState : public std::enable_shared_from_this<ControlDataState> {
 public:
     ControlDataState() :
         ordered_cap_name_keys_initialized {false}
+        , ordered_cap_name_keys {}
     {
     }
     virtual ~ControlDataState() {}
