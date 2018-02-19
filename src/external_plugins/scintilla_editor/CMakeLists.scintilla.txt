@@ -18,7 +18,7 @@ SET_TARGET_PROPERTIES(scintilla_cross_platform
 )
 
 TARGET_COMPILE_DEFINITIONS(scintilla_cross_platform PRIVATE
-    "-D__APPLE__ -fPIC"
+    "-D__APPLE__ -fPIC -DSCI_LEXER"
     )
 
 TARGET_INCLUDE_DIRECTORIES(scintilla_cross_platform

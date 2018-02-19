@@ -45,23 +45,31 @@
 #include "UniConversion.h"
 #include "Selection.h"
 #include "PositionCache.h"
+#include "EditModel.h"
+#include "MarginView.h"
+#include "EditView.h"
+#include "Editor.h"
+#include "AutoComplete.h"
+#include "CallTip.h"
+#include "ScintillaBase.h"
+
+#include "scintilla_editor.h"
 
 using namespace Scintilla;
 
 ScintillaEditorBuffer::ScintillaEditorBuffer() :
     PluginBase("scintilla_editor", "scintilla editor buffer plugin", 1)
-    , m_pDoc { new Document{SC_DOCUMENTOPTION_DEFAULT} }
+    , m_pEditor { new ScintillaEditor{} }
     , m_Rows {0}
     , m_Cols {0}
     , m_Row {0}
     , m_Col {0}
 {
-    m_pDoc->AddRef();
 }
 
 ScintillaEditorBuffer::~ScintillaEditorBuffer() {
-    m_pDoc->Release();
-    m_pDoc = nullptr;
+    delete m_pEditor;
+    m_pEditor = nullptr;
 }
 
 MultipleInstancePluginPtr ScintillaEditorBuffer::NewInstance() {

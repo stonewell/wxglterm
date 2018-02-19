@@ -4,9 +4,7 @@
 #include "plugin_base.h"
 #include "term_buffer.h"
 
-namespace Scintilla {
-class Document;
-};
+class ScintillaEditor;
 
 class ScintillaEditorBuffer : public virtual PluginBase, public virtual TermBuffer {
 public:
@@ -77,7 +75,7 @@ public:
     void AddMode(uint16_t m) override;
     void RemoveMode(uint16_t m) override;
 private:
-    Scintilla::Document * m_pDoc;
+    ScintillaEditor * m_pEditor;
 
     uint32_t m_Rows;
     uint32_t m_Cols;
