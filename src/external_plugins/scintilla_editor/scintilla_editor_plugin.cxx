@@ -6,10 +6,10 @@
 #include "term_cell.h"
 #include "term_buffer.h"
 
-#include "scintilla_editor.h"
+#include "scintilla_editor_buffer.h"
 
 TermBufferPtr CreateDefaultTermBuffer() {
-    return TermBufferPtr { new ScintillaEditor() };
+    return TermBufferPtr { new ScintillaEditorBuffer() };
 }
 
 extern "C"

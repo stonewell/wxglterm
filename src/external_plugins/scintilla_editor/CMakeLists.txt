@@ -31,7 +31,7 @@ SET(scintilla_LIBRARIES ${BINARY_DIR}/${CMAKE_STATIC_LIBRARY_PREFIX}scintilla_cr
 SET(scintilla_editor_src
   platform.cxx
   scintilla_editor_plugin.cxx
-  scintilla_editor.cxx scintilla_editor.h
+  scintilla_editor_buffer.cxx scintilla_editor_buffer.h
 )
 
 ADD_LIBRARY(scintilla_editor SHARED ${scintilla_editor_src})

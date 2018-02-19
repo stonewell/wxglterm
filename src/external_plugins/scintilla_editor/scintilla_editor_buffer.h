@@ -8,10 +8,10 @@ namespace Scintilla {
 class Document;
 };
 
-class ScintillaEditor : public virtual PluginBase, public virtual TermBuffer {
+class ScintillaEditorBuffer : public virtual PluginBase, public virtual TermBuffer {
 public:
-    ScintillaEditor();
-    virtual ~ScintillaEditor();
+    ScintillaEditorBuffer();
+    virtual ~ScintillaEditorBuffer();
 
     MultipleInstancePluginPtr NewInstance() override;
 

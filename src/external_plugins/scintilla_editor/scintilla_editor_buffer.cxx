@@ -1,6 +1,6 @@
 #include "plugin_base.h"
 
-#include "scintilla_editor.h"
+#include "scintilla_editor_buffer.h"
 
 #include <vector>
 #include <iostream>
@@ -48,7 +48,7 @@
 
 using namespace Scintilla;
 
-ScintillaEditor::ScintillaEditor() :
+ScintillaEditorBuffer::ScintillaEditorBuffer() :
     PluginBase("scintilla_editor", "scintilla editor buffer plugin", 1)
     , m_pDoc { new Document{SC_DOCUMENTOPTION_DEFAULT} }
     , m_Rows {0}
@@ -59,101 +59,101 @@ ScintillaEditor::ScintillaEditor() :
     m_pDoc->AddRef();
 }
 
-ScintillaEditor::~ScintillaEditor() {
+ScintillaEditorBuffer::~ScintillaEditorBuffer() {
     m_pDoc->Release();
     m_pDoc = nullptr;
 }
 
-MultipleInstancePluginPtr ScintillaEditor::NewInstance() {
-    return MultipleInstancePluginPtr{new ScintillaEditor()};
+MultipleInstancePluginPtr ScintillaEditorBuffer::NewInstance() {
+    return MultipleInstancePluginPtr{new ScintillaEditorBuffer()};
 }
 
-void ScintillaEditor::Resize(uint32_t row, uint32_t col) {
+void ScintillaEditorBuffer::Resize(uint32_t row, uint32_t col) {
     m_Rows = row;
     m_Cols = col;
 }
 
-uint32_t ScintillaEditor::GetRows() {
+uint32_t ScintillaEditorBuffer::GetRows() {
     return m_Rows;
 }
 
-uint32_t ScintillaEditor::GetCols() {
+uint32_t ScintillaEditorBuffer::GetCols() {
     return m_Cols;
 }
 
-uint32_t ScintillaEditor::GetRow() {
+uint32_t ScintillaEditorBuffer::GetRow() {
     return m_Row;
 }
 
-uint32_t ScintillaEditor::GetCol() {
+uint32_t ScintillaEditorBuffer::GetCol() {
     return m_Col;
 }
 
-void ScintillaEditor::SetRow(uint32_t row) {
+void ScintillaEditorBuffer::SetRow(uint32_t row) {
     m_Row = row;
 }
 
-void ScintillaEditor::SetCol(uint32_t col) {
+void ScintillaEditorBuffer::SetCol(uint32_t col) {
     m_Col = col;
 }
 
-TermLinePtr ScintillaEditor::GetLine(uint32_t row) {
+TermLinePtr ScintillaEditorBuffer::GetLine(uint32_t row) {
     (void)row;
     return TermLinePtr {};
 }
 
-TermCellPtr ScintillaEditor::GetCell(uint32_t row, uint32_t col) {
+TermCellPtr ScintillaEditorBuffer::GetCell(uint32_t row, uint32_t col) {
     (void)row;
     (void)col;
     return TermCellPtr {};
 }
 
-TermLinePtr ScintillaEditor::GetCurLine() {
+TermLinePtr ScintillaEditorBuffer::GetCurLine() {
     return GetLine(m_Row);
 }
 
-TermCellPtr ScintillaEditor::GetCurCell() {
+TermCellPtr ScintillaEditorBuffer::GetCurCell() {
     return GetCell(m_Row, m_Col);
 }
 
-uint32_t ScintillaEditor::GetScrollRegionBegin() {
+uint32_t ScintillaEditorBuffer::GetScrollRegionBegin() {
     return 0;
 }
 
-uint32_t ScintillaEditor::GetScrollRegionEnd() {
+uint32_t ScintillaEditorBuffer::GetScrollRegionEnd() {
     return 0;
 }
 
-void ScintillaEditor::SetScrollRegionBegin(uint32_t begin) {
+void ScintillaEditorBuffer::SetScrollRegionBegin(uint32_t begin) {
     (void)begin;
 }
 
-void ScintillaEditor::SetScrollRegionEnd(uint32_t end) {
+void ScintillaEditorBuffer::SetScrollRegionEnd(uint32_t end) {
     (void)end;
 }
 
-void ScintillaEditor::DeleteLines(uint32_t begin, uint32_t count) {
+void ScintillaEditorBuffer::DeleteLines(uint32_t begin, uint32_t count) {
     (void)begin;
     (void)count;
 }
 
-void ScintillaEditor::InsertLines(uint32_t begin, uint32_t count) {
+void ScintillaEditorBuffer::InsertLines(uint32_t begin, uint32_t count) {
     (void)begin;
     (void)count;
 }
 
-void ScintillaEditor::ScrollBuffer(int32_t scroll_offset) {
+void ScintillaEditorBuffer::ScrollBuffer(int32_t scroll_offset) {
     (void)scroll_offset;
 }
 
-bool ScintillaEditor::MoveCurRow(uint32_t offset, bool move_down, bool scroll_buffer) {
+bool ScintillaEditorBuffer::MoveCurRow(uint32_t offset, bool move_down, bool scroll_buffer) {
     (void)offset;
     (void)move_down;
     (void)scroll_buffer;
     return false;
 }
 
-void ScintillaEditor::SetCellDefaults(wchar_t c,
+void ScintillaEditorBuffer::SetCellDefaults(wchar_t c,
                                       uint16_t fore_color_idx,
                                       uint16_t back_color_idx,
                                       uint16_t mode) {
@@ -163,54 +163,54 @@ void ScintillaEditor::SetCellDefaults(wchar_t c,
     (void)mode;
 }
 
-TermCellPtr ScintillaEditor::CreateCellWithDefaults() {
+TermCellPtr ScintillaEditorBuffer::CreateCellWithDefaults() {
     return TermCellPtr {};
 }
 
-void ScintillaEditor::SetSelection(TermSelectionPtr selection) {
+void ScintillaEditorBuffer::SetSelection(TermSelectionPtr selection) {
     (void)selection;
 }
 
-TermSelectionPtr ScintillaEditor::GetSelection() {
+TermSelectionPtr ScintillaEditorBuffer::GetSelection() {
     return TermSelectionPtr {};
 }
 
-void ScintillaEditor::ClearSelection() {
+void ScintillaEditorBuffer::ClearSelection() {
 }
 
-void ScintillaEditor::SetCurCellData(uint32_t ch, bool wide_char, bool insert, TermCellPtr cell_template) {
+void ScintillaEditorBuffer::SetCurCellData(uint32_t ch, bool wide_char, bool insert, TermCellPtr cell_template) {
     (void)ch;
     (void)wide_char;
     (void)insert;
     (void)cell_template;
 }
 
-void ScintillaEditor::LockUpdate() {
+void ScintillaEditorBuffer::LockUpdate() {
 }
 
-void ScintillaEditor::UnlockUpdate() {
+void ScintillaEditorBuffer::UnlockUpdate() {
 }
 
-void ScintillaEditor::EnableAlterBuffer(bool enable) {
+void ScintillaEditorBuffer::EnableAlterBuffer(bool enable) {
     (void)enable;
 }
 
-uint16_t ScintillaEditor::GetMode() {
+uint16_t ScintillaEditorBuffer::GetMode() {
     return 0;
 }
 
-void ScintillaEditor::SetMode(uint16_t m) {
+void ScintillaEditorBuffer::SetMode(uint16_t m) {
     (void)m;
 }
 
-void ScintillaEditor::AddMode(uint16_t m) {
+void ScintillaEditorBuffer::AddMode(uint16_t m) {
     (void)m;
 }
 
-void ScintillaEditor::RemoveMode(uint16_t m) {
+void ScintillaEditorBuffer::RemoveMode(uint16_t m) {
     (void)m;
 }
 
-TermBufferPtr ScintillaEditor::CloneBuffer() {
+TermBufferPtr ScintillaEditorBuffer::CloneBuffer() {
     return TermBufferPtr {};
 }
