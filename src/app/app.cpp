@@ -114,6 +114,7 @@ bool wxGLTermApp::DoInit()
     g_AppConfig->LoadFromFile(config_path.c_str());
 
     g_AppDebug = g_AppConfig->GetEntryBool("app_debug", false);
+    set_app_debug(g_AppDebug);
 
     if (g_AppDebug) {
         std::cout << "termcap_dir:"

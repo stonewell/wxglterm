@@ -34,10 +34,23 @@ namespace py = pybind11;
 
 void print_plugin_info(Plugin * plugin)
 {
-    std::cerr << "Name:" << plugin->GetName()
-              << ", Description:" << plugin->GetDescription()
-              << ", Version:" << plugin->GetVersion()
-              << std::endl;
+    if (is_app_debug()) {
+        std::cerr << "Name:" << plugin->GetName()
+                  << ", Description:" << plugin->GetDescription()
+                  << ", Version:" << plugin->GetVersion()
+                  << std::endl;
+    }
+}
+
+static
+bool s_is_app_debug = false;
+
+bool is_app_debug() {
+    return s_is_app_debug;
+}
+
+void set_app_debug(bool app_debug) {
+    s_is_app_debug = app_debug;
 }
 
 #ifdef WXGLTERM_DYNAMIC_INTERFACE
@@ -47,6 +60,7 @@ PYBIND11_EMBEDDED_MODULE(wxglterm_interface, m)
 #endif
 {
     m.def("print_plugin_info", &print_plugin_info);
+    m.def("is_app_debug", &is_app_debug);
 
     py::class_<Plugin, PyPlugin<>, std::shared_ptr<Plugin>> plugin(m, "Plugin");
     plugin.def(py::init<>())
@@ -392,5 +406,6 @@ void init_wxglterm_interface_module()
 {
     auto py_module1 = py::module::import("wxglterm_interface");
 
-    py::print(py_module1);
+    if (is_app_debug())
+        py::print(py_module1);
 }

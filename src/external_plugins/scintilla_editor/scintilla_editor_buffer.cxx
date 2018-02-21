@@ -79,6 +79,12 @@ MultipleInstancePluginPtr ScintillaEditorBuffer::NewInstance() {
 void ScintillaEditorBuffer::Resize(uint32_t row, uint32_t col) {
     m_Rows = row;
     m_Cols = col;
+
+    if (m_Row >= m_Rows)
+        m_Row = m_Rows - 1;
+
+    if (m_Col >= m_Cols)
+        m_Col = m_Cols - 1;
 }
 
 uint32_t ScintillaEditorBuffer::GetRows() {

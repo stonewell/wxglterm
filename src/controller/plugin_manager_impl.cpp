@@ -126,13 +126,17 @@ void PluginManagerImpl::LoadPythonPlugin(const char * plugin_file_path)
                   << std::endl;
 
     auto py_module = LoadPyModuleFromFile(plugin_file_path);
-    py::print(py_module);
+
+    if (g_AppDebug)
+        py::print(py_module);
 
     if (py::hasattr(py_module, FUNC_REGISTER_PLUGINS))
     {
         auto py_register_plugins_func =
                 py_module.attr(FUNC_REGISTER_PLUGINS).cast<py::function>();
-        py::print(py_register_plugins_func);
+
+        if (g_AppDebug)
+            py::print(py_register_plugins_func);
 
         py_register_plugins_func(std::dynamic_pointer_cast<PluginManager>(shared_from_this()));
     }
