@@ -52,7 +52,12 @@
 #include "scintilla_editor.h"
 
 using namespace Scintilla;
+
+#if 0
 #define DGB_FUNC_CALLED {printf("file:%s func:%s, line:%d\n", __FILE__, __FUNCTION__, __LINE__);}
+#else
+#define DGB_FUNC_CALLED
+#endif
 
 void ScintillaEditor::SetVerticalScrollPos() {
     DGB_FUNC_CALLED;

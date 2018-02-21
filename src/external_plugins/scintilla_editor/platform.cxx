@@ -4,7 +4,11 @@
 
 #include "Platform.h"
 
+#if 0
 #define DGB_FUNC_CALLED {printf("file:%s func:%s, line:%d\n", __FILE__, __FUNCTION__, __LINE__);}
+#else
+#define DGB_FUNC_CALLED
+#endif
 
 namespace Scintilla {
 ElapsedTime::ElapsedTime() {

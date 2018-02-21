@@ -124,7 +124,6 @@ void ScintillaEditorBuffer::SetCol(uint32_t col) {
     m_Col = col;
 }
 
-static
 uint32_t RowToLineIndex(ScintillaEditor * pEditor, uint32_t row) {
     return pEditor->WndProc(SCI_GETFIRSTVISIBLELINE, 0, 0) + row;
 }
@@ -222,7 +221,6 @@ TermSelectionPtr ScintillaEditorBuffer::GetSelection() {
 void ScintillaEditorBuffer::ClearSelection() {
 }
 
-static
 Sci::Position CursorToDocPos(ScintillaEditor * pEditor, uint32_t row, uint32_t col) {
     auto index = RowToLineIndex(pEditor, row);
 
@@ -242,7 +240,7 @@ void ScintillaEditorBuffer::SetCurCellData(uint32_t ch,
 
     std::string bytes = wcharconv.to_bytes((wchar_t)ch);
 
-    if (!insert) {
+    if (!insert && false) {
         m_pEditor->WndProc(SCI_SETSEL, pos, pos + 1);
         m_pEditor->WndProc(SCI_REPLACESEL, 0, reinterpret_cast<sptr_t>(bytes.c_str()));
     } else {

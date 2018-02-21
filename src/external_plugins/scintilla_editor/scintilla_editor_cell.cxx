@@ -1,133 +1,154 @@
 #include "plugin_base.h"
 
-#include "default_term_cell.h"
+#include "scintilla_editor_cell.h"
 #include <vector>
 #include <bitset>
 #include <iostream>
 #include <stdio.h>
 #include <iomanip>
 
+#include <vector>
+#include <iostream>
+
+#include <cstddef>
+#include <cstdlib>
+#include <cassert>
+#include <cstring>
+#include <cmath>
+
+#include <stdexcept>
+#include <string>
+#include <vector>
+#include <map>
+#include <algorithm>
+#include <memory>
+#include <cassert>
+#include <functional>
+#include <locale>
+#include <codecvt>
+
+#include "Platform.h"
+
+#include "ILoader.h"
+#include "ILexer.h"
+#include "Scintilla.h"
+
+#include "StringCopy.h"
+#include "Position.h"
+#include "UniqueString.h"
+#include "SplitVector.h"
+#include "Partitioning.h"
+#include "RunStyles.h"
+#include "ContractionState.h"
+#include "CellBuffer.h"
+#include "KeyMap.h"
+#include "Indicator.h"
+#include "XPM.h"
+#include "LineMarker.h"
+#include "Style.h"
+#include "ViewStyle.h"
+#include "CharClassify.h"
+#include "Decoration.h"
+#include "CaseFolder.h"
+#include "Document.h"
+#include "UniConversion.h"
+#include "Selection.h"
+#include "PositionCache.h"
+#include "EditModel.h"
+#include "MarginView.h"
+#include "EditView.h"
+#include "Editor.h"
+#include "AutoComplete.h"
+#include "CallTip.h"
+#include "ScintillaBase.h"
+
+#include "scintilla_editor.h"
+
+static
+std::wstring_convert<std::codecvt_utf8<wchar_t>, wchar_t> wcharconv;
+
 class ScintillaEditorCell : public virtual PluginBase, public virtual TermCell {
 public:
     ScintillaEditorCell(ScintillaEditor * pEditor, uint32_t row, uint32_t col) :
         PluginBase("scintilla_editor_cell", "default cell plugin for scintilla editor", 1)
-        , m_TermLine(term_line)
-        , m_Char(' ')
-        , m_ForeColorIdx{TermCell::DefaultForeColorIndex}
-        , m_BackColorIdx{TermCell::DefaultBackColorIndex}
-        , m_Mode{0}
-        , m_IsWideChar(false)
-        , m_Hash {.v = 0}
+        , m_pEditor(pEditor)
+        , m_Row(row)
+        , m_Col(col)
     {
-        (void)m_TermLine;
         SetModified(false);
     }
 
     wchar_t GetChar() const {
-        return m_Char;
+        return m_pEditor->WndProc(SCI_GETCHARAT, CursorToDocPos(m_pEditor, m_Row, m_Col), 0);
     }
 
     void SetChar(wchar_t c) override {
-        m_Char = c;
+        if (!m_pEditor)
+            return;
+
+        auto pos = CursorToDocPos(m_pEditor, m_Row, m_Col);
+
+        std::string bytes = wcharconv.to_bytes((wchar_t)c);
+
+        m_pEditor->WndProc(SCI_SETSEL, pos, pos + 1);
+        m_pEditor->WndProc(SCI_REPLACESEL, 0, reinterpret_cast<sptr_t>(bytes.c_str()));
     }
 
     uint16_t GetForeColorIndex() const override {
-        return m_ForeColorIdx;
+        return TermCell::DefaultForeColorIndex;
     }
     void SetForeColorIndex(uint16_t idx) override {
-        m_ForeColorIdx = idx;
+        (void)idx;
     }
     uint16_t GetBackColorIndex() const override {
-        return m_BackColorIdx;
+        return TermCell::DefaultBackColorIndex;
     }
     void SetBackColorIndex(uint16_t idx) override {
-        m_BackColorIdx = idx;
+        (void)idx;
     }
 
     uint16_t GetMode() const override {
-        return (uint16_t)m_Mode.to_ulong();
+        return 0;
     }
 
     void SetMode(uint16_t m) override {
-        m_Mode = std::bitset<16>(m);
+        (void)m;
     }
 
     void AddMode(uint16_t m) override {
-        m_Mode.set(m);
+        (void)m;
     }
+
     void RemoveMode(uint16_t m) override {
-        m_Mode.reset(m);
+        (void)m;
     }
 
     void Reset(TermCellPtr cell) override {
-        m_Char = cell->GetChar();
-        m_ForeColorIdx = cell->GetForeColorIndex();
-        m_BackColorIdx = cell->GetBackColorIndex();
-        m_Mode = std::bitset<16>(cell->GetMode());
-        m_IsWideChar = cell->IsWideChar();
+        (void)cell;
     }
 
     bool IsWideChar() const override {
-        return m_IsWideChar;
+        return false;
     }
 
     void SetWideChar(bool wide_char) override {
-        m_IsWideChar = wide_char;
+        (void)wide_char;
     }
 
     bool IsModified() const override {
-        CellHash h;
-
-        h.vv.c = m_Char;
-        h.vv.fore = m_ForeColorIdx;
-        h.vv.back = m_BackColorIdx;
-        h.vv.mode = (uint16_t)m_Mode.to_ulong();
-        h.vv.w = m_IsWideChar;
-
-        return h.v != m_Hash.v;
+        return false;
     }
 
     void SetModified(bool modified) override {
-        if (modified) {
-            m_Hash.v = 0;
-        } else {
-            CellHash h {
-                .vv = { m_Char,
-                        m_ForeColorIdx,
-                        m_BackColorIdx,
-                        (uint16_t)m_Mode.to_ulong(),
-                        m_IsWideChar
-                }
-            };
-
-            m_Hash.v = h.v;
-        }
+        (void)modified;
     }
 private:
-#pragma pack(push , 1)
-    using CellHash = union {
-        uint64_t v;
-        struct {
-            wchar_t c;
-            uint16_t fore:9;
-            uint16_t back:9;
-            uint16_t mode:13;
-            bool w:1;
-        } vv;
-    };
-#pragma pack(pop)
-
-    TermLine * m_TermLine;
-
-    wchar_t m_Char;
-    uint16_t m_ForeColorIdx;
-    uint16_t m_BackColorIdx;
-    std::bitset<16> m_Mode;
-    bool m_IsWideChar;
-    CellHash m_Hash;
+    ScintillaEditor * m_pEditor;
+    uint32_t m_Row;
+    uint32_t m_Col;
 };
 
-TermCellPtr CreateDefaultTermCell(TermLine * line)
+TermCellPtr CreateDefaultTermCell(ScintillaEditor * pEditor, uint32_t row, uint32_t col)
 {
-    return TermCellPtr { new DefaultTermCell(line) };
+    return TermCellPtr { new ScintillaEditorCell(pEditor, row, col) };
 }
