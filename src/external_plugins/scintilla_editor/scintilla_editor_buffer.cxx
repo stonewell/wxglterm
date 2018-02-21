@@ -17,6 +17,10 @@
 #include <map>
 #include <algorithm>
 #include <memory>
+#include <cassert>
+#include <functional>
+#include <locale>
+#include <codecvt>
 
 #include "Platform.h"
 
@@ -57,6 +61,9 @@
 
 using namespace Scintilla;
 
+static
+std::wstring_convert<std::codecvt_utf8<wchar_t>, wchar_t> wcharconv;
+
 ScintillaEditorBuffer::ScintillaEditorBuffer() :
     PluginBase("scintilla_editor", "scintilla editor buffer plugin", 1)
     , m_pEditor { new ScintillaEditor{} }
@@ -77,14 +84,20 @@ MultipleInstancePluginPtr ScintillaEditorBuffer::NewInstance() {
 }
 
 void ScintillaEditorBuffer::Resize(uint32_t row, uint32_t col) {
+    if (m_Rows == row && m_Cols == col) {
+        return;
+    }
+
     m_Rows = row;
     m_Cols = col;
 
     if (m_Row >= m_Rows)
-        m_Row = m_Rows - 1;
+        SetRow(m_Rows ? m_Rows - 1 : 0);
 
     if (m_Col >= m_Cols)
-        m_Col = m_Cols - 1;
+        SetCol(m_Cols ? m_Cols - 1 : 0);
+
+    ClearSelection();
 }
 
 uint32_t ScintillaEditorBuffer::GetRows() {
@@ -111,15 +124,25 @@ void ScintillaEditorBuffer::SetCol(uint32_t col) {
     m_Col = col;
 }
 
+static
+uint32_t RowToLineIndex(ScintillaEditor * pEditor, uint32_t row) {
+    return pEditor->WndProc(SCI_GETFIRSTVISIBLELINE, 0, 0) + row;
+}
+
 TermLinePtr ScintillaEditorBuffer::GetLine(uint32_t row) {
-    (void)row;
-    return TermLinePtr {};
+    auto index = RowToLineIndex(m_pEditor, row);
+    auto line = CreateDefaultTermLine(m_pEditor, index);
+    line->Resize(GetCols());
+    return line;
 }
 
 TermCellPtr ScintillaEditorBuffer::GetCell(uint32_t row, uint32_t col) {
-    (void)row;
-    (void)col;
-    return TermCellPtr {};
+    TermLinePtr line = GetLine(row);
+
+    if (line)
+        return line->GetCell(col);
+
+    return TermCellPtr{};
 }
 
 TermLinePtr ScintillaEditorBuffer::GetCurLine() {
@@ -171,14 +194,21 @@ void ScintillaEditorBuffer::SetCellDefaults(wchar_t c,
                                       uint16_t fore_color_idx,
                                       uint16_t back_color_idx,
                                       uint16_t mode) {
-    (void)c;
-    (void)fore_color_idx;
-    (void)back_color_idx;
-    (void)mode;
+    m_DefaultChar = c;
+    m_DefaultForeColorIndex = fore_color_idx;
+    m_DefaultBackColorIndex = back_color_idx;
+    m_DefaultMode = mode;
 }
 
 TermCellPtr ScintillaEditorBuffer::CreateCellWithDefaults() {
-    return TermCellPtr {};
+    TermCellPtr cell = CreateDefaultTermCell(nullptr, 0, 0);
+
+    cell->SetChar(m_DefaultChar);
+    cell->SetForeColorIndex(m_DefaultForeColorIndex);
+    cell->SetBackColorIndex(m_DefaultBackColorIndex);
+    cell->SetMode(m_DefaultMode);
+
+    return cell;
 }
 
 void ScintillaEditorBuffer::SetSelection(TermSelectionPtr selection) {
@@ -192,11 +222,32 @@ TermSelectionPtr ScintillaEditorBuffer::GetSelection() {
 void ScintillaEditorBuffer::ClearSelection() {
 }
 
-void ScintillaEditorBuffer::SetCurCellData(uint32_t ch, bool wide_char, bool insert, TermCellPtr cell_template) {
+static
+Sci::Position CursorToDocPos(ScintillaEditor * pEditor, uint32_t row, uint32_t col) {
+    auto index = RowToLineIndex(pEditor, row);
+
+    return pEditor->WndProc(SCI_POSITIONFROMLINE, index, 0) + col;
+}
+
+void ScintillaEditorBuffer::SetCurCellData(uint32_t ch,
+                                           bool wide_char,
+                                           bool insert,
+                                           TermCellPtr cell_template) {
     (void)ch;
     (void)wide_char;
     (void)insert;
     (void)cell_template;
+
+    auto pos = CursorToDocPos(m_pEditor, m_Row, m_Col);
+
+    std::string bytes = wcharconv.to_bytes((wchar_t)ch);
+
+    if (!insert) {
+        m_pEditor->WndProc(SCI_SETSEL, pos, pos + 1);
+        m_pEditor->WndProc(SCI_REPLACESEL, 0, reinterpret_cast<sptr_t>(bytes.c_str()));
+    } else {
+        m_pEditor->WndProc(SCI_INSERTTEXT, pos, reinterpret_cast<sptr_t>(bytes.c_str()));
+    }
 }
 
 void ScintillaEditorBuffer::LockUpdate() {

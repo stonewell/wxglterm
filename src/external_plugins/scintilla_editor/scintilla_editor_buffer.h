@@ -4,6 +4,9 @@
 #include "plugin_base.h"
 #include "term_buffer.h"
 
+#include "scintilla_editor_line.h"
+#include "scintilla_editor_cell.h"
+
 class ScintillaEditor;
 
 class ScintillaEditorBuffer : public virtual PluginBase, public virtual TermBuffer {
@@ -81,4 +84,9 @@ private:
     uint32_t m_Cols;
     uint32_t m_Row;
     uint32_t m_Col;
+
+    wchar_t m_DefaultChar;
+    uint16_t m_DefaultForeColorIndex;
+    uint16_t m_DefaultBackColorIndex;
+    uint16_t m_DefaultMode;
 };

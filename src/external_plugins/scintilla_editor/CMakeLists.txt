@@ -33,6 +33,7 @@ SET(scintilla_editor_src
   scintilla_editor_plugin.cxx
   scintilla_editor_buffer.cxx scintilla_editor_buffer.h
   scintilla_editor.cxx scintilla_editor.h
+  scintilla_editor_line.cxx scintilla_editor_line.h
 )
 
 ADD_LIBRARY(scintilla_editor SHARED ${scintilla_editor_src})
