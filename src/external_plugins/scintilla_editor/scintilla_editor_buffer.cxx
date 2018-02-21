@@ -117,6 +117,7 @@ uint32_t ScintillaEditorBuffer::GetCol() {
 }
 
 void ScintillaEditorBuffer::SetRow(uint32_t row) {
+    std::cout << __FUNCTION__ << ", row:" << row << std::endl;
     m_Row = row;
 }
 
@@ -171,21 +172,53 @@ void ScintillaEditorBuffer::SetScrollRegionEnd(uint32_t end) {
 void ScintillaEditorBuffer::DeleteLines(uint32_t begin, uint32_t count) {
     (void)begin;
     (void)count;
+    std::cout << __FUNCTION__ << ", " << begin <<"," << count << std::endl;
 }
 
 void ScintillaEditorBuffer::InsertLines(uint32_t begin, uint32_t count) {
     (void)begin;
     (void)count;
+    std::cout << __FUNCTION__ << ", " << begin <<"," << count << std::endl;
 }
 
 void ScintillaEditorBuffer::ScrollBuffer(int32_t scroll_offset) {
     (void)scroll_offset;
+    std::cout << __FUNCTION__  << std::endl;
 }
 
 bool ScintillaEditorBuffer::MoveCurRow(uint32_t offset, bool move_down, bool scroll_buffer) {
     (void)offset;
     (void)move_down;
     (void)scroll_buffer;
+
+    uint32_t line_count = m_pEditor->WndProc(SCI_GETLINECOUNT, 0, 0);
+
+    std::cout << __FUNCTION__
+              << ", offset:" << offset
+              << ", move down:" << move_down
+              << ", scroll_buffer:" << scroll_buffer
+              << ", row:" << m_Row
+              << ", line_count:" << line_count
+              << std::endl;
+
+    if (move_down) {
+        if (m_Row + offset >= line_count) {
+            int count = m_Row + offset - line_count;
+
+            do {
+                m_pEditor->WndProc(SCI_APPENDTEXT, 1, reinterpret_cast<sptr_t>("\n"));
+                count --;
+            } while (count > 0);
+        }
+        SetRow(m_Row + offset);
+    }
+    else {
+        if (m_Row >= offset)
+            SetRow(m_Row - offset);
+        else
+            SetRow(0);
+    }
+
     return false;
 }
 
@@ -221,8 +254,8 @@ TermSelectionPtr ScintillaEditorBuffer::GetSelection() {
 void ScintillaEditorBuffer::ClearSelection() {
 }
 
-Sci::Position CursorToDocPos(ScintillaEditor * pEditor, uint32_t row, uint32_t col) {
-    auto index = RowToLineIndex(pEditor, row);
+Sci::Position CursorToDocPos(ScintillaEditor * pEditor, uint32_t row, uint32_t col, bool relativeRow) {
+    auto index = relativeRow ? RowToLineIndex(pEditor, row) : row;
 
     return pEditor->WndProc(SCI_POSITIONFROMLINE, index, 0) + col;
 }
@@ -237,15 +270,36 @@ void ScintillaEditorBuffer::SetCurCellData(uint32_t ch,
     (void)cell_template;
 
     auto pos = CursorToDocPos(m_pEditor, m_Row, m_Col);
+    int length = m_pEditor->WndProc(SCI_GETTEXTLENGTH, 0, 0);
 
     std::string bytes = wcharconv.to_bytes((wchar_t)ch);
 
-    if (!insert && false) {
+    std::cout << "row:" << m_Row << "," << m_Rows
+              << ",col:" << m_Col << "," << m_Cols
+              << ",pos:" << pos
+              << ",length:" << length
+              << ",bytes:" << bytes
+              << std::endl;
+
+    if (!insert && pos < length) {
         m_pEditor->WndProc(SCI_SETSEL, pos, pos + 1);
         m_pEditor->WndProc(SCI_REPLACESEL, 0, reinterpret_cast<sptr_t>(bytes.c_str()));
     } else {
-        m_pEditor->WndProc(SCI_INSERTTEXT, pos, reinterpret_cast<sptr_t>(bytes.c_str()));
+        if (pos < length)
+            m_pEditor->WndProc(SCI_INSERTTEXT,
+                               pos,
+                               reinterpret_cast<sptr_t>(bytes.c_str()));
+        else
+            m_pEditor->WndProc(SCI_APPENDTEXT,
+                               bytes.length(),
+                               reinterpret_cast<sptr_t>(bytes.c_str()));
     }
+
+    if (!insert)
+        SetCol(m_Col + 1);
+
+    if (m_Col >= m_Cols)
+        SetRow(m_Row + 1);
 }
 
 void ScintillaEditorBuffer::LockUpdate() {

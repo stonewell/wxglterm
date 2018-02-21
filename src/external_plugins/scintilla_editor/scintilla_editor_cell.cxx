@@ -79,7 +79,21 @@ public:
     }
 
     wchar_t GetChar() const {
-        return m_pEditor->WndProc(SCI_GETCHARAT, CursorToDocPos(m_pEditor, m_Row, m_Col), 0);
+        int length = m_pEditor->WndProc(SCI_GETTEXTLENGTH, 0, 0);
+        uint32_t line_count = m_pEditor->WndProc(SCI_GETLINECOUNT, 0, 0);
+        uint32_t line_length = m_pEditor->WndProc(SCI_LINELENGTH, m_Row, 0);
+
+        if (m_Row >= line_count || m_Col >= line_length)
+            return L' ';
+
+        auto pos = CursorToDocPos(m_pEditor, m_Row, m_Col, false);
+
+        if (pos >= length)
+            return L' ';
+
+        wchar_t ch = m_pEditor->WndProc(SCI_GETCHARAT, pos , 0);
+
+        return ch;
     }
 
     void SetChar(wchar_t c) override {
