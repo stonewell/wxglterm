@@ -49,11 +49,13 @@ TARGET_INCLUDE_DIRECTORIES(term_data_handler PRIVATE
   "${PYTHON_INCLUDE_DIRS}"
   "../../interface"
   "../../utils"
+  "../../plugins"
   "../../utils/portable_thread/includes"
   )
 
 TARGET_LINK_LIBRARIES(term_data_handler
   utils
+  plugins
   ${pybind11_LIBRARIES}
   ${PYTHON_LIBRARIES}
   )

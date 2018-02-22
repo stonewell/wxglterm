@@ -19,7 +19,7 @@
 	"data_handler":{
 	    "name":"term_data_handler",
 	    "config":{
-		"cap_debug":false
+		"debug":false
 	    }
 	},
 	"context":{

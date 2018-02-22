@@ -27,6 +27,8 @@ public:
                     AppConfigPtr plugin_config) override {
         m_Context = context;
         m_PluginConfig = plugin_config;
+        bool app_debug = context->GetAppConfig()->GetEntryBool("app_debug", false);
+        m_Debug = plugin_config->GetEntryBool("debug", app_debug);
     }
     ContextPtr GetPluginContext() const override {
         return m_Context;
@@ -34,6 +36,7 @@ public:
     AppConfigPtr GetPluginConfig() const override {
         return m_PluginConfig;
     }
+
 private:
     std::string m_Name;
     std::string m_Description;
@@ -42,4 +45,5 @@ private:
 protected:
     ContextPtr m_Context;
     AppConfigPtr m_PluginConfig;
+    bool m_Debug;
 };

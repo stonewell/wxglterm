@@ -71,7 +71,6 @@ ScintillaEditorBuffer::ScintillaEditorBuffer() :
     , m_Cols {0}
     , m_Row {0}
     , m_Col {0}
-    , m_Debug {false}
 {
 }
 
@@ -82,14 +81,6 @@ ScintillaEditorBuffer::~ScintillaEditorBuffer() {
 
 MultipleInstancePluginPtr ScintillaEditorBuffer::NewInstance() {
     return MultipleInstancePluginPtr{new ScintillaEditorBuffer()};
-}
-
-void ScintillaEditorBuffer::InitPlugin(ContextPtr context,
-                                       AppConfigPtr plugin_config) {
-    PluginBase::InitPlugin(context, plugin_config);
-
-    bool app_debug = context->GetAppConfig()->GetEntryBool("app_debug", false);
-    m_Debug = plugin_config->GetEntryBool("debug", app_debug);
 }
 
 void ScintillaEditorBuffer::Resize(uint32_t row, uint32_t col) {

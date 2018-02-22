@@ -17,11 +17,13 @@ TARGET_INCLUDE_DIRECTORIES(term_network_pty PRIVATE
   "${PYTHON_INCLUDE_DIRS}"
   "../../interface"
   "../../utils"
+  "../../plugins"
   "../../utils/portable_thread/includes"
   )
 
 TARGET_LINK_LIBRARIES(term_network_pty
   utils
+  plugins
   ${pybind11_LIBRARIES}
   ${PYTHON_LIBRARIES}
   ${UTIL_LIB}

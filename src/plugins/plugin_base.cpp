@@ -6,5 +6,6 @@ PluginBase::PluginBase(const char * name, const char * description, uint32_t ver
     , m_Version(version)
     , m_Context{}
     , m_PluginConfig{}
+    , m_Debug{false}
 {
 }

@@ -16,9 +16,6 @@ public:
 
     MultipleInstancePluginPtr NewInstance() override;
 
-    virtual void InitPlugin(ContextPtr context,
-                            AppConfigPtr plugin_config) override;
-
     void Resize(uint32_t row, uint32_t col) override;
 
     uint32_t GetRows() override;
@@ -92,6 +89,4 @@ private:
     uint16_t m_DefaultForeColorIndex;
     uint16_t m_DefaultBackColorIndex;
     uint16_t m_DefaultMode;
-
-    bool m_Debug;
 };

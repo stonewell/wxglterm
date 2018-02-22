@@ -30,10 +30,13 @@ SET(CMAKE_MODULE_PATH ${CMAKE_MODULE_PATH} "${CMAKE_CURRENT_SOURCE_DIR}/cmake/Mo
 
 if ("${CMAKE_CXX_COMPILER_ID}" STREQUAL "GNU")
   set(warnings "-Wall -Wextra -Werror")
+  set(no_undefined "-Wl,--no-undefined")
 elseif ("${CMAKE_CXX_COMPILER_ID}" STREQUAL "Clang")
   set(warnings "-Wall -Wextra -Werror -Wno-inconsistent-missing-override")
+  set(no_undefined "-Wl,-undefined,error")
 elseif ("${CMAKE_CXX_COMPILER_ID}" STREQUAL "MSVC")
     set(warnings "/W4 /WX /EHsc")
+    set(no_undefined "")
 endif()
 
 SET(CXX_STANDARD_REQUIRED OFF)
@@ -44,6 +47,8 @@ if (NOT CONFIGURED_ONCE)
         CACHE STRING "Flags used by the compiler during all build types." FORCE)
     set(CMAKE_CXX_FLAGS "-fPIC ${warnings} -std=c++14"
         CACHE STRING "Flags used by the compiler during all build types." FORCE)
+    set(CMAKE_LINK_FLAGS "${no_undefined}"
+        CACHE STRING "Flags used by the linker during all build types." FORCE)
 endif()
 
 EXTERNALPROJECT_ADD(

@@ -6,22 +6,20 @@
 #include "cap_manager.h"
 #include "read_write_queue.h"
 #include "parse_termdata.h"
+#include "plugin_base.h"
 
 using TermDataQueue = moodycamel::BlockingReaderWriterQueue<unsigned char, 4096>;
 
 class __attribute__ ((visibility ("hidden"))) TermDataHandlerImpl
-        : public virtual Plugin
+        : public virtual PluginBase
         , public virtual TermDataHandler
         , public virtual PortableThread::IPortableRunnable
 {
 public:
-    TermDataHandlerImpl() :
-        Plugin()
+    TermDataHandlerImpl()
+        : PluginBase("term_data_handler", "terminal data handler", 1)
         , TermDataHandler()
         , PortableThread::IPortableRunnable()
-        , m_Name("term_data_handler")
-        , m_Description("terminal data handler")
-        , m_Version(1)
         , m_DataHandlerThread(this)
         , m_TermDataQueue {4096}
         , m_Stopped{true}
@@ -37,12 +35,9 @@ public:
 
     void InitPlugin(ContextPtr context,
                     AppConfigPtr plugin_config) override {
-        m_Context = context;
-        m_PluginConfig = plugin_config;
+        PluginBase::InitPlugin(context, plugin_config);
 
-        bool app_debug = context->GetAppConfig()->GetEntryBool("app_debug", false);
-
-        m_DataContext.cap_debug = plugin_config->GetEntryBool("cap_debug", app_debug);
+        m_DataContext.cap_debug = m_Debug;
 
         m_UsePythonImpl = plugin_config->GetEntryBool("use_python_impl",
                                                       false);
@@ -58,32 +53,6 @@ public:
     void OnData(const std::vector<unsigned char> & data, size_t data_len) override;
     void Start() override;
     void Stop() override;
-
-    const char * GetName() override {
-        return m_Name.c_str();
-    }
-    const char * GetDescription() override {
-        return m_Description.c_str();
-    }
-
-    uint32_t GetVersion() override {
-        return m_Version;
-    }
-
-    ContextPtr GetPluginContext() const override {
-        return m_Context;
-    }
-    AppConfigPtr GetPluginConfig() const override {
-        return m_PluginConfig;
-    }
-private:
-    std::string m_Name;
-    std::string m_Description;
-    uint32_t m_Version;
-
-protected:
-    ContextPtr m_Context;
-    AppConfigPtr m_PluginConfig;
 
 private:
     void LoadPyDataHandler();

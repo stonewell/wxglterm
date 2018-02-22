@@ -21,7 +21,7 @@
 #include <sys/wait.h>
 
 #include "plugin_manager.h"
-#include "plugin.h"
+#include "plugin_base.h"
 #include "term_network.h"
 #include "term_data_handler.h"
 #include "term_context.h"
@@ -35,16 +35,13 @@ static
 void delete_data(void * data);
 
 class TermNetworkPty
-        : public virtual Plugin
+        : public virtual PluginBase
         , public virtual TermNetwork
         , public virtual PortableThread::IPortableRunnable
 {
 public:
     TermNetworkPty() :
-        Plugin()
-        , m_Name("term_network_use_pty")
-        , m_Description("terminal network plugin using pty")
-        , m_Version(1)
+        PluginBase("term_network_use_pty", "terminal network plugin using pty", 1)
         , m_Rows(0)
         , m_Cols(0)
         , m_MasterFD(-1)
@@ -70,39 +67,7 @@ public:
         m_PtyReaderThread.Join();
     }
 
-    const char * GetName() override {
-        return m_Name.c_str();
-    }
-    const char * GetDescription() override {
-        return m_Description.c_str();
-    }
-
-    uint32_t GetVersion() override {
-        return m_Version;
-    }
-
-    ContextPtr GetPluginContext() const override {
-        return m_Context;
-    }
-
-    AppConfigPtr GetPluginConfig() const override {
-        return m_PluginConfig;
-    }
-
-    void InitPlugin(ContextPtr context,
-                    AppConfigPtr plugin_config) override {
-        m_Context = context;
-        m_PluginConfig = plugin_config;
-    }
-private:
-    std::string m_Name;
-    std::string m_Description;
-    uint32_t m_Version;
-
 protected:
-    ContextPtr m_Context;
-    AppConfigPtr m_PluginConfig;
-
     std::shared_ptr<char> m_TermName;
     std::shared_ptr<char> m_CmdLine;
     std::vector<char *> m_Args;

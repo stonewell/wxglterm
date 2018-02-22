@@ -41,19 +41,10 @@ ADD_LIBRARY(scintilla_editor SHARED ${scintilla_editor_src})
 
 ADD_DEPENDENCIES(scintilla_editor scintilla)
 
-if ("${CMAKE_CXX_COMPILER_ID}" STREQUAL "GNU")
-  set(no_undefined "-Wl,--no-undefined")
-elseif ("${CMAKE_CXX_COMPILER_ID}" STREQUAL "Clang")
-  set(no_undefined "-Wl,-undefined,error")
-elseif ("${CMAKE_CXX_COMPILER_ID}" STREQUAL "MSVC")
-    set(no_undefined "")
-endif()
-
 SET_TARGET_PROPERTIES(scintilla_editor
     PROPERTIES
     LIBRARY_OUTPUT_DIRECTORY "${CMAKE_BINARY_DIR}/plugins"
     CXX_STANDARD 17
-    LINK_FLAGS "${no_undefined}"
 )
 
 SET(scintilla_INCLUDE_DIR ${SOURCE_DIR}/include
