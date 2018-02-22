@@ -87,14 +87,53 @@ public:
             return L' ';
 
         auto pos = CursorToDocPos(m_pEditor, m_Row, m_Col, false);
+        auto pos_next = CursorToDocPos(m_pEditor, m_Row, m_Col + 1, false);
 
         if (pos >= length)
             return L' ';
 
-        wchar_t ch = m_pEditor->WndProc(SCI_GETCHARAT, pos , 0);
+        wchar_t ch = 0;
 
-        if (ch == L'\n')
-            return L' ';
+        if (pos_next == pos + 1 || pos_next == pos) {
+            ch = m_pEditor->WndProc(SCI_GETCHARAT, pos , 0);
+
+            if (ch == L'\n')
+                return L' ';
+        } else {
+            char buf[5] = {0};
+            Sci_TextRange range;
+            range.chrg.cpMin = pos;
+            range.chrg.cpMax = pos_next;
+            range.lpstrText = buf;
+
+            auto size = m_pEditor->WndProc(SCI_GETTEXTRANGE, 0, (sptr_t)&range);
+
+            std::wstring w_str;
+            size_t converted = 0;
+            try {
+                w_str = wcharconv.from_bytes(&buf[0],
+                                             buf + size);
+                converted = wcharconv.converted();
+            } catch(const std::range_error& e) {
+                converted = wcharconv.converted();
+                if (converted == 0)
+                    return ch;
+                w_str = wcharconv.from_bytes(&buf[0],
+                                             &buf[converted]);
+            }
+
+#if 0
+            std::cout << "pos:" << pos << "," << pos_next
+                      << ", size:" << size
+                      << ", converted:" << converted
+                      << ", buf:" << buf
+                      << ", str:" << (int)w_str[0]
+                      << std::endl;
+#endif
+
+            if (w_str.length() > 0)
+                ch = w_str[0];
+        }
 
         return ch;
     }

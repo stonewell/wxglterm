@@ -117,7 +117,6 @@ uint32_t ScintillaEditorBuffer::GetCol() {
 }
 
 void ScintillaEditorBuffer::SetRow(uint32_t row) {
-    std::cout << __FUNCTION__ << ", row:" << row << std::endl;
     m_Row = row;
 }
 
@@ -193,14 +192,6 @@ bool ScintillaEditorBuffer::MoveCurRow(uint32_t offset, bool move_down, bool scr
 
     uint32_t line_count = m_pEditor->WndProc(SCI_GETLINECOUNT, 0, 0);
 
-    std::cout << __FUNCTION__
-              << ", offset:" << offset
-              << ", move down:" << move_down
-              << ", scroll_buffer:" << scroll_buffer
-              << ", row:" << m_Row
-              << ", line_count:" << line_count
-              << std::endl;
-
     if (move_down) {
         if (m_Row + offset >= line_count) {
             int count = m_Row + offset - line_count;
@@ -257,7 +248,7 @@ void ScintillaEditorBuffer::ClearSelection() {
 Sci::Position CursorToDocPos(ScintillaEditor * pEditor, uint32_t row, uint32_t col, bool relativeRow) {
     auto index = relativeRow ? RowToLineIndex(pEditor, row) : row;
 
-    return pEditor->WndProc(SCI_POSITIONFROMLINE, index, 0) + col;
+    return pEditor->WndProc(SCI_FINDCOLUMN, index, col);;
 }
 
 void ScintillaEditorBuffer::SetCurCellData(uint32_t ch,
@@ -270,19 +261,14 @@ void ScintillaEditorBuffer::SetCurCellData(uint32_t ch,
     (void)cell_template;
 
     auto pos = CursorToDocPos(m_pEditor, m_Row, m_Col);
+    auto pos_next = CursorToDocPos(m_pEditor, m_Row, m_Col + 1);
+
     int length = m_pEditor->WndProc(SCI_GETTEXTLENGTH, 0, 0);
 
     std::string bytes = wcharconv.to_bytes((wchar_t)ch);
 
-    std::cout << "row:" << m_Row << "," << m_Rows
-              << ",col:" << m_Col << "," << m_Cols
-              << ",pos:" << pos
-              << ",length:" << length
-              << ",bytes:" << bytes
-              << std::endl;
-
     if (!insert && pos < length) {
-        m_pEditor->WndProc(SCI_SETSEL, pos, pos + 1);
+        m_pEditor->WndProc(SCI_SETSEL, pos, pos_next);
         m_pEditor->WndProc(SCI_REPLACESEL, 0, reinterpret_cast<sptr_t>(bytes.c_str()));
     } else {
         if (pos < length)
