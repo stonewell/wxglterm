@@ -93,6 +93,9 @@ public:
 
         wchar_t ch = m_pEditor->WndProc(SCI_GETCHARAT, pos , 0);
 
+        if (ch == L'\n')
+            return L' ';
+
         return ch;
     }
 
