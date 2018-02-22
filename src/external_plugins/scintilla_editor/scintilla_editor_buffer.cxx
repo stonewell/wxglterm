@@ -71,6 +71,7 @@ ScintillaEditorBuffer::ScintillaEditorBuffer() :
     , m_Cols {0}
     , m_Row {0}
     , m_Col {0}
+    , m_Debug {false}
 {
 }
 
@@ -81,6 +82,14 @@ ScintillaEditorBuffer::~ScintillaEditorBuffer() {
 
 MultipleInstancePluginPtr ScintillaEditorBuffer::NewInstance() {
     return MultipleInstancePluginPtr{new ScintillaEditorBuffer()};
+}
+
+void ScintillaEditorBuffer::InitPlugin(ContextPtr context,
+                                       AppConfigPtr plugin_config) {
+    PluginBase::InitPlugin(context, plugin_config);
+
+    bool app_debug = context->GetAppConfig()->GetEntryBool("app_debug", false);
+    m_Debug = plugin_config->GetEntryBool("debug", app_debug);
 }
 
 void ScintillaEditorBuffer::Resize(uint32_t row, uint32_t col) {
@@ -171,18 +180,22 @@ void ScintillaEditorBuffer::SetScrollRegionEnd(uint32_t end) {
 void ScintillaEditorBuffer::DeleteLines(uint32_t begin, uint32_t count) {
     (void)begin;
     (void)count;
-    std::cout << __FUNCTION__ << ", " << begin <<"," << count << std::endl;
+
+    if (m_Debug)
+        std::cout << __FUNCTION__ << ", " << begin <<"," << count << std::endl;
 }
 
 void ScintillaEditorBuffer::InsertLines(uint32_t begin, uint32_t count) {
     (void)begin;
     (void)count;
-    std::cout << __FUNCTION__ << ", " << begin <<"," << count << std::endl;
+    if (m_Debug)
+        std::cout << __FUNCTION__ << ", " << begin <<"," << count << std::endl;
 }
 
 void ScintillaEditorBuffer::ScrollBuffer(int32_t scroll_offset) {
     (void)scroll_offset;
-    std::cout << __FUNCTION__  << std::endl;
+    if (m_Debug)
+        std::cout << __FUNCTION__  << std::endl;
 }
 
 bool ScintillaEditorBuffer::MoveCurRow(uint32_t offset, bool move_down, bool scroll_buffer) {
@@ -191,6 +204,15 @@ bool ScintillaEditorBuffer::MoveCurRow(uint32_t offset, bool move_down, bool scr
     (void)scroll_buffer;
 
     uint32_t line_count = m_pEditor->WndProc(SCI_GETLINECOUNT, 0, 0);
+
+    if (m_Debug)
+        std::cout << __FUNCTION__
+                  << ", offset:" << offset
+                  << ", move down:" << move_down
+                  << ", scroll_buffer:" << scroll_buffer
+                  << ", row:" << m_Row
+                  << ", line_count:" << line_count
+                  << std::endl;
 
     if (move_down) {
         if (m_Row + offset >= line_count) {
@@ -214,9 +236,9 @@ bool ScintillaEditorBuffer::MoveCurRow(uint32_t offset, bool move_down, bool scr
 }
 
 void ScintillaEditorBuffer::SetCellDefaults(wchar_t c,
-                                      uint16_t fore_color_idx,
-                                      uint16_t back_color_idx,
-                                      uint16_t mode) {
+                                            uint16_t fore_color_idx,
+                                            uint16_t back_color_idx,
+                                            uint16_t mode) {
     m_DefaultChar = c;
     m_DefaultForeColorIndex = fore_color_idx;
     m_DefaultBackColorIndex = back_color_idx;
@@ -267,6 +289,14 @@ void ScintillaEditorBuffer::SetCurCellData(uint32_t ch,
 
     std::string bytes = wcharconv.to_bytes((wchar_t)ch);
 
+    if (m_Debug)
+        std::cout << "row:" << m_Row << "," << m_Rows
+                  << ",col:" << m_Col << "," << m_Cols
+                  << ",pos:" << pos << "," <<  pos_next
+                  << ",length:" << length
+                  << ",bytes:" << bytes
+                  << std::endl;
+
     if (!insert && pos < length) {
         m_pEditor->WndProc(SCI_SETSEL, pos, pos_next);
         m_pEditor->WndProc(SCI_REPLACESEL, 0, reinterpret_cast<sptr_t>(bytes.c_str()));
@@ -283,9 +313,6 @@ void ScintillaEditorBuffer::SetCurCellData(uint32_t ch,
 
     if (!insert)
         SetCol(m_Col + 1);
-
-    if (m_Col >= m_Cols)
-        SetRow(m_Row + 1);
 }
 
 void ScintillaEditorBuffer::LockUpdate() {

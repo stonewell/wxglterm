@@ -21,6 +21,7 @@ class FileTermNetwork(MultipleInstancePluginBase, TermNetwork):
 
     def connect(self, host, port, user_name, password):
         self._file_path = file_path = self.get_plugin_config().get_entry("/file", "NOT FOUND")
+        self._len_prefix = self.get_plugin_config().get_entry_bool("/length_prefix", True)
 
         if not os.path.exists(file_path):
             LOGGER.error("term data file is not exist:{}".format(file_path))
@@ -33,11 +34,14 @@ class FileTermNetwork(MultipleInstancePluginBase, TermNetwork):
         def __read_term_data():
             with open(self._file_path, 'rb') as f:
                 while True:
-                    data = f.read(4)
-                    if not data or len(data) != 4:
-                        LOGGER.info("end of dump data, quit")
-                        break
-                    data_len = struct.unpack('!i', data)[0]
+                    if self._len_prefix:
+                        data = f.read(4)
+                        if not data or len(data) != 4:
+                            LOGGER.info("end of dump data, quit")
+                            break
+                        data_len = struct.unpack('!i', data)[0]
+                    else:
+                        data_len = 1024
                     data = f.read(data_len)
                     if not data or data_len != len(data):
                         term_data_handler.on_data(data, len(data))
