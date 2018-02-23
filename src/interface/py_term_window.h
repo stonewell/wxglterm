@@ -39,4 +39,20 @@ public:
     void EnableMouseTrack(bool enable) override {
         PYBIND11_OVERLOAD_PURE_NAME(void, TermWindowBase, "enable_mouse_track", EnableMouseTrack, enable );
     }
+
+    uint32_t GetWidth() override {
+        PYBIND11_OVERLOAD_PURE_NAME(uint32_t, TermWindowBase, "get_width", GetWidth, );
+    }
+
+    uint32_t GetHeight() override {
+        PYBIND11_OVERLOAD_PURE_NAME(uint32_t, TermWindowBase, "get_height", GetHeight, );
+    }
+
+    uint32_t GetLineHeight() override {
+        PYBIND11_OVERLOAD_PURE_NAME(uint32_t, TermWindowBase, "get_line_height", GetLineHeight, );
+    }
+
+    uint32_t GetColWidth() override {
+        PYBIND11_OVERLOAD_PURE_NAME(uint32_t, TermWindowBase, "get_col_width", GetColWidth, );
+    }
 };

@@ -145,6 +145,22 @@ public:
     void EnableMouseTrack(bool enable) override {
         m_MainDlg->EnableMouseTrack(enable);
     }
+
+    uint32_t GetWidth() override {
+        return m_MainDlg->GetWidth();
+    }
+
+    uint32_t GetHeight() override {
+        return m_MainDlg->GetHeight();
+    }
+
+    uint32_t GetLineHeight() override {
+        return m_MainDlg->GetLineHeight();
+    }
+
+    uint32_t GetColWidth() override {
+        return m_MainDlg->GetColWidth();
+    }
 private:
     MainDialog * m_MainDlg;
     wxCriticalSection m_MainWndLock;

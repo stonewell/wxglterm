@@ -16,4 +16,8 @@ public:
     virtual void SetSelectionData(const std::string & sel_data) = 0;
     virtual void Close() = 0;
     virtual void EnableMouseTrack(bool enable) = 0;
+    virtual uint32_t GetWidth() = 0;
+    virtual uint32_t GetHeight() = 0;
+    virtual uint32_t GetLineHeight() = 0;
+    virtual uint32_t GetColWidth() = 0;
 };

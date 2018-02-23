@@ -118,10 +118,18 @@ uint32_t ScintillaEditorBuffer::GetCol() {
 
 void ScintillaEditorBuffer::SetRow(uint32_t row) {
     m_Row = row;
+
+    auto pos = CursorToDocPos(m_pEditor, m_Row, m_Col);
+
+    m_pEditor->WndProc(SCI_GOTOPOS, pos, 0);
 }
 
 void ScintillaEditorBuffer::SetCol(uint32_t col) {
     m_Col = col;
+
+    auto pos = CursorToDocPos(m_pEditor, m_Row, m_Col);
+
+    m_pEditor->WndProc(SCI_GOTOPOS, pos, 0);
 }
 
 uint32_t RowToLineIndex(ScintillaEditor * pEditor, uint32_t row) {

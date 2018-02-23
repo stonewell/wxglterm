@@ -32,6 +32,22 @@ public:
     void EnableMouseTrack(bool enable) {
         m_DrawPane->EnableMouseTrack(enable);
     }
+
+    uint32_t GetWidth() {
+        return m_DrawPane->GetWidth();
+    }
+
+    uint32_t GetHeight() {
+        return m_DrawPane->GetHeight();
+    }
+
+    uint32_t GetLineHeight() {
+        return m_DrawPane->GetLineHeight();
+    }
+
+    uint32_t GetColWidth() {
+        return m_DrawPane->GetColWidth();
+    }
 private:
     DrawPane * m_DrawPane;
     WindowManager * m_WindowManager;

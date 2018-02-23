@@ -138,7 +138,9 @@ DefaultTermWindow::DefaultTermWindow()
     , m_ProcessedKey {0}
     , m_ProcessedMod {0}
     , m_SavedMouseButton {-1}
-    , m_EnableMouseTrack {false} {
+    , m_EnableMouseTrack {false}
+    , m_Width {0}
+    , m_Height {0} {
 
         mat4_set_identity( &m_Projection );
         mat4_set_identity( &m_Model );
@@ -298,6 +300,9 @@ void DefaultTermWindow::OnSize(int width, int height) {
 
     if (!buffer)
         return;
+
+    m_Width = width;
+    m_Height = height;
 
     buffer->Resize((height - PADDING * 2) / m_FreeTypeGLContext->line_height,
                    (width - PADDING * 2) / m_FreeTypeGLContext->col_width);

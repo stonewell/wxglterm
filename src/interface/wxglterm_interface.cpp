@@ -181,6 +181,10 @@ PYBIND11_EMBEDDED_MODULE(wxglterm_interface, m)
             .def_property("selection_data", &TermWindow::GetSelectionData, &TermWindow::SetSelectionData)
             .def("close", &TermWindow::Close)
             .def("enable_mouse_track", &TermWindow::EnableMouseTrack)
+            .def("get_width", &TermWindow::GetWidth)
+            .def("get_height", &TermWindow::GetHeight)
+            .def("get_col_width", &TermWindow::GetColWidth)
+            .def("get_line_height", &TermWindow::GetLineHeight)
             ;
 
     py::class_<TermNetwork, PyTermNetwork<>, std::shared_ptr<TermNetwork>> term_network(m, "TermNetwork", multiple_instance_plugin);

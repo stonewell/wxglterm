@@ -58,6 +58,21 @@ public:
     void OnMouseButton(int button, int action, int mods, double xpos, double ypos);
     void OnMouseMove(double xpos, double ypos);
 
+    uint32_t GetWidth() override {
+        return m_Width;
+    }
+
+    uint32_t GetHeight() override {
+        return m_Height;
+    }
+
+    uint32_t GetLineHeight() override {
+        return m_FreeTypeGLContext->line_height;
+    }
+
+    uint32_t GetColWidth() override {
+        return m_FreeTypeGLContext->col_width;
+    }
 private:
     GLFWwindow * m_MainDlg;
     freetype_gl_context_ptr m_FreeTypeGLContext;
@@ -71,6 +86,7 @@ private:
     int m_ProcessedMod;
     int m_SavedMouseButton;
     bool m_EnableMouseTrack;
+    int m_Width, m_Height;
 
     void Init();
     void DoDraw();

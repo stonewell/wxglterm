@@ -32,6 +32,24 @@ public:
     void EnableMouseTrack(bool enable) {
         m_EnableMouseTrack = enable;
     }
+
+    uint32_t GetWidth() {
+        wxRect clientSize = GetClientSize();
+        return clientSize.GetWidth();
+    }
+
+    uint32_t GetHeight() {
+        wxRect clientSize = GetClientSize();
+        return clientSize.GetHeight();
+    }
+
+    uint32_t GetLineHeight() {
+        return m_LineHeight;
+    }
+
+    uint32_t GetColWidth() {
+        return m_CellWidth;
+    }
 private:
     void OnPaint(wxPaintEvent &evt);
     void OnIdle(wxIdleEvent& evt);
