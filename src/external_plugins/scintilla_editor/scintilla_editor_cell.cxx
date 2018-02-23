@@ -164,6 +164,20 @@ public:
     }
 
     uint16_t GetMode() const override {
+        if (!m_pEditor)
+            return 0;
+
+        int pos = m_pEditor->WndProc(SCI_GETCURRENTPOS, 0, 0);
+        uint32_t col = m_pEditor->WndProc(SCI_GETCOLUMN, pos, 0);
+        uint32_t line = m_pEditor->WndProc(SCI_LINEFROMPOSITION, pos, 0);
+
+        //set cursor mode
+        if (line == m_Row && col == m_Col) {
+            std::bitset<16> mode;
+            mode.set(TermCell::Cursor);
+
+            return (uint16_t)mode.to_ulong();
+        }
         return 0;
     }
 
