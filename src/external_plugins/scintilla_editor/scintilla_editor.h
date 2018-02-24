@@ -26,5 +26,6 @@ public:
     void SetTermWindow(TermWindow * pTermWindow) {
         m_pTermWindow = pTermWindow;
         wMain = this;
+        vs.lineHeight = pTermWindow->GetLineHeight();
     }
 };

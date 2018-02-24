@@ -4,7 +4,10 @@
 
 #include "Platform.h"
 
-#if 0
+#include "term_window.h"
+extern TermWindow * TermWindowFromEditor(void * wid);
+
+#if 1
 #define DGB_FUNC_CALLED {printf("file:%s func:%s, line:%d\n", __FILE__, __FUNCTION__, __LINE__);}
 #else
 #define DGB_FUNC_CALLED
@@ -13,11 +16,12 @@
 namespace Scintilla {
 class SurfaceImpl : public Surface {
 public:
+    WindowID m_Wid;
 	SurfaceImpl() = default;
 	virtual ~SurfaceImpl() override = default;
 
 	void Init(WindowID wid) override {
-        (void)wid;
+        m_Wid = wid;
     }
 
 	void Init(SurfaceID sid, WindowID wid) override {
@@ -171,17 +175,26 @@ public:
         (void)font_;
         (void)s;
         (void)len;
+        DGB_FUNC_CALLED;
         return 0;
     }
 
 	XYPOSITION WidthChar(Font &font_, char ch) override {
         (void)font_;
         (void)ch;
+        TermWindow * pWindow = TermWindowFromEditor(m_Wid);
+
+        if (pWindow)
+            return pWindow->GetColWidth();
         return 0;
     }
 
 	XYPOSITION Ascent(Font &font_) override {
         (void)font_;
+        TermWindow * pWindow = TermWindowFromEditor(m_Wid);
+
+        if (pWindow)
+            return pWindow->GetLineHeight();
         return 0;
     }
 
@@ -197,11 +210,19 @@ public:
 
 	XYPOSITION Height(Font &font_) override {
         (void)font_;
+        TermWindow * pWindow = TermWindowFromEditor(m_Wid);
+
+        if (pWindow)
+            return pWindow->GetLineHeight();
         return 0;
     }
 
 	XYPOSITION AverageCharWidth(Font &font_) override {
         (void)font_;
+        TermWindow * pWindow = TermWindowFromEditor(m_Wid);
+
+        if (pWindow)
+            return pWindow->GetColWidth();
         return 0;
     }
 
