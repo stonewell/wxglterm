@@ -59,6 +59,9 @@
 
 #include "scintilla_editor.h"
 
+#include "term_context.h"
+#include "term_window.h"
+
 using namespace Scintilla;
 
 static
@@ -83,6 +86,11 @@ MultipleInstancePluginPtr ScintillaEditorBuffer::NewInstance() {
     return MultipleInstancePluginPtr{new ScintillaEditorBuffer()};
 }
 
+void ScintillaEditorBuffer::InitPlugin(ContextPtr context,
+                                       AppConfigPtr plugin_config) {
+    PluginBase::InitPlugin(context, plugin_config);
+}
+
 void ScintillaEditorBuffer::Resize(uint32_t row, uint32_t col) {
     if (m_Rows == row && m_Cols == col) {
         return;
@@ -98,6 +106,13 @@ void ScintillaEditorBuffer::Resize(uint32_t row, uint32_t col) {
         SetCol(m_Cols ? m_Cols - 1 : 0);
 
     ClearSelection();
+
+    TermContextPtr term_context = std::dynamic_pointer_cast<TermContext>(GetPluginContext());
+
+    if (!term_context)
+        return;
+
+    m_pEditor->SetTermWindow(term_context->GetTermWindow().get());
 }
 
 uint32_t ScintillaEditorBuffer::GetRows() {
@@ -231,6 +246,7 @@ bool ScintillaEditorBuffer::MoveCurRow(uint32_t offset, bool move_down, bool scr
             SetRow(0);
     }
 
+    m_pEditor->WndProc(SCI_MOVECARETINSIDEVIEW, 0, 0);
     return false;
 }
 

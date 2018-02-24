@@ -1,6 +1,7 @@
 #pragma once
 
 #include "ScintillaBase.h"
+#include "term_window.h"
 
 class ScintillaEditor : public Scintilla::ScintillaBase {
 
@@ -19,4 +20,11 @@ public:
     sptr_t DefWndProc(unsigned int iMessage, uptr_t wParam, sptr_t lParam) override;
     void CreateCallTipWindow(Scintilla::PRectangle rc) override;
     void AddToPopUp(const char *label, int cmd=0, bool enabled=true) override;
+
+public:
+    TermWindow * m_pTermWindow;
+    void SetTermWindow(TermWindow * pTermWindow) {
+        m_pTermWindow = pTermWindow;
+        wMain = this;
+    }
 };

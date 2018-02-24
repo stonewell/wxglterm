@@ -72,68 +72,6 @@ ListBox *ListBox::Allocate() {
 	return nullptr;
 }
 
-Window::~Window() {
-    DGB_FUNC_CALLED;
-}
-
-void Window::Destroy() {
-    DGB_FUNC_CALLED;
-}
-
-PRectangle Window::GetClientPosition() {
-    DGB_FUNC_CALLED;
-	return GetPosition();
-}
-
-void Window::InvalidateAll() {
-    DGB_FUNC_CALLED;
-}
-
-void Window::InvalidateRectangle(PRectangle rc) {
-    DGB_FUNC_CALLED;
-    (void)rc;
-}
-
-void Window::SetFont(Font &) {
-	// Can not be done generically but only needed for ListBox
-    DGB_FUNC_CALLED;
-}
-
-void Window::Show(bool show) {
-    (void)show;
-    DGB_FUNC_CALLED;
-}
-
-PRectangle Window::GetPosition() {
-    PRectangle rc(0,0,0,0);
-
-    DGB_FUNC_CALLED;
-    return rc;
-}
-
-void Window::SetPosition(PRectangle rc) {
-    DGB_FUNC_CALLED;
-    (void)rc;
-}
-
-void Window::SetPositionRelative(PRectangle rc, Window relativeTo) {
-    DGB_FUNC_CALLED;
-    (void)rc;
-    (void)relativeTo;
-}
-
-void Window::SetCursor(Cursor curs) {
-    DGB_FUNC_CALLED;
-    (void)curs;
-}
-
-PRectangle Window::GetMonitorRect(Point pt) {
-    (void)pt;
-
-    DGB_FUNC_CALLED;
-    return GetPosition();
-}
-
 Font::Font() : fid(0) {
     DGB_FUNC_CALLED;
 }

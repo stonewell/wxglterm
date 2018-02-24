@@ -59,6 +59,12 @@ using namespace Scintilla;
 #define DGB_FUNC_CALLED
 #endif
 
+TermWindow * TermWindowFromEditor(void * wid) {
+    if (!wid) return nullptr;
+
+    return ((ScintillaEditor *)wid)->m_pTermWindow;
+}
+
 void ScintillaEditor::SetVerticalScrollPos() {
     DGB_FUNC_CALLED;
 }

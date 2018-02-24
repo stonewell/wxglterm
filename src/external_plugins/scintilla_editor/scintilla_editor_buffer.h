@@ -77,6 +77,8 @@ public:
     void SetMode(uint16_t m) override;
     void AddMode(uint16_t m) override;
     void RemoveMode(uint16_t m) override;
+    virtual void InitPlugin(ContextPtr context,
+                            AppConfigPtr plugin_config) override;
 private:
     ScintillaEditor * m_pEditor;
 
