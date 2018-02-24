@@ -111,9 +111,4 @@ void Menu::Show(Point pt, Window &w) {
     DGB_FUNC_CALLED;
 }
 
-Surface *Surface::Allocate(int) {
-    DGB_FUNC_CALLED;
-    return nullptr;
-}
-
 }

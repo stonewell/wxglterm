@@ -51,10 +51,6 @@ PRectangle Window::GetPosition() {
     PRectangle rc(0,0,
                   pWindow ? pWindow->GetWidth() : 0,
                   pWindow ? pWindow->GetHeight() : 0);
-
-    printf("window:%p, %d, %d\n", pWindow,
-           pWindow ? pWindow->GetWidth() : 0,
-           pWindow ? pWindow->GetHeight() : 0);
     return rc;
 }
 
