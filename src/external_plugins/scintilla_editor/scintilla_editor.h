@@ -2,6 +2,7 @@
 
 #include "ScintillaBase.h"
 #include "term_window.h"
+#include <mutex>
 
 class ScintillaEditor : public Scintilla::ScintillaBase {
 
@@ -20,12 +21,12 @@ public:
     sptr_t DefWndProc(unsigned int iMessage, uptr_t wParam, sptr_t lParam) override;
     void CreateCallTipWindow(Scintilla::PRectangle rc) override;
     void AddToPopUp(const char *label, int cmd=0, bool enabled=true) override;
+    sptr_t WndProc(unsigned int iMessage, uptr_t wParam, sptr_t lParam) override;
+
+private:
+    std::recursive_mutex m_UpdateLock;
 
 public:
     TermWindow * m_pTermWindow;
-    void SetTermWindow(TermWindow * pTermWindow) {
-        m_pTermWindow = pTermWindow;
-        wMain = this;
-        vs.lineHeight = pTermWindow->GetLineHeight();
-    }
+    void SetTermWindow(TermWindow * pTermWindow);
 };

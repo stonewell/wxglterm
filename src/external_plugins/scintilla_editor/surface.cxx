@@ -26,14 +26,14 @@ public:
 
 	void Init(SurfaceID sid, WindowID wid) override {
         (void)sid;
-        (void)wid;
+        m_Wid = wid;
     }
 
 	void InitPixMap(int width, int height, Surface *surface_, WindowID wid) override {
         (void)width;
         (void)height;
         (void)surface_;
-        (void)wid;
+        m_Wid = wid;
     }
 
 	void Clear() {
@@ -193,8 +193,9 @@ public:
         (void)font_;
         TermWindow * pWindow = TermWindowFromEditor(m_Wid);
 
-        if (pWindow)
+        if (pWindow) {
             return pWindow->GetLineHeight();
+        }
         return 0;
     }
 
@@ -212,8 +213,9 @@ public:
         (void)font_;
         TermWindow * pWindow = TermWindowFromEditor(m_Wid);
 
-        if (pWindow)
+        if (pWindow) {
             return pWindow->GetLineHeight();
+        }
         return 0;
     }
 

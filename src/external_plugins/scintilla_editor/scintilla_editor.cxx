@@ -135,3 +135,16 @@ void ScintillaEditor::AddToPopUp(const char *label, int cmd, bool enabled) {
     (void)enabled;
     DGB_FUNC_CALLED;
 }
+
+sptr_t ScintillaEditor::WndProc(unsigned int iMessage, uptr_t wParam, sptr_t lParam) {
+    std::lock_guard<std::recursive_mutex> guard(m_UpdateLock);
+    return ScintillaBase::WndProc(iMessage, wParam, lParam);
+}
+
+void ScintillaEditor::SetTermWindow(TermWindow * pTermWindow) {
+    m_pTermWindow = pTermWindow;
+    wMain = this;
+    vs.lineHeight = pTermWindow->GetLineHeight();
+    stylesValid = false;
+    RefreshStyleData();
+}
