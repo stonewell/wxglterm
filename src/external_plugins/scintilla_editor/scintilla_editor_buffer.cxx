@@ -151,6 +151,10 @@ uint32_t RowToLineIndex(ScintillaEditor * pEditor, uint32_t row) {
     return pEditor->WndProc(SCI_GETFIRSTVISIBLELINE, 0, 0) + row;
 }
 
+uint32_t LineIndexToRow(ScintillaEditor * pEditor, uint32_t row) {
+    return row - pEditor->WndProc(SCI_GETFIRSTVISIBLELINE, 0, 0);
+}
+
 TermLinePtr ScintillaEditorBuffer::GetLine(uint32_t row) {
     auto index = RowToLineIndex(m_pEditor, row);
     auto line = CreateDefaultTermLine(m_pEditor, index);
@@ -218,33 +222,40 @@ bool ScintillaEditorBuffer::MoveCurRow(uint32_t offset, bool move_down, bool scr
     (void)scroll_buffer;
 
     uint32_t line_count = m_pEditor->WndProc(SCI_GETLINECOUNT, 0, 0);
+    auto row = RowToLineIndex(m_pEditor, m_Row);
 
     if (m_Debug)
         std::cout << __FUNCTION__
                   << ", offset:" << offset
                   << ", move down:" << move_down
                   << ", scroll_buffer:" << scroll_buffer
-                  << ", row:" << m_Row
+                  << ", row:" << m_Row << "," << row
                   << ", line_count:" << line_count
                   << std::endl;
 
     if (move_down) {
-        if (m_Row + offset >= line_count) {
-            int count = m_Row + offset - line_count;
+        if (row + offset >= line_count) {
+            int count = row + offset - line_count;
 
             do {
                 m_pEditor->WndProc(SCI_APPENDTEXT, 1, reinterpret_cast<sptr_t>("\n"));
                 count --;
             } while (count > 0);
         }
-        SetRow(m_Row + offset);
+
+        row += offset;
     }
     else {
-        if (m_Row >= offset)
-            SetRow(m_Row - offset);
+        if (row >= offset)
+            row -= offset;
         else
-            SetRow(0);
+            row = 0;
     }
+
+    auto pos = CursorToDocPos(m_pEditor, row, m_Col, false);
+    m_pEditor->WndProc(SCI_GOTOPOS, pos, 0);
+
+    m_Row = LineIndexToRow(m_pEditor, row);
 
     m_pEditor->WndProc(SCI_MOVECARETINSIDEVIEW, 0, 0);
     return false;
