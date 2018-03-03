@@ -206,8 +206,23 @@ void ScintillaEditorBuffer::DeleteLines(uint32_t begin, uint32_t count) {
 void ScintillaEditorBuffer::InsertLines(uint32_t begin, uint32_t count) {
     (void)begin;
     (void)count;
-    if (m_Debug)
+    if (m_Debug || true)
         std::cout << __FUNCTION__ << ", " << begin <<"," << count << std::endl;
+
+    auto pos = CursorToDocPos(m_pEditor, begin, m_Col);
+    int length = m_pEditor->WndProc(SCI_GETTEXTLENGTH, 0, 0);
+    auto offset = count;
+
+    while (count > 0) {
+        if (pos < length)
+            m_pEditor->WndProc(SCI_INSERTTEXT, -1, reinterpret_cast<sptr_t>("\n"));
+        else
+            m_pEditor->WndProc(SCI_APPENDTEXT, 1, reinterpret_cast<sptr_t>("\n"));
+        count --;
+    }
+
+    m_Col = 0;
+    MoveCurRow(offset, true, true);
 }
 
 void ScintillaEditorBuffer::ScrollBuffer(int32_t scroll_offset) {
@@ -224,7 +239,7 @@ bool ScintillaEditorBuffer::MoveCurRow(uint32_t offset, bool move_down, bool scr
     uint32_t line_count = m_pEditor->WndProc(SCI_GETLINECOUNT, 0, 0);
     auto row = RowToLineIndex(m_pEditor, m_Row);
 
-    if (m_Debug)
+    if (m_Debug || true)
         std::cout << __FUNCTION__
                   << ", offset:" << offset
                   << ", move down:" << move_down
