@@ -175,6 +175,9 @@ bool get_entry(const std::string & termcap_file_path,
         entry.clear();
     }
 
+    if (entry_map.find(term_name) == entry_map.end())
+        return false;
+
     term_entry = *entry_map[term_name]->begin();
 
     return true;

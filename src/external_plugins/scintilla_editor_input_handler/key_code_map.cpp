@@ -31,7 +31,7 @@ void init_key_data()  {
     KEY_DATA[InputHandler::KEY_F10] = "\x1B[21~";
     KEY_DATA[InputHandler::KEY_F11] = "\x1B[23~";
     KEY_DATA[InputHandler::KEY_F12] = "\x1B[24~";
-    KEY_DATA[InputHandler::KEY_ENTER] = "\x1B[1L";
+    KEY_DATA[InputHandler::KEY_ENTER] = "\x0A";
     KEY_DATA[InputHandler::KEY_LAST] = 0;
 };
 

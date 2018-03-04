@@ -41,8 +41,6 @@ class FileTermNetwork(MultipleInstancePluginBase, TermNetwork):
                         break
 
                     term_data_handler.on_data(data, len(data))
-                    data = bytes('\x1B[1L', 'utf-8')
-                    term_data_handler.on_data(data, len(data))
                 return
 
         def read_term_data():

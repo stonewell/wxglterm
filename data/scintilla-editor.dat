@@ -1,0 +1,7 @@
+scintilla-editor|scintilla editor commands:\
+    	insert_line=^J:\
+	parm_left_cursor=\E[%dD:\
+	parm_right_cursor=\E[%dC:\
+	parm_down_cursor=\E[%dB:\
+	parm_up_cursor=\E[%dA:\
+	carriage_return=^M:
