@@ -13,7 +13,8 @@ matrix:
       env:
       osx_image: xcode9.2
       before_install:
-        - brew install glfw python3 freetype fontconfig
+        - brew install glfw freetype fontconfig
+        - brew install python3 || brew upgrade python
       script:
         - mkdir -p build
         - cd build
