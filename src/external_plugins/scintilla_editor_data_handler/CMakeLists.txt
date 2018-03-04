@@ -8,6 +8,7 @@ SET(scintilla_editor_data_handler_src
 
 ADD_LIBRARY(scintilla_editor_data_handler SHARED
   ${scintilla_editor_data_handler_src}
+  $<TARGET_OBJECTS:caps>
   )
 
 set_target_properties( scintilla_editor_data_handler
@@ -29,7 +30,6 @@ TARGET_INCLUDE_DIRECTORIES(scintilla_editor_data_handler PRIVATE
 TARGET_LINK_LIBRARIES(scintilla_editor_data_handler
   utils
   plugins
-  $<TARGET_OBJECTS:caps>
   ${pybind11_LIBRARIES}
   ${PYTHON_LIBRARIES}
   )

@@ -17,6 +17,7 @@ ADD_CUSTOM_COMMAND(OUTPUT term_data_handler_impl.inc
 ADD_LIBRARY(term_data_handler SHARED
   ${term_data_handler_src}
   term_data_handler_impl.inc
+  $<TARGET_OBJECTS:caps>
   )
 
 set_target_properties( term_data_handler
@@ -39,7 +40,6 @@ TARGET_INCLUDE_DIRECTORIES(term_data_handler PRIVATE
 TARGET_LINK_LIBRARIES(term_data_handler
   utils
   plugins
-  $<TARGET_OBJECTS:caps>
   ${pybind11_LIBRARIES}
   ${PYTHON_LIBRARIES}
   )
