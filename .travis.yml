@@ -40,5 +40,20 @@ matrix:
             sh ../run_cmake.sh &&
             make"
 
+    - os: linux
+      env:
+      compiler:
+        - gcc
+      before_install:
+        - docker run -d --name arch-test -v $(pwd):/travis archimg/base-devel tail -f /dev/null
+        - docker ps
+      install:
+        - docker exec -t arch-test bash -c "pacman -Syu gcc g++ cmake libglfw3-dev libglew-dev libfontconfig1-dev libfreetype6-dev python3-dev git"
+      script:
+        - docker exec -t ubuntu-test bash -c "cd /travis;
+            mkdir -p build; cd build;
+            sh ../run_cmake.sh &&
+            make"
+
 notifications:
   email: false
