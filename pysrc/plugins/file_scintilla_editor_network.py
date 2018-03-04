@@ -34,19 +34,14 @@ class FileTermNetwork(MultipleInstancePluginBase, TermNetwork):
         def __read_term_data():
             with open(self._file_path, 'rb') as f:
                 while True:
-                    if self._len_prefix:
-                        data = f.read(4)
-                        if not data or len(data) != 4:
-                            LOGGER.info("end of dump data, quit")
-                            break
-                        data_len = struct.unpack('!i', data)[0]
-                    else:
-                        data_len = 1024
-                    data = f.read(data_len)
-                    if not data or data_len != len(data):
-                        term_data_handler.on_data(data, len(data))
+                    data = f.readline()
+
+                    if not data:
                         LOGGER.info("end of dump data, quit")
                         break
+
+                    term_data_handler.on_data(data, len(data))
+                    data = bytes('\x1B[1L', 'utf-8')
                     term_data_handler.on_data(data, len(data))
                 return
 

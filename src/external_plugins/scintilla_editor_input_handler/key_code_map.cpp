@@ -7,7 +7,6 @@ const char * KEY_DATA[InputHandler::KEY_LAST + 1] = {0};
 static
 void init_key_data()  {
     KEY_DATA[InputHandler::KEY_ESCAPE] = "\x1b";
-    KEY_DATA[InputHandler::KEY_ENTER] = "\x0d";
     KEY_DATA[InputHandler::KEY_TAB] = "\x09";
     KEY_DATA[InputHandler::KEY_BACKSPACE] = "\x7f";
     KEY_DATA[InputHandler::KEY_PAGE_UP] = "\x1B[5~";
@@ -16,9 +15,9 @@ void init_key_data()  {
     KEY_DATA[InputHandler::KEY_DELETE] = "\x1B[3~";
     KEY_DATA[InputHandler::KEY_UP] = "\x1B[1A";
     KEY_DATA[InputHandler::KEY_DOWN] = "\x1B[1B";
-    KEY_DATA[InputHandler::KEY_LEFT] = "\x1BOD";
-    KEY_DATA[InputHandler::KEY_RIGHT] = "\x1BOC";
-    KEY_DATA[InputHandler::KEY_HOME] = "\x1BOH";
+    KEY_DATA[InputHandler::KEY_LEFT] = "\x1B[1D";
+    KEY_DATA[InputHandler::KEY_RIGHT] = "\x1B[1C";
+    KEY_DATA[InputHandler::KEY_HOME] = "\x0D";
     KEY_DATA[InputHandler::KEY_END] = "\x1BOF";
     KEY_DATA[InputHandler::KEY_F1] = "\x1BOP";
     KEY_DATA[InputHandler::KEY_F2] = "\x1BOQ";

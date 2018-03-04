@@ -206,7 +206,7 @@ void ScintillaEditorBuffer::DeleteLines(uint32_t begin, uint32_t count) {
 void ScintillaEditorBuffer::InsertLines(uint32_t begin, uint32_t count) {
     (void)begin;
     (void)count;
-    if (m_Debug || true)
+    if (m_Debug)
         std::cout << __FUNCTION__ << ", " << begin <<"," << count << std::endl;
 
     auto pos = CursorToDocPos(m_pEditor, begin, m_Col);
@@ -239,7 +239,7 @@ bool ScintillaEditorBuffer::MoveCurRow(uint32_t offset, bool move_down, bool scr
     uint32_t line_count = m_pEditor->WndProc(SCI_GETLINECOUNT, 0, 0);
     auto row = RowToLineIndex(m_pEditor, m_Row);
 
-    if (m_Debug || true)
+    if (m_Debug)
         std::cout << __FUNCTION__
                   << ", offset:" << offset
                   << ", move down:" << move_down
@@ -250,15 +250,10 @@ bool ScintillaEditorBuffer::MoveCurRow(uint32_t offset, bool move_down, bool scr
 
     if (move_down) {
         if (row + offset >= line_count) {
-            int count = row + offset - line_count;
-
-            do {
-                m_pEditor->WndProc(SCI_APPENDTEXT, 1, reinterpret_cast<sptr_t>("\n"));
-                count --;
-            } while (count > 0);
+            row = line_count - 1;
+        } else {
+            row += offset;
         }
-
-        row += offset;
     }
     else {
         if (row >= offset)
@@ -323,6 +318,8 @@ void ScintillaEditorBuffer::SetCurCellData(uint32_t ch,
     (void)insert;
     (void)cell_template;
 
+    //by default editor using insert mode
+    insert = true;
     auto pos = CursorToDocPos(m_pEditor, m_Row, m_Col);
     auto pos_next = CursorToDocPos(m_pEditor, m_Row, m_Col + 1);
 
@@ -352,8 +349,7 @@ void ScintillaEditorBuffer::SetCurCellData(uint32_t ch,
                                reinterpret_cast<sptr_t>(bytes.c_str()));
     }
 
-    if (!insert)
-        SetCol(m_Col + 1);
+    SetCol(m_Col + 1);
 }
 
 void ScintillaEditorBuffer::LockUpdate() {
