@@ -36,7 +36,7 @@ void DefaultTermWindow::OnDraw() {
 
     auto font_manager = m_FreeTypeGLContext->font_manager;
 
-    auto background_color = m_ColorTable[TermCell::DefaultBackColorIndex];
+    auto background_color = __GetColorByIndex(TermCell::DefaultBackColorIndex);
 
     glClearColor(background_color.r,
                  background_color.g,
@@ -307,8 +307,8 @@ void DefaultTermWindow::DrawContent(ftgl::text_buffer_t * buf,
         fore_color_use = tmp;
     }
 
-    font.foreground_color = m_ColorTable[fore_color_use];
-    font.background_color = m_ColorTable[back_color_use];
+    font.foreground_color = __GetColorByIndex(fore_color_use);
+    font.background_color = __GetColorByIndex(back_color_use);
 
     std::string bytes = wcharconv.to_bytes(content);
 
@@ -328,4 +328,22 @@ void DefaultTermWindow::DrawContent(ftgl::text_buffer_t * buf,
     last_fore_color = fore_color;
     last_back_color = back_color;
     last_mode = mode;
+}
+
+ftgl::vec4 DefaultTermWindow::__GetColorByIndex(uint32_t index) {
+#define C2V(x) ((float)(x) / 255)
+    if (index >= TermCell::ColorIndexCount) {
+        index -= TermCell::ColorIndexCount;
+
+        ftgl::vec4 c = {{
+            C2V((index >> 16) & 0xFF),
+            C2V((index >> 8) & 0xFF),
+            C2V((index) & 0xFF),
+            C2V(0xFF)}
+        };
+        return c;
+    }
+
+    return m_ColorTable[index];
+#undef C2V
 }

@@ -26,7 +26,7 @@ public:
     void RequestRefresh();
 
     uint32_t GetColorByIndex(uint32_t index) {
-        return m_ColorTable[index].GetRGBA();
+        return __GetColorByIndex(index).GetRGBA();
     }
 
     void EnableMouseTrack(bool enable) {
@@ -85,6 +85,8 @@ private:
                      bool drawBySingleChar = false);
 
     void InitColorTable();
+
+    wxColour __GetColorByIndex(uint32_t index);
 
     TermBufferPtr EnsureTermBuffer();
     void GetMousePos(wxMouseEvent & event, uint32_t & row, uint32_t & col);

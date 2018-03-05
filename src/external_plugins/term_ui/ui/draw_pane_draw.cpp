@@ -104,9 +104,9 @@ void DrawPane::DrawContent(wxDC &dc,
 
     if (back_color_use != TermCell::DefaultBackColorIndex)
     {
-        wxBrush brush(m_ColorTable[back_color_use]);
+        wxBrush brush(__GetColorByIndex(back_color_use));
         dc.SetBrush(brush);
-        dc.SetPen(wxPen(m_ColorTable[back_color_use]));
+        dc.SetPen(wxPen(__GetColorByIndex(back_color_use)));
 
         if (multi_line)
         {
@@ -122,8 +122,8 @@ void DrawPane::DrawContent(wxDC &dc,
         }
     }
 
-    dc.SetTextForeground(m_ColorTable[fore_color_use]);
-    dc.SetTextBackground(m_ColorTable[back_color_use]);
+    dc.SetTextForeground(__GetColorByIndex(fore_color_use));
+    dc.SetTextBackground(__GetColorByIndex(back_color_use));
 
     if (!drawBySingleChar) {
         dc.DrawText(content, last_x, last_y);
@@ -195,7 +195,7 @@ void DrawPane::DoPaint(wxDC & dc, TermBufferPtr buffer, bool full_paint, const s
 {
     __DCAttributesChanger changer(&dc);
 
-    wxBrush backgroundBrush(m_ColorTable[TermCell::DefaultBackColorIndex]);
+    wxBrush backgroundBrush(__GetColorByIndex(TermCell::DefaultBackColorIndex));
 
     wxString content {""};
 
@@ -403,4 +403,20 @@ void DrawPane::PaintOnDemand()
             std::cout << "end refresh:" << m_RefreshNow << "," << refreshNow << std::endl;
         m_RefreshNow -= refreshNow;
     }
+}
+
+wxColour DrawPane::__GetColorByIndex(uint32_t index) {
+    if (index >= TermCell::ColorIndexCount) {
+        index -= TermCell::ColorIndexCount;
+
+        wxColour c;
+        c.Set((index >> 16) & 0xFF,
+              (index >> 8) & 0xFF,
+              (index) & 0xFF,
+              0xFF);
+
+        return c;
+    }
+
+    return m_ColorTable[index];
 }

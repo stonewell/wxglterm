@@ -104,4 +104,5 @@ private:
     void InitColorTable();
     void InitFreeTypeGLContext();
     void GetMousePos(uint32_t & row, uint32_t & col);
+    ftgl::vec4 __GetColorByIndex(uint32_t index);
 };

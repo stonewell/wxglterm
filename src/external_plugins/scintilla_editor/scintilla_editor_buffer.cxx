@@ -56,7 +56,6 @@
 #include "AutoComplete.h"
 #include "CallTip.h"
 #include "ScintillaBase.h"
-#include "SciLexer.h"
 
 #include "scintilla_editor.h"
 
@@ -74,13 +73,6 @@ ScintillaEditorBuffer::ScintillaEditorBuffer() :
     , m_Rows {0}
     , m_Cols {0}
 {
-    m_pEditor->WndProc(SCI_SETLEXER, SCLEX_CPP, 0);
-    m_pEditor->WndProc(SCI_STYLESETFORE, SCE_C_COMMENT, 0x008000);
-    m_pEditor->WndProc(SCI_STYLESETFORE, SCE_C_COMMENTLINE, 0x008000);
-    m_pEditor->WndProc(SCI_STYLESETFORE, SCE_C_NUMBER, 0x808000);
-    m_pEditor->WndProc(SCI_STYLESETFORE, SCE_C_WORD, 0x800000);
-    m_pEditor->WndProc(SCI_STYLESETFORE, SCE_C_STRING, 0x800080);
-    m_pEditor->WndProc(SCI_STYLESETBOLD, SCE_C_OPERATOR, 1);
 }
 
 ScintillaEditorBuffer::~ScintillaEditorBuffer() {

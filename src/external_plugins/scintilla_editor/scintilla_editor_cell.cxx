@@ -155,21 +155,18 @@ public:
     uint32_t GetForeColorIndex() const override {
         if (m_pEditor) {
             auto pos = CursorToDocPos(m_pEditor, m_Row, m_Col, false);
+            m_pEditor->pdoc->EnsureStyledTo(pos);
             auto style = m_pEditor->WndProc(SCI_GETSTYLEAT, pos, 0);
-            if (style) {
-                auto const & c = m_pEditor->GetStyle(style);
+            auto const & c = m_pEditor->GetStyle(style);
 
-                uint32_t index = 0;
-                index |= (c.fore.GetRed() << 16);
-                index |= (c.fore.GetGreen() << 8);
-                index |= (c.fore.GetBlue());
+            uint32_t index = 0;
+            index |= (c.fore.GetRed() << 16);
+            index |= (c.fore.GetGreen() << 8);
+            index |= (c.fore.GetBlue());
 
-                index += TermCell::ColorIndexCount;
+            index += TermCell::ColorIndexCount;
 
-                printf("index:%x\n", index);
-
-                return index;
-            }
+            return index;
         }
         return TermCell::DefaultForeColorIndex;
     }
@@ -177,6 +174,21 @@ public:
         (void)idx;
     }
     uint32_t GetBackColorIndex() const override {
+        if (m_pEditor) {
+            auto pos = CursorToDocPos(m_pEditor, m_Row, m_Col, false);
+            m_pEditor->pdoc->EnsureStyledTo(pos);
+            auto style = m_pEditor->WndProc(SCI_GETSTYLEAT, pos, 0);
+            auto const & c = m_pEditor->GetStyle(style);
+
+            uint32_t index = 0;
+            index |= (c.back.GetRed() << 16);
+            index |= (c.back.GetGreen() << 8);
+            index |= (c.back.GetBlue());
+
+            index += TermCell::ColorIndexCount;
+
+            return index;
+        }
         return TermCell::DefaultBackColorIndex;
     }
     void SetBackColorIndex(uint32_t idx) override {
