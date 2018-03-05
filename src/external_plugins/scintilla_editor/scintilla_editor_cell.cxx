@@ -152,20 +152,38 @@ public:
         m_pEditor->WndProc(SCI_REPLACESEL, 0, reinterpret_cast<sptr_t>(bytes.c_str()));
     }
 
-    uint16_t GetForeColorIndex() const override {
+    uint32_t GetForeColorIndex() const override {
+        if (m_pEditor) {
+            auto pos = CursorToDocPos(m_pEditor, m_Row, m_Col, false);
+            auto style = m_pEditor->WndProc(SCI_GETSTYLEAT, pos, 0);
+            if (style) {
+                auto const & c = m_pEditor->GetStyle(style);
+
+                uint32_t index = 0;
+                index |= (c.fore.GetRed() << 16);
+                index |= (c.fore.GetGreen() << 8);
+                index |= (c.fore.GetBlue());
+
+                index += TermCell::ColorIndexCount;
+
+                printf("index:%x\n", index);
+
+                return index;
+            }
+        }
         return TermCell::DefaultForeColorIndex;
     }
-    void SetForeColorIndex(uint16_t idx) override {
+    void SetForeColorIndex(uint32_t idx) override {
         (void)idx;
     }
-    uint16_t GetBackColorIndex() const override {
+    uint32_t GetBackColorIndex() const override {
         return TermCell::DefaultBackColorIndex;
     }
-    void SetBackColorIndex(uint16_t idx) override {
+    void SetBackColorIndex(uint32_t idx) override {
         (void)idx;
     }
 
-    uint16_t GetMode() const override {
+    uint32_t GetMode() const override {
         if (!m_pEditor)
             return 0;
 
@@ -178,20 +196,20 @@ public:
             std::bitset<16> mode;
             mode.set(TermCell::Cursor);
 
-            return (uint16_t)mode.to_ulong();
+            return mode.to_ulong();
         }
         return 0;
     }
 
-    void SetMode(uint16_t m) override {
+    void SetMode(uint32_t m) override {
         (void)m;
     }
 
-    void AddMode(uint16_t m) override {
+    void AddMode(uint32_t m) override {
         (void)m;
     }
 
-    void RemoveMode(uint16_t m) override {
+    void RemoveMode(uint32_t m) override {
         (void)m;
     }
 

@@ -123,11 +123,11 @@ void DefaultTermWindow::DoDraw() {
     int width = 0, height = 0;
     glfwGetFramebufferSize(m_MainDlg, &width, &height);
 
-    uint16_t last_fore_color = TermCell::DefaultForeColorIndex;
-    uint16_t last_back_color = TermCell::DefaultBackColorIndex;
+    uint32_t last_fore_color = TermCell::DefaultForeColorIndex;
+    uint32_t last_back_color = TermCell::DefaultBackColorIndex;
     float last_y = height - PADDING;
     float last_x = PADDING;
-    uint16_t last_mode = 0;
+    uint32_t last_mode = 0;
     std::wstring content{L""};
 
     //place hold for parameters
@@ -173,9 +173,9 @@ void DefaultTermWindow::DoDraw() {
             auto cell = line->GetCell(col);
 
             wchar_t ch = 0;
-            uint16_t fore_color = TermCell::DefaultForeColorIndex;
-            uint16_t back_color = TermCell::DefaultBackColorIndex;
-            uint16_t mode = 0;
+            uint32_t fore_color = TermCell::DefaultForeColorIndex;
+            uint32_t back_color = TermCell::DefaultBackColorIndex;
+            uint32_t mode = 0;
 
             if (cell && cell->GetChar() != 0) {
                 fore_color = cell->GetForeColorIndex();
@@ -267,18 +267,18 @@ void DefaultTermWindow::DoDraw() {
 void DefaultTermWindow::DrawContent(ftgl::text_buffer_t * buf,
                                     std::wstring & content,
                                     std::bitset<16> & buffer_mode,
-                                    uint16_t & last_fore_color,
-                                    uint16_t & last_back_color,
-                                    uint16_t & last_mode,
-                                    uint16_t fore_color,
-                                    uint16_t back_color,
-                                    uint16_t mode,
+                                    uint32_t & last_fore_color,
+                                    uint32_t & last_back_color,
+                                    uint32_t & last_mode,
+                                    uint32_t fore_color,
+                                    uint32_t back_color,
+                                    uint32_t mode,
                                     float & last_x,
                                     float & last_y) {
     std::bitset<16> m(last_mode);
 
-    uint16_t back_color_use = last_back_color;
-    uint16_t fore_color_use = last_fore_color;
+    uint32_t back_color_use = last_back_color;
+    uint32_t fore_color_use = last_fore_color;
 
     auto font {*m_FreeTypeGLContext->get_font(FontCategoryEnum::Default)};
 
@@ -302,7 +302,7 @@ void DefaultTermWindow::DrawContent(ftgl::text_buffer_t * buf,
     if (m.test(TermCell::Reverse) ||
         buffer_mode.test(TermCell::Reverse))
     {
-        uint16_t tmp = back_color_use;
+        uint32_t tmp = back_color_use;
         back_color_use = fore_color_use;
         fore_color_use = tmp;
     }

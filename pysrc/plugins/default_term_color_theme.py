@@ -55,6 +55,13 @@ class DefaultTermColorTheme(MultipleInstancePluginBase, TermColorTheme):
 
     def get_color(self, index):
         try:
+            if index >= int(TermCell.ColorIndex.ColorIndexCount):
+                rgb = index - int(TermCell.ColorIndex.ColorIndexCount)
+                c = TermColor()
+                c.r = (rgv >> 16) & 0xFF
+                c.g = (rgv >> 8) & 0xFF
+                c.b = (rgv) & 0xFF
+                return c
             return self._values[index]
         except:
             return TermColor()

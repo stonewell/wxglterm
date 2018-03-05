@@ -123,9 +123,9 @@ bool DefaultTermBuffer::MoveCurRow(uint32_t offset, bool move_down, bool scroll_
 }
 
 void DefaultTermBuffer::SetCellDefaults(wchar_t c,
-                                        uint16_t fore_color_idx,
-                                        uint16_t back_color_idx,
-                                        uint16_t mode) {
+                                        uint32_t fore_color_idx,
+                                        uint32_t back_color_idx,
+                                        uint32_t mode) {
     m_DefaultChar = c;
     m_DefaultForeColorIndex = fore_color_idx;
     m_DefaultBackColorIndex = back_color_idx;
@@ -190,21 +190,21 @@ void DefaultTermBuffer::EnableAlterBuffer(bool enable) {
     }
 }
 
-uint16_t DefaultTermBuffer::GetMode() {
+uint32_t DefaultTermBuffer::GetMode() {
     std::lock_guard<std::recursive_mutex> guard(m_UpdateLock);
     return m_Buffers[m_CurBuffer].GetMode();
 }
 
-void DefaultTermBuffer::SetMode(uint16_t m) {
+void DefaultTermBuffer::SetMode(uint32_t m) {
     std::lock_guard<std::recursive_mutex> guard(m_UpdateLock);
     m_Buffers[m_CurBuffer].SetMode(m);
 }
 
-void DefaultTermBuffer::AddMode(uint16_t m) {
+void DefaultTermBuffer::AddMode(uint32_t m) {
     std::lock_guard<std::recursive_mutex> guard(m_UpdateLock);
     m_Buffers[m_CurBuffer].AddMode(m);
 }
-void DefaultTermBuffer::RemoveMode(uint16_t m) {
+void DefaultTermBuffer::RemoveMode(uint32_t m) {
     std::lock_guard<std::recursive_mutex> guard(m_UpdateLock);
     m_Buffers[m_CurBuffer].RemoveMode(m);
 }

@@ -32,9 +32,9 @@ public:
     virtual bool MoveCurRow(uint32_t offset, bool move_down, bool scroll_buffer) = 0;
 
     virtual void SetCellDefaults(wchar_t c,
-                                 uint16_t fore_color_idx,
-                                 uint16_t back_color_idx,
-                                 uint16_t mode) = 0;
+                                 uint32_t fore_color_idx,
+                                 uint32_t back_color_idx,
+                                 uint32_t mode) = 0;
     virtual TermCellPtr CreateCellWithDefaults() = 0;
 
     virtual void SetSelection(TermSelectionPtr selection) = 0;
@@ -50,8 +50,8 @@ public:
 
     virtual TermBufferPtr CloneBuffer() = 0;
 
-    virtual uint16_t GetMode() = 0;
-    virtual void SetMode(uint16_t m) = 0;
-    virtual void AddMode(uint16_t m) = 0;
-    virtual void RemoveMode(uint16_t m) = 0;
+    virtual uint32_t GetMode() = 0;
+    virtual void SetMode(uint32_t m) = 0;
+    virtual void AddMode(uint32_t m) = 0;
+    virtual void RemoveMode(uint32_t m) = 0;
 };

@@ -106,9 +106,9 @@ public:
     }
 
     void SetCellDefaults(wchar_t c,
-                         uint16_t fore_color_idx,
-                         uint16_t back_color_idx,
-                         uint16_t mode) {
+                         uint32_t fore_color_idx,
+                         uint32_t back_color_idx,
+                         uint32_t mode) {
         (void)c;
         (void)fore_color_idx;
         (void)back_color_idx;
@@ -152,18 +152,18 @@ public:
         return TermBufferPtr {};
     }
 
-    uint16_t GetMode() override {
+    uint32_t GetMode() override {
         return m_Buffer.GetMode();
     }
 
-    void SetMode(uint16_t m) override {
+    void SetMode(uint32_t m) override {
         (void)m;
     }
 
-    void AddMode(uint16_t m) override {
+    void AddMode(uint32_t m) override {
         (void)m;
     }
-    void RemoveMode(uint16_t m) override {
+    void RemoveMode(uint32_t m) override {
         (void)m;
     }
 };

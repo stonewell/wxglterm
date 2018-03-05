@@ -155,6 +155,7 @@ PYBIND11_EMBEDDED_MODULE(wxglterm_interface, m)
             .value("DefaultForeColorIndex", TermCell::ColorIndexEnum::DefaultForeColorIndex)
             .value("DefaultBackColorIndex", TermCell::ColorIndexEnum::DefaultBackColorIndex)
             .value("DefaultCursorColorIndex", TermCell::ColorIndexEnum::DefaultCursorColorIndex)
+            .value("ColorIndexCount", TermCell::ColorIndexEnum::ColorIndexCount)
             .export_values();
     py::enum_<TermCell::TextModeEnum>(term_cell, "TextMode")
             .value("Stdout", TermCell::TextModeEnum::Stdout)

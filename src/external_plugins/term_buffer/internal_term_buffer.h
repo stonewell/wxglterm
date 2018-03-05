@@ -89,10 +89,10 @@ public:
 
     void SetCurCellData(uint32_t ch, bool wide_char, bool insert, TermCellPtr cell_template);
 
-    uint16_t GetMode() const;
-    void SetMode(uint16_t m);
-    void AddMode(uint16_t m);
-    void RemoveMode(uint16_t m);
+    uint32_t GetMode() const;
+    void SetMode(uint32_t m);
+    void AddMode(uint32_t m);
+    void RemoveMode(uint32_t m);
 
 private:
     bool IsDefaultCell(TermCellPtr cell);

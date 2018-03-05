@@ -93,12 +93,12 @@ private:
     void DrawContent(ftgl::text_buffer_t * buf,
                      std::wstring & content,
                      std::bitset<16> & buffer_mode,
-                     uint16_t & last_fore_color,
-                     uint16_t & last_back_color,
-                     uint16_t & last_mode,
-                     uint16_t fore_color,
-                     uint16_t back_color,
-                     uint16_t mode,
+                     uint32_t & last_fore_color,
+                     uint32_t & last_back_color,
+                     uint32_t & last_mode,
+                     uint32_t fore_color,
+                     uint32_t back_color,
+                     uint32_t mode,
                      float & last_x,
                      float & last_y);
     void InitColorTable();

@@ -38,4 +38,5 @@ private:
 public:
     TermWindow * m_pTermWindow;
     void SetTermWindow(TermWindow * pTermWindow);
+    const Scintilla::Style & GetStyle(int style);
 };

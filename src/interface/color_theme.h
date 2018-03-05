@@ -24,5 +24,8 @@ public:
     virtual bool Load(const char * name) = 0;
     virtual bool LoadWithValues(const char * name, const char * value) = 0;
 
+    //when index > TermCell::ColorIndexCount, it is real rgb value
+    // the rgb value = index - TermCell::ColorIndexCount
+    // it rgb value only, no alpha
     virtual TermColorPtr GetColor(uint32_t index) = 0;
 };

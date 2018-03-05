@@ -45,12 +45,12 @@ public:
 void DrawPane::DrawContent(wxDC &dc,
                            wxString & content,
                            std::bitset<16> & buffer_mode,
-                           uint16_t & last_fore_color,
-                           uint16_t & last_back_color,
-                           uint16_t & last_mode,
-                           uint16_t fore_color,
-                           uint16_t back_color,
-                           uint16_t mode,
+                           uint32_t & last_fore_color,
+                           uint32_t & last_back_color,
+                           uint32_t & last_mode,
+                           uint32_t fore_color,
+                           uint32_t back_color,
+                           uint32_t mode,
                            wxCoord & last_x,
                            wxCoord & last_y,
                            bool drawBySingleChar)
@@ -70,8 +70,8 @@ void DrawPane::DrawContent(wxDC &dc,
         content_before_last_line_size.SetWidth(content_size.GetWidth());
     }
 
-    uint16_t back_color_use = last_back_color;
-    uint16_t fore_color_use = last_fore_color;
+    uint32_t back_color_use = last_back_color;
+    uint32_t fore_color_use = last_fore_color;
 
     wxFont * font(GetFont());
 
@@ -97,7 +97,7 @@ void DrawPane::DrawContent(wxDC &dc,
     if (m.test(TermCell::Reverse) ||
         buffer_mode.test(TermCell::Reverse))
     {
-        uint16_t tmp = back_color_use;
+        uint32_t tmp = back_color_use;
         back_color_use = fore_color_use;
         fore_color_use = tmp;
     }
@@ -206,11 +206,11 @@ void DrawPane::DoPaint(wxDC & dc, TermBufferPtr buffer, bool full_paint, const s
 
     auto y = PADDING;
 
-    uint16_t last_fore_color = TermCell::DefaultForeColorIndex;
-    uint16_t last_back_color = TermCell::DefaultBackColorIndex;
+    uint32_t last_fore_color = TermCell::DefaultForeColorIndex;
+    uint32_t last_back_color = TermCell::DefaultBackColorIndex;
     wxCoord last_y = PADDING;
     wxCoord last_x = PADDING;
-    uint16_t last_mode = 0;
+    uint32_t last_mode = 0;
 
     dc.SetBackground( backgroundBrush );
     dc.Clear();
@@ -253,9 +253,9 @@ void DrawPane::DoPaint(wxDC & dc, TermBufferPtr buffer, bool full_paint, const s
             auto cell = line->GetCell(col);
 
             wchar_t ch = 0;
-            uint16_t fore_color = TermCell::DefaultForeColorIndex;
-            uint16_t back_color = TermCell::DefaultBackColorIndex;
-            uint16_t mode = 0;
+            uint32_t fore_color = TermCell::DefaultForeColorIndex;
+            uint32_t back_color = TermCell::DefaultBackColorIndex;
+            uint32_t mode = 0;
 
             if (cell && cell->GetChar() != 0) {
                 fore_color = cell->GetForeColorIndex();

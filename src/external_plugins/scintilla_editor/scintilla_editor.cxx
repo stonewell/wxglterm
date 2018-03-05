@@ -148,3 +148,7 @@ void ScintillaEditor::SetTermWindow(TermWindow * pTermWindow) {
     stylesValid = false;
     RefreshStyleData();
 }
+
+const Style & ScintillaEditor::GetStyle(int style) {
+    return this->vs.styles[style];
+}

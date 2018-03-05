@@ -6,6 +6,7 @@
 #include <iostream>
 #include <stdio.h>
 #include <iomanip>
+#include <string.h>
 
 class DefaultTermCell : public virtual PluginBase, public virtual TermCell {
 public:
@@ -17,7 +18,7 @@ public:
         , m_BackColorIdx{TermCell::DefaultBackColorIndex}
         , m_Mode{0}
         , m_IsWideChar(false)
-        , m_Hash {.v = 0}
+        , m_Hash {}
     {
         (void)m_TermLine;
         SetModified(false);
@@ -31,31 +32,31 @@ public:
         m_Char = c;
     }
 
-    uint16_t GetForeColorIndex() const override {
+    uint32_t GetForeColorIndex() const override {
         return m_ForeColorIdx;
     }
-    void SetForeColorIndex(uint16_t idx) override {
+    void SetForeColorIndex(uint32_t idx) override {
         m_ForeColorIdx = idx;
     }
-    uint16_t GetBackColorIndex() const override {
+    uint32_t GetBackColorIndex() const override {
         return m_BackColorIdx;
     }
-    void SetBackColorIndex(uint16_t idx) override {
+    void SetBackColorIndex(uint32_t idx) override {
         m_BackColorIdx = idx;
     }
 
-    uint16_t GetMode() const override {
-        return (uint16_t)m_Mode.to_ulong();
+    uint32_t GetMode() const override {
+        return (uint32_t)m_Mode.to_ulong();
     }
 
-    void SetMode(uint16_t m) override {
+    void SetMode(uint32_t m) override {
         m_Mode = std::bitset<16>(m);
     }
 
-    void AddMode(uint16_t m) override {
+    void AddMode(uint32_t m) override {
         m_Mode.set(m);
     }
-    void RemoveMode(uint16_t m) override {
+    void RemoveMode(uint32_t m) override {
         m_Mode.reset(m);
     }
 
@@ -81,47 +82,59 @@ public:
         h.vv.c = m_Char;
         h.vv.fore = m_ForeColorIdx;
         h.vv.back = m_BackColorIdx;
-        h.vv.mode = (uint16_t)m_Mode.to_ulong();
+        h.vv.mode = m_Mode.to_ulong();
         h.vv.w = m_IsWideChar;
 
-        return h.v != m_Hash.v;
+        return h == m_Hash;
     }
 
     void SetModified(bool modified) override {
         if (modified) {
-            m_Hash.v = 0;
+            m_Hash.Clear();
         } else {
-            CellHash h {
-                .vv = { m_Char,
-                        m_ForeColorIdx,
-                        m_BackColorIdx,
-                        (uint16_t)m_Mode.to_ulong(),
-                        m_IsWideChar
-                }
-            };
-
-            m_Hash.v = h.v;
+            m_Hash.vv.c = m_Char;
+            m_Hash.vv.fore = m_ForeColorIdx;
+            m_Hash.vv.back = m_BackColorIdx;
+            m_Hash.vv.mode = m_Mode.to_ulong();
+            m_Hash.vv.w = m_IsWideChar;
         }
     }
 private:
 #pragma pack(push , 1)
-    using CellHash = union {
-        uint64_t v;
+    using CellHash = union __CellHash {
+        uint32_t v[5];
         struct {
             wchar_t c;
-            uint16_t fore:9;
-            uint16_t back:9;
-            uint16_t mode:13;
+            uint32_t fore;
+            uint32_t back;
+            uint32_t mode;
             bool w:1;
         } vv;
+
+        __CellHash() {
+            Clear();
+        }
+
+        __CellHash & operator = (const __CellHash & u) {
+            memmove(v, u.v, sizeof(v));
+            return *this;
+        }
+
+        void Clear() {
+            memset(v, 0, sizeof(v));
+        }
+
+        bool operator == (const __CellHash & u) {
+            return memcmp(v, u.v, sizeof(v)) == 0;
+        }
     };
 #pragma pack(pop)
 
     TermLine * m_TermLine;
 
     wchar_t m_Char;
-    uint16_t m_ForeColorIdx;
-    uint16_t m_BackColorIdx;
+    uint32_t m_ForeColorIdx;
+    uint32_t m_BackColorIdx;
     std::bitset<16> m_Mode;
     bool m_IsWideChar;
     CellHash m_Hash;

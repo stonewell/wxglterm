@@ -52,9 +52,9 @@ public:
     bool MoveCurRow(uint32_t offset, bool move_down, bool scroll_buffer) override;
 
     void SetCellDefaults(wchar_t c,
-                         uint16_t fore_color_idx,
-                         uint16_t back_color_idx,
-                         uint16_t mode) override;
+                         uint32_t fore_color_idx,
+                         uint32_t back_color_idx,
+                         uint32_t mode) override;
 
     TermCellPtr CreateCellWithDefaults() override;
 
@@ -73,10 +73,10 @@ public:
 
     TermBufferPtr CloneBuffer() override;
 
-    uint16_t GetMode() override;
-    void SetMode(uint16_t m) override;
-    void AddMode(uint16_t m) override;
-    void RemoveMode(uint16_t m) override;
+    uint32_t GetMode() override;
+    void SetMode(uint32_t m) override;
+    void AddMode(uint32_t m) override;
+    void RemoveMode(uint32_t m) override;
     virtual void InitPlugin(ContextPtr context,
                             AppConfigPtr plugin_config) override;
 private:
@@ -86,7 +86,7 @@ private:
     uint32_t m_Cols;
 
     wchar_t m_DefaultChar;
-    uint16_t m_DefaultForeColorIndex;
-    uint16_t m_DefaultBackColorIndex;
-    uint16_t m_DefaultMode;
+    uint32_t m_DefaultForeColorIndex;
+    uint32_t m_DefaultBackColorIndex;
+    uint32_t m_DefaultMode;
 };

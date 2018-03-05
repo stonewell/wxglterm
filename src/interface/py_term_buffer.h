@@ -65,9 +65,9 @@ public:
         PYBIND11_OVERLOAD_PURE_NAME(void, TermBufferBase, "insert_lines", ScrollBuffer, begin, count);
     }
     void SetCellDefaults(wchar_t c,
-                         uint16_t fore_color_idx,
-                         uint16_t back_color_idx,
-                         uint16_t mode) override {
+                         uint32_t fore_color_idx,
+                         uint32_t back_color_idx,
+                         uint32_t mode) override {
         PYBIND11_OVERLOAD_PURE_NAME(void, TermBufferBase, "set_cell_defaults", SetCellDefaults, c, fore_color_idx, back_color_idx, mode);
     }
 
@@ -110,16 +110,16 @@ public:
     TermBufferPtr CloneBuffer() override {
         PYBIND11_OVERLOAD_PURE_NAME(TermBufferPtr, TermBufferBase, "clone_buffer", CloneBuffer, );
     }
-    uint16_t GetMode() override {
-        PYBIND11_OVERLOAD_PURE_NAME(uint16_t, TermBufferBase, "get_mode", GetMode, );
+    uint32_t GetMode() override {
+        PYBIND11_OVERLOAD_PURE_NAME(uint32_t, TermBufferBase, "get_mode", GetMode, );
     }
-    void SetMode(uint16_t m) override {
+    void SetMode(uint32_t m) override {
         PYBIND11_OVERLOAD_PURE_NAME(void, TermBufferBase, "set_mode", SetMode, m);
     }
-    void AddMode(uint16_t m) override {
+    void AddMode(uint32_t m) override {
         PYBIND11_OVERLOAD_PURE_NAME(void, TermBufferBase, "add_mode", AddMode, m);
     }
-    void RemoveMode(uint16_t m) override {
+    void RemoveMode(uint32_t m) override {
         PYBIND11_OVERLOAD_PURE_NAME(void, TermBufferBase, "remove_mode", RemoveMode, m);
     }
 };

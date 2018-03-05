@@ -56,6 +56,7 @@
 #include "AutoComplete.h"
 #include "CallTip.h"
 #include "ScintillaBase.h"
+#include "SciLexer.h"
 
 #include "scintilla_editor.h"
 
@@ -73,6 +74,13 @@ ScintillaEditorBuffer::ScintillaEditorBuffer() :
     , m_Rows {0}
     , m_Cols {0}
 {
+    m_pEditor->WndProc(SCI_SETLEXER, SCLEX_CPP, 0);
+    m_pEditor->WndProc(SCI_STYLESETFORE, SCE_C_COMMENT, 0x008000);
+    m_pEditor->WndProc(SCI_STYLESETFORE, SCE_C_COMMENTLINE, 0x008000);
+    m_pEditor->WndProc(SCI_STYLESETFORE, SCE_C_NUMBER, 0x808000);
+    m_pEditor->WndProc(SCI_STYLESETFORE, SCE_C_WORD, 0x800000);
+    m_pEditor->WndProc(SCI_STYLESETFORE, SCE_C_STRING, 0x800080);
+    m_pEditor->WndProc(SCI_STYLESETBOLD, SCE_C_OPERATOR, 1);
 }
 
 ScintillaEditorBuffer::~ScintillaEditorBuffer() {
@@ -294,9 +302,9 @@ bool ScintillaEditorBuffer::MoveCurRow(uint32_t offset, bool move_down, bool scr
 }
 
 void ScintillaEditorBuffer::SetCellDefaults(wchar_t c,
-                                            uint16_t fore_color_idx,
-                                            uint16_t back_color_idx,
-                                            uint16_t mode) {
+                                            uint32_t fore_color_idx,
+                                            uint32_t back_color_idx,
+                                            uint32_t mode) {
     m_DefaultChar = c;
     m_DefaultForeColorIndex = fore_color_idx;
     m_DefaultBackColorIndex = back_color_idx;
@@ -386,19 +394,19 @@ void ScintillaEditorBuffer::EnableAlterBuffer(bool enable) {
     (void)enable;
 }
 
-uint16_t ScintillaEditorBuffer::GetMode() {
+uint32_t ScintillaEditorBuffer::GetMode() {
     return 0;
 }
 
-void ScintillaEditorBuffer::SetMode(uint16_t m) {
+void ScintillaEditorBuffer::SetMode(uint32_t m) {
     (void)m;
 }
 
-void ScintillaEditorBuffer::AddMode(uint16_t m) {
+void ScintillaEditorBuffer::AddMode(uint32_t m) {
     (void)m;
 }
 
-void ScintillaEditorBuffer::RemoveMode(uint16_t m) {
+void ScintillaEditorBuffer::RemoveMode(uint32_t m) {
     (void)m;
 }
 

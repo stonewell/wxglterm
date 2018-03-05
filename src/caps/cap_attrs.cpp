@@ -35,15 +35,15 @@ void __do_set_attributes(term_data_context_s & term_context,
     }
 
     if (fore_color_idx >= 0)
-        term_context.cell_template->SetForeColorIndex((uint16_t)(fore_color_idx & 0xFFFF));
+        term_context.cell_template->SetForeColorIndex((fore_color_idx & 0xFFFFFFFF));
     if (back_color_idx >= 0)
-        term_context.cell_template->SetBackColorIndex((uint16_t)(back_color_idx & 0xFFFF));
+        term_context.cell_template->SetBackColorIndex((back_color_idx & 0xFFFFFFFF));
 }
 
 void set_a_foreground(term_data_context_s & term_context,
                   const term_data_param_list & params){
     bool light = false;
-    uint16_t color_idx = 0;
+    uint32_t color_idx = 0;
 
     if (params.size() == 2) {
         light = (params[0] == 1);
@@ -68,7 +68,7 @@ void set_a_foreground(term_data_context_s & term_context,
 void set_a_background(term_data_context_s & term_context,
                   const term_data_param_list & params){
     bool light = false;
-    uint16_t color_idx = 0;
+    uint32_t color_idx = 0;
 
     if (params.size() == 2) {
         light = (params[0] == 1);

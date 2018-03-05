@@ -23,15 +23,15 @@ public:
     virtual wchar_t GetChar() const = 0;
     virtual void SetChar(wchar_t c) = 0;
 
-    virtual uint16_t GetForeColorIndex() const = 0;
-    virtual void SetForeColorIndex(uint16_t idx) = 0;
-    virtual uint16_t GetBackColorIndex() const = 0;
-    virtual void SetBackColorIndex(uint16_t idx) = 0;
+    virtual uint32_t GetForeColorIndex() const = 0;
+    virtual void SetForeColorIndex(uint32_t idx) = 0;
+    virtual uint32_t GetBackColorIndex() const = 0;
+    virtual void SetBackColorIndex(uint32_t idx) = 0;
 
-    virtual uint16_t GetMode() const = 0;
-    virtual void SetMode(uint16_t m) = 0;
-    virtual void AddMode(uint16_t m) = 0;
-    virtual void RemoveMode(uint16_t m) = 0;
+    virtual uint32_t GetMode() const = 0;
+    virtual void SetMode(uint32_t m) = 0;
+    virtual void AddMode(uint32_t m) = 0;
+    virtual void RemoveMode(uint32_t m) = 0;
 
     virtual void Reset(TermCellPtr cell) = 0;
 
