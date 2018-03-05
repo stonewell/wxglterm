@@ -54,12 +54,8 @@ using term_data_param_list = std::vector<term_data_param_s>;
 #define TAB_WIDTH (8)
 
 using cap_func_t = std::function<void(term_data_context_s & , const term_data_param_list &)>;
-using cap_map_t = std::map<std::string, cap_func_t>;
-
 
 struct term_cap_s {
-    static cap_map_t CapFuncs;
-
     term_cap_s(const std::string & name,
              cap_func_t cap_func);
 };
