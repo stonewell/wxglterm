@@ -88,8 +88,9 @@ public:
 
         auto pos = CursorToDocPos(m_pEditor, m_Row, m_Col, false);
         auto pos_next = CursorToDocPos(m_pEditor, m_Row, m_Col + 1, false);
+        auto line_end_pos = m_pEditor->WndProc(SCI_GETLINEENDPOSITION, m_Row, 0);
 
-        if (pos >= length)
+        if (pos >= length || pos >= line_end_pos)
             return L' ';
 
         wchar_t ch = 0;
@@ -143,10 +144,11 @@ public:
             return;
 
         auto pos = CursorToDocPos(m_pEditor, m_Row, m_Col);
+        auto pos_next = CursorToDocPos(m_pEditor, m_Row, m_Col + 1, false);
 
         std::string bytes = wcharconv.to_bytes((wchar_t)c);
 
-        m_pEditor->WndProc(SCI_SETSEL, pos, pos + 1);
+        m_pEditor->WndProc(SCI_SETSEL, pos, pos_next);
         m_pEditor->WndProc(SCI_REPLACESEL, 0, reinterpret_cast<sptr_t>(bytes.c_str()));
     }
 

@@ -4,7 +4,9 @@ SET(scintilla_editor_data_handler_src
   scintilla_editor_impl.cpp
   scintilla_editor_impl.h
   scintilla_editor_impl_decl.h
-  scintilla_editor_impl_native.cpp)
+  scintilla_editor_impl_native.cpp
+  scintilla_editor_cap_cursor.cpp
+  )
 
 ADD_LIBRARY(scintilla_editor_data_handler SHARED
   ${scintilla_editor_data_handler_src}

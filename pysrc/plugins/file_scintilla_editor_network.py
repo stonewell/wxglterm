@@ -38,6 +38,8 @@ class FileTermNetwork(MultipleInstancePluginBase, TermNetwork):
 
                     if not data:
                         LOGGER.info("end of dump data, quit")
+                        data = bytes('\x1B[H', 'utf-8')
+                        term_data_handler.on_data(data, len(data))
                         break
 
                     term_data_handler.on_data(data, len(data))

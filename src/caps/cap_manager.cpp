@@ -7,20 +7,13 @@
 #include <iterator> // for ostream_iterator
 #include <locale>
 #include <codecvt>
-#include <unordered_map>
 #include <sstream>
 
 #include "char_width.h"
 #include "string_utils.h"
 
-using cap_map_t = std::unordered_map<std::string, cap_func_t>;
-
 static
 std::wstring_convert<std::codecvt_utf8<wchar_t>, wchar_t> wcharconv;
-
-static
-cap_map_t CapFuncs {
-};
 
 DEFINE_CAP(bell);
 DEFINE_CAP(to_status_line);
@@ -28,9 +21,13 @@ DEFINE_CAP(from_status_line);
 DEFINE_CAP(meta_on);
 DEFINE_CAP(operating_system_control)
 
+cap_map_t term_cap_s::CapFuncs;
+
 term_cap_s::term_cap_s(const std::string & name,
                        cap_func_t cap_func) {
-    CapFuncs.emplace(name, cap_func);
+    term_cap_s::CapFuncs.emplace(name, cap_func);
+
+    std::cout << name << std::endl;
 }
 
 term_data_context_s::term_data_context_s():
@@ -60,7 +57,7 @@ term_data_context_s::term_data_context_s():
 }
 
 void handle_cap(term_data_context_s & term_context, const std::string & cap_name, const term_data_param_list params) {
-    cap_map_t::iterator it = CapFuncs.find(cap_name);
+    cap_map_t::iterator it = term_cap_s::CapFuncs.find(cap_name);
 
     if (term_context.cap_debug) {
         std::cerr << "handle cap:" << cap_name;
@@ -69,7 +66,12 @@ void handle_cap(term_data_context_s & term_context, const std::string & cap_name
         std::cerr << "]" << std::endl;
     }
 
-    if (it != CapFuncs.end()) {
+    std::cerr << "-----------------" << std::endl;
+    for (auto xx : term_cap_s::CapFuncs) {
+        std::cerr << xx.first << std::endl;
+    }
+
+    if (it != term_cap_s::CapFuncs.end()) {
         it->second(term_context, params);
     } else {
         std::cerr << "unknown cap found:" << cap_name << ", with params:["

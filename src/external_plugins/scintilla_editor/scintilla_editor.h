@@ -23,6 +23,15 @@ public:
     void AddToPopUp(const char *label, int cmd=0, bool enabled=true) override;
     sptr_t WndProc(unsigned int iMessage, uptr_t wParam, sptr_t lParam) override;
 
+    bool FineTickerRunning(TickReason) override {
+        return false;
+    }
+
+    void FineTickerStart(TickReason, int, int) override{
+    }
+
+    void FineTickerCancel(TickReason) override{
+    }
 private:
     std::recursive_mutex m_UpdateLock;
 
