@@ -72,8 +72,6 @@ ScintillaEditorBuffer::ScintillaEditorBuffer() :
     , m_pEditor { new ScintillaEditor{} }
     , m_Rows {0}
     , m_Cols {0}
-    , m_Row {0}
-    , m_Col {0}
 {
 }
 
@@ -98,12 +96,6 @@ void ScintillaEditorBuffer::Resize(uint32_t row, uint32_t col) {
 
     m_Rows = row;
     m_Cols = col;
-
-    if (m_Row >= m_Rows)
-        SetRow(m_Rows ? m_Rows - 1 : 0);
-
-    if (m_Col >= m_Cols)
-        SetCol(m_Cols ? m_Cols - 1 : 0);
 
     ClearSelection();
 

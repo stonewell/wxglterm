@@ -84,8 +84,6 @@ private:
 
     uint32_t m_Rows;
     uint32_t m_Cols;
-    uint32_t m_Row;
-    uint32_t m_Col;
 
     wchar_t m_DefaultChar;
     uint16_t m_DefaultForeColorIndex;
