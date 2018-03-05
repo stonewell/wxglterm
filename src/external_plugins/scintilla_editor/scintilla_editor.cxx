@@ -149,12 +149,6 @@ void ScintillaEditor::SetTermWindow(TermWindow * pTermWindow) {
     stylesValid = false;
     RefreshStyleData();
     WndProc(SCI_SETLEXER, SCLEX_CPP, 0);
-    WndProc(SCI_STYLESETFORE, SCE_C_COMMENT, 0x008000);
-    WndProc(SCI_STYLESETFORE, SCE_C_COMMENTLINE, 0x008000);
-    WndProc(SCI_STYLESETFORE, SCE_C_NUMBER, 0x808000);
-    WndProc(SCI_STYLESETFORE, SCE_C_WORD, 0x800000);
-    WndProc(SCI_STYLESETFORE, SCE_C_STRING, 0x800080);
-    WndProc(SCI_STYLESETBOLD, SCE_C_OPERATOR, 1);
 }
 
 const Style & ScintillaEditor::GetStyle(int style) {
