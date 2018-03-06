@@ -41,8 +41,13 @@
 #include "SciTEKeys.h"
 #include "StripDefinition.h"
 
+class ScintillaEditor;
+class TermWindow;
+
 class SciTE : public SciTEBase {
 public:
+    SciTE();
+    virtual ~SciTE() = default;
 	virtual FilePath GetDefaultDirectory();
 	virtual FilePath GetSciteDefaultHome();
 	virtual FilePath GetSciteUserHome();
@@ -94,5 +99,12 @@ public:
 	// WorkerListener
 	virtual void PostOnMainThread(int, Worker *) {}
 	virtual void GetWindowPosition(int *, int *, int *, int *, int *) {};
-    virtual bool PreOpenCheck(const GUI::gui_char *) {return false;};
+    virtual bool PreOpenCheck(const GUI::gui_char *) {return false;}
+
+public:
+    void Initialize(ScintillaEditor * pEditor, TermWindow * pTermWindow);
+
+private:
+    ScintillaEditor * m_pEditor;
+    TermWindow * m_pTermWindow;
 };

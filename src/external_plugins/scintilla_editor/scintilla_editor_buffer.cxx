@@ -81,6 +81,8 @@ ScintillaEditorBuffer::ScintillaEditorBuffer() :
 ScintillaEditorBuffer::~ScintillaEditorBuffer() {
     delete m_pEditor;
     m_pEditor = nullptr;
+    delete m_pSciTE;
+    m_pSciTE = nullptr;
 }
 
 MultipleInstancePluginPtr ScintillaEditorBuffer::NewInstance() {
@@ -107,6 +109,7 @@ void ScintillaEditorBuffer::Resize(uint32_t row, uint32_t col) {
     if (!term_context)
         return;
 
+    m_pSciTE->Initialize(m_pEditor, term_context->GetTermWindow().get());
     m_pEditor->SetTermWindow(term_context->GetTermWindow().get());
 }
 
