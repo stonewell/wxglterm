@@ -19,4 +19,8 @@ public:
     TermColorPtr GetColor(uint32_t index) override {
         PYBIND11_OVERLOAD_PURE_NAME(TermColorPtr, TermColorThemeBase, "get_color", GetColor, index);
     }
+
+    void SetColor(uint32_t index, TermColorPtr c) override {
+        PYBIND11_OVERLOAD_PURE_NAME(void, TermColorThemeBase, "set_color", SetColor, index, c);
+    }
 };

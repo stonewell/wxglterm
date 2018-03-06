@@ -51,6 +51,9 @@
 #include "SciLexer.h"
 
 #include "scintilla_editor.h"
+#include "term_context.h"
+#include "color_theme.h"
+#include "term_cell.h"
 
 using namespace Scintilla;
 
@@ -143,12 +146,47 @@ sptr_t ScintillaEditor::WndProc(unsigned int iMessage, uptr_t wParam, sptr_t lPa
 }
 
 void ScintillaEditor::SetTermWindow(TermWindow * pTermWindow) {
+#define SC2TC(sc, tc) {tc->r = sc.GetRed(); tc->g = sc.GetGreen();tc->b = sc.GetBlue();}
+#define SC2UINT(sc, v) {v = sc.GetRed() << 24 | sc.GetGreen() << 16 | sc.GetBlue() << 8 | 0xFF;}
+
     m_pTermWindow = pTermWindow;
     wMain = this;
     vs.lineHeight = pTermWindow->GetLineHeight();
+    WndProc(SCI_SETLEXER, SCLEX_CPP, 0);
     stylesValid = false;
     RefreshStyleData();
-    WndProc(SCI_SETLEXER, SCLEX_CPP, 0);
+
+    const auto & style = GetStyle(STYLE_DEFAULT);
+
+    uint32_t v;
+
+    SC2UINT(style.fore, v);
+    m_pTermWindow->SetColorByIndex(TermCell::DefaultForeColorIndex, v);
+
+    SC2UINT(style.back, v);
+    m_pTermWindow->SetColorByIndex(TermCell::DefaultBackColorIndex, v);
+
+    TermContextPtr term_context = std::dynamic_pointer_cast<TermContext>(m_pTermWindow->GetPluginContext());
+
+    if (!term_context)
+        return;
+
+    TermColorThemePtr color_theme = term_context->GetTermColorTheme();
+
+    TermColorPtr fore = std::make_shared<TermColor>();
+
+    SC2TC(style.fore, fore);
+
+    color_theme->SetColor(TermCell::DefaultForeColorIndex, fore);
+
+    TermColorPtr back = std::make_shared<TermColor>();
+
+    SC2TC(style.back, back);
+
+    color_theme->SetColor(TermCell::DefaultBackColorIndex, back);
+
+#undef SC2TC
+#undef SC2UINT
 }
 
 const Style & ScintillaEditor::GetStyle(int style) {

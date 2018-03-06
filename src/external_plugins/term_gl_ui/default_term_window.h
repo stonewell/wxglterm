@@ -41,6 +41,7 @@ public:
     void SetWindowTitle(const std::string & title) override;
 
     uint32_t GetColorByIndex(uint32_t index) override;
+    void SetColorByIndex(uint32_t index, uint32_t v) override;
 
     std::string GetSelectionData() override;
 

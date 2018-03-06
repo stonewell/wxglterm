@@ -66,6 +66,15 @@ class DefaultTermColorTheme(MultipleInstancePluginBase, TermColorTheme):
         except:
             return TermColor()
 
+    def set_color(self, index, c):
+        try:
+            if index >= int(TermCell.ColorIndex.ColorIndexCount):
+                return
+            tc = self._values[index]
+            tc.r, tc.g, tc.b, tc.a = c.r, c.g, c.b, c.a
+        except:
+            pass
+
     def __to_colors_map(self, values):
         colors_map = {}
 

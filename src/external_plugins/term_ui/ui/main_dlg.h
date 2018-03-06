@@ -28,6 +28,10 @@ public:
         return m_DrawPane->GetColorByIndex(index);
     }
 
+    void SetColorByIndex(uint32_t index, uint32_t v) {
+        return m_DrawPane->SetColorByIndex(index, v);
+    }
+
     void SetSelectionData(const wxString & data);
     void EnableMouseTrack(bool enable) {
         m_DrawPane->EnableMouseTrack(enable);

@@ -99,6 +99,10 @@ public:
         return m_MainDlg->GetColorByIndex(index);
     }
 
+    void SetColorByIndex(uint32_t index, uint32_t v) override {
+        return m_MainDlg->SetColorByIndex(index, v);
+    }
+
     std::string GetSelectionData() override {
         std::string sel_data {};
 

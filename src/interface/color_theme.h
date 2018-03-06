@@ -28,4 +28,5 @@ public:
     // the rgb value = index - TermCell::ColorIndexCount
     // it rgb value only, no alpha
     virtual TermColorPtr GetColor(uint32_t index) = 0;
+    virtual void SetColor(uint32_t index, TermColorPtr c) = 0;
 };

@@ -29,6 +29,13 @@ public:
         return __GetColorByIndex(index).GetRGBA();
     }
 
+    void SetColorByIndex(uint32_t index, uint32_t v) {
+        if (index >= TermCell::ColorIndexCount)
+            return;
+
+        m_ColorTable[index].SetRGBA(v);
+    }
+
     void EnableMouseTrack(bool enable) {
         m_EnableMouseTrack = enable;
     }

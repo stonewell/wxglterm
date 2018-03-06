@@ -258,6 +258,19 @@ uint32_t DefaultTermWindow::GetColorByIndex(uint32_t index) {
     return cv;
 }
 
+void DefaultTermWindow::SetColorByIndex(uint32_t index, uint32_t v) {
+    if (index >= TermCell::ColorIndexCount)
+        return;
+
+#define C2V(x) ((float)(x) / 255)
+    m_ColorTable[index] = {{C2V((v >> 24) & 0xFF),
+                        C2V((v >> 16) & 0xFF),
+                        C2V((v >> 8) & 0xFF),
+                        C2V((v & 0xFF))
+        }};
+#undef C2V
+}
+
 std::string DefaultTermWindow::GetSelectionData() {
     std::string sel_data {};
 

@@ -28,6 +28,10 @@ public:
         PYBIND11_OVERLOAD_PURE_NAME(uint32_t, TermWindowBase, "get_color_by_index", GetColorByIndex, index );
     }
 
+    void SetColorByIndex(uint32_t index, uint32_t v) override {
+        PYBIND11_OVERLOAD_PURE_NAME(void, TermWindowBase, "set_color_by_index", SetColorByIndex, index, v );
+    }
+
     std::string GetSelectionData() override {
         PYBIND11_OVERLOAD_PURE_NAME(std::string, TermWindowBase, "get_selection_data", GetSelectionData, );
     }

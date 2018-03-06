@@ -179,6 +179,7 @@ PYBIND11_EMBEDDED_MODULE(wxglterm_interface, m)
             .def("show", &TermWindow::Show)
             .def("set_window_title", &TermWindow::SetWindowTitle)
             .def("get_color_by_index", &TermWindow::GetColorByIndex)
+            .def("set_color_by_index", &TermWindow::SetColorByIndex)
             .def_property("selection_data", &TermWindow::GetSelectionData, &TermWindow::SetSelectionData)
             .def("close", &TermWindow::Close)
             .def("enable_mouse_track", &TermWindow::EnableMouseTrack)
@@ -252,6 +253,7 @@ PYBIND11_EMBEDDED_MODULE(wxglterm_interface, m)
             .def("load", &TermColorTheme::Load)
             .def("load_with_values", &TermColorTheme::LoadWithValues)
             .def("get_color", &TermColorTheme::GetColor)
+            .def("set_color", &TermColorTheme::SetColor)
             ;
 
     py::class_<InputHandler, PyInputHandler<>, std::shared_ptr<InputHandler>> input_handler(m, "InputHandler", multiple_instance_plugin);
