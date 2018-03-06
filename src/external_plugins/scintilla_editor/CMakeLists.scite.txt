@@ -1,0 +1,27 @@
+CMAKE_MINIMUM_REQUIRED(VERSION 2.8)
+
+PROJECT(scite)
+
+FILE(GLOB SCI_SRC src/*.h src/*.cxx)
+
+LIST(FILTER SCI_SRC EXCLUDE REGEX .*Extension.cxx)
+LIST(FILTER SCI_SRC EXCLUDE REGEX .*Extension.h)
+
+ADD_LIBRARY(scite_cross_platform STATIC
+  ${SCI_SRC}
+)
+
+SET_TARGET_PROPERTIES(scite_cross_platform
+    PROPERTIES
+    CXX_STANDARD 17
+)
+
+TARGET_COMPILE_DEFINITIONS(scite_cross_platform PRIVATE
+    "-D__APPLE__ -fPIC -DSCI_LEXER"
+    )
+
+TARGET_INCLUDE_DIRECTORIES(scite_cross_platform
+    PRIVATE
+    "include"
+    "${SCINTILLA_DIR}/include"
+)

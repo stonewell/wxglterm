@@ -25,8 +25,39 @@ ExternalProject_Add_Step(scintilla pre-configure
    BYPRODUCTS ${SOURCE_DIR}/CMakeLists.txt
    )
 
+SET(scintilla_DIR ${SOURCE_DIR})
 SET(scintilla_SOURCE_DIR ${SOURCE_DIR}/src)
 SET(scintilla_LIBRARIES ${BINARY_DIR}/${CMAKE_STATIC_LIBRARY_PREFIX}scintilla_cross_platform${CMAKE_STATIC_LIBRARY_SUFFIX})
+
+EXTERNALPROJECT_ADD(
+  scite
+
+  GIT_REPOSITORY "https://github.com/mirror/scite.git"
+  GIT_TAG "master"
+
+  PATCH_COMMAND ""
+  UPDATE_DISCONNECTED ON
+  TEST_COMMAND ""
+  INSTALL_COMMAND ""
+  CMAKE_ARGS "-DSCINTILLA_DIR=${scintilla_DIR}"
+)
+
+ExternalProject_Add_StepTargets(scite update)
+ADD_DEPENDENCIES(update_external scite-update)
+
+EXTERNALPROJECT_GET_PROPERTY(scite SOURCE_DIR BINARY_DIR)
+
+ExternalProject_Add_Step(scite pre-configure
+   COMMAND ${CMAKE_COMMAND} -E copy ${CMAKE_CURRENT_SOURCE_DIR}/CMakeLists.scite.txt ${SOURCE_DIR}/CMakeLists.txt
+   DEPENDEES download
+   DEPENDERS configure
+   DEPENDS ${CMAKE_CURRENT_SOURCE_DIR}/CMakeLists.scite.txt
+   BYPRODUCTS ${SOURCE_DIR}/CMakeLists.txt
+   )
+
+SET(scite_DIR ${SOURCE_DIR})
+SET(scite_SOURCE_DIR ${SOURCE_DIR}/src)
+SET(scite_LIBRARIES ${BINARY_DIR}/${CMAKE_STATIC_LIBRARY_PREFIX}scite_cross_platform${CMAKE_STATIC_LIBRARY_SUFFIX})
 
 SET(scintilla_editor_src
   platform.cxx
@@ -37,6 +68,7 @@ SET(scintilla_editor_src
   scintilla_editor.cxx scintilla_editor.h
   scintilla_editor_line.cxx scintilla_editor_line.h
   scintilla_editor_cell.cxx scintilla_editor_cell.h
+  scite.cxx scite.h
 )
 
 ADD_LIBRARY(scintilla_editor SHARED ${scintilla_editor_src})
@@ -49,9 +81,10 @@ SET_TARGET_PROPERTIES(scintilla_editor
     CXX_STANDARD 17
 )
 
-SET(scintilla_INCLUDE_DIR ${SOURCE_DIR}/include
-   ${SOURCE_DIR}/src
-   ${SOURCE_DIR}/lexlib)
+SET(scintilla_INCLUDE_DIR ${scintilla_DIR}/include
+   ${scintilla_DIR}/src
+   ${scintilla_DIR}/lexlib
+   )
 
 TARGET_INCLUDE_DIRECTORIES(scintilla_editor
     PRIVATE
@@ -65,6 +98,7 @@ TARGET_INCLUDE_DIRECTORIES(scintilla_editor
   	"../../utils/portable_thread/includes"
 	"../../plugins"
 	"${scintilla_INCLUDE_DIR}"
+   "${scite_DIR}/src"
 )
 
 TARGET_LINK_LIBRARIES(scintilla_editor

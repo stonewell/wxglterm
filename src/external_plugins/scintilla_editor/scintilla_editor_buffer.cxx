@@ -57,6 +57,8 @@
 #include "CallTip.h"
 #include "ScintillaBase.h"
 
+#include "scite.h"
+
 #include "scintilla_editor.h"
 
 #include "term_context.h"
@@ -70,6 +72,7 @@ std::wstring_convert<std::codecvt_utf8<wchar_t>, wchar_t> wcharconv;
 ScintillaEditorBuffer::ScintillaEditorBuffer() :
     PluginBase("scintilla_editor", "scintilla editor buffer plugin", 1)
     , m_pEditor { new ScintillaEditor{} }
+    , m_pSciTE { new SciTE {} }
     , m_Rows {0}
     , m_Cols {0}
 {

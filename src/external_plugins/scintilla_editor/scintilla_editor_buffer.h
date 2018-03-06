@@ -8,6 +8,7 @@
 #include "scintilla_editor_cell.h"
 
 class ScintillaEditor;
+class SciTE;
 
 class ScintillaEditorBuffer : public virtual PluginBase, public virtual TermBuffer {
 public:
@@ -81,6 +82,7 @@ public:
                             AppConfigPtr plugin_config) override;
 private:
     ScintillaEditor * m_pEditor;
+    SciTE * m_pSciTE;
 
     uint32_t m_Rows;
     uint32_t m_Cols;
