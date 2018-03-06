@@ -94,4 +94,5 @@ public:
 	// WorkerListener
 	virtual void PostOnMainThread(int, Worker *) {}
 	virtual void GetWindowPosition(int *, int *, int *, int *, int *) {};
+    virtual bool PreOpenCheck(const GUI::gui_char *) {return false;};
 };

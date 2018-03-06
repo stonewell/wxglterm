@@ -107,6 +107,7 @@ TARGET_LINK_LIBRARIES(scintilla_editor
   ${pybind11_LIBRARIES}
   ${PYTHON_LIBRARIES}
   "${scintilla_LIBRARIES}"
+  "${scite_LIBRARIES}"
   )
 
 INSTALL(TARGETS scintilla_editor DESTINATION share/wxglterm/plugins)
