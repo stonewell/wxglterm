@@ -6,6 +6,7 @@ FILE(GLOB SCI_SRC src/*.h src/*.cxx)
 
 LIST(FILTER SCI_SRC EXCLUDE REGEX .*Extension.cxx)
 LIST(FILTER SCI_SRC EXCLUDE REGEX .*Extension.h)
+LIST(FILTER SCI_SRC EXCLUDE REGEX .*Credits.cxx)
 
 ADD_LIBRARY(scite_cross_platform STATIC
   ${SCI_SRC}
@@ -16,8 +17,14 @@ SET_TARGET_PROPERTIES(scite_cross_platform
     CXX_STANDARD 17
 )
 
+if ("${CMAKE_CXX_COMPILER_ID}" STREQUAL "GNU")
+  set(PLATFORM_DEF "-DGTK -D__unix__ ")
+elseif ("${CMAKE_CXX_COMPILER_ID}" STREQUAL "Clang")
+  set(PLATFORM_DEF "-D__APPLE__ -D__unix__ ")
+endif()
+
 TARGET_COMPILE_DEFINITIONS(scite_cross_platform PRIVATE
-    "-D__APPLE__ -fPIC -D__unix__ -g"
+    "${PLATFORM_DEF} -fPIC -g"
     )
 
 TARGET_INCLUDE_DIRECTORIES(scite_cross_platform

@@ -75,6 +75,16 @@ ADD_LIBRARY(scintilla_editor SHARED ${scintilla_editor_src})
 
 ADD_DEPENDENCIES(scintilla_editor scintilla scite)
 
+if ("${CMAKE_CXX_COMPILER_ID}" STREQUAL "GNU")
+  set(PLATFORM_DEF "-DGTK -D__unix__ ")
+elseif ("${CMAKE_CXX_COMPILER_ID}" STREQUAL "Clang")
+  set(PLATFORM_DEF "-D__APPLE__ -D__unix__ ")
+endif()
+
+TARGET_COMPILE_DEFINITIONS(scintilla_editor PRIVATE
+    "${PLATFORM_DEF}"
+    )
+
 SET_TARGET_PROPERTIES(scintilla_editor
     PROPERTIES
     LIBRARY_OUTPUT_DIRECTORY "${CMAKE_BINARY_DIR}/plugins"
