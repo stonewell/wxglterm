@@ -94,7 +94,7 @@ elseif ("${CMAKE_CXX_COMPILER_ID}" STREQUAL "Clang")
 endif()
 
 TARGET_COMPILE_DEFINITIONS(scintilla_editor PRIVATE
-  "${PLATFORM_DEF}"
+  "${PLATFORM_DEF} -g"
   )
 
 SET_TARGET_PROPERTIES(scintilla_editor
