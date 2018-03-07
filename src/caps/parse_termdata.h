@@ -106,6 +106,8 @@ class AnyState : public ControlDataState {
 public:
     virtual ~AnyState() {}
     virtual ControlDataStatePtr handle(ControlDataParserContextPtr context, char c);
+
+    std::string v;
 };
 
 using flag_map_t = std::unordered_map<std::string, uint32_t>;

@@ -20,15 +20,13 @@ void osc_selection_request(term_data_context_s & term_context,
         std::string buffer_index = "0";
         std::string ss_data;
 
-        for(auto it = params.begin() + 1,
-                    it_end = params.end();
-            it != it_end;
-            it++) {
-            buffer_index = (const char*)*it;
-            if (!strncmp(*it, ";", 1)) {
-                ss_data = join(it + 1, it_end, "");
-                break;
-            }
+        std::string v = params[1].str_value;
+
+        auto pos = v.find(";");
+
+        if (pos != std::string::npos) {
+            buffer_index = v.substr(0, pos);
+            ss_data = v.substr(pos + 1);
         }
 
         if (ss_data == "?") {

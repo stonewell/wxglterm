@@ -151,14 +151,17 @@ class DigitState(ControlDataState):
 class AnyState(ControlDataState):
     def __init__(self):
         ControlDataState.__init__(self)
+        self.v = ''
 
     def handle(self, context, cc):
         next_state = ControlDataState.handle(self, context, cc)
 
         if next_state:
+            context.push_param(self.v)
+            self.v = ''
             return next_state
 
-        context.push_param(cc)
+        self.v += cc
 
         return self
 

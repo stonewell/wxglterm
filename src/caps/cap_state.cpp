@@ -179,10 +179,13 @@ ControlDataStatePtr DigitState::handle(ControlDataParserContextPtr context, char
 ControlDataStatePtr AnyState::handle(ControlDataParserContextPtr context, char c) {
     auto next_state = ControlDataState::handle(context, c);
 
-    if (next_state)
+    if (next_state) {
+        context->push_param(v);
+        v.clear();
         return next_state;
+    }
 
-    context->push_param(std::string(&c, 1));
+    v.append(&c, 1);
 
     return shared_from_this();
 }

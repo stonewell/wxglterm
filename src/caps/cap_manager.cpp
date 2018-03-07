@@ -192,19 +192,17 @@ void operating_system_control(term_data_context_s & term_context,
                               const term_data_param_list & params)
 {
     if (params[0] >= 0 && params[0] <= 3) {
-        std::string ss = join(params.begin() + 1, params.end(), "");
-
         if (term_context.cap_debug) {
             std::cerr << "handle status line:"
                       << params[0]
                       << ",params:["
-                      << ss
+                      << params[1]
                       << "]" << std::endl;
         }
 
         set_window_properties(term_context,
                               params[0],
-                              ss);
+                              params[1].str_value);
         return;
     } else if (params[0] >= 10 && params[0] <= 19) {
         handle_cap(term_context, "osc_color_request", params);

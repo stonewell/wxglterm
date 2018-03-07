@@ -33,6 +33,10 @@ class FileTermNetwork(MultipleInstancePluginBase, TermNetwork):
 
         def __read_term_data():
             with open(self._file_path, 'rb') as f:
+                for data in ['\x1B]file_path;', self._file_path, '\x07']:
+                    data = bytes(data, 'utf-8')
+                    term_data_handler.on_data(data, len(data))
+
                 while True:
                     data = f.readline()
 

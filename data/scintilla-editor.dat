@@ -5,4 +5,5 @@ scintilla-editor|scintilla editor commands:\
 	parm_down_cursor=\E[%dB:\
 	parm_up_cursor=\E[%dA:\
 	carriage_return=^M:\
-	document_home=\E[H:
+	document_home=\E[H:\
+	document_set_property=\E]%s;%s^G:
