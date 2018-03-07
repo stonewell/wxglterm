@@ -114,7 +114,9 @@ void ScintillaEditorBuffer::Resize(uint32_t row, uint32_t col) {
     if (!term_context)
         return;
 
-    m_pSciTE->Initialize(m_pEditor, term_context->GetTermWindow().get(), m_PropsHomeDir);
+    m_pSciTE->Initialize(m_pEditor, term_context->GetTermWindow().get(),
+                         m_PropsHomeDir,
+                         GetProperty("file_path"));
     m_pEditor->SetTermWindow(term_context->GetTermWindow().get());
 }
 

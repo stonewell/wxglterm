@@ -242,7 +242,10 @@ const char * g_props[] = {
     "style.cpp.16","fore:$(colour.blue)",
 };
 
-void SciTE::Initialize(ScintillaEditor * pEditor, TermWindow * pTermWindow, const std::string & propsHomeDir) {
+void SciTE::Initialize(ScintillaEditor * pEditor,
+                       TermWindow * pTermWindow,
+                       const std::string & propsHomeDir,
+                       const std::string & fileName) {
     m_pEditor = pEditor;
     m_pTermWindow = pTermWindow;
 
@@ -254,7 +257,7 @@ void SciTE::Initialize(ScintillaEditor * pEditor, TermWindow * pTermWindow, cons
     buffers.Allocate(1);
     buffers.Add();
 
-    SetFileName("../src/app.cpp", true);
+    SetFileName(fileName, true);
 
     char buf[255] = {0};
 
