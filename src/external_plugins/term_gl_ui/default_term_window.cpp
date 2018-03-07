@@ -247,7 +247,7 @@ void DefaultTermWindow::SetWindowTitle(const std::string & title) {
 uint32_t DefaultTermWindow::GetColorByIndex(uint32_t index) {
     ftgl::vec4 c = __GetColorByIndex(index);
 
-#define COLOR(x) ((uint8_t)((x) * 255))
+#define COLOR(x) ((uint32_t)((x) * 255))
 
     uint32_t cv = (COLOR(c.r) << 24)
             | (COLOR(c.g) << 16)

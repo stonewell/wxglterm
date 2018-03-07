@@ -140,53 +140,31 @@ void ScintillaEditor::AddToPopUp(const char *label, int cmd, bool enabled) {
     DGB_FUNC_CALLED;
 }
 
+static
+sptr_t DirectFunction(
+    sptr_t ptr, unsigned int iMessage, uptr_t wParam, sptr_t lParam) {
+	return reinterpret_cast<ScintillaEditor *>(ptr)->WndProc(iMessage, wParam, lParam);
+}
+
 sptr_t ScintillaEditor::WndProc(unsigned int iMessage, uptr_t wParam, sptr_t lParam) {
+    switch(iMessage) {
+    case SCI_GETDIRECTFUNCTION:
+        return reinterpret_cast<sptr_t>(DirectFunction);
+
+    case SCI_GETDIRECTPOINTER:
+        return reinterpret_cast<sptr_t>(this);
+    }
+
     std::lock_guard<std::recursive_mutex> guard(m_UpdateLock);
     return ScintillaBase::WndProc(iMessage, wParam, lParam);
 }
 
 void ScintillaEditor::SetTermWindow(TermWindow * pTermWindow) {
-#define SC2TC(sc, tc) {tc->r = sc.GetRed(); tc->g = sc.GetGreen();tc->b = sc.GetBlue();}
-#define SC2UINT(sc, v) {v = sc.GetRed() << 24 | sc.GetGreen() << 16 | sc.GetBlue() << 8 | 0xFF;}
-
     m_pTermWindow = pTermWindow;
     wMain = this;
     vs.lineHeight = pTermWindow->GetLineHeight();
-    WndProc(SCI_SETLEXER, SCLEX_CPP, 0);
     stylesValid = false;
     RefreshStyleData();
-
-    const auto & style = GetStyle(STYLE_DEFAULT);
-
-    uint32_t v;
-
-    SC2UINT(style.fore, v);
-    m_pTermWindow->SetColorByIndex(TermCell::DefaultForeColorIndex, v);
-
-    SC2UINT(style.back, v);
-    m_pTermWindow->SetColorByIndex(TermCell::DefaultBackColorIndex, v);
-
-    TermContextPtr term_context = std::dynamic_pointer_cast<TermContext>(m_pTermWindow->GetPluginContext());
-
-    if (!term_context)
-        return;
-
-    TermColorThemePtr color_theme = term_context->GetTermColorTheme();
-
-    TermColorPtr fore = std::make_shared<TermColor>();
-
-    SC2TC(style.fore, fore);
-
-    color_theme->SetColor(TermCell::DefaultForeColorIndex, fore);
-
-    TermColorPtr back = std::make_shared<TermColor>();
-
-    SC2TC(style.back, back);
-
-    color_theme->SetColor(TermCell::DefaultBackColorIndex, back);
-
-#undef SC2TC
-#undef SC2UINT
 }
 
 const Style & ScintillaEditor::GetStyle(int style) {

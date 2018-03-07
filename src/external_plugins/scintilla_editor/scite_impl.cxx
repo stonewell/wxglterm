@@ -58,6 +58,8 @@
 
 #include "term_context.h"
 #include "term_window.h"
+#include "color_theme.h"
+#include "term_cell.h"
 
 const GUI::gui_char appName[] = GUI_TEXT("scintilla_editor");
 
@@ -145,6 +147,9 @@ gui_string HexStringFromInteger(long i) {
 
 sptr_t ScintillaWindow::Send(unsigned int msg, uptr_t wParam, sptr_t lParam) {
     ScintillaEditor * pEditor = (ScintillaEditor*)GetID();
+
+    if (!pEditor)
+        return 0;
     return pEditor->WndProc(msg, wParam, lParam);
 }
 
@@ -174,18 +179,90 @@ SciTE::SciTE()
 }
 
 FilePath SciTE::GetDefaultDirectory() {
-    return FilePath {};
+    return FilePath {"/Users/stone/Work/GitHub/wxglterm/build/./src/external_plugins/scintilla_editor/scite-prefix/src/scite/src"};
 }
 
 FilePath SciTE::GetSciteDefaultHome() {
-    return FilePath {};
+    return FilePath {"/Users/stone/Work/GitHub/wxglterm/build/./src/external_plugins/scintilla_editor/scite-prefix/src/scite/src"};
 }
 
 FilePath SciTE::GetSciteUserHome() {
-    return FilePath {};
+    return FilePath {"/Users/stone/Work/GitHub/wxglterm/build/./src/external_plugins/scintilla_editor/scite-prefix/src/scite/src"};
 }
+
+static
+struct color_base_s {
+    const char * key;
+    uint32_t color_index;
+} g_color_props[] = {
+    {"colour.base02", 0},
+    {"colour.red", 1},
+    {"colour.green", 2},
+    {"colour.yellow", 3},
+    {"colour.blue", 4},
+    {"colour.magenta", 5},
+    {"colour.cyan", 6},
+    {"colour.base2", 7},
+    {"colour.base03", 8},
+    {"colour.orange", 9},
+    {"colour.base01", 10},
+    {"colour.base00", 11},
+    {"colour.base0", 12},
+    {"colour.violet", 13},
+    {"colour.base1", 14},
+    {"colour.base3", 15},
+    {"caret.fore", TermCell::DefaultCursorColorIndex},
+};
+
+static
+const char * g_props[] = {
+    "colour.code.comment.box","fore:$(colour.base01),italics",
+    "colour.code.comment.line","fore:$(colour.base01),italics",
+    "colour.code.comment.doc","fore:$(colour.base01),italics",
+    "colour.code.comment.nested","fore:$(colour.base01),italics",
+    "colour.text.comment","fore:$(colour.base01),italics",
+    "colour.other.comment","fore:$(colour.base01),italics",
+    "colour.embedded.comment","fore:$(colour.base01),italics",
+    "colour.embedded.js","fore:$(colour.base01)",
+    "colour.notused","fore:$(colour.base01)",
+    "colour.number","fore:$(colour.base0)",
+    "colour.keyword","fore:$(colour.blue)",
+    "colour.string","fore:$(colour.cyan)",
+    "colour.char","fore:$(colour.base0)",
+    "colour.operator","fore:$(colour.blue)",
+    "colour.preproc","fore:$(colour.base0)",
+    "colour.error","fore:$(colour.red)",
+};
 
 void SciTE::Initialize(ScintillaEditor * pEditor, TermWindow * pTermWindow) {
     m_pEditor = pEditor;
     m_pTermWindow = pTermWindow;
+
+    wEditor.SetID(pEditor);
+    wOutput.SetID(new ScintillaEditor);
+
+    buffers.Allocate(1);
+    buffers.Add();
+
+    SetFileName("app.cpp", true);
+    ReloadProperties();
+
+    char buf[255] = {0};
+
+#define TC2SC(tc) (tc >> 24) & 0xFF, (tc >> 16) & 0xFF, (tc >> 8) & 0xFF
+
+    sprintf(buf, "back:#%02x%02x%02x,fore:#%02x%02x%02x",
+            TC2SC(pTermWindow->GetColorByIndex(TermCell::DefaultBackColorIndex)),
+            TC2SC(pTermWindow->GetColorByIndex(TermCell::DefaultForeColorIndex)));
+    props.Set("style.*.32", buf);
+
+    for(size_t i=0;i < sizeof(g_color_props) / sizeof(color_base_s);i++) {
+        sprintf(buf, "#%02x%02x%02x", TC2SC(pTermWindow->GetColorByIndex(g_color_props[i].color_index)));
+        props.Set(g_color_props[i].key, buf);
+    }
+
+    for(size_t i=0;i < sizeof(g_props) / sizeof(const char *);i+=2) {
+        props.Set(g_props[i], g_props[i+1]);
+    }
+#undef TC2SC
 }

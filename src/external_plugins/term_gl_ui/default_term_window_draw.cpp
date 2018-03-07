@@ -316,10 +316,10 @@ void DefaultTermWindow::DrawContent(ftgl::text_buffer_t * buf,
 
     term_text_buffer_printf(buf,
                             m_FreeTypeGLContext->col_width,
-                       &pen,
-                       &font,
-                       bytes.c_str(),
-                       NULL);
+                            &pen,
+                            &font,
+                            bytes.c_str(),
+                            NULL);
     content.clear();
 
     last_x = pen.x;
@@ -336,11 +336,11 @@ ftgl::vec4 DefaultTermWindow::__GetColorByIndex(uint32_t index) {
         index -= TermCell::ColorIndexCount;
 
         ftgl::vec4 c = {{
-            C2V((index >> 16) & 0xFF),
-            C2V((index >> 8) & 0xFF),
-            C2V((index) & 0xFF),
-            C2V(0xFF)}
-        };
+                C2V((index >> 16) & 0xFF),
+                C2V((index >> 8) & 0xFF),
+                C2V((index) & 0xFF),
+                C2V(0xFF)
+            }};
         return c;
     }
 

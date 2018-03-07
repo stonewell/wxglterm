@@ -103,7 +103,6 @@ public:
 
 public:
     void Initialize(ScintillaEditor * pEditor, TermWindow * pTermWindow);
-
 private:
     ScintillaEditor * m_pEditor;
     TermWindow * m_pTermWindow;

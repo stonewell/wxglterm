@@ -26,7 +26,14 @@ public:
     void RequestRefresh();
 
     uint32_t GetColorByIndex(uint32_t index) {
-        return __GetColorByIndex(index).GetRGBA();
+        const auto & c = __GetColorByIndex(index);
+
+        uint32_t v = c.Red();
+        v = (v << 8) | c.Green();
+        v = (v << 8) | c.Blue();
+        v = (v << 8) | c.Alpha();
+
+        return v;
     }
 
     void SetColorByIndex(uint32_t index, uint32_t v) {
