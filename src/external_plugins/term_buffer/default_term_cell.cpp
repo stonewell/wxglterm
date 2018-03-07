@@ -85,7 +85,7 @@ public:
         h.vv.mode = m_Mode.to_ulong();
         h.vv.w = m_IsWideChar;
 
-        return h == m_Hash;
+        return !(h == m_Hash);
     }
 
     void SetModified(bool modified) override {
