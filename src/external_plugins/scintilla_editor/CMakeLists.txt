@@ -68,12 +68,12 @@ SET(scintilla_editor_src
   scintilla_editor.cxx scintilla_editor.h
   scintilla_editor_line.cxx scintilla_editor_line.h
   scintilla_editor_cell.cxx scintilla_editor_cell.h
-  scite.cxx scite.h
+  scite_impl.cxx scite_impl.h
 )
 
 ADD_LIBRARY(scintilla_editor SHARED ${scintilla_editor_src})
 
-ADD_DEPENDENCIES(scintilla_editor scintilla)
+ADD_DEPENDENCIES(scintilla_editor scintilla scite)
 
 SET_TARGET_PROPERTIES(scintilla_editor
     PROPERTIES

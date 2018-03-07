@@ -17,7 +17,7 @@ SET_TARGET_PROPERTIES(scite_cross_platform
 )
 
 TARGET_COMPILE_DEFINITIONS(scite_cross_platform PRIVATE
-    "-D__APPLE__ -fPIC -DSCI_LEXER"
+    "-D__APPLE__ -fPIC -D__unix__"
     )
 
 TARGET_INCLUDE_DIRECTORIES(scite_cross_platform
