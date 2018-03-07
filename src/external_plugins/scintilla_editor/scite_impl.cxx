@@ -232,13 +232,14 @@ const char * g_props[] = {
     "colour.embedded.comment","fore:$(colour.base01),italics",
     "colour.embedded.js","fore:$(colour.base01)",
     "colour.notused","fore:$(colour.base01)",
-    "colour.number","fore:$(colour.base0)",
-    "colour.keyword","fore:$(colour.blue)",
+    "colour.number","fore:$(colour.cyan)",
+    "colour.keyword","fore:$(colour.green)",
     "colour.string","fore:$(colour.cyan)",
-    "colour.char","fore:$(colour.base0)",
-    "colour.operator","fore:$(colour.blue)",
-    "colour.preproc","fore:$(colour.base0)",
+    "colour.char","fore:$(colour.cyan)",
+    "colour.operator","fore:$(colour.base01)",
+    "colour.preproc","fore:$(colour.orange)",
     "colour.error","fore:$(colour.red)",
+    "style.cpp.16","fore:$(colour.blue)",
 };
 
 void SciTE::Initialize(ScintillaEditor * pEditor, TermWindow * pTermWindow, const std::string & propsHomeDir) {
