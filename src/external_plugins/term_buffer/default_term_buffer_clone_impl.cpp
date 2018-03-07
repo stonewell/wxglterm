@@ -166,6 +166,13 @@ public:
     void RemoveMode(uint32_t m) override {
         (void)m;
     }
+    void SetProperty(const std::string & key, const std::string & v) override {
+        (void)key;
+        (void)v;
+    }
+    const std::string & GetProperty(const std::string & key) override {
+        return key;
+    }
 };
 
 TermBufferPtr DefaultTermBuffer::CloneBuffer() {

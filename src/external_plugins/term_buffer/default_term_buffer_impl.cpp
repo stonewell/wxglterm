@@ -208,3 +208,18 @@ void DefaultTermBuffer::RemoveMode(uint32_t m) {
     std::lock_guard<std::recursive_mutex> guard(m_UpdateLock);
     m_Buffers[m_CurBuffer].RemoveMode(m);
 }
+static
+const std::string g_empty_str("");
+
+void DefaultTermBuffer::SetProperty(const std::string & key, const std::string & v) {
+    m_Properties.emplace(key, v);
+}
+
+const std::string & DefaultTermBuffer::GetProperty(const std::string & key) {
+    auto it = m_Properties.find(key);
+
+    if (it != m_Properties.end())
+        return it->second;
+
+    return g_empty_str;
+}

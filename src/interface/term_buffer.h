@@ -54,4 +54,7 @@ public:
     virtual void SetMode(uint32_t m) = 0;
     virtual void AddMode(uint32_t m) = 0;
     virtual void RemoveMode(uint32_t m) = 0;
+
+    virtual void SetProperty(const std::string & key, const std::string & v) = 0;
+    virtual const std::string & GetProperty(const std::string & key) = 0;
 };

@@ -416,3 +416,19 @@ void ScintillaEditorBuffer::RemoveMode(uint32_t m) {
 TermBufferPtr ScintillaEditorBuffer::CloneBuffer() {
     return TermBufferPtr {};
 }
+
+static
+const std::string g_empty_str("");
+
+void ScintillaEditorBuffer::SetProperty(const std::string & key, const std::string & v) {
+    m_Properties.emplace(key, v);
+}
+
+const std::string & ScintillaEditorBuffer::GetProperty(const std::string & key) {
+    auto it = m_Properties.find(key);
+
+    if (it != m_Properties.end())
+        return it->second;
+
+    return g_empty_str;
+}

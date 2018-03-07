@@ -122,4 +122,10 @@ public:
     void RemoveMode(uint32_t m) override {
         PYBIND11_OVERLOAD_PURE_NAME(void, TermBufferBase, "remove_mode", RemoveMode, m);
     }
+    void SetProperty(const std::string & key, const std::string & v) override {
+        PYBIND11_OVERLOAD_PURE_NAME(void, TermBufferBase, "set_property", SetProperty, key, v);
+    }
+    const std::string & GetProperty(const std::string & key) override {
+        PYBIND11_OVERLOAD_PURE_NAME(const std::string &, TermBufferBase, "get_property", GetProperty, key);
+    }
 };

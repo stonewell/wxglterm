@@ -1,6 +1,7 @@
 #pragma once
 
 #include <mutex>
+#include <unordered_map>
 #include "plugin_base.h"
 #include "term_buffer.h"
 
@@ -80,6 +81,8 @@ public:
     void RemoveMode(uint32_t m) override;
     virtual void InitPlugin(ContextPtr context,
                             AppConfigPtr plugin_config) override;
+    void SetProperty(const std::string & key, const std::string & v) override;
+    const std::string & GetProperty(const std::string & key) override;
 private:
     ScintillaEditor * m_pEditor;
     SciTE * m_pSciTE;
@@ -93,4 +96,7 @@ private:
     uint32_t m_DefaultMode;
 
     std::string m_PropsHomeDir;
+    using property_bag_t = std::unordered_map<std::string, std::string>;
+
+    property_bag_t m_Properties;
 };

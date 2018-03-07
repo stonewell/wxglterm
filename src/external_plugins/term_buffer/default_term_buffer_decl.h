@@ -1,6 +1,8 @@
 #pragma once
 
 #include <mutex>
+#include <unordered_map>
+
 #include "plugin_base.h"
 #include "term_buffer.h"
 
@@ -72,6 +74,8 @@ public:
     void SetMode(uint32_t m) override;
     void AddMode(uint32_t m) override;
     void RemoveMode(uint32_t m) override;
+    void SetProperty(const std::string & key, const std::string & v) override;
+    const std::string & GetProperty(const std::string & key) override;
 private:
     friend class __InternalTermBuffer;
 
@@ -84,4 +88,7 @@ private:
 
     __InternalTermBuffer m_Buffers[2];
 
+    using property_bag_t = std::unordered_map<std::string, std::string>;
+
+    property_bag_t m_Properties;
 };
