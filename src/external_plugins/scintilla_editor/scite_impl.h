@@ -102,8 +102,9 @@ public:
     virtual bool PreOpenCheck(const GUI::gui_char *) {return false;}
 
 public:
-    void Initialize(ScintillaEditor * pEditor, TermWindow * pTermWindow);
-private:
+    void Initialize(ScintillaEditor * pEditor, TermWindow * pTermWindow, const std::string & propsHomeDir);
+public:
     ScintillaEditor * m_pEditor;
     TermWindow * m_pTermWindow;
+    std::string m_PropsHomeDir;
 };

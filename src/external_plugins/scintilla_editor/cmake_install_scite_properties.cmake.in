@@ -1,0 +1,13 @@
+FILE(GLOB files @scite_SOURCE_DIR@/*.properties)
+
+file(MAKE_DIRECTORY "@CMAKE_BINARY_DIR@/data/scite_properties/")
+foreach(file ${files})
+  exec_program(
+    "@CMAKE_COMMAND@" ARGS "-E copy_if_different \"${file}\" @CMAKE_BINARY_DIR@/data/scite_properties/"
+    OUTPUT_VARIABLE cp_out
+    RETURN_VALUE cp_retval
+    )
+  if(NOT "${cp_retval}" STREQUAL 0)
+    message(FATAL_ERROR "Problem when copying ${file}")
+  endif(NOT "${cp_retval}" STREQUAL 0)
+endforeach(file)

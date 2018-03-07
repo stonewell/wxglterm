@@ -175,19 +175,26 @@ bool IsDBCSLeadByte(int codePage, char ch) {
 
 SciTE::SciTE()
     : m_pEditor{nullptr}
-    , m_pTermWindow{nullptr} {
+    , m_pTermWindow{nullptr}
+    , m_PropsHomeDir{} {
 }
 
 FilePath SciTE::GetDefaultDirectory() {
-    return FilePath {"/Users/stone/Work/GitHub/wxglterm/build/./src/external_plugins/scintilla_editor/scite-prefix/src/scite/src"};
+    FilePath p{m_PropsHomeDir};
+
+    return p.AbsolutePath().NormalizePath();
 }
 
 FilePath SciTE::GetSciteDefaultHome() {
-    return FilePath {"/Users/stone/Work/GitHub/wxglterm/build/./src/external_plugins/scintilla_editor/scite-prefix/src/scite/src"};
+    FilePath p{m_PropsHomeDir};
+
+    return p.AbsolutePath().NormalizePath();
 }
 
 FilePath SciTE::GetSciteUserHome() {
-    return FilePath {"/Users/stone/Work/GitHub/wxglterm/build/./src/external_plugins/scintilla_editor/scite-prefix/src/scite/src"};
+    FilePath p{m_PropsHomeDir};
+
+    return p.AbsolutePath().NormalizePath();
 }
 
 static
@@ -234,9 +241,11 @@ const char * g_props[] = {
     "colour.error","fore:$(colour.red)",
 };
 
-void SciTE::Initialize(ScintillaEditor * pEditor, TermWindow * pTermWindow) {
+void SciTE::Initialize(ScintillaEditor * pEditor, TermWindow * pTermWindow, const std::string & propsHomeDir) {
     m_pEditor = pEditor;
     m_pTermWindow = pTermWindow;
+
+    m_PropsHomeDir = propsHomeDir;
 
     wEditor.SetID(pEditor);
     wOutput.SetID(new ScintillaEditor);
@@ -244,8 +253,7 @@ void SciTE::Initialize(ScintillaEditor * pEditor, TermWindow * pTermWindow) {
     buffers.Allocate(1);
     buffers.Add();
 
-    SetFileName("app.cpp", true);
-    ReloadProperties();
+    SetFileName("../src/app.cpp", true);
 
     char buf[255] = {0};
 
@@ -254,6 +262,7 @@ void SciTE::Initialize(ScintillaEditor * pEditor, TermWindow * pTermWindow) {
     sprintf(buf, "back:#%02x%02x%02x,fore:#%02x%02x%02x",
             TC2SC(pTermWindow->GetColorByIndex(TermCell::DefaultBackColorIndex)),
             TC2SC(pTermWindow->GetColorByIndex(TermCell::DefaultForeColorIndex)));
+
     props.Set("style.*.32", buf);
 
     for(size_t i=0;i < sizeof(g_color_props) / sizeof(color_base_s);i++) {
@@ -265,4 +274,6 @@ void SciTE::Initialize(ScintillaEditor * pEditor, TermWindow * pTermWindow) {
         props.Set(g_props[i], g_props[i+1]);
     }
 #undef TC2SC
+
+    ReloadProperties();
 }

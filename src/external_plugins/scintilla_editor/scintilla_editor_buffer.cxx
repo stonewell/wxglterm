@@ -1,3 +1,5 @@
+#include <pybind11/embed.h>
+
 #include "plugin_base.h"
 
 #include "scintilla_editor_buffer.h"
@@ -75,6 +77,7 @@ ScintillaEditorBuffer::ScintillaEditorBuffer() :
     , m_pSciTE { new SciTE {} }
     , m_Rows {0}
     , m_Cols {0}
+    , m_PropsHomeDir {}
 {
 }
 
@@ -92,6 +95,8 @@ MultipleInstancePluginPtr ScintillaEditorBuffer::NewInstance() {
 void ScintillaEditorBuffer::InitPlugin(ContextPtr context,
                                        AppConfigPtr plugin_config) {
     PluginBase::InitPlugin(context, plugin_config);
+
+    m_PropsHomeDir = GetPluginConfig()->GetEntry("scite_props_dir", "");
 }
 
 void ScintillaEditorBuffer::Resize(uint32_t row, uint32_t col) {
@@ -109,7 +114,7 @@ void ScintillaEditorBuffer::Resize(uint32_t row, uint32_t col) {
     if (!term_context)
         return;
 
-    m_pSciTE->Initialize(m_pEditor, term_context->GetTermWindow().get());
+    m_pSciTE->Initialize(m_pEditor, term_context->GetTermWindow().get(), m_PropsHomeDir);
     m_pEditor->SetTermWindow(term_context->GetTermWindow().get());
 }
 

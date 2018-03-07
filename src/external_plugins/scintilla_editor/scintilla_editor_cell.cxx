@@ -189,6 +189,7 @@ public:
 
             return index;
         }
+        printf("1...cell\n");
         return TermCell::DefaultBackColorIndex;
     }
     void SetBackColorIndex(uint32_t idx) override {

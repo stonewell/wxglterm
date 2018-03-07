@@ -91,4 +91,6 @@ private:
     uint32_t m_DefaultForeColorIndex;
     uint32_t m_DefaultBackColorIndex;
     uint32_t m_DefaultMode;
+
+    std::string m_PropsHomeDir;
 };
