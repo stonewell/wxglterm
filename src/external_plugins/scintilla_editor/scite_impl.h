@@ -106,8 +106,11 @@ public:
                     TermWindow * pTermWindow,
                     const std::string & propsHomeDir,
                     const std::string & fileName);
-public:
+private:
+    void UpdateWindowColor();
+
     ScintillaEditor * m_pEditor;
     TermWindow * m_pTermWindow;
     std::string m_PropsHomeDir;
+    PropSetFile m_DefaultProps;
 };

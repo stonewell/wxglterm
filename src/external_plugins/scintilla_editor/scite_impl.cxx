@@ -242,6 +242,32 @@ const char * g_props[] = {
     "style.cpp.16","fore:$(colour.blue)",
 };
 
+void SciTE::UpdateWindowColor() {
+#define SC2TC(sc, tc) {tc->r = sc.GetRed(); tc->g = sc.GetGreen();tc->b = sc.GetBlue();}
+#define SC2UINT(sc, v) {v = sc.GetRed() << 24 | sc.GetGreen() << 16 | sc.GetBlue() << 8 | 0xFF;}
+
+    const auto & style = m_pEditor->GetStyle(STYLE_DEFAULT);
+
+    uint32_t v;
+
+    SC2UINT(style.fore, v);
+    m_pTermWindow->SetColorByIndex(TermCell::DefaultForeColorIndex, v);
+
+    SC2UINT(style.back, v);
+    m_pTermWindow->SetColorByIndex(TermCell::DefaultBackColorIndex, v);
+
+    uint32_t cursor_color = m_pEditor->WndProc(SCI_GETCARETFORE, 0, 0);
+
+    v = ((cursor_color & 0xFF) << 24)
+            | (((cursor_color >> 8) & 0xFF) << 16)
+            | (((cursor_color >> 16) & 0xFF) << 8)
+            | 0xFF;
+
+    m_pTermWindow->SetColorByIndex(TermCell::DefaultCursorColorIndex, v);
+#undef SC2TC
+#undef SC2UINT
+}
+
 void SciTE::Initialize(ScintillaEditor * pEditor,
                        TermWindow * pTermWindow,
                        const std::string & propsHomeDir,
@@ -259,6 +285,8 @@ void SciTE::Initialize(ScintillaEditor * pEditor,
 
     SetFileName(fileName, true);
 
+    m_DefaultProps.Clear();
+
     char buf[255] = {0};
 
 #define TC2SC(tc) (tc >> 24) & 0xFF, (tc >> 16) & 0xFF, (tc >> 8) & 0xFF
@@ -267,17 +295,22 @@ void SciTE::Initialize(ScintillaEditor * pEditor,
             TC2SC(pTermWindow->GetColorByIndex(TermCell::DefaultBackColorIndex)),
             TC2SC(pTermWindow->GetColorByIndex(TermCell::DefaultForeColorIndex)));
 
-    props.Set("style.*.32", buf);
+    m_DefaultProps.Set("style.*.32", buf);
 
     for(size_t i=0;i < sizeof(g_color_props) / sizeof(color_base_s);i++) {
         sprintf(buf, "#%02x%02x%02x", TC2SC(pTermWindow->GetColorByIndex(g_color_props[i].color_index)));
-        props.Set(g_color_props[i].key, buf);
+        m_DefaultProps.Set(g_color_props[i].key, buf);
     }
 
     for(size_t i=0;i < sizeof(g_props) / sizeof(const char *);i+=2) {
-        props.Set(g_props[i], g_props[i+1]);
+        m_DefaultProps.Set(g_props[i], g_props[i+1]);
     }
 #undef TC2SC
 
+    m_DefaultProps.superPS = propsUser.superPS;
+    propsUser.superPS = &m_DefaultProps;
+
     ReloadProperties();
+
+    UpdateWindowColor();
 }

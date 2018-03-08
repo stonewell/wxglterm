@@ -40,7 +40,10 @@ public:
         if (index >= TermCell::ColorIndexCount)
             return;
 
-        m_ColorTable[index].SetRGBA(v);
+        m_ColorTable[index].Set((v >> 24) & 0xFF,
+                                (v >> 16) & 0xFF,
+                                (v >> 8) & 0xFF,
+                                v & 0xFF);
     }
 
     void EnableMouseTrack(bool enable) {
