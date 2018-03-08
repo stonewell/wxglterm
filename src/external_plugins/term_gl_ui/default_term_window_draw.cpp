@@ -177,11 +177,10 @@ void DefaultTermWindow::DoDraw() {
             uint32_t back_color = TermCell::DefaultBackColorIndex;
             uint32_t mode = 0;
 
-            if (cell && cell->GetChar() != 0) {
+            if (cell && (ch = cell->GetChar()) != 0) {
                 fore_color = cell->GetForeColorIndex();
                 back_color = cell->GetBackColorIndex();
                 mode = cell->GetMode();
-                ch = cell->GetChar();
             } else if (!cell) {
                 ch = ' ';
             }

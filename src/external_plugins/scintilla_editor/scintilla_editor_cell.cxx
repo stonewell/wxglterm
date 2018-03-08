@@ -100,6 +100,8 @@ public:
 
             if (ch == L'\n')
                 return L' ';
+
+            ch &= 0xFF;
         } else {
             char buf[5] = {0};
             Sci_TextRange range;
@@ -122,15 +124,6 @@ public:
                 w_str = wcharconv.from_bytes(&buf[0],
                                              &buf[converted]);
             }
-
-#if 0
-            std::cout << "pos:" << pos << "," << pos_next
-                      << ", size:" << size
-                      << ", converted:" << converted
-                      << ", buf:" << buf
-                      << ", str:" << (int)w_str[0]
-                      << std::endl;
-#endif
 
             if (w_str.length() > 0)
                 ch = w_str[0];
@@ -155,7 +148,6 @@ public:
     uint32_t GetForeColorIndex() const override {
         if (m_pEditor) {
             auto pos = CursorToDocPos(m_pEditor, m_Row, m_Col, false);
-            m_pEditor->pdoc->EnsureStyledTo(pos);
             auto style = m_pEditor->WndProc(SCI_GETSTYLEAT, pos, 0);
             auto const & c = m_pEditor->GetStyle(style);
 
@@ -176,7 +168,6 @@ public:
     uint32_t GetBackColorIndex() const override {
         if (m_pEditor) {
             auto pos = CursorToDocPos(m_pEditor, m_Row, m_Col, false);
-            m_pEditor->pdoc->EnsureStyledTo(pos);
             auto style = m_pEditor->WndProc(SCI_GETSTYLEAT, pos, 0);
             auto const & c = m_pEditor->GetStyle(style);
 
@@ -189,7 +180,6 @@ public:
 
             return index;
         }
-        printf("1...cell\n");
         return TermCell::DefaultBackColorIndex;
     }
     void SetBackColorIndex(uint32_t idx) override {

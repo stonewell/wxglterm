@@ -100,6 +100,26 @@ std::string FindConfigFile() {
     return "wxglterm.json";
 }
 
+class __TermContextReset {
+public:
+    __TermContextReset(TermContextPtr p_term_context)
+        : term_context(p_term_context) {
+    }
+
+    ~__TermContextReset() {
+        if (!term_context) return;
+        term_context->SetTermNetwork(TermNetworkPtr{});
+        term_context->SetTermWindow(TermWindowPtr{});
+        term_context->SetTermDataHandler(TermDataHandlerPtr{});
+        term_context->SetTermBuffer(TermBufferPtr{});
+        term_context->SetTermColorTheme(TermColorThemePtr{});
+        term_context->SetAppConfig(AppConfigPtr{});
+        term_context->SetInputHandler(InputHandlerPtr{});
+    }
+
+    TermContextPtr term_context;
+};
+
 bool wxGLTermApp::DoInit()
 {
     m_PyInterpreter = std::make_shared<py::scoped_interpreter>();
@@ -176,6 +196,9 @@ bool wxGLTermApp::DoInit()
         {
             term_color_theme->Load(color_theme.c_str());
         }
+
+        __TermContextReset context_reset{term_context};
+
         term_context->SetTermWindow(term_ui->CreateWindow());
         term_context->SetTermNetwork(term_network);
         term_context->SetTermDataHandler(term_data_handler);
@@ -193,15 +216,6 @@ bool wxGLTermApp::DoInit()
 
         term_network->Disconnect();
         term_data_handler->Stop();
-
-        term_context->SetTermNetwork(TermNetworkPtr{});
-
-        term_context->SetTermWindow(TermWindowPtr{});
-        term_context->SetTermDataHandler(TermDataHandlerPtr{});
-        term_context->SetTermBuffer(TermBufferPtr{});
-        term_context->SetTermColorTheme(TermColorThemePtr{});
-        term_context->SetAppConfig(AppConfigPtr{});
-        term_context->SetInputHandler(InputHandlerPtr{});
 
         return true;
     }

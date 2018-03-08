@@ -65,6 +65,7 @@
 
 #include "term_context.h"
 #include "term_window.h"
+#include "char_width.h"
 
 using namespace Scintilla;
 
@@ -416,6 +417,8 @@ void ScintillaEditorBuffer::SetCurCellData(uint32_t ch,
                                bytes.length(),
                                reinterpret_cast<sptr_t>(bytes.c_str()));
     }
+
+    m_pEditor->pdoc->EnsureStyledTo(pos);
 }
 
 void ScintillaEditorBuffer::LockUpdate() {
@@ -454,6 +457,7 @@ static
 const std::string g_empty_str("");
 
 void ScintillaEditorBuffer::SetProperty(const std::string & key, const std::string & v) {
+    std::lock_guard<std::recursive_mutex> guard(m_UpdateLock);
     m_Properties.emplace(key, v);
 
     Initialize();

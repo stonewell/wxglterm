@@ -155,7 +155,6 @@ sptr_t ScintillaEditor::WndProc(unsigned int iMessage, uptr_t wParam, sptr_t lPa
         return reinterpret_cast<sptr_t>(this);
     }
 
-    std::lock_guard<std::recursive_mutex> guard(m_UpdateLock);
     return ScintillaBase::WndProc(iMessage, wParam, lParam);
 }
 
