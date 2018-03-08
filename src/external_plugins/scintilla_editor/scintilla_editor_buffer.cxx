@@ -78,6 +78,7 @@ ScintillaEditorBuffer::ScintillaEditorBuffer() :
     , m_Rows {0}
     , m_Cols {0}
     , m_PropsHomeDir {}
+    , m_Initialized {false}
 {
 }
 
@@ -99,7 +100,31 @@ void ScintillaEditorBuffer::InitPlugin(ContextPtr context,
     m_PropsHomeDir = GetPluginConfig()->GetEntry("scite_props_dir", "");
 }
 
+void ScintillaEditorBuffer::Initialize() {
+    if (m_Initialized) return;
+
+    TermContextPtr term_context = std::dynamic_pointer_cast<TermContext>(GetPluginContext());
+
+    if (!term_context)
+        return;
+
+    const auto & fileName = GetProperty("file_path");
+    auto pTermWindow = term_context->GetTermWindow().get();
+
+    if (!pTermWindow || fileName.length() == 0)
+        return;
+
+    m_pSciTE->Initialize(m_pEditor,
+                         pTermWindow,
+                         m_PropsHomeDir,
+                         fileName);
+    m_pEditor->SetTermWindow(pTermWindow);
+    m_Initialized = true;
+}
+
 void ScintillaEditorBuffer::Resize(uint32_t row, uint32_t col) {
+    std::lock_guard<std::recursive_mutex> guard(m_UpdateLock);
+
     if (m_Rows == row && m_Cols == col) {
         return;
     }
@@ -109,15 +134,7 @@ void ScintillaEditorBuffer::Resize(uint32_t row, uint32_t col) {
 
     ClearSelection();
 
-    TermContextPtr term_context = std::dynamic_pointer_cast<TermContext>(GetPluginContext());
-
-    if (!term_context)
-        return;
-
-    m_pSciTE->Initialize(m_pEditor, term_context->GetTermWindow().get(),
-                         m_PropsHomeDir,
-                         GetProperty("file_path"));
-    m_pEditor->SetTermWindow(term_context->GetTermWindow().get());
+    Initialize();
 }
 
 uint32_t ScintillaEditorBuffer::GetRows() {
@@ -142,6 +159,8 @@ uint32_t ScintillaEditorBuffer::GetCol() {
 }
 
 void ScintillaEditorBuffer::SetRow(uint32_t row) {
+    std::lock_guard<std::recursive_mutex> guard(m_UpdateLock);
+
     auto pos = m_pEditor->WndProc(SCI_GETCURRENTPOS, 0, 0);
     uint32_t col = m_pEditor->WndProc(SCI_GETCOLUMN, pos, 0);
     pos = CursorToDocPos(m_pEditor, row, col);
@@ -150,6 +169,8 @@ void ScintillaEditorBuffer::SetRow(uint32_t row) {
 }
 
 void ScintillaEditorBuffer::SetCol(uint32_t col) {
+    std::lock_guard<std::recursive_mutex> guard(m_UpdateLock);
+
     auto pos = m_pEditor->WndProc(SCI_GETCURRENTPOS, 0, 0);
     uint32_t row = m_pEditor->WndProc(SCI_LINEFROMPOSITION, pos, 0);
 
@@ -227,6 +248,8 @@ void ScintillaEditorBuffer::DeleteLines(uint32_t begin, uint32_t count) {
 }
 
 void ScintillaEditorBuffer::InsertLines(uint32_t begin, uint32_t count) {
+    std::lock_guard<std::recursive_mutex> guard(m_UpdateLock);
+
     (void)begin;
     (void)count;
     if (m_Debug)
@@ -256,6 +279,8 @@ void ScintillaEditorBuffer::ScrollBuffer(int32_t scroll_offset) {
 }
 
 bool ScintillaEditorBuffer::MoveCurRow(uint32_t offset, bool move_down, bool scroll_buffer) {
+    std::lock_guard<std::recursive_mutex> guard(m_UpdateLock);
+
     (void)offset;
     (void)move_down;
     (void)scroll_buffer;
@@ -348,6 +373,10 @@ void ScintillaEditorBuffer::SetCurCellData(uint32_t ch,
                                            bool wide_char,
                                            bool insert,
                                            TermCellPtr cell_template) {
+    std::lock_guard<std::recursive_mutex> guard(m_UpdateLock);
+
+    Initialize();
+
     (void)ch;
     (void)wide_char;
     (void)insert;
@@ -390,9 +419,11 @@ void ScintillaEditorBuffer::SetCurCellData(uint32_t ch,
 }
 
 void ScintillaEditorBuffer::LockUpdate() {
+    m_UpdateLock.lock();
 }
 
 void ScintillaEditorBuffer::UnlockUpdate() {
+    m_UpdateLock.unlock();
 }
 
 void ScintillaEditorBuffer::EnableAlterBuffer(bool enable) {
@@ -424,6 +455,8 @@ const std::string g_empty_str("");
 
 void ScintillaEditorBuffer::SetProperty(const std::string & key, const std::string & v) {
     m_Properties.emplace(key, v);
+
+    Initialize();
 }
 
 const std::string & ScintillaEditorBuffer::GetProperty(const std::string & key) {

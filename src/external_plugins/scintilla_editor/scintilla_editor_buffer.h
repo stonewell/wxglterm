@@ -84,6 +84,8 @@ public:
     void SetProperty(const std::string & key, const std::string & v) override;
     const std::string & GetProperty(const std::string & key) override;
 private:
+    void Initialize();
+
     ScintillaEditor * m_pEditor;
     SciTE * m_pSciTE;
 
@@ -99,4 +101,7 @@ private:
     using property_bag_t = std::unordered_map<std::string, std::string>;
 
     property_bag_t m_Properties;
+    std::recursive_mutex m_UpdateLock;
+
+    bool m_Initialized;
 };
