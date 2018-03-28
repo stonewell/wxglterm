@@ -5,6 +5,7 @@
 #include <iostream>
 #include <fontconfig/fontconfig.h>
 #include <sstream>
+#include <math.h>
 
 #define SINGLE_WIDTH_CHARACTERS         \
 					" !\"#$%&'()*+,-./" \
@@ -139,7 +140,7 @@ void freetype_gl_context::init_font(const std::string & name, uint64_t size, con
               << "," << f->filename
               << std::endl;
 
-    this->line_height = f->height;
+    this->line_height = ceil(f->height);
     this->col_width = 0.0f;
 
     (void)f;
