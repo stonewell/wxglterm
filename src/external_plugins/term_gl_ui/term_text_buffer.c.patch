@@ -1,5 +1,5 @@
---- src/external_plugins/term_gl_ui/freetype-gl-prefix/src/freetype-gl/text-buffer.c	2018-02-15 07:46:44.000000000 -0800
-+++ src/external_plugins/term_gl_ui/term_text_buffer.c	2018-03-27 20:33:07.000000000 -0700
+--- src/external_plugins/term_gl_ui/freetype-gl-prefix/src/freetype-gl/text-buffer.c	2018-01-13 09:07:06.556599933 -0800
++++ src/external_plugins/term_gl_ui/term_text_buffer.c	2018-04-12 21:46:19.369584948 -0700
 @@ -12,66 +12,33 @@
  #include "opengl.h"
  #include "text-buffer.h"
@@ -175,7 +175,15 @@
  {
      size_t vcount = 0;
      size_t icount = 0;
-@@ -284,6 +227,9 @@ text_buffer_add_char( text_buffer_t * se
+@@ -267,6 +210,7 @@ text_buffer_add_char( text_buffer_t * se
+     if( *current == '\n' )
+     {
+         text_buffer_finish_line(self, pen, true);
++        pen->y -= 1;
+         return;
+     }
+ 
+@@ -284,6 +228,9 @@ text_buffer_add_char( text_buffer_t * se
      }
      pen->x += kerning;
  
@@ -185,7 +193,7 @@
      // Background
      if( markup->background_color.alpha > 0 )
      {
-@@ -292,9 +238,9 @@ text_buffer_add_char( text_buffer_t * se
+@@ -292,9 +239,9 @@ text_buffer_add_char( text_buffer_t * se
          float b = markup->background_color.b;
          float a = markup->background_color.a;
          float x0 = ( pen->x -kerning );
@@ -198,7 +206,7 @@
          float s0 = black->s0;
          float t0 = black->t0;
          float s1 = black->s1;
-@@ -327,7 +273,7 @@ text_buffer_add_char( text_buffer_t * se
+@@ -327,7 +274,7 @@ text_buffer_add_char( text_buffer_t * se
          float a = markup->underline_color.a;
          float x0 = ( pen->x - kerning );
          float y0 = (float)(int)( pen->y + font->underline_position );
@@ -207,7 +215,7 @@
          float y1 = (float)(int)( y0 + font->underline_thickness );
          float s0 = black->s0;
          float t0 = black->t0;
-@@ -361,7 +307,7 @@ text_buffer_add_char( text_buffer_t * se
+@@ -361,7 +308,7 @@ text_buffer_add_char( text_buffer_t * se
          float a = markup->overline_color.a;
          float x0 = ( pen->x -kerning );
          float y0 = (float)(int)( pen->y + (int)font->ascender );
@@ -216,7 +224,7 @@
          float y1 = (float)(int)( y0 + (int)font->underline_thickness );
          float s0 = black->s0;
          float t0 = black->t0;
-@@ -394,7 +340,7 @@ text_buffer_add_char( text_buffer_t * se
+@@ -394,7 +341,7 @@ text_buffer_add_char( text_buffer_t * se
          float a = markup->strikethrough_color.a;
          float x0  = ( pen->x -kerning );
          float y0  = (float)(int)( pen->y + (int)font->ascender*.33f);
@@ -225,7 +233,7 @@
          float y1  = (float)(int)( y0 + (int)font->underline_thickness );
          float s0 = black->s0;
          float t0 = black->t0;
-@@ -450,91 +396,7 @@ text_buffer_add_char( text_buffer_t * se
+@@ -450,91 +397,7 @@ text_buffer_add_char( text_buffer_t * se
          icount += 6;
  
          vertex_buffer_push_back( buffer, vertices, vcount, indices, icount );

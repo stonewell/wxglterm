@@ -140,7 +140,7 @@ void freetype_gl_context::init_font(const std::string & name, uint64_t size, con
               << "," << f->filename
               << std::endl;
 
-    this->line_height = ceil(f->height);
+    this->line_height = ceil(f->height) + 1;
     this->col_width = 0.0f;
 
     (void)f;
