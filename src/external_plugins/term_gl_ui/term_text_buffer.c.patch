@@ -1,5 +1,5 @@
---- src/external_plugins/term_gl_ui/freetype-gl-prefix/src/freetype-gl/text-buffer.c	2018-01-13 09:07:06.556599933 -0800
-+++ src/external_plugins/term_gl_ui/term_text_buffer.c	2018-04-12 21:46:19.369584948 -0700
+--- src/external_plugins/term_gl_ui/freetype-gl-prefix/src/freetype-gl/text-buffer.c	2018-02-16 09:57:40.092582361 -0800
++++ src/external_plugins/term_gl_ui/term_text_buffer.c	2018-04-24 13:45:31.449232268 -0700
 @@ -12,66 +12,33 @@
  #include "opengl.h"
  #include "text-buffer.h"
@@ -202,7 +202,7 @@
 -        float y1 = (float)(int)( y0 + font->height + font->linegap );
 +        float y0 = (float)(int)( floor(pen->y + markup->font->descender));
 +        float x1 = ( x0 + glyph_advance_x );
-+        float y1 = (float)(int)( pen->y + markup->font->ascender );
++        float y1 = (float)(int)( pen->y + markup->font->ascender + 1);
          float s0 = black->s0;
          float t0 = black->t0;
          float s1 = black->s1;
