@@ -44,9 +44,13 @@ public:
         init = glfwInit();
     }
 
-    ~__GLTermUIInitializer() {
+    void Cleanup() {
         if (init)
             glfwTerminate();
+        init = false;
+    }
+
+    ~__GLTermUIInitializer() {
     }
 };
 
@@ -150,6 +154,7 @@ public:
             UpdateAllWindows();
         }
 
+        DefaultTermUI::_initializer.Cleanup();
         return 0;
     }
 
