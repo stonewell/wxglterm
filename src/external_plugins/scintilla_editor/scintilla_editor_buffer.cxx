@@ -59,6 +59,9 @@
 #include "CallTip.h"
 #include "ScintillaBase.h"
 
+#include "GUI.h"
+#include "ScintillaWindow.h"
+
 #include "scite_impl.h"
 
 #include "scintilla_editor.h"

@@ -53,6 +53,8 @@
 #include "CallTip.h"
 #include "ScintillaBase.h"
 
+#include "GUI.h"
+#include "ScintillaWindow.h"
 #include "scite_impl.h"
 #include "scintilla_editor.h"
 
@@ -145,7 +147,7 @@ gui_string HexStringFromInteger(long i) {
 	return gui_string(gnumber);
 }
 
-sptr_t ScintillaWindow::Send(unsigned int msg, uptr_t wParam, sptr_t lParam) {
+sptr_t ScintillaPrimitive::Send(unsigned int msg, uptr_t wParam, sptr_t lParam) {
     ScintillaEditor * pEditor = (ScintillaEditor*)GetID();
 
     if (!pEditor)
@@ -279,6 +281,8 @@ void SciTE::Initialize(ScintillaEditor * pEditor,
 
     wEditor.SetID(pEditor);
     wOutput.SetID(new ScintillaEditor);
+    wEditor.SetScintilla(pEditor);
+    wOutput.SetScintilla(wOutput.GetID());
 
     buffers.Allocate(1);
     buffers.Add();
