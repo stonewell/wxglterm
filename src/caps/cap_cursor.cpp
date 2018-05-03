@@ -111,17 +111,24 @@ void parm_index(term_data_context_s & term_context,
                 const term_data_param_list & params) {
     auto col = term_context.term_buffer->GetCol();
     auto row = term_context.term_buffer->GetRow();
-    __parm_move_cursor(term_context, params, true, true, true);
+    //__parm_move_cursor(term_context, params, true, true, true);
+    auto count = 1;
+    if (params.size() > 0)
+        count = params[0];
+    term_context.term_buffer->ScrollBuffer(-1 * count);
     term_context.term_buffer->SetCol(col);
     term_context.term_buffer->SetRow(row);
 }
 
 void parm_rindex(term_data_context_s & term_context,
                  const term_data_param_list & params) {
-    (void)params;
     auto col = term_context.term_buffer->GetCol();
     auto row = term_context.term_buffer->GetRow();
-    __parm_move_cursor(term_context, params, false, true, true);
+    //__parm_move_cursor(term_context, params, false, true, true);
+    auto count = 1;
+    if (params.size() > 0)
+        count = params[0];
+    term_context.term_buffer->ScrollBuffer(count);
     term_context.term_buffer->SetCol(col);
     term_context.term_buffer->SetRow(row);
 }
