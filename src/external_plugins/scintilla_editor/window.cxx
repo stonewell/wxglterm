@@ -2,6 +2,13 @@
 #include <stdarg.h>
 #include <stdlib.h>
 
+#include <string>
+#include <string_view>
+#include <vector>
+#include <map>
+#include <memory>
+#include <sstream>
+
 #include "Platform.h"
 #include "term_window.h"
 extern TermWindow * TermWindowFromEditor(void * wid);
@@ -21,7 +28,7 @@ void Window::Destroy() {
     DGB_FUNC_CALLED;
 }
 
-PRectangle Window::GetClientPosition() {
+PRectangle Window::GetClientPosition() const {
     DGB_FUNC_CALLED;
 	return GetPosition();
 }
@@ -45,7 +52,7 @@ void Window::Show(bool show) {
     DGB_FUNC_CALLED;
 }
 
-PRectangle Window::GetPosition() {
+PRectangle Window::GetPosition() const {
     TermWindow * pWindow = TermWindowFromEditor(wid);
 
     PRectangle rc(0,0,
@@ -59,7 +66,7 @@ void Window::SetPosition(PRectangle rc) {
     (void)rc;
 }
 
-void Window::SetPositionRelative(PRectangle rc, Window relativeTo) {
+void Window::SetPositionRelative(PRectangle rc, const Window * relativeTo) {
     DGB_FUNC_CALLED;
     (void)rc;
     (void)relativeTo;

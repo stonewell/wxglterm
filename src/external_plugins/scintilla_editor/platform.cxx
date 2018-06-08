@@ -2,6 +2,13 @@
 #include <stdarg.h>
 #include <stdlib.h>
 
+#include <string>
+#include <string_view>
+#include <vector>
+#include <map>
+#include <memory>
+#include <sstream>
+
 #include "Platform.h"
 
 #if 0
@@ -11,17 +18,6 @@
 #endif
 
 namespace Scintilla {
-ElapsedTime::ElapsedTime() {
-    bigBit = 0;
-    littleBit = 0;
-    DGB_FUNC_CALLED;
-}
-
-double ElapsedTime::Duration(bool reset) {
-	return reset;
-    DGB_FUNC_CALLED;
-}
-
 void Platform::DebugPrintf(const char * format, ...) {
 	va_list pArguments;
 	va_start(pArguments, format);
@@ -59,7 +55,7 @@ unsigned int Platform::DoubleClickTime() {
 	return 500; 	// Half a second
 }
 
-ListBox::ListBox() {
+ListBox::ListBox() noexcept{
     DGB_FUNC_CALLED;
 }
 
@@ -72,7 +68,7 @@ ListBox *ListBox::Allocate() {
 	return nullptr;
 }
 
-Font::Font() : fid(0) {
+Font::Font() noexcept : fid(0) {
     DGB_FUNC_CALLED;
 }
 
@@ -91,7 +87,7 @@ void Font::Release() {
     DGB_FUNC_CALLED;
 }
 
-Menu::Menu() : mid(0) {
+Menu::Menu() noexcept : mid(0) {
     DGB_FUNC_CALLED;
 }
 

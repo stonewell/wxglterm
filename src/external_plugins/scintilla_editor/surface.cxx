@@ -2,6 +2,12 @@
 #include <stdarg.h>
 #include <stdlib.h>
 
+#include <string>
+#include <string_view>
+#include <vector>
+#include <map>
+#include <memory>
+#include <sstream>
 #include "Platform.h"
 
 #include "term_window.h"
@@ -68,7 +74,7 @@ public:
         (void)y_;
     }
 
-	void Polygon(Point *pts, int npts, ColourDesired fore, ColourDesired back) override {
+	void Polygon(Point *pts, size_t npts, ColourDesired fore, ColourDesired back) override {
         (void)pts;
         (void)npts;
         (void)fore;
@@ -136,50 +142,45 @@ public:
         (void)fore;
     }
 
-	void DrawTextNoClip(PRectangle rc, Font &font_, XYPOSITION ybase, const char *s, int len, ColourDesired fore, ColourDesired back) override {
+	void DrawTextNoClip(PRectangle rc, Font &font_, XYPOSITION ybase, std::string_view s, ColourDesired fore, ColourDesired back) {
         (void)rc;
         (void)font_;
         (void)ybase;
         (void)s;
-        (void)len;
         (void)fore;
         (void)back;
     }
 
-	void DrawTextClipped(PRectangle rc, Font &font_, XYPOSITION ybase, const char *s, int len, ColourDesired fore, ColourDesired back) override {
+	void DrawTextClipped(PRectangle rc, Font &font_, XYPOSITION ybase, std::string_view s, ColourDesired fore, ColourDesired back) {
         (void)rc;
         (void)font_;
         (void)ybase;
         (void)s;
-        (void)len;
         (void)fore;
         (void)back;
     }
 
-	void DrawTextTransparent(PRectangle rc, Font &font_, XYPOSITION ybase, const char *s, int len, ColourDesired fore) override {
+	void DrawTextTransparent(PRectangle rc, Font &font_, XYPOSITION ybase, std::string_view s, ColourDesired fore) {
         (void)rc;
         (void)font_;
         (void)ybase;
         (void)s;
-        (void)len;
         (void)fore;
     }
-	void MeasureWidths(Font &font_, const char *s, int len, XYPOSITION *positions) override {
+	void MeasureWidths(Font &font_, std::string_view s, XYPOSITION *positions) {
         (void)font_;
         (void)s;
-        (void)len;
         (void)positions;
     }
 
-	XYPOSITION WidthText(Font &font_, const char *s, int len) override {
+	XYPOSITION WidthText(Font &font_, std::string_view s) override {
         (void)font_;
         (void)s;
-        (void)len;
         DGB_FUNC_CALLED;
         return 0;
     }
 
-	XYPOSITION WidthChar(Font &font_, char ch) override {
+	XYPOSITION WidthChar(Font &font_, char ch) {
         (void)font_;
         (void)ch;
         TermWindow * pWindow = TermWindowFromEditor(m_Wid);
@@ -241,6 +242,21 @@ public:
 
 	void SetDBCSMode(int codePage) override {
         (void)codePage;
+    }
+
+    void GradientRectangle(PRectangle rc, const std::vector<ColourStop> &stops, GradientOptions options) {
+        (void)rc;
+        (void)stops;
+        (void)options;
+    }
+
+    void SetBidiR2L(bool bidiR2L_) {
+        (void)bidiR2L_;
+    }
+
+    std::unique_ptr<IScreenLineLayout> Layout(const IScreenLine *screenLine) {
+        (void)screenLine;
+        return std::unique_ptr<IScreenLineLayout> {};
     }
 };
 
