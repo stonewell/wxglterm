@@ -1,5 +1,6 @@
 #include "freetype_gl.h"
 #include "text-buffer.h"
+#include "texture-font.h"
 
 #include <string.h>
 #include <iostream>
@@ -25,9 +26,10 @@ freetype_gl_context_ptr freetype_gl_init() {
 freetype_gl_context::freetype_gl_context()
     : font_manager {ftgl::font_manager_new(512, 512, LCD_FILTERING_ON)}
     , font_name {"Mono"}
-    , font_size {16} {
+    , font_size {16}
+    , atlas_line_char_count {32} {
         memset(fonts_markup, 0, sizeof(fonts_markup));
-      }
+}
 
 freetype_gl_context::~freetype_gl_context() {
     cleanup();
@@ -131,6 +133,11 @@ void freetype_gl_context::init_font(const std::string & name, uint64_t size, con
 
     cleanup();
 
+    ftgl::font_manager_delete(font_manager);
+    font_manager = ftgl::font_manager_new(atlas_line_char_count * font_size,
+                                          atlas_line_char_count * font_size,
+                                          LCD_FILTERING_ON);
+
     ftgl::texture_font_t * f = get_font(FontCategoryEnum::Default)->font;
 
     std::cout << "a:" << f->ascender
@@ -157,4 +164,24 @@ void freetype_gl_context::init_font(const std::string & name, uint64_t size, con
     }
 
     std::cout << "height:" << line_height << ", width:" << col_width << std::endl;
+}
+
+void freetype_gl_context::enlarge_atlas(int extra_char_count) {
+    atlas_line_char_count = ceil(sqrt(atlas_line_char_count * atlas_line_char_count + extra_char_count));
+    ftgl::texture_font_t * f = get_font(FontCategoryEnum::Default)->font;
+
+    std::cout << "extra:" << extra_char_count << ", line_count:" << atlas_line_char_count << std::endl;
+    ftgl::texture_font_enlarge_atlas(f,
+                                     (size_t)(atlas_line_char_count * font_size),
+                                     (size_t)(atlas_line_char_count * font_size));
+}
+
+void freetype_gl_context::ensure_glyphs(const char * codepoints) {
+   ftgl::texture_font_t * f = get_font(FontCategoryEnum::Default)->font;
+
+   auto missed = ftgl::texture_font_load_glyphs(f, codepoints);
+
+   if (missed) {
+       enlarge_atlas(missed);
+   }
 }

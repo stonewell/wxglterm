@@ -136,6 +136,28 @@ void DefaultTermWindow::DoDraw() {
 
     std::bitset<16> m(buffer->GetMode());
 
+    //catch glyphs
+    // std::wstring cache{L""};
+    // for (auto row = 0u; row < rows; row++) {
+    //     auto line = buffer->GetLine(row);
+    //     for (auto col = 0u; col < cols; col++) {
+    //         auto cell = line->GetCell(col);
+
+    //         wchar_t ch = 0;
+
+    //         if (!(cell && (ch = cell->GetChar()) != 0)) {
+    //             ch = ' ';
+    //         }
+
+    //         cache.append(&ch, 1);
+    //     }
+    // }
+
+    // {
+    //     std::string bytes = wcharconv.to_bytes(cache);
+    //     m_FreeTypeGLContext->ensure_glyphs(bytes.c_str());
+    // }
+
     for (auto row = 0u; row < rows; row++) {
         auto line = buffer->GetLine(row);
 

@@ -24,10 +24,12 @@ public:
     float line_height;
     float col_width;
     std::string font_lang;
+    float atlas_line_char_count;
 
     ftgl::markup_t * get_font(FontCategoryEnum font_category);
     void init_font(const std::string & name, uint64_t size, const std::string & lang);
-
+    void enlarge_atlas(int extra_char_count);
+    void ensure_glyphs(const char * codepoints);
 private:
     void cleanup();
     ftgl::markup_t fonts_markup[FontCategoryEnum::FontCategoryCount];
