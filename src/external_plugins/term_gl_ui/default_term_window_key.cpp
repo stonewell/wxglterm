@@ -18,6 +18,27 @@
 #include <locale>
 #include <codecvt>
 
+static
+bool IgnoreKey(int key, int mods) {
+    (void)mods;
+    //ignore all single ctrl keys
+    switch((InputHandler::KeyCodeEnum)key)
+    {
+    case InputHandler::KEY_LEFT_SHIFT:
+    case InputHandler::KEY_LEFT_CONTROL:
+    case InputHandler::KEY_LEFT_ALT:
+    case InputHandler::KEY_LEFT_SUPER:
+    case InputHandler::KEY_RIGHT_SHIFT:
+    case InputHandler::KEY_RIGHT_CONTROL:
+    case InputHandler::KEY_RIGHT_ALT:
+    case InputHandler::KEY_RIGHT_SUPER:
+    case InputHandler::KEY_MENU:
+        return true;
+    default:
+        return false;
+    }
+}
+
 void DefaultTermWindow::OnKeyDown(int key, int scancode, int mods, bool repeat) {
     (void)scancode;
     m_ProcessedKey = m_ProcessedMod = 0;
@@ -28,6 +49,9 @@ void DefaultTermWindow::OnKeyDown(int key, int scancode, int mods, bool repeat) 
         return;
 
     InputHandlerPtr input_handler = context->GetInputHandler();
+
+    if (IgnoreKey(key, mods))
+        return;
 
     if (!input_handler->ProcessKey((InputHandler::KeyCodeEnum)key,
                                   (InputHandler::ModifierEnum)mods,
@@ -40,7 +64,6 @@ void DefaultTermWindow::OnKeyDown(int key, int scancode, int mods, bool repeat) 
             m_ProcessedKey = key;
             m_ProcessedMod = mods;
         }
-        return;
     }
 }
 
@@ -91,7 +114,11 @@ unsigned int translate_shift(unsigned int codepoint) {
 void DefaultTermWindow::OnChar(unsigned int codepoint, int mods) {
     (void)mods;
 
-    if (codepoint == m_ProcessedKey && mods == m_ProcessedMod)
+    if (codepoint == m_ProcessedKey && mods == m_ProcessedMod) {
+        return;
+    }
+
+    if (IgnoreKey(codepoint, mods))
         return;
 
     //do not handle other modifiers in char callback except shift only

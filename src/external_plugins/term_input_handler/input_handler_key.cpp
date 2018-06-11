@@ -121,8 +121,9 @@ bool DefaultInputHandler::ProcessCharInput(int32_t codepoint, InputHandler::Modi
 
     std::string bytes = wcharconv.to_bytes((wchar_t)codepoint);
 
-    for(std::string::size_type i=0; i < bytes.length(); i++)
+    for(std::string::size_type i=0; i < bytes.length(); i++) {
         data.push_back(bytes[i]);
+    }
 
     send_data(network, data);
     return true;
