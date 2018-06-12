@@ -167,7 +167,7 @@ void DefaultTermWindow::InitFreeTypeGLContext() {
 
             auto font_size = appConfig->GetEntryUInt64("/term/font/size", 16);
             auto font_name = appConfig->GetEntry("/term/font/name", "Monospace");
-            auto font_lang = appConfig->GetEntry("/term/font/lang", "zh");
+            auto font_lang = appConfig->GetEntry("/term/font/lang", "zh_cn");
 
             int height = 0;
             glfwGetFramebufferSize(m_MainDlg, NULL, &height);

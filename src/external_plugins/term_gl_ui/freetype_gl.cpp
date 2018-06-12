@@ -60,6 +60,12 @@ match_description(const char * description )
     char *filename = 0;
     FcInit();
     FcPattern *pattern = FcNameParse((const FcChar8 *)description);
+    if (!pattern)
+    {
+        fprintf( stderr, "fontconfig error: could not match description '%s'\n", description );
+        return 0;
+    }
+
     FcConfigSubstitute( 0, pattern, FcMatchPattern );
     FcDefaultSubstitute( pattern );
     FcResult result;
@@ -68,7 +74,7 @@ match_description(const char * description )
 
     if ( !match )
     {
-        fprintf( stderr, "fontconfig error: could not match description '%s'", description );
+        fprintf( stderr, "fontconfig error: could not match description '%s'\n", description );
         return 0;
     }
     else
@@ -95,15 +101,19 @@ ftgl::markup_t * freetype_gl_context::get_font(FontCategoryEnum font_category) {
     bool bold = (font_category == FontCategoryEnum::Bold || font_category == FontCategoryEnum::BoldUnderlined);
 
     std::stringstream ss;
-    ss << font_name << ":size=" << font_size << ":lang=" << font_lang;
+    ss << font_name << "-" << font_size << ":lang=" << font_lang;
 
     if (bold)
-        ss << ":weight=bold";
+        ss << ":weight=200";
 
     ftgl::vec4 white  = {{1.0, 1.0, 1.0, 1.0}};
     ftgl::vec4 none   = {{1.0, 1.0, 1.0, 0.0}};
 
-    fonts_markup[font_category].family  = match_description(ss.str().c_str());
+    char * family = match_description(ss.str().c_str());
+
+    std::cout << "matched family:" << family << std::endl;
+
+    fonts_markup[font_category].family  = family;
     fonts_markup[font_category].size    = (float)font_size;
     fonts_markup[font_category].bold    = bold;
     fonts_markup[font_category].italic  = 0;

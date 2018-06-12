@@ -147,6 +147,14 @@ gui_string HexStringFromInteger(long i) {
 	return gui_string(gnumber);
 }
 
+std::string LowerCaseUTF8(std::string_view sv) {
+	std::string sLower(sv);
+
+    std::transform(sLower.begin(), sLower.end(), sLower.begin(), ::tolower);
+
+	return sLower;
+}
+
 sptr_t ScintillaPrimitive::Send(unsigned int msg, uptr_t wParam, sptr_t lParam) {
     ScintillaEditor * pEditor = (ScintillaEditor*)GetID();
 
