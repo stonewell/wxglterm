@@ -1,21 +1,25 @@
 #include "freetype_gl.h"
 #include "text-buffer.h"
 #include "texture-font.h"
+#include "texture-atlas.h"
 
 #include <string.h>
 #include <iostream>
 #include <fontconfig/fontconfig.h>
 #include <sstream>
 #include <math.h>
+#include <vector>
 
-#define SINGLE_WIDTH_CHARACTERS         \
-					" !\"#$%&'()*+,-./" \
-					"0123456789" \
-					":;<=>?@" \
-					"ABCDEFGHIJKLMNOPQRSTUVWXYZ" \
-					"[\\]^_`" \
-					"abcdefghijklmnopqrstuvwxyz" \
-					"{|}~"
+#include "freetype_gl_font.h"
+
+#define SINGLE_WIDTH_CHARACTERS                 \
+    " !\"#$%&'()*+,-./"                         \
+    "0123456789"                                \
+    ":;<=>?@"                                   \
+    "ABCDEFGHIJKLMNOPQRSTUVWXYZ"                \
+    "[\\]^_`"                                   \
+    "abcdefghijklmnopqrstuvwxyz"                \
+    "{|}~"
 
 freetype_gl_context_ptr freetype_gl_init() {
     freetype_gl_context_ptr ptr = std::make_shared<freetype_gl_context>();
@@ -24,12 +28,12 @@ freetype_gl_context_ptr freetype_gl_init() {
 }
 
 freetype_gl_context::freetype_gl_context()
-    : font_manager {ftgl::font_manager_new(512, 512, LCD_FILTERING_ON)}
+    : font_manager {ftgl::font_manager_new(256, 256, LCD_FILTERING_ON)}
     , font_name {"Mono"}
-    , font_size {16}
+    , font_size {48}
     , atlas_line_char_count {32} {
         memset(fonts_markup, 0, sizeof(fonts_markup));
-}
+      }
 
 freetype_gl_context::~freetype_gl_context() {
     cleanup();
@@ -53,7 +57,7 @@ match_description(const char * description )
 
 #if (defined(_WIN32) || defined(_WIN64)) && !defined(__MINGW32__)
     fprintf( stderr, "\"font_manager_match_description\" "
-                     "not implemented for windows.\n" );
+             "not implemented for windows.\n" );
     return 0;
 #endif
 
@@ -111,7 +115,7 @@ ftgl::markup_t * freetype_gl_context::get_font(FontCategoryEnum font_category) {
 
     char * family = match_description(ss.str().c_str());
 
-    std::cout << "matched family:" << family << std::endl;
+    std::cout << "matched family:" << family << ", desc:" << ss.str() << std::endl;
 
     fonts_markup[font_category].family  = family;
     fonts_markup[font_category].size    = (float)font_size;
@@ -141,13 +145,6 @@ void freetype_gl_context::init_font(const std::string & name, uint64_t size, con
     this->font_size = size;
     this->font_lang = lang;
 
-    cleanup();
-
-    ftgl::font_manager_delete(font_manager);
-    font_manager = ftgl::font_manager_new(atlas_line_char_count * font_size,
-                                          atlas_line_char_count * font_size,
-                                          LCD_FILTERING_ON);
-
     ftgl::texture_font_t * f = get_font(FontCategoryEnum::Default)->font;
 
     std::cout << "a:" << f->ascender
@@ -174,24 +171,61 @@ void freetype_gl_context::init_font(const std::string & name, uint64_t size, con
     }
 
     std::cout << "height:" << line_height << ", width:" << col_width << std::endl;
+
+    reset_font_manager();
 }
 
-void freetype_gl_context::enlarge_atlas(int extra_char_count) {
-    atlas_line_char_count = ceil(sqrt(atlas_line_char_count * atlas_line_char_count + extra_char_count));
+void freetype_gl_context::reset_font_manager() {
+    cleanup();
+
+    ftgl::font_manager_delete(font_manager);
+    font_manager = ftgl::font_manager_new(atlas_line_char_count * (ceil(col_width) * 2),
+                                          atlas_line_char_count * (line_height),
+                                          LCD_FILTERING_ON);
+}
+
+void freetype_gl_context::ensure_glyphs(const std::unordered_set<uint32_t> & codepoints) {
     ftgl::texture_font_t * f = get_font(FontCategoryEnum::Default)->font;
 
-    std::cout << "extra:" << extra_char_count << ", line_count:" << atlas_line_char_count << std::endl;
-    ftgl::texture_font_enlarge_atlas(f,
-                                     (size_t)(atlas_line_char_count * font_size),
-                                     (size_t)(atlas_line_char_count * font_size));
-}
+    size_t i;
+    ftgl::texture_glyph_t *glyph;
 
-void freetype_gl_context::ensure_glyphs(const char * codepoints) {
-   ftgl::texture_font_t * f = get_font(FontCategoryEnum::Default)->font;
+    std::unordered_set<uint32_t> tmp{codepoints};
 
-   auto missed = ftgl::texture_font_load_glyphs(f, codepoints);
+    for( i = 0; i < f->glyphs->size; ++i )
+    {
+        glyph = *(ftgl::texture_glyph_t **) vector_get( f->glyphs, i );
+        tmp.erase(glyph->codepoint);
+    }
 
-   if (missed) {
-       enlarge_atlas(missed);
-   }
+    int used_glyphs = 0;
+    for(int i=0;i < FontCategoryEnum::FontCategoryCount;i++) {
+        if (fonts_markup[i].font) {
+            used_glyphs += fonts_markup[i].font->glyphs->size;
+        }
+    }
+
+    // std::cout << tmp.size()
+    //           << "," << atlas_line_char_count
+    //           << "," << used_glyphs
+    //           << "," << codepoints.size()
+    //           << std::endl;
+    if (tmp.size() + f->glyphs->size <= atlas_line_char_count * atlas_line_char_count)
+        return;
+
+    if (atlas_line_char_count < ceil(sqrt((float)codepoints.size())))
+        atlas_line_char_count = std::max(atlas_line_char_count * 2, ceil(sqrt((float)codepoints.size())));
+
+    std::cout << "line_char_count:" << atlas_line_char_count << std::endl;
+
+    reset_font_manager();
+
+    // f = get_font(FontCategoryEnum::Default)->font;
+
+    // std::vector<uint32_t> values;
+    // values.insert(values.begin(), codepoints.begin(), codepoints.end());
+
+    // term_texture_font_load_glyphs(f,
+    //                               &values[0],
+    //                               values.size());
 }

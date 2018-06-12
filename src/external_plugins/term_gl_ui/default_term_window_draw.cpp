@@ -6,6 +6,20 @@
 #include "term_context.h"
 #include "term_network.h"
 #include "color_theme.h"
+class __ScopeLocker {
+public:
+    __ScopeLocker(TermBufferPtr termBuffer) :
+        m_TermBuffer(termBuffer)
+    {
+        m_TermBuffer->LockUpdate();
+    }
+
+    ~__ScopeLocker() {
+        m_TermBuffer->UnlockUpdate();
+    }
+
+    TermBufferPtr m_TermBuffer;
+};
 
 #include "char_width.h"
 
@@ -17,7 +31,7 @@
 #include <functional>
 #include <locale>
 #include <codecvt>
-
+#include <unordered_set>
 static
 std::wstring_convert<std::codecvt_utf8<wchar_t>, wchar_t> wcharconv;
 
@@ -94,6 +108,8 @@ void DefaultTermWindow::DoDraw() {
     if (!buffer)
         return;
 
+    //__ScopeLocker buffer_locker(buffer);
+
     TermCellPtr cell = buffer->GetCurCell();
 
     if (cell) {
@@ -137,7 +153,8 @@ void DefaultTermWindow::DoDraw() {
     std::bitset<16> m(buffer->GetMode());
 
     //catch glyphs
-    // std::wstring cache{L""};
+    // std::unordered_set<uint32_t> codepoints;
+
     // for (auto row = 0u; row < rows; row++) {
     //     auto line = buffer->GetLine(row);
     //     for (auto col = 0u; col < cols; col++) {
@@ -149,14 +166,11 @@ void DefaultTermWindow::DoDraw() {
     //             ch = ' ';
     //         }
 
-    //         cache.append(&ch, 1);
+    //         codepoints.emplace(ch);
     //     }
     // }
 
-    // {
-    //     std::string bytes = wcharconv.to_bytes(cache);
-    //     m_FreeTypeGLContext->ensure_glyphs(bytes.c_str());
-    // }
+    // m_FreeTypeGLContext->ensure_glyphs(codepoints);
 
     for (auto row = 0u; row < rows; row++) {
         auto line = buffer->GetLine(row);

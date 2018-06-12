@@ -3,6 +3,7 @@
 #include "font-manager.h"
 #include <memory>
 #include <string>
+#include <unordered_set>
 
 enum FontCategoryEnum {
     Default = 0,
@@ -28,10 +29,10 @@ public:
 
     ftgl::markup_t * get_font(FontCategoryEnum font_category);
     void init_font(const std::string & name, uint64_t size, const std::string & lang);
-    void enlarge_atlas(int extra_char_count);
-    void ensure_glyphs(const char * codepoints);
+    void ensure_glyphs(const std::unordered_set<uint32_t> & codepoints);
 private:
     void cleanup();
+    void reset_font_manager();
     ftgl::markup_t fonts_markup[FontCategoryEnum::FontCategoryCount];
 };
 

@@ -36,6 +36,7 @@ SET(term_gl_ui_src
   freetype_gl.cpp freetype_gl.h
   shader.cpp shader.h
   term_text_buffer.h
+  freetype_gl_font.c freetype_gl_font.h
 )
 
 ADD_LIBRARY(term_gl_ui SHARED ${term_gl_ui_src}
@@ -96,6 +97,7 @@ TARGET_INCLUDE_DIRECTORIES(term_gl_ui
 	"${freetype-gl_INCLUDE_DIR}"
 	"${freetype-gl_INCLUDE_DIR}/demos"
 	"${FONTCONFIG_INCLUDE_DIR}"
+	"${freetype-gl_INCLUDE_DIR}/windows/freetype"
 	$<TARGET_PROPERTY:glfw,INTERFACE_INCLUDE_DIRECTORIES>
 )
 
