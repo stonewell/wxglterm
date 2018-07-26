@@ -106,7 +106,7 @@ void DefaultTermWindow::DoDraw() {
     auto cols = buffer->GetCols();
 
     int width = 0, height = 0;
-    glfwGetFramebufferSize(m_MainDlg, &width, &height);
+    glfwGetWindowSize(m_MainDlg, &width, &height);
 
     uint32_t last_fore_color = TermCell::DefaultForeColorIndex;
     uint32_t last_back_color = TermCell::DefaultBackColorIndex;
@@ -287,8 +287,8 @@ void DefaultTermWindow::DrawContent(ftdgl::text::TextBufferPtr buf,
     ftdgl::text::pen_s pen = {last_x, last_y};
 
     buf->AddText(pen,
-                          font,
-                          content);
+                 font,
+                 content);
 
     content.clear();
 

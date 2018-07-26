@@ -34,7 +34,13 @@ void reshape( GLFWwindow* window, int width, int height )
     if (!plugin)
         return;
 
-    plugin->OnSize(width, height);
+    int w_height;
+    int w_width;
+    glfwGetWindowSize(window, &w_width, &w_height);
+
+    std::cout << "reshape w:" << width << ", h:" << height << std::endl;
+
+    plugin->OnSize(w_width, w_height);
 }
 
 
