@@ -11,6 +11,7 @@ ENDIF()
 
 IF (BUILD_OPENGL_UI)
 ADD_SUBDIRECTORY(term_gl_ui)
+ADD_SUBDIRECTORY(term_direct_gl_ui)
 ENDIF()
 
 ADD_SUBDIRECTORY(term_input_handler)
