@@ -100,7 +100,7 @@ void DefaultTermWindow::DoDraw() {
             line->SetModified(true);
     }
 
-    m_TextBuffer = ftdgl::text::CreateTextBuffer(m_Viewport);
+    m_TextBuffer->Clear();
 
     auto rows = buffer->GetRows();
     auto cols = buffer->GetCols();
