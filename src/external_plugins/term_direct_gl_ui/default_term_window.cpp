@@ -263,7 +263,7 @@ void DefaultTermWindow::SetColorByIndex(uint32_t index, uint32_t v) {
     if (index >= TermCell::ColorIndexCount)
         return;
 
-#define C2V(x) ((float)(x) / 255.0)
+#define C2V(x) static_cast<float>((x) / 255.0)
     m_ColorTable[index] = {C2V((v >> 24) & 0xFF),
                         C2V((v >> 16) & 0xFF),
                         C2V((v >> 8) & 0xFF),
@@ -339,7 +339,7 @@ bool DefaultTermWindow::ShouldClose() {
 
 void DefaultTermWindow::InitColorTable()
 {
-#define C2V(x) ((float)(x) / 255.0)
+#define C2V(x) static_cast<float>((x) / 255.0)
     TermContextPtr context = std::dynamic_pointer_cast<TermContext>(GetPluginContext());
     TermColorThemePtr color_theme = context->GetTermColorTheme();
 

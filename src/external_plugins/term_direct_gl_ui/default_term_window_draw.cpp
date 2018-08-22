@@ -301,7 +301,7 @@ void DefaultTermWindow::DrawContent(ftdgl::text::TextBufferPtr buf,
 }
 
 ftdgl::text::color_s DefaultTermWindow::__GetColorByIndex(uint32_t index) {
-#define C2V(x) ((float)(x) / 255.0)
+#define C2V(x) static_cast<float>((x) / 255.0)
     if (index >= TermCell::ColorIndexCount) {
         index -= TermCell::ColorIndexCount;
 
