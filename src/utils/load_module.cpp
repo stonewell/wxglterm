@@ -12,14 +12,16 @@ py::object LoadPyModuleFromFile(const char * file_path)
     locals["path"]  = py::cast(file_path);
 
     py::eval<py::eval_statements>(            // tell eval we're passing multiple statements
-        "import imp\n"
+        "import importlib.util\n"
         "import os\n"
         "import sys\n"
         "module_name = os.path.basename(path)[:-3]\n"
         "try:\n"
         "  new_module = sys.modules[module_name]\n"
         "except KeyError:\n"
-        "  new_module = imp.load_module(module_name, open(path), path, ('py', 'U', imp.PY_SOURCE))\n",
+        "  spec = importlib.util.spec_from_file_location(module_name, path)\n"
+        "  new_module = importlib.util.module_from_spec(spec)\n"
+        "  spec.loader.exec_module(new_module)\n",
         py::globals(),
         locals);
 
@@ -37,14 +39,22 @@ py::object LoadPyModuleFromString(const char * content, const char * module_name
     locals["module_file"] = py::cast(module_file);
 
     py::object result = py::eval<py::eval_statements>(
-        "import imp\n"
+        "import importlib.util\n"
         "import os\n"
         "import io\n"
         "import sys\n"
+        "import tempfile\n"
         "try:\n"
         "  new_module = sys.modules[module_name]\n"
         "except KeyError:\n"
-        "  new_module = imp.load_module(module_name, io.StringIO(module_content), module_file, ('py', 'U', imp.PY_SOURCE))\n",
+        "  t_fd, t_path = tempfile.mkstemp(suffix='.py', text=True)\n"
+        "  t_f = os.fdopen(t_fd, 'w')\n"
+        "  t_f.write(module_content)\n"
+        "  t_f.close()\n"
+        "  spec = importlib.util.spec_from_file_location(module_name, t_path)\n"
+        "  new_module = importlib.util.module_from_spec(spec)\n"
+        "  spec.loader.exec_module(new_module)\n"
+        "  os.remove(t_path)\n",
         py::globals(),
         locals);
 
