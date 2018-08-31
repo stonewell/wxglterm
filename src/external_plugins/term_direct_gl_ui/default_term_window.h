@@ -4,12 +4,12 @@
 #include "term_window.h"
 #include "term_cell.h"
 
+#include <GLFW/glfw3.h>
+#include "glm/glm.hpp"
+
 #include "freetype_gl.h"
 #include "text_buffer.h"
 #include "render.h"
-
-#include <GLFW/glfw3.h>
-#include "glm/glm.hpp"
 
 #include <bitset>
 #include <string>

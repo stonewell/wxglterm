@@ -76,7 +76,7 @@ PYBIND11_EMBEDDED_MODULE(wxglterm_interface, m)
     multiple_instance_plugin.def(py::init<>())
             .def("new_instance", &MultipleInstancePlugin::NewInstance);
 
-    py::class_<Context, PyContext<>, std::shared_ptr<Context>> context(m, "Context", multiple_instance_plugin);
+    py::class_<Context, PyPluginContext<>, std::shared_ptr<Context>> context(m, "Context", multiple_instance_plugin);
     context.def(py::init<>())
             .def_property("app_config", &Context::GetAppConfig, &Context::SetAppConfig)
             ;

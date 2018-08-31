@@ -3,7 +3,7 @@
 #include <string>
 
 #include "plugin.h"
-#include "context.h"
+#include "plugin_context.h"
 #include "app_config.h"
 
 class PluginBase : public virtual Plugin {

@@ -1,6 +1,6 @@
 #pragma once
 
-#include "context.h"
+#include "plugin_context.h"
 
 #include "term_handles.h"
 

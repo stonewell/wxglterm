@@ -1,4 +1,5 @@
 #include <pybind11/embed.h>
+#include "opengl.h"
 
 #include "default_term_window.h"
 

@@ -1,7 +1,7 @@
 #pragma once
 
 #include "plugin.h"
-#include "context.h"
+#include "plugin_context.h"
 
 template<class PluginBase = Plugin>
 class PyPlugin : public virtual PluginBase {

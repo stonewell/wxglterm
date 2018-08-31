@@ -18,8 +18,6 @@
 #include "text_buffer.h"
 #include "render.h"
 
-#include <GLFW/glfw3.h>
-
 #include "default_term_window.h"
 
 

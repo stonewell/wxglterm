@@ -4,9 +4,9 @@
 #include "term_context.h"
 
 template<class TermContextBase = TermContext>
-class PyTermContext : public virtual PyContext<TermContextBase> {
+class PyTermContext : public virtual PyPluginContext<TermContextBase> {
 public:
-    using PyContext<TermContextBase>::PyContext;
+    using PyPluginContext<TermContextBase>::PyPluginContext;
 
 public:
     TermBufferPtr GetTermBuffer() const override {
