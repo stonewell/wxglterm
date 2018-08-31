@@ -11,7 +11,8 @@ A cross platform terminal emulator. Buildin plugin system support python and c/c
 
 ## Default Plugins
 * UI plugin created using wxWidget
-* UI plugin created using OpenGL, [freetype-gl](https://github.com/rougier/freetype-gl), [glfw](http://www.glfw.org/)
+* UI plugin created using OpenGL, [freetype-gl](https://github.com/rougier/freetype-gl), [glfw](http://www.glfw.org/), [glew for linux](http://glew.sourceforge.net/)
+* Another UI plugin created using OpenGL, [freetype-direct-gl](https://github.com/stonewell/freetype-direct-gl), [glfw](http://www.glfw.org/), [glew for linux](http://glew.sourceforge.net/), [glm](https://glm.g-truc.net/0.9.8/index.html)
 * Terminal Data Handler plugin in both python and c++
 * Terminal Pty plugin in both python and c++
 * Color Theme plugin in python
