@@ -180,6 +180,7 @@ void DefaultTermWindow::InitFreeTypeGLContext() {
 
             m_FreeTypeGLContext->init_font(font_name, font_size, font_lang);
             m_Viewport.line_height = m_FreeTypeGLContext->line_height;
+            m_Viewport.glyph_width = m_FreeTypeGLContext->col_width;
         }
     }
 }
@@ -430,6 +431,7 @@ void DefaultTermWindow::InitViewPort() {
         pixel_width, pixel_height,
         w_width, w_height,
         dpi, dpi_height,
-        0 //line height will be reset after opengl context initialized
+        0, //line height will be reset after opengl context initialized
+        0 //glyph_width
     };
 }
