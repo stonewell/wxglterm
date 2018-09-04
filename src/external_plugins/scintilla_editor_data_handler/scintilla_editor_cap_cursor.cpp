@@ -10,7 +10,8 @@ void document_home(term_data_context_s & term_context,
     (void)params;
     (void)term_context.term_buffer->MoveCurRow((uint32_t)-1,
                                                false,
-                                               true);
+                                               true,
+                                               term_context.cell_template);
     term_context.term_buffer->SetCol(0);
 }
 

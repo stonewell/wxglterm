@@ -26,10 +26,10 @@ public:
     virtual void SetScrollRegionBegin(uint32_t begin) = 0;
     virtual void SetScrollRegionEnd(uint32_t end) = 0;
 
-    virtual void ScrollBuffer(int32_t offset) = 0;
-    virtual void DeleteLines(uint32_t begin, uint32_t count) = 0;
-    virtual void InsertLines(uint32_t begin, uint32_t count) = 0;
-    virtual bool MoveCurRow(uint32_t offset, bool move_down, bool scroll_buffer) = 0;
+    virtual void ScrollBuffer(int32_t offset, TermCellPtr cell_template) = 0;
+    virtual void DeleteLines(uint32_t begin, uint32_t count, TermCellPtr cell_template) = 0;
+    virtual void InsertLines(uint32_t begin, uint32_t count, TermCellPtr cell_template) = 0;
+    virtual bool MoveCurRow(uint32_t offset, bool move_down, bool scroll_buffer, TermCellPtr cell_template) = 0;
 
     virtual void SetCellDefaults(wchar_t c,
                                  uint32_t fore_color_idx,

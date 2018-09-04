@@ -243,19 +243,21 @@ void ScintillaEditorBuffer::SetScrollRegionEnd(uint32_t end) {
     (void)end;
 }
 
-void ScintillaEditorBuffer::DeleteLines(uint32_t begin, uint32_t count) {
+void ScintillaEditorBuffer::DeleteLines(uint32_t begin, uint32_t count, TermCellPtr cell_template) {
     (void)begin;
     (void)count;
+    (void)cell_template;
 
     if (m_Debug)
         std::cout << __FUNCTION__ << ", " << begin <<"," << count << std::endl;
 }
 
-void ScintillaEditorBuffer::InsertLines(uint32_t begin, uint32_t count) {
+void ScintillaEditorBuffer::InsertLines(uint32_t begin, uint32_t count, TermCellPtr cell_template) {
     std::lock_guard<std::recursive_mutex> guard(m_UpdateLock);
 
     (void)begin;
     (void)count;
+    (void)cell_template;
     if (m_Debug)
         std::cout << __FUNCTION__ << ", " << begin <<"," << count << std::endl;
 
@@ -276,18 +278,20 @@ void ScintillaEditorBuffer::InsertLines(uint32_t begin, uint32_t count) {
     }
 }
 
-void ScintillaEditorBuffer::ScrollBuffer(int32_t scroll_offset) {
+void ScintillaEditorBuffer::ScrollBuffer(int32_t scroll_offset, TermCellPtr cell_template) {
     (void)scroll_offset;
+    (void)cell_template;
     if (m_Debug)
         std::cout << __FUNCTION__  << std::endl;
 }
 
-bool ScintillaEditorBuffer::MoveCurRow(uint32_t offset, bool move_down, bool scroll_buffer) {
+bool ScintillaEditorBuffer::MoveCurRow(uint32_t offset, bool move_down, bool scroll_buffer, TermCellPtr cell_template) {
     std::lock_guard<std::recursive_mutex> guard(m_UpdateLock);
 
     (void)offset;
     (void)move_down;
     (void)scroll_buffer;
+    (void)cell_template;
 
     uint32_t line_count = m_pEditor->WndProc(SCI_GETLINECOUNT, 0, 0);
     int pos = m_pEditor->WndProc(SCI_GETCURRENTPOS, 0, 0);

@@ -20,6 +20,12 @@ public:
         SetModified(true);
     }
 
+    void Resize(uint32_t col, TermCellPtr cell_template) override {
+        (void)col;
+        (void)cell_template;
+        SetModified(true);
+    }
+
     TermCellPtr GetCell(uint32_t col) override {
         auto cell = CreateDefaultTermCell(m_pEditor, m_Row, col);
         return cell;

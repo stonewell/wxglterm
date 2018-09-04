@@ -37,7 +37,7 @@ void __parm_move_cursor(term_data_context_s & term_context,
     if (params.size() > 0)
         count = params[0];
 
-    auto scrolled = term_context.term_buffer->MoveCurRow(count, move_down, do_scroll);
+    auto scrolled = term_context.term_buffer->MoveCurRow(count, move_down, do_scroll, term_context.cell_template);
 
     // if (do_refresh &&  scrolled)
     //     term_context.term_window->Refresh();
@@ -115,7 +115,7 @@ void parm_index(term_data_context_s & term_context,
     auto count = 1;
     if (params.size() > 0)
         count = params[0];
-    term_context.term_buffer->ScrollBuffer(-1 * count);
+    term_context.term_buffer->ScrollBuffer(-1 * count, term_context.cell_template);
     term_context.term_buffer->SetCol(col);
     term_context.term_buffer->SetRow(row);
 }
@@ -128,7 +128,7 @@ void parm_rindex(term_data_context_s & term_context,
     auto count = 1;
     if (params.size() > 0)
         count = params[0];
-    term_context.term_buffer->ScrollBuffer(count);
+    term_context.term_buffer->ScrollBuffer(count, term_context.cell_template);
     term_context.term_buffer->SetCol(col);
     term_context.term_buffer->SetRow(row);
 }

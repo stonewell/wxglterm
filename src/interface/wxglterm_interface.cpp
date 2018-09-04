@@ -116,7 +116,8 @@ PYBIND11_EMBEDDED_MODULE(wxglterm_interface, m)
 
     py::class_<TermLine, PyTermLine<>, std::shared_ptr<TermLine>> term_line(m, "TermLine", plugin);
     term_line.def(py::init<>())
-            .def("resize", &TermLine::Resize)
+            .def("resize", (void(TermLine::*)(uint32_t))&TermLine::Resize)
+            .def("resize", (void(TermLine::*)(uint32_t, TermCellPtr))&TermLine::Resize)
             .def("get_cell", &TermLine::GetCell)
             .def("insert_cell", &TermLine::InsertCell)
             .def_property("is_modified", &TermLine::IsModified, &TermLine::SetModified)
