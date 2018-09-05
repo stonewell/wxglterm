@@ -81,8 +81,9 @@ void freetype_gl_context::init_font(const std::string & name,
         auto glyph = f->LoadGlyph(SINGLE_WIDTH_CHARACTERS[i]);
 
         if( glyph != NULL ) {
-            if (this->col_width < glyph->GetAdvanceX()) {
-                this->col_width = m_Viewport.FontSizeToViewport(f, glyph->GetAdvanceX(), true);
+            auto glyph_width = m_Viewport.FontSizeToViewport(f, glyph->GetAdvanceX(), true);
+            if (this->col_width < glyph_width) {
+                this->col_width = glyph_width;
             }
         }
     }
