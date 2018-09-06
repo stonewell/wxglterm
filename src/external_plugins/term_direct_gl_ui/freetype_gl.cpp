@@ -69,19 +69,19 @@ void freetype_gl_context::init_font(const std::string & name,
 
     auto f = get_font(FontCategoryEnum::Default)->font;
 
-    std::cout << "a:" << m_Viewport.FontSizeToViewport(f, f->GetAscender(), false)
-              << ",d:" << m_Viewport.FontSizeToViewport(f, f->GetDescender(), false)
-              << ",l:" << m_Viewport.FontSizeToViewport(f, f->GetHeight(), false)
+    std::cout << "a:" << f->GetAscender()
+              << ",d:" << f->GetDescender()
+              << ",l:" << f->GetHeight()
               << std::endl;
 
-    this->line_height = ceil(m_Viewport.FontSizeToViewport(f, f->GetHeight(), false)) + 1;
+    this->line_height = ceil(f->GetHeight()) + 1;
     this->col_width = 0.0f;
 
     for(size_t i=0;i < strlen(SINGLE_WIDTH_CHARACTERS); i++) {
         auto glyph = f->LoadGlyph(SINGLE_WIDTH_CHARACTERS[i]);
 
         if( glyph != NULL ) {
-            auto glyph_width = m_Viewport.FontSizeToViewport(f, glyph->GetAdvanceX(), true);
+            auto glyph_width = glyph->GetAdvanceX();
             if (this->col_width < glyph_width) {
                 this->col_width = glyph_width;
             }

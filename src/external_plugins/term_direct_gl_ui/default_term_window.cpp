@@ -170,13 +170,13 @@ void DefaultTermWindow::InitFreeTypeGLContext() {
             auto font_name = appConfig->GetEntry("/term/font/name", "Monospace");
             auto font_lang = appConfig->GetEntry("/term/font/lang", "zh-CN");
 
-            int height = 0;
-            glfwGetFramebufferSize(m_MainDlg, NULL, &height);
+            // int height = 0;
+            // glfwGetFramebufferSize(m_MainDlg, NULL, &height);
 
-            int w_height;
-            glfwGetWindowSize(m_MainDlg, NULL, &w_height);
+            // int w_height;
+            // glfwGetWindowSize(m_MainDlg, NULL, &w_height);
 
-            font_size = ceil((double)font_size / w_height * height);
+            // font_size = ceil((double)font_size / w_height * height);
 
             m_FreeTypeGLContext->init_font(font_name, font_size, font_lang);
             m_Viewport.line_height = m_FreeTypeGLContext->line_height;
@@ -318,8 +318,8 @@ void DefaultTermWindow::OnSize(int width, int height) {
     m_Width = width;
     m_Height = height;
 
-    buffer->Resize((height - PADDING * 2) / m_FreeTypeGLContext->line_height,
-                   (width - PADDING * 2) / m_FreeTypeGLContext->col_width);
+    buffer->Resize((m_Viewport.pixel_height - PADDING * 2) / m_FreeTypeGLContext->line_height,
+                   (m_Viewport.pixel_width - PADDING * 2) / m_FreeTypeGLContext->col_width);
 
     std::cout << "row:" << buffer->GetRows()
               << ", cols:" << buffer->GetCols()
@@ -411,11 +411,11 @@ void DefaultTermWindow::EnableMouseTrack(bool enable) {
 void DefaultTermWindow::InitViewPort() {
     int pixel_height = 0, pixel_width = 0;
     glfwGetFramebufferSize(m_MainDlg, &pixel_width, &pixel_height);
-    const GLFWvidmode* mode = glfwGetVideoMode(glfwGetPrimaryMonitor());
+    // const GLFWvidmode* mode = glfwGetVideoMode(glfwGetPrimaryMonitor());
     int widthMM, heightMM;
     glfwGetMonitorPhysicalSize(glfwGetPrimaryMonitor(), &widthMM, &heightMM);
-    float dpi = mode->width / (widthMM / 25.4);
-    float dpi_height = (mode->height / (heightMM / 25.4));
+    float dpi = pixel_width / (widthMM / 25.4);
+    float dpi_height = (pixel_height / (heightMM / 25.4));
 
     int w_height, w_width;
     glfwGetWindowSize(m_MainDlg, &w_width, &w_height);

@@ -106,12 +106,9 @@ void DefaultTermWindow::DoDraw() {
     auto rows = buffer->GetRows();
     auto cols = buffer->GetCols();
 
-    int width = 0, height = 0;
-    glfwGetWindowSize(m_MainDlg, &width, &height);
-
     uint32_t last_fore_color = TermCell::DefaultForeColorIndex;
     uint32_t last_back_color = TermCell::DefaultBackColorIndex;
-    float last_y = height - PADDING;
+    float last_y = m_Viewport.pixel_height - PADDING;
     float last_x = PADDING;
     uint32_t last_mode = 0;
     std::wstring content{L""};
