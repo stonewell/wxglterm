@@ -64,7 +64,7 @@ void DefaultTermWindow::OnDraw() {
               background_color.b,
               background_color.a);
 
-    glViewport(0, 0, m_Viewport.pixel_width, m_Viewport.pixel_height);
+    glViewport(0, 0, m_Width, m_Height);
     m_Render->RenderText(m_TextBuffer);
 
     glfwSwapBuffers(m_MainDlg);
@@ -108,7 +108,7 @@ void DefaultTermWindow::DoDraw() {
 
     uint32_t last_fore_color = TermCell::DefaultForeColorIndex;
     uint32_t last_back_color = TermCell::DefaultBackColorIndex;
-    float last_y = m_Viewport.pixel_height - PADDING;
+    float last_y = m_Height - PADDING;
     float last_x = PADDING;
     uint32_t last_mode = 0;
     std::wstring content{L""};

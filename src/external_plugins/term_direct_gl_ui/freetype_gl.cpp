@@ -23,7 +23,7 @@ freetype_gl_context_ptr freetype_gl_init(const ftdgl::viewport::viewport_s & vie
 }
 
 freetype_gl_context::freetype_gl_context(const ftdgl::viewport::viewport_s & viewport)
-    : font_manager {ftdgl::CreateFontManager()}
+    : font_manager {ftdgl::CreateFontManager(viewport.dpi, viewport.dpi_height)}
     , font_name {"Monospace"}
     , font_size {48}
     , m_Viewport {viewport} {

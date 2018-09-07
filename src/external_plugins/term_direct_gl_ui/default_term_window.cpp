@@ -35,13 +35,9 @@ void reshape( GLFWwindow* window, int width, int height )
     if (!plugin)
         return;
 
-    int w_height;
-    int w_width;
-    glfwGetWindowSize(window, &w_width, &w_height);
-
     std::cout << "reshape w:" << width << ", h:" << height << std::endl;
 
-    plugin->OnSize(w_width, w_height);
+    plugin->OnSize(width, height);
 }
 
 
@@ -233,8 +229,6 @@ void DefaultTermWindow::Show() {
         glfwSwapInterval( 1 );
     }
 
-    Init();
-
     glfwShowWindow(m_MainDlg);
 }
 
@@ -317,9 +311,13 @@ void DefaultTermWindow::OnSize(int width, int height) {
 
     m_Width = width;
     m_Height = height;
+    m_Viewport.width = width;
+    m_Viewport.height = height;
 
-    buffer->Resize((m_Viewport.pixel_height - PADDING * 2) / m_FreeTypeGLContext->line_height,
-                   (m_Viewport.pixel_width - PADDING * 2) / m_FreeTypeGLContext->col_width);
+    Init();
+
+    buffer->Resize((height - PADDING * 2) / m_FreeTypeGLContext->line_height,
+                   (width - PADDING * 2) / m_FreeTypeGLContext->col_width);
 
     std::cout << "row:" << buffer->GetRows()
               << ", cols:" << buffer->GetCols()
@@ -411,11 +409,11 @@ void DefaultTermWindow::EnableMouseTrack(bool enable) {
 void DefaultTermWindow::InitViewPort() {
     int pixel_height = 0, pixel_width = 0;
     glfwGetFramebufferSize(m_MainDlg, &pixel_width, &pixel_height);
-    // const GLFWvidmode* mode = glfwGetVideoMode(glfwGetPrimaryMonitor());
+    const GLFWvidmode* mode = glfwGetVideoMode(glfwGetPrimaryMonitor());
     int widthMM, heightMM;
     glfwGetMonitorPhysicalSize(glfwGetPrimaryMonitor(), &widthMM, &heightMM);
-    float dpi = pixel_width / (widthMM / 25.4);
-    float dpi_height = (pixel_height / (heightMM / 25.4));
+    float dpi = mode->width / (widthMM / 25.4);
+    float dpi_height = (mode->height / (heightMM / 25.4));
 
     int w_height, w_width;
     glfwGetWindowSize(m_MainDlg, &w_width, &w_height);
@@ -427,9 +425,7 @@ void DefaultTermWindow::InitViewPort() {
               << std::endl;
 
     m_Viewport = {
-        0, 0,
         pixel_width, pixel_height,
-        w_width, w_height,
         dpi, dpi_height,
         0, //line height will be reset after opengl context initialized
         0 //glyph_width
