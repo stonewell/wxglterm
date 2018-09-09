@@ -409,14 +409,17 @@ void DefaultTermWindow::EnableMouseTrack(bool enable) {
 void DefaultTermWindow::InitViewPort() {
     int pixel_height = 0, pixel_width = 0;
     glfwGetFramebufferSize(m_MainDlg, &pixel_width, &pixel_height);
+
     const GLFWvidmode* mode = glfwGetVideoMode(glfwGetPrimaryMonitor());
+
     int widthMM, heightMM;
     glfwGetMonitorPhysicalSize(glfwGetPrimaryMonitor(), &widthMM, &heightMM);
-    float dpi = mode->width / (widthMM / 25.4);
-    float dpi_height = (mode->height / (heightMM / 25.4));
 
     int w_height, w_width;
     glfwGetWindowSize(m_MainDlg, &w_width, &w_height);
+
+    float dpi = mode->width / (widthMM / 25.4) * (float)pixel_width / (float)w_width;
+    float dpi_height = (mode->height / (heightMM / 25.4)) * (float)pixel_height / (float)w_height;
 
     std::cout << "pw:" << pixel_width << ", ph:" << pixel_height
               << "w:" << w_width << ", h:" << w_height
