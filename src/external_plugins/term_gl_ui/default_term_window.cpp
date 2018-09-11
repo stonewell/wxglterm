@@ -2,10 +2,12 @@
 
 #include "default_term_window.h"
 
+#include "term_ui.h"
 #include "term_buffer.h"
 #include "term_context.h"
 #include "term_network.h"
 #include "color_theme.h"
+#include "task.h"
 
 #include "char_width.h"
 
@@ -20,6 +22,45 @@
 #include "base64.h"
 
 #define PADDING (5)
+
+class __SetWindowTitleTask : public virtual PluginBase, public virtual Task {
+public:
+    __SetWindowTitleTask(GLFWwindow * dlg, const std::string & title) :
+        PluginBase("set_window_title_task", "default task set window title", 1)
+        , m_Cancelled(false)
+        , m_Title{title}
+        , m_MainDlg{dlg}
+    {
+    }
+
+    virtual ~__SetWindowTitleTask() = default;
+
+public:
+    void Run() override {
+        if (m_Cancelled)
+            return;
+
+        glfwSetWindowTitle(m_MainDlg, m_Title.c_str());
+    }
+
+    void Cancel() override {
+        m_Cancelled = true;
+    }
+
+    bool IsCancelled() override {
+        return m_Cancelled;
+    }
+
+    MultipleInstancePluginPtr NewInstance() override{
+        //should not called
+        return MultipleInstancePluginPtr {};
+    }
+
+private:
+    bool m_Cancelled;
+    std::string m_Title;
+    GLFWwindow * m_MainDlg;
+};
 
 static
 std::wstring_convert<std::codecvt_utf8<wchar_t>, wchar_t> wcharconv;
@@ -241,7 +282,19 @@ void DefaultTermWindow::Close() {
 }
 
 void DefaultTermWindow::SetWindowTitle(const std::string & title) {
-    glfwSetWindowTitle(m_MainDlg, title.c_str());
+    TermContextPtr context = std::dynamic_pointer_cast<TermContext>(GetPluginContext());
+
+    if (!context)
+        return;
+
+    TermUIPtr term_ui = context->GetTermUI();
+
+    if (!term_ui)
+        return;
+
+    auto task = TaskPtr { new __SetWindowTitleTask(m_MainDlg, title) };
+
+    term_ui->ScheduleTask(task, 5, false);
 }
 
 uint32_t DefaultTermWindow::GetColorByIndex(uint32_t index) {
