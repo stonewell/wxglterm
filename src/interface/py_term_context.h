@@ -32,6 +32,14 @@ public:
         PYBIND11_OVERLOAD_PURE_NAME(void, TermContextBase, "set_term_network", SetTermNetwork, term_network);
     }
 
+    TermUIPtr GetTermUI() const override {
+        PYBIND11_OVERLOAD_PURE_NAME(TermUIPtr, TermContextBase, "get_term_ui", GetTermUI, );
+    }
+
+    void SetTermUI(TermUIPtr term_ui) override {
+        PYBIND11_OVERLOAD_PURE_NAME(void, TermContextBase, "set_term_ui", SetTermUI, term_ui);
+    }
+
     TermDataHandlerPtr GetTermDataHandler() const override {
         PYBIND11_OVERLOAD_PURE_NAME(TermDataHandlerPtr, TermContextBase, "get_term_data_handler", GetTermDataHandler, );
     }

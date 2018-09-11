@@ -1,5 +1,7 @@
-from wxglterm_interface import Plugin, print_plugin_info, TermContext, TermBuffer
+from wxglterm_interface import Plugin, print_plugin_info, TermContext, TermUI
+
 from context_base import ContextBase
+
 
 class DefaultTermContext(ContextBase, TermContext):
     def __init__(self):
@@ -14,6 +16,7 @@ class DefaultTermContext(ContextBase, TermContext):
         self._term_data_handler = None
         self._term_color_theme = None
         self._input_handler = None
+        self._term_ui = None
 
     def get_term_buffer(self):
         return self._term_buffer
@@ -32,6 +35,12 @@ class DefaultTermContext(ContextBase, TermContext):
 
     def set_term_network(self, term_network):
         self._term_network = term_network
+
+    def get_term_ui(self):
+        return self._term_ui
+
+    def set_term_ui(self, term_ui):
+        self._term_ui = term_ui
 
     def get_term_data_handler(self):
         return self._term_data_handler
@@ -57,6 +66,8 @@ class DefaultTermContext(ContextBase, TermContext):
     term_data_handler = property(get_term_data_handler, set_term_data_handler)
     term_color_theme = property(get_term_color_theme, set_term_color_theme)
     input_handler = property(get_input_handler, set_input_handler)
+    term_ui = property(get_term_ui, set_term_ui)
+
 
 def register_plugins(pm):
     ni = DefaultTermContext().new_instance()
