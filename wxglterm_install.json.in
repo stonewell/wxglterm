@@ -5,7 +5,7 @@
 	"dir":"@CMAKE_INSTALL_PREFIX@/share/wxglterm/plugins",
 	"python_lib":"@CMAKE_INSTALL_PREFIX@/share/wxglterm/libs",
 	"ui":{
-	    "name":"term_gl_ui"
+	    "name":"term_direct_gl_ui"
 	},
 	"network":{
 	    "name":"term_network_use_pty",

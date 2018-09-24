@@ -84,24 +84,28 @@ public:
         (void)end;
     }
 
-    void DeleteLines(uint32_t begin, uint32_t count) {
+    void DeleteLines(uint32_t begin, uint32_t count, TermCellPtr cell_template) {
         (void)begin;
         (void)count;
+        (void)cell_template;
     }
 
-    void InsertLines(uint32_t begin, uint32_t count) {
+    void InsertLines(uint32_t begin, uint32_t count, TermCellPtr cell_template) {
         (void)begin;
         (void)count;
+        (void)cell_template;
     }
 
-    void ScrollBuffer(int32_t scroll_offset) {
+    void ScrollBuffer(int32_t scroll_offset, TermCellPtr cell_template) {
         (void)scroll_offset;
+        (void)cell_template;
     }
 
-    bool MoveCurRow(uint32_t offset, bool move_down, bool scroll_buffer) {
+    bool MoveCurRow(uint32_t offset, bool move_down, bool scroll_buffer, TermCellPtr cell_template) {
         (void)offset;
         (void)move_down;
         (void)scroll_buffer;
+        (void)cell_template;
         return false;
     }
 

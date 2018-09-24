@@ -115,6 +115,7 @@ public:
         term_context->SetTermColorTheme(TermColorThemePtr{});
         term_context->SetAppConfig(AppConfigPtr{});
         term_context->SetInputHandler(InputHandlerPtr{});
+        term_context->SetTermUI(TermUIPtr{});
     }
 
     TermContextPtr term_context;
@@ -199,6 +200,7 @@ bool wxGLTermApp::DoInit()
 
         __TermContextReset context_reset{term_context};
 
+        term_context->SetTermUI(term_ui);
         term_context->SetTermWindow(term_ui->CreateWindow());
         term_context->SetTermNetwork(term_network);
         term_context->SetTermDataHandler(term_data_handler);

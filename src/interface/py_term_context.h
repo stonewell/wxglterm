@@ -4,9 +4,9 @@
 #include "term_context.h"
 
 template<class TermContextBase = TermContext>
-class PyTermContext : public virtual PyContext<TermContextBase> {
+class PyTermContext : public virtual PyPluginContext<TermContextBase> {
 public:
-    using PyContext<TermContextBase>::PyContext;
+    using PyPluginContext<TermContextBase>::PyPluginContext;
 
 public:
     TermBufferPtr GetTermBuffer() const override {
@@ -30,6 +30,14 @@ public:
 
     void SetTermNetwork(TermNetworkPtr term_network) override {
         PYBIND11_OVERLOAD_PURE_NAME(void, TermContextBase, "set_term_network", SetTermNetwork, term_network);
+    }
+
+    TermUIPtr GetTermUI() const override {
+        PYBIND11_OVERLOAD_PURE_NAME(TermUIPtr, TermContextBase, "get_term_ui", GetTermUI, );
+    }
+
+    void SetTermUI(TermUIPtr term_ui) override {
+        PYBIND11_OVERLOAD_PURE_NAME(void, TermContextBase, "set_term_ui", SetTermUI, term_ui);
     }
 
     TermDataHandlerPtr GetTermDataHandler() const override {

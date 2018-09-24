@@ -102,24 +102,24 @@ void DefaultTermBuffer::SetScrollRegionEnd(uint32_t end) {
     m_Buffers[m_CurBuffer].SetScrollRegionEnd(end);
 }
 
-void DefaultTermBuffer::DeleteLines(uint32_t begin, uint32_t count) {
+void DefaultTermBuffer::DeleteLines(uint32_t begin, uint32_t count, TermCellPtr cell_template) {
     std::lock_guard<std::recursive_mutex> guard(m_UpdateLock);
-    m_Buffers[m_CurBuffer].DeleteLines(begin, count);
+    m_Buffers[m_CurBuffer].DeleteLines(begin, count, cell_template);
 }
 
-void DefaultTermBuffer::InsertLines(uint32_t begin, uint32_t count) {
+void DefaultTermBuffer::InsertLines(uint32_t begin, uint32_t count, TermCellPtr cell_template) {
     std::lock_guard<std::recursive_mutex> guard(m_UpdateLock);
-    m_Buffers[m_CurBuffer].InsertLines(begin, count);
+    m_Buffers[m_CurBuffer].InsertLines(begin, count, cell_template);
 }
 
-void DefaultTermBuffer::ScrollBuffer(int32_t scroll_offset) {
+void DefaultTermBuffer::ScrollBuffer(int32_t scroll_offset, TermCellPtr cell_template) {
     std::lock_guard<std::recursive_mutex> guard(m_UpdateLock);
-    m_Buffers[m_CurBuffer].ScrollBuffer(scroll_offset);
+    m_Buffers[m_CurBuffer].ScrollBuffer(scroll_offset, cell_template);
 }
 
-bool DefaultTermBuffer::MoveCurRow(uint32_t offset, bool move_down, bool scroll_buffer) {
+bool DefaultTermBuffer::MoveCurRow(uint32_t offset, bool move_down, bool scroll_buffer, TermCellPtr cell_template) {
     std::lock_guard<std::recursive_mutex> guard(m_UpdateLock);
-    return m_Buffers[m_CurBuffer].MoveCurRow(offset, move_down, scroll_buffer);
+    return m_Buffers[m_CurBuffer].MoveCurRow(offset, move_down, scroll_buffer, cell_template);
 }
 
 void DefaultTermBuffer::SetCellDefaults(wchar_t c,

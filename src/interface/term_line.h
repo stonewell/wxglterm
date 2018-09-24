@@ -5,6 +5,7 @@
 class TermLine : public virtual Plugin {
 public:
     virtual void Resize(uint32_t col) = 0;
+    virtual void Resize(uint32_t col, TermCellPtr cell_template) = 0;
 
     virtual TermCellPtr GetCell(uint32_t col) = 0;
     //return the removed cell at end of line

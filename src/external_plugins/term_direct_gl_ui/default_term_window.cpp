@@ -1,4 +1,5 @@
 #include <pybind11/embed.h>
+#include "opengl.h"
 
 #include "default_term_window.h"
 
@@ -10,8 +11,6 @@
 #include "task.h"
 
 #include "char_width.h"
-
-#include "shader.h"
 
 #include <iostream>
 #include <iterator>
@@ -76,6 +75,8 @@ void reshape( GLFWwindow* window, int width, int height )
 
     if (!plugin)
         return;
+
+    std::cout << "reshape w:" << width << ", h:" << height << std::endl;
 
     plugin->OnSize(width, height);
 }
@@ -182,10 +183,6 @@ DefaultTermWindow::DefaultTermWindow()
     , m_EnableMouseTrack {false}
     , m_Width {0}
     , m_Height {0} {
-
-        mat4_set_identity( &m_Projection );
-        mat4_set_identity( &m_Model );
-        mat4_set_identity( &m_View );
       }
 
 void DefaultTermWindow::Refresh() {
@@ -199,7 +196,7 @@ void DefaultTermWindow::Refresh() {
 
 void DefaultTermWindow::InitFreeTypeGLContext() {
     if (!m_FreeTypeGLContext) {
-        m_FreeTypeGLContext = freetype_gl_init();
+        m_FreeTypeGLContext = freetype_gl_init(m_Viewport);
 
         TermContextPtr context = std::dynamic_pointer_cast<TermContext>(GetPluginContext());
 
@@ -210,15 +207,17 @@ void DefaultTermWindow::InitFreeTypeGLContext() {
             auto font_name = appConfig->GetEntry("/term/font/name", "Monospace");
             auto font_lang = appConfig->GetEntry("/term/font/lang", "zh-CN");
 
-            int height = 0;
-            glfwGetFramebufferSize(m_MainDlg, NULL, &height);
+            // int height = 0;
+            // glfwGetFramebufferSize(m_MainDlg, NULL, &height);
 
-            int w_height;
-            glfwGetWindowSize(m_MainDlg, NULL, &w_height);
+            // int w_height;
+            // glfwGetWindowSize(m_MainDlg, NULL, &w_height);
 
-            font_size = ceil((double)font_size / w_height * height);
+            // font_size = ceil((double)font_size / w_height * height);
 
             m_FreeTypeGLContext->init_font(font_name, font_size, font_lang);
+            m_Viewport.line_height = m_FreeTypeGLContext->line_height;
+            m_Viewport.glyph_width = m_FreeTypeGLContext->col_width;
         }
     }
 }
@@ -243,6 +242,7 @@ void DefaultTermWindow::Show() {
 
         glfwSetWindowUserPointer(m_MainDlg, this);
 
+        InitViewPort();
         InitFreeTypeGLContext();
 
         glfwSetFramebufferSizeCallback(m_MainDlg, reshape );
@@ -270,8 +270,6 @@ void DefaultTermWindow::Show() {
         glfwSwapInterval( 1 );
     }
 
-    Init();
-
     glfwShowWindow(m_MainDlg);
 }
 
@@ -298,7 +296,7 @@ void DefaultTermWindow::SetWindowTitle(const std::string & title) {
 }
 
 uint32_t DefaultTermWindow::GetColorByIndex(uint32_t index) {
-    ftgl::vec4 c = __GetColorByIndex(index);
+    ftdgl::text::color_s c = __GetColorByIndex(index);
 
 #define COLOR(x) ((uint32_t)((x) * 255))
 
@@ -315,12 +313,12 @@ void DefaultTermWindow::SetColorByIndex(uint32_t index, uint32_t v) {
     if (index >= TermCell::ColorIndexCount)
         return;
 
-#define C2V(x) ((float)(x) / 255)
-    m_ColorTable[index] = {{C2V((v >> 24) & 0xFF),
+#define C2V(x) static_cast<float>((x) / 255.0)
+    m_ColorTable[index] = {C2V((v >> 24) & 0xFF),
                         C2V((v >> 16) & 0xFF),
                         C2V((v >> 8) & 0xFF),
                         C2V((v & 0xFF))
-        }};
+        };
 #undef C2V
 }
 
@@ -354,9 +352,6 @@ void DefaultTermWindow::SetSelectionData(const std::string & sel_data) {
 }
 
 void DefaultTermWindow::OnSize(int width, int height) {
-
-    mat4_set_orthographic( &m_Projection, 0, width, 0, height, -1, 1);
-
     TermContextPtr context = std::dynamic_pointer_cast<TermContext>(GetPluginContext());
 
     if (!context)
@@ -369,6 +364,10 @@ void DefaultTermWindow::OnSize(int width, int height) {
 
     m_Width = width;
     m_Height = height;
+    m_Viewport.width = width;
+    m_Viewport.height = height;
+
+    Init();
 
     buffer->Resize((height - PADDING * 2) / m_FreeTypeGLContext->line_height,
                    (width - PADDING * 2) / m_FreeTypeGLContext->col_width);
@@ -394,7 +393,7 @@ bool DefaultTermWindow::ShouldClose() {
 
 void DefaultTermWindow::InitColorTable()
 {
-#define C2V(x) ((float)(x) / 255)
+#define C2V(x) static_cast<float>((x) / 255.0)
     TermContextPtr context = std::dynamic_pointer_cast<TermContext>(GetPluginContext());
     TermColorThemePtr color_theme = context->GetTermColorTheme();
 
@@ -406,11 +405,11 @@ void DefaultTermWindow::InitColorTable()
         {
             TermColorPtr color = color_theme->GetColor(i);
 
-            m_ColorTable[i] = {{C2V(color->r),
+            m_ColorTable[i] = {C2V(color->r),
                                 C2V(color->g),
                                 C2V(color->b),
                                 C2V(color->a)
-                }};
+                };
         }
     }
     catch(std::exception & e)
@@ -434,13 +433,9 @@ void DefaultTermWindow::InitColorTable()
 
 void DefaultTermWindow::Init() {
     if (!m_TextBuffer) {
-        m_TextShader = shader_load();
-        m_TextBuffer = ftgl::text_buffer_new( );
+        m_TextBuffer = ftdgl::text::CreateTextBuffer(m_Viewport);
+        m_Render = ftdgl::render::CreateRender();
     }
-
-    auto font_manager = m_FreeTypeGLContext->font_manager;
-
-    glGenTextures( 1, &font_manager->atlas->id );
 }
 
 void DefaultTermWindow::UpdateWindow() {
@@ -462,4 +457,33 @@ void DefaultTermWindow::UpdateWindow() {
 
 void DefaultTermWindow::EnableMouseTrack(bool enable) {
     m_EnableMouseTrack = enable;
+}
+
+void DefaultTermWindow::InitViewPort() {
+    int pixel_height = 0, pixel_width = 0;
+    glfwGetFramebufferSize(m_MainDlg, &pixel_width, &pixel_height);
+
+    const GLFWvidmode* mode = glfwGetVideoMode(glfwGetPrimaryMonitor());
+
+    int widthMM, heightMM;
+    glfwGetMonitorPhysicalSize(glfwGetPrimaryMonitor(), &widthMM, &heightMM);
+
+    int w_height, w_width;
+    glfwGetWindowSize(m_MainDlg, &w_width, &w_height);
+
+    float dpi = mode->width / (widthMM / 25.4) * (float)pixel_width / (float)w_width;
+    float dpi_height = (mode->height / (heightMM / 25.4)) * (float)pixel_height / (float)w_height;
+
+    std::cout << "pw:" << pixel_width << ", ph:" << pixel_height
+              << "w:" << w_width << ", h:" << w_height
+              << ", dpi:" << dpi
+              << ", " << dpi_height
+              << std::endl;
+
+    m_Viewport = {
+        pixel_width, pixel_height,
+        dpi, dpi_height,
+        0, //line height will be reset after opengl context initialized
+        0 //glyph_width
+    };
 }

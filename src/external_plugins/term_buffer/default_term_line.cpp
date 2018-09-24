@@ -16,7 +16,19 @@ public:
     }
 
     void Resize(uint32_t col) override {
-        m_Cells.resize(col);
+        Resize(col, CreateDefaultTermCell(this));
+    }
+
+    void Resize(uint32_t col, TermCellPtr cell_template) override {
+        auto cur_size = m_Cells.size();
+
+        for(auto i = cur_size; i < col; i++) {
+            auto cell = CreateDefaultTermCell(this);
+            cell->Reset(cell_template);
+            cell->SetChar(L' ');
+            m_Cells.push_back(cell);
+        }
+
         SetModified(true);
     }
 

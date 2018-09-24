@@ -50,7 +50,8 @@ void parm_insert_line(term_data_context_s & term_context,
         count = params[0];
 
     term_context.term_buffer->InsertLines(term_context.term_buffer->GetRow(),
-                                          count);
+                                          count,
+                                          term_context.cell_template);
 }
 
 void delete_line(term_data_context_s & term_context,
@@ -67,7 +68,8 @@ void parm_delete_line(term_data_context_s & term_context,
         count = params[0];
 
     term_context.term_buffer->DeleteLines(term_context.term_buffer->GetRow(),
-                                          count);
+                                          count,
+                                          term_context.cell_template);
 }
 
 void clr_eos(term_data_context_s & term_context,

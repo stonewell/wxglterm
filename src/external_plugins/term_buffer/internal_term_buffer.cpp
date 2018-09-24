@@ -188,10 +188,13 @@ void __InternalTermBuffer::SetCurCellData(uint32_t ch,
                                           TermCellPtr cell_template) {
     int new_cell_count = wide_char ? 2 : 1;
 
+    if (m_TermBuffer->m_Debug)
+        std::cout << "set:[" << (char)ch << "], c:" << m_CurCol << ", r:" << m_CurRow << std::endl;
+
     if (!insert)
     {
         if (m_CurCol + new_cell_count > m_Cols) {
-            MoveCurRow(1, true, false);
+            MoveCurRow(1, true, false, cell_template);
             SetCol(0);
         }
 
@@ -236,7 +239,7 @@ void __InternalTermBuffer::SetCurCellData(uint32_t ch,
         }
 
         if (!IsDefaultCell(extra_cell) || !IsDefaultCell(extra_cell_2)) {
-            MoveCurRow(1, true, false);
+            MoveCurRow(1, true, false, cell_template);
             SetCol(0);
 
             if (m_CurRow > saved_row)
@@ -292,7 +295,7 @@ TermLinePtr __InternalTermBuffer::GetLine(uint32_t row) {
     return TermLinePtr{};
 }
 
-void __InternalTermBuffer::DeleteLines(uint32_t begin, uint32_t count) {
+void __InternalTermBuffer::DeleteLines(uint32_t begin, uint32_t count, TermCellPtr cell_template) {
     uint32_t end = m_Rows;
 
     //delete/insert lines will clear all saved history data
@@ -312,7 +315,9 @@ void __InternalTermBuffer::DeleteLines(uint32_t begin, uint32_t count) {
     //Insert First, then delete
     for (uint32_t i = begin; i < begin + count; i++)
     {
-        tmpVector.push_back(TermLinePtr{});
+        TermLinePtr new_line = CreateDefaultTermLine(m_TermBuffer);
+        new_line->Resize(GetCols(), cell_template);
+        tmpVector.push_back(new_line);
     }
 
     TermLineVector::iterator b_it = m_Lines.begin() + RowToLineIndex(begin),
@@ -326,7 +331,7 @@ void __InternalTermBuffer::DeleteLines(uint32_t begin, uint32_t count) {
     m_Lines.erase(b_it, e_it);
 }
 
-void __InternalTermBuffer::InsertLines(uint32_t begin, uint32_t count) {
+void __InternalTermBuffer::InsertLines(uint32_t begin, uint32_t count, TermCellPtr cell_template) {
     uint32_t end = m_Rows;
 
     //delete/insert lines will clear all saved history data
@@ -350,22 +355,26 @@ void __InternalTermBuffer::InsertLines(uint32_t begin, uint32_t count) {
     TermLineVector tmpVector;
     for (uint32_t i = 0; i < count; i++)
     {
-        tmpVector.push_back(TermLinePtr{});
+        TermLinePtr new_line = CreateDefaultTermLine(m_TermBuffer);
+        new_line->Resize(GetCols(), cell_template);
+        tmpVector.push_back(new_line);
     }
 
     b_it = m_Lines.begin() + RowToLineIndex(begin);
     m_Lines.insert(b_it, tmpVector.begin(), tmpVector.end());
 }
 
-void __InternalTermBuffer::ScrollBuffer(int32_t scroll_offset) {
+void __InternalTermBuffer::ScrollBuffer(int32_t scroll_offset, TermCellPtr cell_template) {
     if (scroll_offset < 0) {
         if (HasScrollRegion()) {
             uint32_t begin = m_VisRowScrollRegionBegin - scroll_offset;
             uint32_t end = begin + m_ScrollRegionEnd - m_ScrollRegionBegin + 1;
 
             while (end > m_VisRowFooterBegin) {
+                TermLinePtr new_line = CreateDefaultTermLine(m_TermBuffer);
+                new_line->Resize(GetCols(), cell_template);
                 m_Lines.insert(m_Lines.begin() + m_VisRowFooterBegin,
-                               TermLinePtr{});
+                               new_line);
                 m_VisRowFooterBegin++;
             }
 
@@ -387,8 +396,10 @@ void __InternalTermBuffer::ScrollBuffer(int32_t scroll_offset) {
                 for(uint32_t i = m_VisRowScrollRegionBegin;
                     i < m_VisRowHeaderBegin + m_ScrollRegionBegin + scroll_offset;
                     i++) {
+                    TermLinePtr new_line = CreateDefaultTermLine(m_TermBuffer);
+                    new_line->Resize(GetCols(), cell_template);
                     m_Lines.insert(m_Lines.begin() + m_VisRowHeaderBegin + m_ScrollRegionBegin,
-                                   TermLinePtr{});
+                                   new_line);
                     m_VisRowFooterBegin ++;
                 }
 
@@ -399,7 +410,9 @@ void __InternalTermBuffer::ScrollBuffer(int32_t scroll_offset) {
         } else {
             if (m_VisRowHeaderBegin < (uint32_t)scroll_offset) {
                 for(uint32_t i = m_VisRowHeaderBegin;i < (uint32_t)scroll_offset;i++) {
-                    m_Lines.insert(m_Lines.begin(), TermLinePtr{});
+                    TermLinePtr new_line = CreateDefaultTermLine(m_TermBuffer);
+                    new_line->Resize(GetCols(), cell_template);
+                    m_Lines.insert(m_Lines.begin(), new_line);
                 }
 
                 m_VisRowHeaderBegin = scroll_offset;
@@ -411,7 +424,7 @@ void __InternalTermBuffer::ScrollBuffer(int32_t scroll_offset) {
     }
 }
 
-bool __InternalTermBuffer::MoveCurRow(uint32_t offset, bool move_down, bool scroll_buffer) {
+bool __InternalTermBuffer::MoveCurRow(uint32_t offset, bool move_down, bool scroll_buffer, TermCellPtr cell_template) {
     uint32_t begin = 0, end = GetRows() - 1;
 
     bool scrolled = false;
@@ -429,7 +442,7 @@ bool __InternalTermBuffer::MoveCurRow(uint32_t offset, bool move_down, bool scro
             //scroll
             if (scroll_buffer)
             {
-                ScrollBuffer(-1 * (m_CurRow + offset - end));
+                ScrollBuffer(-1 * (m_CurRow + offset - end), cell_template);
                 scrolled = true;
             }
         }
@@ -442,7 +455,7 @@ bool __InternalTermBuffer::MoveCurRow(uint32_t offset, bool move_down, bool scro
             //scroll
             if (scroll_buffer)
             {
-                ScrollBuffer(begin + offset - m_CurRow);
+                ScrollBuffer(begin + offset - m_CurRow, cell_template);
                 scrolled = true;
             }
         }

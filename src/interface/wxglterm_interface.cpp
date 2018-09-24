@@ -76,7 +76,7 @@ PYBIND11_EMBEDDED_MODULE(wxglterm_interface, m)
     multiple_instance_plugin.def(py::init<>())
             .def("new_instance", &MultipleInstancePlugin::NewInstance);
 
-    py::class_<Context, PyContext<>, std::shared_ptr<Context>> context(m, "Context", multiple_instance_plugin);
+    py::class_<Context, PyPluginContext<>, std::shared_ptr<Context>> context(m, "Context", multiple_instance_plugin);
     context.def(py::init<>())
             .def_property("app_config", &Context::GetAppConfig, &Context::SetAppConfig)
             ;
@@ -116,7 +116,8 @@ PYBIND11_EMBEDDED_MODULE(wxglterm_interface, m)
 
     py::class_<TermLine, PyTermLine<>, std::shared_ptr<TermLine>> term_line(m, "TermLine", plugin);
     term_line.def(py::init<>())
-            .def("resize", &TermLine::Resize)
+            .def("resize", (void(TermLine::*)(uint32_t))&TermLine::Resize)
+            .def("resize", (void(TermLine::*)(uint32_t, TermCellPtr))&TermLine::Resize)
             .def("get_cell", &TermLine::GetCell)
             .def("insert_cell", &TermLine::InsertCell)
             .def_property("is_modified", &TermLine::IsModified, &TermLine::SetModified)
@@ -204,6 +205,7 @@ PYBIND11_EMBEDDED_MODULE(wxglterm_interface, m)
             .def_property("term_buffer", &TermContext::GetTermBuffer, &TermContext::SetTermBuffer)
             .def_property("term_window", &TermContext::GetTermWindow, &TermContext::SetTermWindow)
             .def_property("term_network", &TermContext::GetTermNetwork, &TermContext::SetTermNetwork)
+            .def_property("term_ui", &TermContext::GetTermUI, &TermContext::SetTermUI)
             .def_property("term_data_handler", &TermContext::GetTermDataHandler, &TermContext::SetTermDataHandler)
             .def_property("term_color_theme", &TermContext::GetTermColorTheme, &TermContext::SetTermColorTheme)
             .def_property("input_handler", &TermContext::GetInputHandler, &TermContext::SetInputHandler)

@@ -31,7 +31,7 @@ freetype_gl_context::freetype_gl_context()
     : font_manager {ftgl::font_manager_new(256, 256, LCD_FILTERING_ON)}
     , font_name {"Mono"}
     , font_size {48}
-    , atlas_line_char_count {32} {
+    , atlas_line_char_count {72} {
         memset(fonts_markup, 0, sizeof(fonts_markup));
       }
 
