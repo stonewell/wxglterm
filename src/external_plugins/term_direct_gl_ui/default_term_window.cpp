@@ -255,6 +255,7 @@ void DefaultTermWindow::Show() {
         glfwSetScrollCallback(m_MainDlg, scroll_callback);
 
 #ifndef __APPLE__
+        glewExperimental = GL_TRUE;
         GLenum err = glewInit();
         if (GLEW_OK != err)
         {
