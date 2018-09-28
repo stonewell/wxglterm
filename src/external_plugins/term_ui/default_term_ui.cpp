@@ -208,7 +208,10 @@ public:
 
     bool ScheduleTask(TaskPtr task, int miliseconds, bool repeated) {
         auto timer = new __wxGLTimer(task, miliseconds, repeated);
-        return timer->Start(miliseconds, !repeated);
+        wxGetApp().CallAfter([timer, miliseconds, repeated]{
+                                  timer->Start(miliseconds, !repeated);
+                              });
+        return true;
     }
 };
 
