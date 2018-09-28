@@ -92,7 +92,9 @@ public:
     }
 
     void SetWindowTitle(const std::string & title) override {
-        m_MainDlg->SetTitle(wxString(title.c_str()));
+        m_MainDlg->CallAfter([this, title] {
+                                 m_MainDlg->SetTitle(wxString(title.c_str()));
+                             });
     }
 
     uint32_t GetColorByIndex(uint32_t index) override {

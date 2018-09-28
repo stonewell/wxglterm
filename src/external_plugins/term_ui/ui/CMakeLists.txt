@@ -8,6 +8,8 @@ ADD_LIBRARY(wxglterm_ui
 
 ADD_DEPENDENCIES(wxglterm_ui pybind11)
 
+FIND_LIBRARY(APPLICATION_SERVICES_FRAMEWORK ApplicationServices REQUIRED)
+
 TARGET_COMPILE_DEFINITIONS(wxglterm_ui PRIVATE
     ${wxWidgets_DEFINITIONS}
     )

@@ -31,6 +31,16 @@ OPTION(BUILD_SCINTILLA_EDITOR "build editor buffer using scintilla" OFF)
 
 SET(CMAKE_MODULE_PATH ${CMAKE_MODULE_PATH} "${CMAKE_CURRENT_SOURCE_DIR}/cmake/Modules/")
 
+IF (APPLE)
+   EXEC_PROGRAM(uname ARGS -v  OUTPUT_VARIABLE DARWIN_VERSION)
+   STRING(REGEX MATCH "[0-9]+" DARWIN_VERSION ${DARWIN_VERSION})
+   MESSAGE(STATUS "DARWIN_VERSION=${DARWIN_VERSION}")
+   IF (DARWIN_VERSION GREATER_EQUAL 18)
+      SET(BUILD_OPENGL_UI OFF)
+      MESSAGE(STATUS "Turn off opengl UI since majave or upper not support opengl")
+   ENDIF (DARWIN_VERSION GREATER_EQUAL 18)
+ENDIF(APPLE)
+
 if ("${CMAKE_CXX_COMPILER_ID}" STREQUAL "GNU")
   set(warnings "-Wall -Wextra -Werror -Wno-cast-function-type -Wno-ignored-qualifiers")
   set(no_undefined "-Wl,--no-undefined")
