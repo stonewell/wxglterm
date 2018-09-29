@@ -6,6 +6,11 @@
 #include "term_context.h"
 #include "term_network.h"
 #include "color_theme.h"
+
+#ifdef GLFW_HACK_FIX
+#include "glfw_hack.h"
+#endif
+
 class __ScopeLocker {
 public:
     __ScopeLocker(TermBufferPtr termBuffer) :
@@ -94,6 +99,9 @@ void DefaultTermWindow::OnDraw() {
         glUseProgram( 0 );
     }
 
+#ifdef GLFW_HACK_FIX
+    updateGlfwContext(m_MainDlg);
+#endif
     glfwSwapBuffers(m_MainDlg);
 }
 
@@ -151,26 +159,6 @@ void DefaultTermWindow::DoDraw() {
     std::vector<uint32_t> rowsToDraw;
 
     std::bitset<16> m(buffer->GetMode());
-
-    //catch glyphs
-    // std::unordered_set<uint32_t> codepoints;
-
-    // for (auto row = 0u; row < rows; row++) {
-    //     auto line = buffer->GetLine(row);
-    //     for (auto col = 0u; col < cols; col++) {
-    //         auto cell = line->GetCell(col);
-
-    //         wchar_t ch = 0;
-
-    //         if (!(cell && (ch = cell->GetChar()) != 0)) {
-    //             ch = ' ';
-    //         }
-
-    //         codepoints.emplace(ch);
-    //     }
-    // }
-
-    // m_FreeTypeGLContext->ensure_glyphs(codepoints);
 
     for (auto row = 0u; row < rows; row++) {
         auto line = buffer->GetLine(row);
