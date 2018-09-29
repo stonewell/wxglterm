@@ -136,12 +136,10 @@ public:
     int32_t StartMainUILoop() {
         glfwWindowHint( GLFW_VISIBLE, GL_FALSE );
         glfwWindowHint( GLFW_RESIZABLE, GL_TRUE );
-#ifndef __APPLE__
         glfwWindowHint(GLFW_CONTEXT_VERSION_MAJOR, 3);
         glfwWindowHint(GLFW_CONTEXT_VERSION_MINOR, 3);
         glfwWindowHint(GLFW_OPENGL_FORWARD_COMPAT, GL_TRUE); // To make MacOS happy; should not be needed
         glfwWindowHint(GLFW_OPENGL_PROFILE, GLFW_OPENGL_CORE_PROFILE);
-#endif
 
         pybind11::gil_scoped_release release;
 
