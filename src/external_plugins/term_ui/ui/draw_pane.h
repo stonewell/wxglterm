@@ -5,6 +5,10 @@
 #include <bitset>
 #include <vector>
 
+#include "text_blob.h"
+
+#define USE_TEXT_BLOB 1
+
 class DrawPane : public wxPanel {
 public:
     DrawPane(wxFrame * parent,
@@ -99,7 +103,12 @@ private:
                      uint32_t mode,
                      wxCoord & last_x,
                      wxCoord & last_y,
-                     bool drawBySingleChar = false);
+#if USE_TEXT_BLOB
+                     wxTextBlob & text_blob
+#else
+                     bool drawBySingleChar = false
+#endif
+                     );
 
     void InitColorTable();
 
