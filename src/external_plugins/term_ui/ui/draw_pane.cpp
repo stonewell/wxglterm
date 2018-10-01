@@ -76,38 +76,28 @@ void DrawPane::RequestRefresh()
         m_RefreshNow++;
     }
 
-    wxCommandEvent event(MY_REFRESH_EVENT);
+    //wxCommandEvent event(MY_REFRESH_EVENT);
 
     // Do send it
-    wxPostEvent(this, event);
+    //wxPostEvent(this, event);
     //wxWakeUpIdle();
 
-    // if (!buffer)
-    // {
-    // TermContextPtr context = std::dynamic_pointer_cast<TermContext>(m_TermWindow->GetPluginContext());
+    TermBufferPtr buffer =EnsureTermBuffer();
+    if (!buffer)
+        return;
 
-    // if (!context)
-    //     return;
+    wxRect clientSize = GetClientSize();
 
-    // buffer = context->GetTermBuffer();
-    // }
-    // if (!buffer)
-    //     return;
+    wxRegion clipRegion(clientSize);
 
-    // wxRect clientSize = GetClientSize();
+    CalculateClipRegion(clipRegion, buffer);
 
-    // wxRegion clipRegion(clientSize);
-
-    // CalculateClipRegion(clipRegion, buffer);
-
-    // wxRegionIterator upd(clipRegion);
-    // while (upd)
-    // {
-    //     RefreshRect(upd.GetRect());
-    //     upd++;
-    // }
-
-    //m_RefreshTimer.StartOnce(20);
+    wxRegionIterator upd(clipRegion);
+    while (upd)
+    {
+        RefreshRect(upd.GetRect(), false);
+        upd++;
+    }
 }
 
 void DrawPane::OnEraseBackground(wxEraseEvent & /*event*/)
@@ -264,11 +254,6 @@ wxFont * DrawPane::GetFont(FontCategoryEnum font_category)
 void DrawPane::OnIdle(wxIdleEvent& evt)
 {
     (void)evt;
-    //PaintOnDemand();
-
-    //if (m_RefreshNow)
-        //evt.RequestMore(); // render continuously, not only once on idle
-        //wxWakeUpIdle();
 }
 
 void DrawPane::InitColorTable()
@@ -309,21 +294,11 @@ void DrawPane::InitColorTable()
 void DrawPane::OnTimer(wxTimerEvent& event)
 {
     (void)event;
-    //PaintOnDemand();
-    //Refresh();
 }
 
 void DrawPane::OnRefreshEvent(wxCommandEvent& event)
 {
     (void)event;
-    // PaintOnDemand();
-
-    // if (m_RefreshNow) {
-    //     wxCommandEvent event(MY_REFRESH_EVENT);
-
-    //     wxPostEvent(this, event);
-    // }
-    m_RefreshTimer.StartOnce(20);
 }
 
 TermBufferPtr DrawPane::EnsureTermBuffer()
