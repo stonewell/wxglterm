@@ -77,6 +77,7 @@ TARGET_INCLUDE_DIRECTORIES(term_direct_gl_ui
 	"${freetype-direct-gl_INCLUDE_DIR}/windows/freetype"
 	$<TARGET_PROPERTY:glfw,INTERFACE_INCLUDE_DIRECTORIES>
 	${OPENGL_INCLUDE_DIR}
+	"${GLFW_HACK_FIX_INCLUDE_DIR}"
 )
 
 TARGET_LINK_LIBRARIES(term_direct_gl_ui
@@ -90,6 +91,7 @@ TARGET_LINK_LIBRARIES(term_direct_gl_ui
   ${freetype-direct-gl_LIBRARIES}
   ${FONTCONFIG_LIBRARY}
   ${GLEW_LIBRARY}
+  ${GLFW_HACK_FIX_LIB}
   )
 
 INSTALL(TARGETS term_direct_gl_ui DESTINATION share/wxglterm/plugins)

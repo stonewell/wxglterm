@@ -1,0 +1,17 @@
+FIND_PACKAGE(OpenGL REQUIRED)
+FIND_PACKAGE(glfw3 3.2 REQUIRED)
+
+SET(glfw_fix_src
+    glfw_hack.h glfw_hack.m
+    )
+
+ADD_LIBRARY(glfw_fix STATIC
+  ${glfw_fix_src}
+  )
+
+TARGET_INCLUDE_DIRECTORIES(glfw_fix
+    PRIVATE
+	"${CMAKE_CURRENT_SRC_DIR}"
+	$<TARGET_PROPERTY:glfw,INTERFACE_INCLUDE_DIRECTORIES>
+	${OPENGL_INCLUDE_DIR}
+)

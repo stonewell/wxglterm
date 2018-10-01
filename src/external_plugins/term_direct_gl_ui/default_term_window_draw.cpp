@@ -8,6 +8,10 @@
 #include "term_network.h"
 #include "color_theme.h"
 
+#ifdef GLFW_HACK_FIX
+#include "glfw_hack.h"
+#endif
+
 class __ScopeLocker {
 public:
     __ScopeLocker(TermBufferPtr termBuffer) :
@@ -67,6 +71,9 @@ void DefaultTermWindow::OnDraw() {
     glViewport(0, 0, m_Width, m_Height);
     m_Render->RenderText(m_TextBuffer);
 
+#ifdef GLFW_HACK_FIX
+    updateGlfwContext(m_MainDlg);
+#endif
     glfwSwapBuffers(m_MainDlg);
 }
 
