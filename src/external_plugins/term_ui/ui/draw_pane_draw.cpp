@@ -4,7 +4,10 @@
 
 #include "term_window.h"
 #include "draw_pane.h"
+
 #include <wx/dcbuffer.h>
+#include "wx/dcgraph.h"
+#include "wx/graphics.h"
 
 #include "term_context.h"
 #include "term_buffer.h"
@@ -53,7 +56,12 @@ void DrawPane::DrawContent(wxDC &dc,
                            uint32_t mode,
                            wxCoord & last_x,
                            wxCoord & last_y,
-                           bool drawBySingleChar)
+#if USE_TEXT_BLOB
+                           wxTextBlob & text_blob
+#else
+                           bool drawBySingleChar
+#endif
+                           )
 {
     wxSize content_size = dc.GetMultiLineTextExtent(content);
     bool multi_line = content.Find('\n', true) > 0;
@@ -86,7 +94,9 @@ void DrawPane::DrawContent(wxDC &dc,
         font = GetFont(DrawPane::Bold);
     }
 
+#if !USE_TEXT_BLOB
     dc.SetFont(*font);
+#endif
 
     if (m.test(TermCell::Cursor))
     {
@@ -102,6 +112,7 @@ void DrawPane::DrawContent(wxDC &dc,
         fore_color_use = tmp;
     }
 
+#if !USE_TEXT_BLOB
     if (back_color_use != TermCell::DefaultBackColorIndex)
     {
         wxBrush brush(__GetColorByIndex(back_color_use));
@@ -153,6 +164,21 @@ void DrawPane::DrawContent(wxDC &dc,
             last_x += w * m_CellWidth;
         }
     }
+#else
+    text_blob.AddText(content, {last_x, last_y},
+                      font,
+                      __GetColorByIndex(fore_color_use),
+                      __GetColorByIndex(back_color_use));
+
+    if (multi_line)
+    {
+        last_x = PADDING + content_last_line_size.GetWidth();
+    } else {
+        last_x += content_size.GetWidth();
+    }
+
+    last_y += content_size.GetHeight();
+#endif
 
     content.Clear();
     last_fore_color = fore_color;
@@ -216,6 +242,10 @@ void DrawPane::DoPaint(wxDC & dc, TermBufferPtr buffer, bool full_paint, const s
     dc.Clear();
     std::bitset<16> m(buffer->GetMode());
 
+#if USE_TEXT_BLOB
+    wxTextBlob text_blob;
+#endif
+
     for (auto row = 0u; row < rows; row++) {
         auto line = buffer->GetLine(row);
 
@@ -237,7 +267,11 @@ void DrawPane::DoPaint(wxDC & dc, TermBufferPtr buffer, bool full_paint, const s
                             TermCell::DefaultBackColorIndex,
                             0,
                             last_x,
-                            last_y);
+                            last_y
+#if USE_TEXT_BLOB
+                            ,text_blob
+#endif
+                            );
             }
 
             last_x = PADDING;
@@ -281,7 +315,11 @@ void DrawPane::DoPaint(wxDC & dc, TermBufferPtr buffer, bool full_paint, const s
                                 back_color,
                                 mode,
                                 last_x,
-                                last_y);
+                                last_y
+#if USE_TEXT_BLOB
+                                ,text_blob
+#endif
+                                );
                     last_y = y;
                 }
 
@@ -308,7 +346,11 @@ void DrawPane::DoPaint(wxDC & dc, TermBufferPtr buffer, bool full_paint, const s
                         TermCell::DefaultBackColorIndex,
                         0,
                         last_x,
-                        last_y);
+                        last_y
+#if USE_TEXT_BLOB
+                        ,text_blob
+#endif
+                        );
 
             last_x = PADDING;
             last_y = y;
@@ -326,8 +368,18 @@ void DrawPane::DoPaint(wxDC & dc, TermBufferPtr buffer, bool full_paint, const s
                     TermCell::DefaultBackColorIndex,
                     0,
                     last_x,
-                    last_y);
+                    last_y
+#if USE_TEXT_BLOB
+                    ,text_blob
+#endif
+                    );
     }
+
+#if USE_TEXT_BLOB
+    if ( wxGCDC *gcdc = wxDynamicCast(&dc, wxGCDC) ) {
+        text_blob.Render(gcdc->GetGraphicsContext());
+    }
+#endif
 }
 
 void DrawPane::PaintOnDemand()
@@ -346,22 +398,29 @@ void DrawPane::PaintOnDemand()
             std::cout << "refresh:" << refreshNow << std::endl;
     }
 
-    if (refreshNow)
+    if (refreshNow || true)
     {
+#if USE_TEXT_BLOB
+        wxGCDC dc;
+        wxPaintDC paintDC(this);
+        dc.SetGraphicsContext(wxGraphicsContext::Create(paintDC));
+#else
         wxClientDC dc(this);
+#endif
 
         wxRect clientSize = GetClientSize();
 
         wxRegion clipRegion(clientSize);
 
+#if !USE_TEXT_BLOB
         wxBufferedDC bDC(&dc,
                          GetClientSize());
-
+#endif
         __ScopeLocker buffer_locker(m_Buffer);
         if (m_AppDebug)
             std::cout << "buffer locked to draw" << std::endl;
 
-        bool paintChanged = true;
+        bool paintChanged = true && false;
 
         TermCellPtr cell = m_Buffer->GetCurCell();
 
@@ -389,8 +448,11 @@ void DrawPane::PaintOnDemand()
             dc.SetDeviceClippingRegion(clipRegion);
         }
 
+#if USE_TEXT_BLOB
+        DoPaint(dc, m_Buffer, !paintChanged);
+#else
         DoPaint(bDC, m_Buffer, !paintChanged);
-
+#endif
         if (cell)
             cell->RemoveMode(TermCell::Cursor);
         if (m_AppDebug)
