@@ -116,6 +116,7 @@ void DrawPane::OnEraseBackground(wxEraseEvent & /*event*/)
 
 void DrawPane::OnPaint(wxPaintEvent & /*event*/)
 {
+    /*
     TermContextPtr context = std::dynamic_pointer_cast<TermContext>(m_TermWindow->GetPluginContext());
 
     if (!context)
@@ -168,6 +169,8 @@ void DrawPane::OnPaint(wxPaintEvent & /*event*/)
         if (cell)
             cell->RemoveMode(TermCell::Cursor);
     }
+    */
+    PaintOnDemand();
 }
 
 void DrawPane::OnSize(wxSizeEvent& /*event*/)
@@ -261,7 +264,7 @@ wxFont * DrawPane::GetFont(FontCategoryEnum font_category)
 void DrawPane::OnIdle(wxIdleEvent& evt)
 {
     (void)evt;
-    PaintOnDemand();
+    //PaintOnDemand();
 
     //if (m_RefreshNow)
         //evt.RequestMore(); // render continuously, not only once on idle
@@ -306,7 +309,7 @@ void DrawPane::InitColorTable()
 void DrawPane::OnTimer(wxTimerEvent& event)
 {
     (void)event;
-    PaintOnDemand();
+    //PaintOnDemand();
     //Refresh();
 }
 

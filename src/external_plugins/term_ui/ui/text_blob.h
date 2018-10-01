@@ -15,5 +15,16 @@ public:
     wxCoord GetGlyphAdvanceX() const { return m_GlyphAdvanceX; }
 
 private:
+    struct __TextPart {
+        wxString text;
+        wxPoint pt;
+        const wxFont * pFont;
+        wxColour fore;
+        wxColour back;
+    };
+
+    using TextPartVector = wxVector<struct __TextPart>;
+
     wxCoord m_GlyphAdvanceX;
+    TextPartVector m_TextParts;
 };
