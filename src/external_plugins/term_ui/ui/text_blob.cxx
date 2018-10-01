@@ -1,4 +1,6 @@
 #include "text_blob.h"
+#include "wx/dcgraph.h"
+#include "wx/graphics.h"
 
 #include <iostream>
 

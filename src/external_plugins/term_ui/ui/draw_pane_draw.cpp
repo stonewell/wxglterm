@@ -398,7 +398,7 @@ void DrawPane::PaintOnDemand()
             std::cout << "refresh:" << refreshNow << std::endl;
     }
 
-    if (refreshNow || true)
+    if (refreshNow)
     {
 #if USE_TEXT_BLOB
         wxGCDC dc;
@@ -420,7 +420,7 @@ void DrawPane::PaintOnDemand()
         if (m_AppDebug)
             std::cout << "buffer locked to draw" << std::endl;
 
-        bool paintChanged = true && false;
+        bool paintChanged = true;
 
         TermCellPtr cell = m_Buffer->GetCurCell();
 
