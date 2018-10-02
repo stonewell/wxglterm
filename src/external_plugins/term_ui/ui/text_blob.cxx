@@ -66,21 +66,9 @@ void wxTextBlob::Render(wxGraphicsContext * context) {
         context->SetFont(*it->pFont, it->fore);
 
         if (it->back != wxNullColour) {
-            context->SetBrush(wxBrush(it->back));
-            context->SetPen(wxPen(it->back));
-
-            wxDouble width, height, descent, leading;
-
-            context->GetTextExtent(it->text,
-                                   &width,
-                                   &height,
-                                   &descent,
-                                   &leading);
-
-            context->DrawRectangle(it->pt.x, it->pt.y,
-                                   width,
-                                   height);
+            context->DrawText(it->text, it->pt.x, it->pt.y, context->CreateBrush(wxBrush(it->back)));
+        } else {
+            context->DrawText(it->text, it->pt.x, it->pt.y);
         }
-        context->DrawText(it->text, it->pt.x, it->pt.y);
     }
 }
