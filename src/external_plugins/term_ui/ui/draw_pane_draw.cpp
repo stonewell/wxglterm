@@ -256,6 +256,10 @@ void DrawPane::DoPaint(wxDC & dc, TermBufferPtr buffer, bool full_paint, const s
         {
             y += m_LineHeight;
 
+            std::cout << "skip row:" << row
+                      << ", " << line->GetLastRenderLineIndex()
+                      << ", " << line->IsModified()
+                      << std::endl;
             if (content.Length() > 0)
             {
                 DrawContent(dc, content,
@@ -280,6 +284,10 @@ void DrawPane::DoPaint(wxDC & dc, TermBufferPtr buffer, bool full_paint, const s
             continue;
         }
 
+            std::cout << "render row:" << row
+                      << ", " << line->GetLastRenderLineIndex()
+                      << ", " << line->IsModified()
+                      << std::endl;
         line->SetLastRenderLineIndex(row);
         line->SetModified(false);
 
@@ -444,8 +452,12 @@ void DrawPane::PaintOnDemand()
         {
             CalculateClipRegion(clipRegion, m_Buffer);
 
+#if USE_TEXT_BLOB
+            dc.GetGraphicsContext()->Clip(clipRegion);
+#else
             dc.DestroyClippingRegion();
             dc.SetDeviceClippingRegion(clipRegion);
+#endif
         }
 
 #if USE_TEXT_BLOB

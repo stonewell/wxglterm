@@ -133,4 +133,6 @@ private:
 
     bool m_EnableMouseTrack;
     int m_SavedMouseButton;
+
+    wxRegion m_UpdateRegion;
 };

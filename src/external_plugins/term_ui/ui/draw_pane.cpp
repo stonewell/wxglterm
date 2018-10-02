@@ -7,6 +7,7 @@
 
 #include <wx/dcbuffer.h>
 #include <wx/clipbrd.h>
+#include <wx/region.h>
 
 #include "term_context.h"
 #include "term_buffer.h"
@@ -55,6 +56,7 @@ DrawPane::DrawPane(wxFrame * parent, TermWindow * termWindow) : wxPanel(parent)
         , m_AppDebug{false}
         , m_EnableMouseTrack{false}
         , m_SavedMouseButton(-1)
+        , m_UpdateRegion(0, 0, 0, 0)
 {
     SetBackgroundStyle(wxBG_STYLE_PAINT);
     InitColorTable();
@@ -76,10 +78,6 @@ void DrawPane::RequestRefresh()
         m_RefreshNow++;
     }
 
-    //wxCommandEvent event(MY_REFRESH_EVENT);
-
-    // Do send it
-    //wxPostEvent(this, event);
     //wxWakeUpIdle();
 
     TermBufferPtr buffer =EnsureTermBuffer();
@@ -92,12 +90,24 @@ void DrawPane::RequestRefresh()
 
     CalculateClipRegion(clipRegion, buffer);
 
-    wxRegionIterator upd(clipRegion);
-    while (upd)
-    {
-        RefreshRect(upd.GetRect(), false);
-        upd++;
-    }
+    m_UpdateRegion.Union(clipRegion);
+    // wxRegionIterator upd(clipRegion);
+    // while (upd)
+    // {
+    //     wxRect r = upd.GetRect();
+    //     RefreshRect(r, false);
+    //     upd++;
+
+    //     std::cout << r.GetX() << "," << r.GetY()
+    //               << ", " << r.GetWidth()
+    //               << ", " << r.GetHeight()
+    //               << std::endl;
+    // }
+
+    wxCommandEvent event(MY_REFRESH_EVENT);
+
+    // Do send it
+    wxPostEvent(this, event);
 }
 
 void DrawPane::OnEraseBackground(wxEraseEvent & /*event*/)
@@ -294,11 +304,35 @@ void DrawPane::InitColorTable()
 void DrawPane::OnTimer(wxTimerEvent& event)
 {
     (void)event;
+
+    if (m_UpdateRegion.IsEmpty())
+        return;
+
+    wxRegionIterator upd(m_UpdateRegion);
+
+    std::cout << "timer update" << std::endl;
+    while (upd)
+    {
+        wxRect r = upd.GetRect();
+        RefreshRect(r, false);
+        upd++;
+
+        std::cout << r.GetX() << "," << r.GetY()
+                  << ", " << r.GetWidth()
+                  << ", " << r.GetHeight()
+                  << std::endl;
+    }
+
+    m_UpdateRegion.Clear();
+    std::cout << "timer update end ......" << std::endl;
+
+    Update();
 }
 
 void DrawPane::OnRefreshEvent(wxCommandEvent& event)
 {
     (void)event;
+    m_RefreshTimer.Start(20, true);
 }
 
 TermBufferPtr DrawPane::EnsureTermBuffer()
