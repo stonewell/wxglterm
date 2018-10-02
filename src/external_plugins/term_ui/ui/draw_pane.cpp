@@ -86,6 +86,7 @@ void DrawPane::RequestRefresh()
 
     wxRect clientSize = GetClientSize();
 
+    clientSize.SetY(PADDING);
     wxRegion clipRegion(clientSize);
 
     CalculateClipRegion(clipRegion, buffer);
@@ -170,6 +171,21 @@ void DrawPane::OnPaint(wxPaintEvent & /*event*/)
             cell->RemoveMode(TermCell::Cursor);
     }
     */
+    wxRegionIterator upd(GetUpdateRegion());
+
+    std::cout << "paint update" << std::endl;
+    while (upd)
+    {
+        wxRect r = upd.GetRect();
+        RefreshRect(r, false);
+        upd++;
+
+        std::cout << r.GetX() << "," << r.GetY()
+                  << ", " << r.GetWidth()
+                  << ", " << r.GetHeight()
+                  << std::endl;
+    }
+    std::cout << "paint update end ......." << std::endl;
     PaintOnDemand();
 }
 
