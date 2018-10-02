@@ -1,14 +1,16 @@
 #include "text_blob.h"
 #include "wx/dcgraph.h"
 #include "wx/graphics.h"
+#include <wx/tokenzr.h>
 
 #include <iostream>
 
 wxTextBlob::wxTextBlob()
-    : m_GlyphAdvanceX {0} {
+    : m_TextExtentContext{wxGraphicsContext::Create()}
+    , m_GlyphAdvanceX {0} {
 }
 
-void wxTextBlob::AddText(const wxString & text,
+wxPoint wxTextBlob::AddText(const wxString & text,
                          const wxPoint pt,
                          const wxFont * pFont,
                          wxColour fore_color,
@@ -19,7 +21,39 @@ void wxTextBlob::AddText(const wxString & text,
     (void)fore_color;
     (void)back_color;
 
-    m_TextParts.push_back({text, pt, pFont, fore_color, back_color});
+    m_TextExtentContext->SetFont(*pFont, fore_color);
+
+    wxStringTokenizer tokenizer(text, "\n");
+
+    wxPoint tmpPt{pt}, lastPt;
+
+    bool empty_token = false;
+
+    do {
+        auto token = tokenizer.HasMoreTokens() ? tokenizer.GetNextToken() : text;
+
+        empty_token = token.IsEmpty();
+
+        wxDouble width = 0.0, height = 0.0, leading = 0.0;
+
+        m_TextExtentContext->GetTextExtent(empty_token ? " " : token,
+                                           &width,
+                                           &height,
+                                           nullptr,
+                                           &leading);
+
+        if (empty_token) width = 0;
+
+        m_TextParts.push_back({token, tmpPt, pFont, fore_color, back_color});
+
+        lastPt = tmpPt;
+        lastPt.x += width;
+
+        tmpPt.x = pt.x;
+        tmpPt.y += height + leading;
+    } while(tokenizer.HasMoreTokens());
+
+    return lastPt;
 }
 
 void wxTextBlob::Render(wxGraphicsContext * context) {

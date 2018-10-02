@@ -63,13 +63,13 @@ void DrawPane::DrawContent(wxDC &dc,
 #endif
                            )
 {
+    (void)dc;
+#if !USE_TEXT_BLOB
     wxSize content_size = dc.GetMultiLineTextExtent(content);
     bool multi_line = content.Find('\n', true) > 0;
 
     wxSize content_last_line_size {0, 0};
     wxSize content_before_last_line_size {0, 0};
-
-    std::bitset<16> m(last_mode);
 
     if (multi_line)
     {
@@ -77,6 +77,9 @@ void DrawPane::DrawContent(wxDC &dc,
         content_before_last_line_size.SetHeight(content_size.GetHeight() - content_last_line_size.GetHeight());
         content_before_last_line_size.SetWidth(content_size.GetWidth());
     }
+#endif
+
+    std::bitset<16> m(last_mode);
 
     uint32_t back_color_use = last_back_color;
     uint32_t fore_color_use = last_fore_color;
@@ -165,19 +168,13 @@ void DrawPane::DrawContent(wxDC &dc,
         }
     }
 #else
-    text_blob.AddText(content, {last_x, last_y},
+    wxPoint pt = text_blob.AddText(content, {last_x, last_y},
                       font,
                       __GetColorByIndex(fore_color_use),
                       back_color_use != TermCell::DefaultBackColorIndex ? __GetColorByIndex(back_color_use) : wxNullColour);
 
-    if (multi_line)
-    {
-        last_x = PADDING + content_last_line_size.GetWidth();
-    } else {
-        last_x += content_size.GetWidth();
-    }
-
-    last_y += content_size.GetHeight();
+    last_x = pt.x;
+    last_y = pt.y;
 #endif
 
     content.Clear();
@@ -281,7 +278,6 @@ void DrawPane::DoPaint(wxDC & dc, TermBufferPtr buffer, bool full_paint, const s
 
             last_x = PADDING;
             last_y = y;
-
             continue;
         }
 
