@@ -186,9 +186,11 @@ void DrawPane::DrawContent(wxDC &dc,
     last_mode = mode;
 }
 
-void DrawPane::CalculateClipRegion(wxRegion & clipRegion, TermBufferPtr buffer)
+void DrawPane::CalculateClipRegion(wxRegion & clipRegion, TermBufferPtr buffer, const wxRegion & updateRegion)
 {
     wxRect clientSize = GetClientSize();
+
+    clientSize.SetY(PADDING);
 
     clipRegion.Union(clientSize);
 
@@ -197,11 +199,14 @@ void DrawPane::CalculateClipRegion(wxRegion & clipRegion, TermBufferPtr buffer)
     for (auto row = 0u; row < rows; row++) {
         auto line = buffer->GetLine(row);
 
+        wxRect rowRect(0, PADDING + row * m_LineHeight, clientSize.GetWidth(), m_LineHeight);
+        if (updateRegion.Contains(rowRect) != wxOutRegion)
+            line->SetModified(true);
+
         if (!clipRegion.IsEmpty()
             && row == line->GetLastRenderLineIndex()
             && !line->IsModified())
         {
-            wxRect rowRect(0, PADDING + row * m_LineHeight, clientSize.GetWidth(), m_LineHeight);
             clipRegion.Subtract(rowRect);
         }
     }
@@ -450,6 +455,21 @@ void DrawPane::PaintOnDemand()
 
         if (paintChanged)
         {
+            wxRegionIterator upd(GetUpdateRegion());
+
+            std::cout << "region update" << std::endl;
+            while (upd)
+            {
+                wxRect r = upd.GetRect();
+                RefreshRect(r, false);
+                upd++;
+
+                std::cout << r.GetX() << "," << r.GetY()
+                          << ", " << r.GetWidth()
+                          << ", " << r.GetHeight()
+                          << std::endl;
+            }
+            std::cout << "region update end ......." << std::endl;
             CalculateClipRegion(clipRegion, m_Buffer);
 
 #if USE_TEXT_BLOB

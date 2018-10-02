@@ -90,7 +90,7 @@ private:
                  , TermBufferPtr buffer
                  , bool full_paint
                  , const std::vector<uint32_t> & rowsToDraw = std::vector<uint32_t>());
-    void CalculateClipRegion(wxRegion & clipRegion, TermBufferPtr buffer);
+    void CalculateClipRegion(wxRegion & clipRegion, TermBufferPtr buffer, const wxRegion & updateRegion = wxRegion(0, 0, 0, 0));
 
     void DrawContent(wxDC &dc,
                      wxString & content,
