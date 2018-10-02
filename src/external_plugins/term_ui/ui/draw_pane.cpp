@@ -56,7 +56,6 @@ DrawPane::DrawPane(wxFrame * parent, TermWindow * termWindow) : wxPanel(parent)
         , m_AppDebug{false}
         , m_EnableMouseTrack{false}
         , m_SavedMouseButton(-1)
-        , m_UpdateRegion(0, 0, 0, 0)
 {
     SetBackgroundStyle(wxBG_STYLE_PAINT);
     InitColorTable();
@@ -78,33 +77,6 @@ void DrawPane::RequestRefresh()
         m_RefreshNow++;
     }
 
-    //wxWakeUpIdle();
-
-    TermBufferPtr buffer =EnsureTermBuffer();
-    if (!buffer)
-        return;
-
-    wxRect clientSize = GetClientSize();
-
-    clientSize.SetY(PADDING);
-    wxRegion clipRegion(clientSize);
-
-    CalculateClipRegion(clipRegion, buffer);
-
-    m_UpdateRegion.Union(clipRegion);
-    // wxRegionIterator upd(clipRegion);
-    // while (upd)
-    // {
-    //     wxRect r = upd.GetRect();
-    //     RefreshRect(r, false);
-    //     upd++;
-
-    //     std::cout << r.GetX() << "," << r.GetY()
-    //               << ", " << r.GetWidth()
-    //               << ", " << r.GetHeight()
-    //               << std::endl;
-    // }
-
     wxCommandEvent event(MY_REFRESH_EVENT);
 
     // Do send it
@@ -117,13 +89,7 @@ void DrawPane::OnEraseBackground(wxEraseEvent & /*event*/)
 
 void DrawPane::OnPaint(wxPaintEvent & /*event*/)
 {
-    /*
-    TermContextPtr context = std::dynamic_pointer_cast<TermContext>(m_TermWindow->GetPluginContext());
-
-    if (!context)
-        return;
-
-    TermBufferPtr buffer = context->GetTermBuffer();
+    TermBufferPtr buffer = EnsureTermBuffer();
 
     if (!buffer)
         return;
@@ -170,23 +136,6 @@ void DrawPane::OnPaint(wxPaintEvent & /*event*/)
         if (cell)
             cell->RemoveMode(TermCell::Cursor);
     }
-    */
-    wxRegionIterator upd(GetUpdateRegion());
-
-    std::cout << "paint update" << std::endl;
-    while (upd)
-    {
-        wxRect r = upd.GetRect();
-        RefreshRect(r, false);
-        upd++;
-
-        std::cout << r.GetX() << "," << r.GetY()
-                  << ", " << r.GetWidth()
-                  << ", " << r.GetHeight()
-                  << std::endl;
-    }
-    std::cout << "paint update end ......." << std::endl;
-    PaintOnDemand();
 }
 
 void DrawPane::OnSize(wxSizeEvent& /*event*/)
@@ -320,35 +269,13 @@ void DrawPane::InitColorTable()
 void DrawPane::OnTimer(wxTimerEvent& event)
 {
     (void)event;
-
-    if (m_UpdateRegion.IsEmpty())
-        return;
-
-    wxRegionIterator upd(m_UpdateRegion);
-
-    std::cout << "timer update" << std::endl;
-    while (upd)
-    {
-        wxRect r = upd.GetRect();
-        RefreshRect(r, false);
-        upd++;
-
-        std::cout << r.GetX() << "," << r.GetY()
-                  << ", " << r.GetWidth()
-                  << ", " << r.GetHeight()
-                  << std::endl;
-    }
-
-    m_UpdateRegion.Clear();
-    std::cout << "timer update end ......" << std::endl;
-
-    Update();
+    PaintOnDemand();
 }
 
 void DrawPane::OnRefreshEvent(wxCommandEvent& event)
 {
     (void)event;
-    m_RefreshTimer.Start(20, true);
+    m_RefreshTimer.StartOnce(20);
 }
 
 TermBufferPtr DrawPane::EnsureTermBuffer()
