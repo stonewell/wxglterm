@@ -1,13 +1,16 @@
 #include "text_blob.h"
 #include "wx/dcgraph.h"
 #include "wx/graphics.h"
-#include <wx/tokenzr.h>
+#include "wx/tokenzr.h"
 
 #include <iostream>
+#include <algorithm>
 
 wxTextBlob::wxTextBlob()
     : m_TextExtentContext{wxGraphicsContext::Create()}
-    , m_GlyphAdvanceX {0} {
+    , m_GlyphAdvanceX {0}
+    , m_LineHeight {0}
+    , m_TextParts {} {
 }
 
 wxPoint wxTextBlob::AddText(const wxString & text,
@@ -50,7 +53,7 @@ wxPoint wxTextBlob::AddText(const wxString & text,
         lastPt.x += width;
 
         tmpPt.x = pt.x;
-        tmpPt.y += height + leading;
+        tmpPt.y += std::max(height + leading, (wxDouble)m_LineHeight);
     } while(tokenizer.HasMoreTokens());
 
     return lastPt;
