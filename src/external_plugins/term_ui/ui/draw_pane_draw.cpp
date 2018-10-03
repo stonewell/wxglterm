@@ -247,10 +247,13 @@ void DrawPane::DoPaint(wxDC & dc, TermBufferPtr buffer, bool full_paint, const s
 #if USE_TEXT_BLOB
     wxTextBlob text_blob;
     text_blob.SetLineHeight(m_LineHeight);
+    text_blob.SetGlyphAdvanceX(m_CellWidth);
 #endif
 
     for (auto row = 0u; row < rows; row++) {
         auto line = buffer->GetLine(row);
+
+        last_x = PADDING;
 
         if ((!full_paint &&
              row == line->GetLastRenderLineIndex()

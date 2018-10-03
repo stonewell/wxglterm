@@ -26,7 +26,7 @@ wxPoint wxTextBlob::AddText(const wxString & text,
 
     m_TextExtentContext->SetFont(*pFont, fore_color);
 
-    wxStringTokenizer tokenizer(text, "\n");
+    wxStringTokenizer tokenizer(text, "\n", wxTOKEN_RET_EMPTY);
 
     wxPoint tmpPt{pt}, lastPt;
 
@@ -49,6 +49,7 @@ wxPoint wxTextBlob::AddText(const wxString & text,
 
         m_TextParts.push_back({token, tmpPt, pFont, fore_color, back_color});
 
+        std::cout << "{" << (const char *)token << "}";
         lastPt = tmpPt;
         lastPt.x += width;
 
@@ -56,12 +57,19 @@ wxPoint wxTextBlob::AddText(const wxString & text,
         tmpPt.y += std::max(height + leading, (wxDouble)m_LineHeight);
     } while(tokenizer.HasMoreTokens());
 
-    return lastPt;
+    std::cout << "[" << (const char *)text << "], " << pt.x << ", " << pt.y
+              << ", " << tmpPt.x << ", " << tmpPt.y
+              << ", " << lastPt.x << ", " << lastPt.y
+              << ", " << empty_token
+              << "[" << (const char *)text.Strip() << "]"
+              << std::endl;
+    return empty_token ? tmpPt : lastPt;
 }
 
 void wxTextBlob::Render(wxGraphicsContext * context) {
     (void)context;
 
+    context->PushState();
     for(auto it = m_TextParts.begin(),
                 it_end = m_TextParts.end();
         it != it_end;
@@ -74,4 +82,5 @@ void wxTextBlob::Render(wxGraphicsContext * context) {
             context->DrawText(it->text, it->pt.x, it->pt.y);
         }
     }
+    context->PopState();
 }
