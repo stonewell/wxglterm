@@ -17,13 +17,14 @@ public:
     wxCoord GetLineHeight() const { return m_LineHeight; }
 
 private:
-    struct __TextPart {
+    typedef struct __TextPart {
         wxString text;
         wxPoint pt;
         const wxFont * pFont;
         wxColour fore;
         wxColour back;
-    };
+        wxSize size;
+    } TextPart;
 
     using TextPartVector = wxVector<struct __TextPart>;
 
@@ -31,4 +32,6 @@ private:
     wxCoord m_GlyphAdvanceX;
     wxCoord m_LineHeight;
     TextPartVector m_TextParts;
+
+    void DoDrawText(wxGraphicsContext * context, const TextPart & text_part);
 };

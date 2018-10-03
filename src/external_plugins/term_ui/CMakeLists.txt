@@ -3,6 +3,7 @@ FIND_PACKAGE(wxWidgets 3 REQUIRED
   std
   richtext
   )
+FIND_PACKAGE(Cairo REQUIRED)
 
 ADD_SUBDIRECTORY(ui)
 
@@ -41,6 +42,7 @@ TARGET_LINK_LIBRARIES(term_ui
   ${pybind11_LIBRARIES}
   ${PYTHON_LIBRARIES}
   ${wxWidgets_LIBRARIES}
+  ${Cairo_LIBRARY}
   )
 
 INSTALL(TARGETS term_ui DESTINATION share/wxglterm/plugins)

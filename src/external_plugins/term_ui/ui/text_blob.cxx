@@ -47,7 +47,11 @@ wxPoint wxTextBlob::AddText(const wxString & text,
 
         if (empty_token) width = 0;
 
-        m_TextParts.push_back({token, tmpPt, pFont, fore_color, back_color});
+        m_TextParts.push_back(
+            {token, tmpPt, pFont,
+                        fore_color, back_color,
+                {(int)width, (int)std::max(height + leading, (wxDouble)m_LineHeight)}
+            });
 
         lastPt = tmpPt;
         lastPt.x += width;
