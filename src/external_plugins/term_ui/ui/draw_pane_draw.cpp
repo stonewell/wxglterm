@@ -63,13 +63,13 @@ void DrawPane::DrawContent(wxDC &dc,
 #endif
                            )
 {
+    (void)dc;
+#if !USE_TEXT_BLOB
     wxSize content_size = dc.GetMultiLineTextExtent(content);
     bool multi_line = content.Find('\n', true) > 0;
 
     wxSize content_last_line_size {0, 0};
     wxSize content_before_last_line_size {0, 0};
-
-    std::bitset<16> m(last_mode);
 
     if (multi_line)
     {
@@ -77,6 +77,9 @@ void DrawPane::DrawContent(wxDC &dc,
         content_before_last_line_size.SetHeight(content_size.GetHeight() - content_last_line_size.GetHeight());
         content_before_last_line_size.SetWidth(content_size.GetWidth());
     }
+#endif
+
+    std::bitset<16> m(last_mode);
 
     uint32_t back_color_use = last_back_color;
     uint32_t fore_color_use = last_fore_color;
@@ -165,19 +168,13 @@ void DrawPane::DrawContent(wxDC &dc,
         }
     }
 #else
-    text_blob.AddText(content, {last_x, last_y},
+    wxPoint pt = text_blob.AddText(content, {last_x, last_y},
                       font,
                       __GetColorByIndex(fore_color_use),
-                      __GetColorByIndex(back_color_use));
+                      back_color_use != TermCell::DefaultBackColorIndex ? __GetColorByIndex(back_color_use) : wxNullColour);
 
-    if (multi_line)
-    {
-        last_x = PADDING + content_last_line_size.GetWidth();
-    } else {
-        last_x += content_size.GetWidth();
-    }
-
-    last_y += content_size.GetHeight();
+    last_x = pt.x;
+    last_y = pt.y;
 #endif
 
     content.Clear();
@@ -261,10 +258,6 @@ void DrawPane::DoPaint(wxDC & dc, TermBufferPtr buffer, bool full_paint, const s
         {
             y += m_LineHeight;
 
-            std::cout << "skip row:" << row
-                      << ", " << line->GetLastRenderLineIndex()
-                      << ", " << line->IsModified()
-                      << std::endl;
             if (content.Length() > 0)
             {
                 DrawContent(dc, content,
@@ -285,14 +278,9 @@ void DrawPane::DoPaint(wxDC & dc, TermBufferPtr buffer, bool full_paint, const s
 
             last_x = PADDING;
             last_y = y;
-
             continue;
         }
 
-            std::cout << "render row:" << row
-                      << ", " << line->GetLastRenderLineIndex()
-                      << ", " << line->IsModified()
-                      << std::endl;
         line->SetLastRenderLineIndex(row);
         line->SetModified(false);
 
@@ -391,6 +379,12 @@ void DrawPane::DoPaint(wxDC & dc, TermBufferPtr buffer, bool full_paint, const s
 #if USE_TEXT_BLOB
     if ( wxGCDC *gcdc = wxDynamicCast(&dc, wxGCDC) ) {
         text_blob.Render(gcdc->GetGraphicsContext());
+    } else if (wxMemoryDC * mdc = wxDynamicCast(&dc, wxMemoryDC)) {
+        wxScopedPtr<wxGraphicsContext> gdc{wxGraphicsContext::Create(*mdc)};
+        text_blob.Render(gdc.get());
+    } else if (wxPaintDC * mdc = wxDynamicCast(&dc, wxPaintDC)) {
+        wxScopedPtr<wxGraphicsContext> gdc{wxGraphicsContext::Create(*mdc)};
+        text_blob.Render(gdc.get());
     }
 #endif
 }
@@ -413,22 +407,15 @@ void DrawPane::PaintOnDemand()
 
     if (refreshNow)
     {
-#if USE_TEXT_BLOB
-        wxGCDC dc;
-        wxPaintDC paintDC(this);
-        dc.SetGraphicsContext(wxGraphicsContext::Create(paintDC));
-#else
         wxClientDC dc(this);
-#endif
 
         wxRect clientSize = GetClientSize();
 
         wxRegion clipRegion(clientSize);
 
-#if !USE_TEXT_BLOB
         wxBufferedDC bDC(&dc,
                          GetClientSize());
-#endif
+
         __ScopeLocker buffer_locker(m_Buffer);
         if (m_AppDebug)
             std::cout << "buffer locked to draw" << std::endl;
@@ -455,36 +442,14 @@ void DrawPane::PaintOnDemand()
 
         if (paintChanged)
         {
-            wxRegionIterator upd(GetUpdateRegion());
-
-            std::cout << "region update" << std::endl;
-            while (upd)
-            {
-                wxRect r = upd.GetRect();
-                RefreshRect(r, false);
-                upd++;
-
-                std::cout << r.GetX() << "," << r.GetY()
-                          << ", " << r.GetWidth()
-                          << ", " << r.GetHeight()
-                          << std::endl;
-            }
-            std::cout << "region update end ......." << std::endl;
             CalculateClipRegion(clipRegion, m_Buffer);
 
-#if USE_TEXT_BLOB
-            dc.GetGraphicsContext()->Clip(clipRegion);
-#else
             dc.DestroyClippingRegion();
             dc.SetDeviceClippingRegion(clipRegion);
-#endif
         }
 
-#if USE_TEXT_BLOB
-        DoPaint(dc, m_Buffer, !paintChanged);
-#else
         DoPaint(bDC, m_Buffer, !paintChanged);
-#endif
+
         if (cell)
             cell->RemoveMode(TermCell::Cursor);
         if (m_AppDebug)
