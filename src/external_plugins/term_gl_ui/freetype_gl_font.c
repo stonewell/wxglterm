@@ -36,7 +36,7 @@ const struct {
 // ------------------------------------------------- texture_font_load_face ---
 static int
 texture_font_load_face(texture_font_t *self, float size,
-        FT_Library *library, FT_Face *face)
+        FT_Library * library, FT_Face * face)
 {
     FT_Error error;
     FT_Matrix matrix = {
