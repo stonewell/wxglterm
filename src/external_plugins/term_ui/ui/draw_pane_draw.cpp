@@ -246,6 +246,7 @@ void DrawPane::DoPaint(wxDC & dc, TermBufferPtr buffer, bool full_paint, const s
 
 #if USE_TEXT_BLOB
     wxTextBlob text_blob;
+    text_blob.SetLineHeight(m_LineHeight);
 #endif
 
     for (auto row = 0u; row < rows; row++) {
