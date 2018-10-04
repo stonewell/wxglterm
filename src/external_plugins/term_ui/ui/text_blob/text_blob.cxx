@@ -13,6 +13,34 @@ wxTextBlob::wxTextBlob()
     , m_TextParts {} {
 }
 
+wxString wxTextBlob::wxFontToFCDesc(const wxFont * pFont) {
+    wxString desc(pFont->GetFaceName());
+
+    desc << ":size=" << pFont->GetPointSize();
+
+    switch (pFont->GetStyle()) {
+    case wxFONTSTYLE_ITALIC:
+    case wxFONTSTYLE_SLANT:
+         desc << ":slant=italic";
+         break;
+    default:
+        break;
+    }
+
+    switch(pFont->GetWeight()){
+    case wxFONTWEIGHT_BOLD:
+        desc << ":weight=200";
+        break;
+    case wxFONTWEIGHT_LIGHT:
+        desc << ":weight=50";
+        break;
+    default:
+        break;
+    }
+
+    return desc;
+}
+
 wxPoint wxTextBlob::AddText(const wxString & text,
                          const wxPoint pt,
                          const wxFont * pFont,
@@ -25,6 +53,9 @@ wxPoint wxTextBlob::AddText(const wxString & text,
     (void)back_color;
 
     m_TextExtentContext->SetFont(*pFont, fore_color);
+
+    std::cout << "font:" << pFont->GetNativeFontInfoUserDesc() << "," << pFont->GetPointSize() << "," << pFont->GetPixelSize().y << pFont->GetWeight()
+              << wxFontToFCDesc(pFont) << std::endl;
 
     wxStringTokenizer tokenizer(text, "\n", wxTOKEN_RET_EMPTY_ALL);
 
