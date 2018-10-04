@@ -34,4 +34,6 @@ private:
     TextPartVector m_TextParts;
 
     void DoDrawText(wxGraphicsContext * context, const TextPart & text_part);
+
+    wxString wxFontToFCDesc(const wxFont * pFont);
 };

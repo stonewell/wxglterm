@@ -29,6 +29,7 @@ TARGET_INCLUDE_DIRECTORIES(term_ui PRIVATE
   "${pybind11_INCLUDE_DIRS}"
   "${PYTHON_INCLUDE_DIRS}"
   "ui"
+  "ui/text_blob"
   "../../interface"
   "../../utils"
   "../../utils/portable_thread/includes"
