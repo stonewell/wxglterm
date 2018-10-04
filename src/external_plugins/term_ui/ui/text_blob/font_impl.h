@@ -3,8 +3,8 @@
 #include "font.h"
 #include <string>
 
-namespace ftdgl {
+namespace fttb {
 namespace impl {
 FontPtr CreateFontFromDesc(FT_Library & library, const std::string & desc, float dpi, float dpi_height);
 } //namespace impl
-} //namespace ftdgl
+} //namespace fttb

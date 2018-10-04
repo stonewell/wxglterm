@@ -13,7 +13,7 @@
 #include <stdio.h>
 #include <math.h>
 
-namespace ftdgl {
+namespace fttb {
 namespace impl {
 
 #define HRES  64
@@ -352,4 +352,4 @@ cleanup_face:
  }
 
 } //namespace impl
-} //namespace ftdgl
+} //namespace fttb

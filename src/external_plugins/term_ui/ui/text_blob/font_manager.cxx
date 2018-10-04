@@ -10,7 +10,7 @@
 
 #include <forward_list>
 
-namespace ftdgl {
+namespace fttb {
 namespace impl {
 
 using FontPtrList = std::forward_list<FontPtr>;
@@ -86,4 +86,4 @@ FontManagerPtr CreateFontManager(float dpi, float dpi_height) {
     return std::make_shared<impl::FontManagerImpl>(dpi,
                                                    dpi_height);
 }
-} // namespace ftdgl
+} // namespace fttb

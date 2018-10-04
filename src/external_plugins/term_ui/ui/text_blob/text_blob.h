@@ -1,6 +1,7 @@
 #pragma once
 
 #include <wx/wx.h>
+#include "font_manager.h"
 
 class wxTextBlob {
 public:
@@ -32,6 +33,7 @@ private:
     wxCoord m_GlyphAdvanceX;
     wxCoord m_LineHeight;
     TextPartVector m_TextParts;
+    fttb::FontManagerPtr m_FontManager;
 
     void DoDrawText(wxGraphicsContext * context, const TextPart & text_part);
 
