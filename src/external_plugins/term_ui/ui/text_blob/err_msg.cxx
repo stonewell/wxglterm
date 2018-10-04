@@ -8,7 +8,7 @@
 
 #include <stdio.h>
 
-namespace ftdgl {
+namespace fttb {
 #undef __FTERRORS_H__
 #define FT_ERRORDEF( e, v, s )  { e, s },
 #define FT_ERROR_START_LIST     {
@@ -24,4 +24,4 @@ void err_msg(FT_Error error, int line) {
     fprintf(stderr, "FT_Error (line %d, code 0x%02x) : %s\n",
             line, FT_Errors[error].code, FT_Errors[error].message);
 }
-} //namespace ftdgl
+} //namespace fttb

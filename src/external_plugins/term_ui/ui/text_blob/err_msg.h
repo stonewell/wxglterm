@@ -1,5 +1,5 @@
 #pragma once
 
-namespace ftdgl {
+namespace fttb {
 void err_msg(FT_Error error, int line);
-} //namespace ftdgl
+} //namespace fttb

@@ -5,7 +5,7 @@
 
 #include "font.h"
 
-namespace ftdgl {
+namespace fttb {
 class FontManager {
 public:
   FontManager() = default;
@@ -18,4 +18,4 @@ public:
 using FontManagerPtr = std::shared_ptr<FontManager>;
 
 FontManagerPtr CreateFontManager(float dpi, float dpi_height);
-}; // namespace ftdgl
+}; // namespace fttb

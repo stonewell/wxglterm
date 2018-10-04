@@ -3,7 +3,7 @@
 #include <memory>
 #include <vector>
 
-namespace ftdgl {
+namespace fttb {
 
 class Font {
 public:
