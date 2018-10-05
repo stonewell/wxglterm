@@ -1,9 +1,10 @@
-#
 FIND_PACKAGE(wxWidgets 3 REQUIRED
   std
   richtext
   )
 FIND_PACKAGE(Cairo REQUIRED)
+FIND_PACKAGE(FontConfig REQUIRED)
+FIND_PACKAGE(Freetype REQUIRED)
 
 ADD_SUBDIRECTORY(ui)
 
@@ -34,6 +35,7 @@ TARGET_INCLUDE_DIRECTORIES(term_ui PRIVATE
   "../../utils"
   "../../utils/portable_thread/includes"
   "../../plugins"
+   ${FREETYPE_INCLUDE_DIRS}
   )
 
 TARGET_LINK_LIBRARIES(term_ui
@@ -44,6 +46,7 @@ TARGET_LINK_LIBRARIES(term_ui
   ${PYTHON_LIBRARIES}
   ${wxWidgets_LIBRARIES}
   ${Cairo_LIBRARY}
+  ${FREETYPE_LIBRARIES}
   )
 
 INSTALL(TARGETS term_ui DESTINATION share/wxglterm/plugins)
