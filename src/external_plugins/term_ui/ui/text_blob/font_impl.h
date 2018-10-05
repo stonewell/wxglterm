@@ -5,6 +5,6 @@
 
 namespace fttb {
 namespace impl {
-FontPtr CreateFontFromDesc(FT_Library & library, const std::string & desc, float dpi, float dpi_height);
+FontPtr CreateFontFromDesc(FT_Library & library, const std::string & desc);
 } //namespace impl
 } //namespace fttb

@@ -22,10 +22,6 @@ namespace impl {
 struct font_desc_s;
 
 struct internal_font_s {
-    float m_Descender;
-    float m_Ascender;
-    float m_Height;
-
     FT_Face m_Face;
 
     bool m_Initialized;
@@ -40,7 +36,7 @@ struct internal_font_s {
         FT_Done_Face(m_Face);
     }
 
-    void Init(FT_Library & library, const font_desc_s & fontDesc, float dpi, float dpi_height);
+    void Init(FT_Library & library, const font_desc_s & fontDesc);
 };
 
 struct font_desc_s {
@@ -61,8 +57,8 @@ struct font_desc_s {
                 && underline == v.underline;
     }
 
-    void LoadFont(FT_Library & library, float dpi, float dpi_height) {
-        internal_font.Init(library, *this, dpi, dpi_height);
+    void LoadFont(FT_Library & library) {
+        internal_font.Init(library, *this);
     }
 };
 
@@ -72,13 +68,11 @@ class FontImpl : public Font {
 public:
     FontImpl(FT_Library & library,
              const font_desc_s & font_desc,
-             const font_desc_vector & font_descs, float dpi, float dpi_height)
+             const font_desc_vector & font_descs)
         : m_FontFaceInitialized {false}
         , m_FontDesc {font_desc}
         , m_FontDescs {font_descs}
         , m_Library {library}
-        , m_Dpi {dpi}
-        , m_DpiHeight {dpi_height}
     {
         InitFont();
     }
@@ -94,18 +88,6 @@ public:
         return m_FontDesc.size;
     }
 
-    virtual float GetDescender() const {
-        return m_FontDesc.internal_font.m_Descender;
-    }
-
-    virtual float GetAscender() const {
-        return m_FontDesc.internal_font.m_Ascender;
-    }
-
-    virtual float GetHeight() const {
-        return m_FontDesc.internal_font.m_Height;
-    }
-
 private:
     void InitFont();
     void FreeFont();
@@ -115,9 +97,6 @@ private:
     font_desc_vector m_FontDescs;
 
     FT_Library & m_Library;
-
-    float m_Dpi;
-    float m_DpiHeight;
 };
 
 static
@@ -213,8 +192,7 @@ match_description(const std::string & description, font_desc_vector & font_descs
 }
 
 FontPtr CreateFontFromDesc(FT_Library & library,
-                           const std::string & desc,
-                           float dpi, float dpi_height) {
+                           const std::string & desc) {
     font_desc_vector fdv {};
 
     if (!match_description(desc, fdv)) {
@@ -224,7 +202,7 @@ FontPtr CreateFontFromDesc(FT_Library & library,
         return FontPtr {};
     }
 
-    return std::make_shared<FontImpl>(library, fdv[0], fdv, dpi, dpi_height);
+    return std::make_shared<FontImpl>(library, fdv[0], fdv);
 }
 
 bool FontImpl::IsSameFont(const std::string & desc) {
@@ -240,7 +218,7 @@ void FontImpl::InitFont() {
     if (m_FontFaceInitialized)
         return;
 
-    m_FontDesc.LoadFont(m_Library, m_Dpi, m_DpiHeight);
+    m_FontDesc.LoadFont(m_Library);
 
     m_FontFaceInitialized = true;
     return;
@@ -310,7 +288,7 @@ void FontImpl::FreeFont() {
 //     return all_loaded;
 // }
 
-void internal_font_s::Init(FT_Library & library, const font_desc_s & fontDesc, float dpi, float dpi_height) {
+void internal_font_s::Init(FT_Library & library, const font_desc_s & fontDesc) {
     if (m_Initialized) return;
 
     FT_Error error;
@@ -331,19 +309,20 @@ void internal_font_s::Init(FT_Library & library, const font_desc_s & fontDesc, f
         goto cleanup_face;
     }
 
-    /* Set char size */
-    error = FT_Set_Char_Size(m_Face, (int)(fontDesc.size * HRES), 0, floor(dpi), floor(dpi_height));
+    // /* Set char size */
+    // error = FT_Set_Char_Size(m_Face, (int)(fontDesc.size * HRES), 0, floor(dpi), floor(dpi_height));
 
-    if(error) {
-        err_msg(error, __LINE__);
-        goto cleanup_face;
-    }
+    // if(error) {
+    //     err_msg(error, __LINE__);
+    //     goto cleanup_face;
+    // }
 
-    m_Descender = FT_MulFix(m_Face->descender, m_Face->size->metrics.y_scale) / (float)64.0;
-    m_Ascender = FT_MulFix(m_Face->ascender, m_Face->size->metrics.y_scale) / (float)64.0;
-    m_Height = FT_MulFix(m_Face->height, m_Face->size->metrics.y_scale) / (float)64.0;
+    // m_Descender = FT_MulFix(m_Face->descender, m_Face->size->metrics.y_scale) / (float)64.0;
+    // m_Ascender = FT_MulFix(m_Face->ascender, m_Face->size->metrics.y_scale) / (float)64.0;
+    // m_Height = FT_MulFix(m_Face->height, m_Face->size->metrics.y_scale) / (float)64.0;
 
-    std::cout << fontDesc.file_name << " d:" << m_Descender << "," << m_Face->descender << ", a:" << m_Ascender << ", " << m_Face->ascender << ", h:" << m_Height << std::endl;
+    std::cout << fontDesc.file_name
+              << std::endl;
     m_Initialized = true;
 cleanup:
     return;

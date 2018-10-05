@@ -17,5 +17,5 @@ public:
 
 using FontManagerPtr = std::shared_ptr<FontManager>;
 
-FontManagerPtr CreateFontManager(float dpi, float dpi_height);
+FontManagerPtr CreateFontManager();
 }; // namespace fttb
