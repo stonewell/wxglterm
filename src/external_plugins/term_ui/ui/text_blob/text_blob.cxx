@@ -54,9 +54,6 @@ wxPoint wxTextBlob::AddText(const wxString & text,
 
     m_TextExtentContext->SetFont(*pFont, fore_color);
 
-    std::cout << "font:" << pFont->GetNativeFontInfoUserDesc() << "," << pFont->GetPointSize() << "," << pFont->GetPixelSize().y << pFont->GetWeight()
-              << wxFontToFCDesc(pFont) << std::endl;
-
     wxStringTokenizer tokenizer(text, "\n", wxTOKEN_RET_EMPTY_ALL);
 
     wxPoint tmpPt{pt}, lastPt;
