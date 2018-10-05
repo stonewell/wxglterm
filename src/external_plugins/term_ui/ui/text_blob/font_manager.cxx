@@ -17,12 +17,10 @@ using FontPtrList = std::forward_list<FontPtr>;
 
 class FontManagerImpl : public FontManager {
 public:
-    FontManagerImpl(float dpi, float dpi_height)
+    FontManagerImpl()
         : m_Fonts {}
         , m_LibInited {false}
         , m_Library {}
-        , m_Dpi {dpi}
-        , m_DpiHeight {dpi_height}
     {
         InitFreeTypeLib();
     }
@@ -61,9 +59,6 @@ private:
 
     bool m_LibInited;
     FT_Library m_Library;
-
-    float m_Dpi;
-    float m_DpiHeight;
 };
 
 FontPtr FontManagerImpl::CreateFontFromDesc(const std::string &desc) {
@@ -73,7 +68,7 @@ FontPtr FontManagerImpl::CreateFontFromDesc(const std::string &desc) {
         }
     }
 
-    auto f = impl::CreateFontFromDesc(m_Library, desc, m_Dpi, m_DpiHeight);
+    auto f = impl::CreateFontFromDesc(m_Library, desc);
 
     if (f)
         m_Fonts.push_front(f);
@@ -82,8 +77,7 @@ FontPtr FontManagerImpl::CreateFontFromDesc(const std::string &desc) {
 }
 } // namespace impl
 
-FontManagerPtr CreateFontManager(float dpi, float dpi_height) {
-    return std::make_shared<impl::FontManagerImpl>(dpi,
-                                                   dpi_height);
+FontManagerPtr CreateFontManager() {
+    return std::make_shared<impl::FontManagerImpl>();
 }
 } // namespace fttb
