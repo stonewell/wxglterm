@@ -1,9 +1,3 @@
-#include <ft2build.h>
-#include FT_FREETYPE_H
-#include FT_STROKER_H
-// #include FT_ADVANCES_H
-#include FT_LCD_FILTER_H
-
 #include "font_impl.h"
 #include "err_msg.h"
 
@@ -12,6 +6,7 @@
 #include <algorithm>
 #include <stdio.h>
 #include <math.h>
+#include <unordered_map>
 
 namespace fttb {
 namespace impl {
@@ -88,6 +83,8 @@ public:
         return m_FontDesc.size;
     }
 
+    virtual FT_Face EnsureGlyph(uint32_t codepoint);
+
 private:
     void InitFont();
     void FreeFont();
@@ -95,6 +92,7 @@ private:
     bool m_FontFaceInitialized;
     font_desc_s m_FontDesc;
     font_desc_vector m_FontDescs;
+    std::unordered_map<uint32_t, FT_Face> m_Glyphs;
 
     FT_Library & m_Library;
 };
@@ -229,64 +227,37 @@ void FontImpl::FreeFont() {
         return;
 }
 
-// GlyphPtr FontImpl::LoadGlyph(uint32_t codepoint) {
-//     auto it = m_Glyphs.find(codepoint);
+FT_Face FontImpl::EnsureGlyph(uint32_t codepoint) {
+    auto it = m_Glyphs.find(codepoint);
 
-//     if (it != m_Glyphs.end())
-//         return it->second;
+    if (it != m_Glyphs.end())
+        return it->second;
 
-//     FT_Face face = m_FontDesc.internal_font.m_Face;
+    FT_Face face = m_FontDesc.internal_font.m_Face;
 
-//     FT_UInt index = FT_Get_Char_Index(face, (FT_Long)codepoint);
+    FT_UInt index = FT_Get_Char_Index(face, (FT_Long)codepoint);
 
-//     if (!index) {
-//         for(auto & font_desc : m_FontDescs) {
-//             font_desc.LoadFont(m_Library, m_Dpi, m_DpiHeight);
+    if (!index) {
+        for(auto & font_desc : m_FontDescs) {
+            font_desc.LoadFont(m_Library);
 
-//             face = font_desc.internal_font.m_Face;
+            face = font_desc.internal_font.m_Face;
 
-//             index = FT_Get_Char_Index(face, (FT_Long)codepoint);
+            index = FT_Get_Char_Index(face, (FT_Long)codepoint);
 
-//             if (index) {
-//                 break;
-//             }
-//         }
+            if (index) {
+                break;
+            }
+        }
 
-//         if (!index)
-//             std::cout << "no char index found for:" << codepoint << std::endl;
-//     }
+        if (!index)
+            return m_FontDesc.internal_font.m_Face;
+    }
 
-//     FT_Error error = FT_Load_Glyph(face,
-//                                    index,
-//                                    /*FT_LOAD_NO_SCALE |*/ FT_LOAD_NO_BITMAP | FT_LOAD_FORCE_AUTOHINT | FT_LOAD_TARGET_LCD);
-//     if(error) {
-//         err_msg(error, __LINE__);
-//         return GlyphPtr {};
-//     }
+    m_Glyphs.emplace(codepoint, face);
 
-//     auto g = CreateGlyph(m_MemoryBuffer, codepoint, face->units_per_EM, face->glyph);
-
-//     if (g)
-//         m_Glyphs.emplace(codepoint, g);
-
-//     return g;
-// }
-
-// bool FontImpl::LoadGlyphs(std::vector<uint32_t> codepoints,
-//                           Glyphs & glyphs) {
-//     bool all_loaded = true;
-
-//     for (const auto & codepoint : codepoints) {
-//         auto glyph = LoadGlyph(codepoint);
-
-//         if (glyph)
-//             glyphs.emplace(codepoint, glyph);
-//         else
-//             all_loaded = false;
-//     }
-
-//     return all_loaded;
-// }
+    return face;
+}
 
 void internal_font_s::Init(FT_Library & library, const font_desc_s & fontDesc) {
     if (m_Initialized) return;

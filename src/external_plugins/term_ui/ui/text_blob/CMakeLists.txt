@@ -1,6 +1,3 @@
-FIND_PACKAGE(FontConfig REQUIRED)
-FIND_PACKAGE(Freetype REQUIRED)
-
 SET(text_blob_src
     text_blob.h text_blob.cxx
     text_blob_cairo.cxx

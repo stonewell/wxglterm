@@ -18,10 +18,11 @@ TARGET_COMPILE_DEFINITIONS(wxglterm_ui PRIVATE
     )
 
 TARGET_INCLUDE_DIRECTORIES(wxglterm_ui PRIVATE
-    ${wxWidgets_INCLUDE_DIRS}
+    "${wxWidgets_INCLUDE_DIRS}"
     "${pybind11_INCLUDE_DIRS}"
     "${PYTHON_INCLUDE_DIRS}"
-     "../../../controller"
+    ${FREETYPE_INCLUDE_DIRS}
+    "../../../controller"
     "../../../interface"
     "../../../utils"
     "text_blob"
