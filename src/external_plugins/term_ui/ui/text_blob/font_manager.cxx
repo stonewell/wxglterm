@@ -9,6 +9,7 @@
 #include "err_msg.h"
 
 #include <forward_list>
+#include <unordered_map>
 
 namespace fttb {
 namespace impl {
@@ -55,23 +56,22 @@ private:
         FT_Done_FreeType( m_Library );
     }
 
-    FontPtrList m_Fonts;
+    std::unordered_map<std::string, FontPtr> m_Fonts;
 
     bool m_LibInited;
     FT_Library m_Library;
 };
 
 FontPtr FontManagerImpl::CreateFontFromDesc(const std::string &desc) {
-    for(const auto & f : m_Fonts) {
-        if (f->IsSameFont(desc)) {
-            return f;
-        }
-    }
+    auto it = m_Fonts.find(desc);
+
+    if (it != m_Fonts.end())
+        return it->second;
 
     auto f = impl::CreateFontFromDesc(m_Library, desc);
 
     if (f)
-        m_Fonts.push_front(f);
+        m_Fonts.emplace(desc, f);
 
     return f;
 }
