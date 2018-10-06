@@ -34,18 +34,26 @@ private:
         wxPoint pt;
     } GlyphAttrs;
 
+    typedef struct __BackgroundRectAttrs {
+        wxRect rect;
+        wxColour back;
+    } BackgroundRectAttrs;
+
     using TextPartVector = wxVector<struct __TextPart>;
     using CodepointVector = std::vector<GlyphAttrs>;
     using ColourCodepointMap = std::unordered_map<uint32_t, CodepointVector>;
     using FontColourCodepointMap = std::unordered_map<FT_Face, ColourCodepointMap>;
+    using BackgroundRectVector = wxVector<struct __BackgroundRectAttrs>;
 
     wxScopedPtr<wxGraphicsContext> m_TextExtentContext;
     wxCoord m_GlyphAdvanceX;
     wxCoord m_LineHeight;
     TextPartVector m_TextParts;
+
     static fttb::FontManagerPtr m_FontManager;
 
-    void PrepareFontGlyphs(FontColourCodepointMap & fcc_map);
+
+    void PrepareTextRendering(FontColourCodepointMap & fcc_map, BackgroundRectVector & bg_rect_vector);
 
     void DoDrawText(wxGraphicsContext * context, const TextPart & text_part);
 

@@ -99,25 +99,28 @@ void wxTextBlob::Render(wxGraphicsContext * context) {
     (void)context;
 
     FontColourCodepointMap fcc_map;
-    PrepareFontGlyphs(fcc_map);
+    BackgroundRectVector bg_rect_vector;
+
+    PrepareTextRendering(fcc_map, bg_rect_vector);
 
     context->PushState();
+    for(const auto & it : bg_rect_vector) {
+        context->SetBrush(context->CreateBrush(wxBrush(it.back)));
+        context->DrawRectangle(it.rect.GetX(), it.rect.GetY(), it.rect.GetWidth(), it.rect.GetHeight());
+    }
+
     for(auto it = m_TextParts.begin(),
                 it_end = m_TextParts.end();
         it != it_end;
         it++) {
-        context->SetFont(*it->pFont, it->fore);
 
-        if (it->back != wxNullColour) {
-            context->DrawText(it->text, it->pt.x, it->pt.y, context->CreateBrush(wxBrush(it->back)));
-        } else {
-            context->DrawText(it->text, it->pt.x, it->pt.y);
-        }
+        context->SetFont(*it->pFont, it->fore);
+        context->DrawText(it->text, it->pt.x, it->pt.y);
     }
     context->PopState();
 }
 
-void wxTextBlob::PrepareFontGlyphs(FontColourCodepointMap & fcc_map) {
+void wxTextBlob::PrepareTextRendering(FontColourCodepointMap & fcc_map, BackgroundRectVector & bg_rect_vector) {
     for(auto it = m_TextParts.begin(),
                 it_end = m_TextParts.end();
         it != it_end;
@@ -125,6 +128,10 @@ void wxTextBlob::PrepareFontGlyphs(FontColourCodepointMap & fcc_map) {
 
         m_TextExtentContext->SetFont(*it->pFont, it->fore);
         auto font = m_FontManager->CreateFontFromDesc(std::string(wxFontToFCDesc(it->pFont)));
+
+        if (it->back != wxNullColour) {
+            bg_rect_vector.push_back({{it->pt, it->size}, it->back});
+        }
 
         wxArrayDouble extents;
 
@@ -143,10 +150,11 @@ void wxTextBlob::PrepareFontGlyphs(FontColourCodepointMap & fcc_map) {
 
             auto p2 = p1.first->second.insert(std::make_pair((uint32_t)it->fore.GetRGBA(), CodepointVector{}));
 
+            p2.first->second.push_back({ch,  pt});
+
             if (m_GlyphAdvanceX == 0) {
-                p2.first->second.push_back({ch, i == 0 ? it->pt : wxPoint(it->pt.x + extents[i - 1], it->pt.y)});
+                pt.x = it->pt.x + extents[i];
             } else {
-                p2.first->second.push_back({ch, pt});
                 pt.x += char_width(ch) > 1 ? 2 * m_GlyphAdvanceX : m_GlyphAdvanceX;
             }
         }
