@@ -1,6 +1,8 @@
 #pragma once
 
 #include <wx/wx.h>
+#include <unordered_map>
+
 #include "font_manager.h"
 
 class wxTextBlob {
@@ -27,13 +29,23 @@ private:
         wxSize size;
     } TextPart;
 
+    typedef struct __GlyphAttrs {
+        wchar_t codepoint;
+        wxPoint pt;
+    } GlyphAttrs;
+
     using TextPartVector = wxVector<struct __TextPart>;
+    using CodepointVector = std::vector<GlyphAttrs>;
+    using ColourCodepointMap = std::unordered_map<uint32_t, CodepointVector>;
+    using FontColourCodepointMap = std::unordered_map<FT_Face, ColourCodepointMap>;
 
     wxScopedPtr<wxGraphicsContext> m_TextExtentContext;
     wxCoord m_GlyphAdvanceX;
     wxCoord m_LineHeight;
     TextPartVector m_TextParts;
-    fttb::FontManagerPtr m_FontManager;
+    static fttb::FontManagerPtr m_FontManager;
+
+    void PrepareFontGlyphs(FontColourCodepointMap & fcc_map);
 
     void DoDrawText(wxGraphicsContext * context, const TextPart & text_part);
 

@@ -5,6 +5,7 @@ SET(text_blob_src
     font_impl.h font_impl.cxx
     font.h
     err_msg.cxx err_msg.h
+    char_width.h char_width.cxx
 )
 
 ADD_LIBRARY(text_blob OBJECT
