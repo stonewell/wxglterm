@@ -62,12 +62,14 @@ using font_desc_vector = std::vector<font_desc_s>;
 class FontImpl : public Font {
 public:
     FontImpl(FT_Library & library,
+             const std::string & desc,
              const font_desc_s & font_desc,
              const font_desc_vector & font_descs)
         : m_FontFaceInitialized {false}
         , m_FontDesc {font_desc}
         , m_FontDescs {font_descs}
         , m_Library {library}
+        , m_DescString {desc}
     {
         InitFont();
     }
@@ -95,6 +97,7 @@ private:
     std::unordered_map<uint32_t, FT_Face> m_Glyphs;
 
     FT_Library & m_Library;
+    std::string m_DescString;
 };
 
 static
@@ -200,10 +203,13 @@ FontPtr CreateFontFromDesc(FT_Library & library,
         return FontPtr {};
     }
 
-    return std::make_shared<FontImpl>(library, fdv[0], fdv);
+    return std::make_shared<FontImpl>(library, desc, fdv[0], fdv);
 }
 
 bool FontImpl::IsSameFont(const std::string & desc) {
+    if (m_DescString == desc)
+        return true;
+
     font_desc_vector fdv {};
 
     if (!match_description(desc, fdv))

@@ -47,6 +47,7 @@ TARGET_LINK_LIBRARIES(term_ui
   ${wxWidgets_LIBRARIES}
   ${Cairo_LIBRARY}
   ${FREETYPE_LIBRARIES}
+  ${FONTCONFIG_LIBRARY}
   )
 
 INSTALL(TARGETS term_ui DESTINATION share/wxglterm/plugins)
