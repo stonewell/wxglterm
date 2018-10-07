@@ -287,7 +287,7 @@ void internal_font_s::Init(FT_Library & library, const font_desc_s & fontDesc) {
     }
 
     // /* Set char size */
-    // error = FT_Set_Char_Size(m_Face, (int)(fontDesc.size * HRES), 0, floor(dpi), floor(dpi_height));
+    // error = FT_Set_Char_Size(m_Face, (int)(fontDesc.size * HRES), 0, 72, 72);
 
     // if(error) {
     //     err_msg(error, __LINE__);
