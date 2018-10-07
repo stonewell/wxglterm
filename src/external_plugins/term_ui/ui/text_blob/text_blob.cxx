@@ -109,14 +109,16 @@ void wxTextBlob::Render(wxGraphicsContext * context) {
         context->DrawRectangle(it.rect.GetX(), it.rect.GetY(), it.rect.GetWidth(), it.rect.GetHeight());
     }
 
-    for(auto it = m_TextParts.begin(),
-                it_end = m_TextParts.end();
-        it != it_end;
-        it++) {
+    // for(auto it = m_TextParts.begin(),
+    //             it_end = m_TextParts.end();
+    //     it != it_end;
+    //     it++) {
 
-        context->SetFont(*it->pFont, it->fore);
-        context->DrawText(it->text, it->pt.x, it->pt.y);
-    }
+    //     context->SetFont(*it->pFont, it->fore);
+    //     context->DrawText(it->text, it->pt.x, it->pt.y);
+    // }
+    DoDrawText(context, fcc_map);
+
     context->PopState();
 }
 
@@ -126,7 +128,6 @@ void wxTextBlob::PrepareTextRendering(FontColourCodepointMap & fcc_map, Backgrou
         it != it_end;
         it++) {
 
-        m_TextExtentContext->SetFont(*it->pFont, it->fore);
         auto font = m_FontManager->CreateFontFromDesc(std::string(wxFontToFCDesc(it->pFont)));
 
         if (it->back != wxNullColour) {
@@ -135,8 +136,10 @@ void wxTextBlob::PrepareTextRendering(FontColourCodepointMap & fcc_map, Backgrou
 
         wxArrayDouble extents;
 
-        if (m_GlyphAdvanceX == 0)
+        if (m_GlyphAdvanceX == 0) {
+            m_TextExtentContext->SetFont(*it->pFont, it->fore);
             m_TextExtentContext->GetPartialTextExtents(it->text, extents);
+        }
 
         wxWCharBuffer buf = it->text.wc_str();
 
@@ -146,11 +149,16 @@ void wxTextBlob::PrepareTextRendering(FontColourCodepointMap & fcc_map, Backgrou
 
             FT_Face ft_face = font->EnsureGlyph(ch);
 
-            auto p1 = fcc_map.insert(std::make_pair(ft_face, ColourCodepointMap{}));
+            auto p0 = fcc_map.insert(std::make_pair(ft_face,
+                                                    SizeColourCodepointMap{}));
 
-            auto p2 = p1.first->second.insert(std::make_pair((uint32_t)it->fore.GetRGBA(), CodepointVector{}));
+            auto p1 = p0.first->second.insert(std::make_pair(it->pFont->GetPointSize(),
+                                                             ColourCodepointMap{}));
 
-            p2.first->second.push_back({ch,  pt});
+            auto p2 = p1.first->second.insert(std::make_pair((uint32_t)it->fore.GetRGBA(),
+                                                             CodepointVector{}));
+
+            p2.first->second.push_back({ch, FT_Get_Char_Index(ft_face, (FT_Long)ch), pt});
 
             if (m_GlyphAdvanceX == 0) {
                 pt.x = it->pt.x + extents[i];
