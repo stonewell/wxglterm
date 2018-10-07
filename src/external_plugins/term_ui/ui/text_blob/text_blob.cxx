@@ -109,14 +109,6 @@ void wxTextBlob::Render(wxGraphicsContext * context) {
         context->DrawRectangle(it.rect.GetX(), it.rect.GetY(), it.rect.GetWidth(), it.rect.GetHeight());
     }
 
-    // for(auto it = m_TextParts.begin(),
-    //             it_end = m_TextParts.end();
-    //     it != it_end;
-    //     it++) {
-
-    //     context->SetFont(*it->pFont, it->fore);
-    //     context->DrawText(it->text, it->pt.x, it->pt.y);
-    // }
     DoDrawText(context, fcc_map);
 
     context->PopState();
