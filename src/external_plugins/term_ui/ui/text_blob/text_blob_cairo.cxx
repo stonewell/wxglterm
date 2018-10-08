@@ -1,5 +1,8 @@
-#include "text_blob_cairo.h"
+#include "text_blob.h"
 #include "wx/graphics.h"
+
+#include "font_manager.h"
+#include "char_width.h"
 
 #include <iostream>
 #include <algorithm>
@@ -9,9 +12,11 @@
 #include <cairo.h>
 #include <cairo-ft.h>
 
-fttb::FontManagerPtr wxTextBlob::m_FontManager {fttb::CreateFontManager()};
+static
+fttb::FontManagerPtr g_FontManager {fttb::CreateFontManager()};
 
-wxString wxTextBlobCairo::wxFontToFCDesc(const wxFont * pFont) {
+static
+wxString wxFontToFCDesc(const wxFont * pFont) {
     wxString desc(pFont->GetFaceName());
 
     desc << ":size=" << pFont->GetPointSize();
@@ -39,8 +44,38 @@ wxString wxTextBlobCairo::wxFontToFCDesc(const wxFont * pFont) {
     return desc;
 }
 
-void wxTextBlobCairo::DoDrawText(wxGraphicsContext * context, const FontColourCodepointMap & fcc_map)
+typedef struct __GlyphAttrs {
+    wchar_t codepoint;
+    FT_UInt index;
+    wxPoint pt;
+} GlyphAttrs;
+
+using CodepointVector = std::vector<GlyphAttrs>;
+using ColourCodepointMap = std::unordered_map<uint32_t, CodepointVector>;
+using SizeColourCodepointMap = std::unordered_map<int, ColourCodepointMap>;
+using FontColourCodepointMap = std::unordered_map<FT_Face, SizeColourCodepointMap>;
+
+typedef struct __RenderingData {
+    FontColourCodepointMap fcc_map;
+    wxTextBlob::BackgroundRectVector bg_rect_vector;
+} RenderingData;
+
+void wxTextBlob::DoDrawBackground(wxGraphicsContext * context, void * rendering_data)
 {
+    RenderingData * rdata = (RenderingData*)rendering_data;
+    const BackgroundRectVector & bg_rect_vector = rdata->bg_rect_vector;
+
+    for(const auto & it : bg_rect_vector) {
+        context->SetBrush(context->CreateBrush(wxBrush(it.back)));
+        context->DrawRectangle(it.rect.GetX(), it.rect.GetY(), it.rect.GetWidth(), it.rect.GetHeight());
+    }
+}
+
+void wxTextBlob::DoDrawText(wxGraphicsContext * context, void * rendering_data)
+{
+    RenderingData * rdata = (RenderingData*)rendering_data;
+    const FontColourCodepointMap & fcc_map = rdata->fcc_map;
+
     cairo_t * native_context = (cairo_t*)context->GetNativeContext();
 
     for(const auto & it : fcc_map) {
@@ -76,7 +111,12 @@ void wxTextBlobCairo::DoDrawText(wxGraphicsContext * context, const FontColourCo
     }
 }
 
-void wxTextBlobCairo::PrepareTextRendering(FontColourCodepointMap & fcc_map, BackgroundRectVector & bg_rect_vector) {
+void * wxTextBlob::BeginTextRendering() {
+    RenderingData * rdata = new RenderingData;
+
+    FontColourCodepointMap & fcc_map = rdata->fcc_map;
+    BackgroundRectVector & bg_rect_vector = rdata->bg_rect_vector;
+
     for(auto it = m_TextParts.begin(),
                 it_end = m_TextParts.end();
         it != it_end;
@@ -84,7 +124,7 @@ void wxTextBlobCairo::PrepareTextRendering(FontColourCodepointMap & fcc_map, Bac
 
         std::string desc(std::string(wxFontToFCDesc(it->pFont)));
 
-        auto font = m_FontManager->CreateFontFromDesc(desc);
+        auto font = g_FontManager->CreateFontFromDesc(desc);
 
         if (it->back != wxNullColour) {
             bg_rect_vector.push_back({{it->pt, it->size}, it->back});
@@ -124,4 +164,12 @@ void wxTextBlobCairo::PrepareTextRendering(FontColourCodepointMap & fcc_map, Bac
             }
         }
     }
+
+    return rdata;
+}
+
+void wxTextBlob::EndTextRendering(void * rendering_data) {
+    RenderingData * rdata = (RenderingData *)rendering_data;
+
+    delete rdata;
 }
