@@ -19,7 +19,6 @@ public:
     void SetPPI(wxSize ppi) { m_PPI = ppi; }
     wxSize GetPPI() const { return m_PPI; }
 
-private:
     typedef struct __TextPart {
         wxString text;
         wxPoint pt;
@@ -37,6 +36,7 @@ private:
     using TextPartVector = wxVector<struct __TextPart>;
     using BackgroundRectVector = wxVector<struct __BackgroundRectAttrs>;
 
+private:
     wxScopedPtr<wxGraphicsContext> m_TextExtentContext;
     wxCoord m_GlyphAdvanceX;
     wxCoord m_LineHeight;
