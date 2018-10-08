@@ -18,6 +18,8 @@ public:
     wxCoord GetGlyphAdvanceX() const { return m_GlyphAdvanceX; }
     void SetLineHeight(wxCoord h) { m_LineHeight = h; }
     wxCoord GetLineHeight() const { return m_LineHeight; }
+    void SetPPI(wxSize ppi) { m_PPI = ppi; }
+    wxSize GetPPI() const { return m_PPI; }
 
 private:
     typedef struct __TextPart {
@@ -51,6 +53,7 @@ private:
     wxCoord m_GlyphAdvanceX;
     wxCoord m_LineHeight;
     TextPartVector m_TextParts;
+    wxSize m_PPI;
 
     static fttb::FontManagerPtr m_FontManager;
 
