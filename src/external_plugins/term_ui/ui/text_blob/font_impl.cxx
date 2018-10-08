@@ -286,19 +286,11 @@ void internal_font_s::Init(FT_Library & library, const font_desc_s & fontDesc) {
         goto cleanup_face;
     }
 
-    // /* Set char size */
-    // error = FT_Set_Char_Size(m_Face, (int)(fontDesc.size * HRES), 0, 72, 72);
-
-    // if(error) {
-    //     err_msg(error, __LINE__);
-    //     goto cleanup_face;
-    // }
-
-    // m_Descender = FT_MulFix(m_Face->descender, m_Face->size->metrics.y_scale) / (float)64.0;
-    // m_Ascender = FT_MulFix(m_Face->ascender, m_Face->size->metrics.y_scale) / (float)64.0;
-    // m_Height = FT_MulFix(m_Face->height, m_Face->size->metrics.y_scale) / (float)64.0;
-
     std::cout << fontDesc.file_name
+              << ", s:" << fontDesc.size
+              << ", b:" << fontDesc.bold
+              << ", fb:" << fontDesc.force_bold
+              << ", u:" << fontDesc.underline
               << std::endl;
     m_Initialized = true;
 cleanup:

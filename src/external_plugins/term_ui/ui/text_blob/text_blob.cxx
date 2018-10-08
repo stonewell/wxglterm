@@ -14,7 +14,8 @@ wxTextBlob::wxTextBlob()
     : m_TextExtentContext{wxGraphicsContext::Create()}
     , m_GlyphAdvanceX {0}
     , m_LineHeight {0}
-    , m_TextParts {} {
+    , m_TextParts {}
+    , m_PPI {72, 72} {
       }
 
 wxString wxTextBlob::wxFontToFCDesc(const wxFont * pFont) {
@@ -120,7 +121,9 @@ void wxTextBlob::PrepareTextRendering(FontColourCodepointMap & fcc_map, Backgrou
         it != it_end;
         it++) {
 
-        auto font = m_FontManager->CreateFontFromDesc(std::string(wxFontToFCDesc(it->pFont)));
+        std::string desc(std::string(wxFontToFCDesc(it->pFont)));
+
+        auto font = m_FontManager->CreateFontFromDesc(desc);
 
         if (it->back != wxNullColour) {
             bg_rect_vector.push_back({{it->pt, it->size}, it->back});
@@ -136,6 +139,7 @@ void wxTextBlob::PrepareTextRendering(FontColourCodepointMap & fcc_map, Backgrou
         wxWCharBuffer buf = it->text.wc_str();
 
         wxPoint pt = it->pt;
+
         for(size_t i=0; i < buf.length(); i++) {
             wchar_t ch = buf[i];
 
@@ -155,7 +159,7 @@ void wxTextBlob::PrepareTextRendering(FontColourCodepointMap & fcc_map, Backgrou
             if (m_GlyphAdvanceX == 0) {
                 pt.x = it->pt.x + extents[i];
             } else {
-                pt.x += char_width(ch) > 1 ? 2 * m_GlyphAdvanceX : m_GlyphAdvanceX;
+                pt.x += (char_width(ch) > 1 ? 2 * m_GlyphAdvanceX : m_GlyphAdvanceX);
             }
         }
     }
