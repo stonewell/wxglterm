@@ -16,11 +16,11 @@ void wxTextBlob::DoDrawText(wxGraphicsContext * context, const FontColourCodepoi
     for(const auto & it : fcc_map) {
         auto ct = cairo_ft_font_face_create_for_ft_face (it.first, 0);
         cairo_set_font_face (native_context, ct);
-        cairo_font_extents_t fe;
-        cairo_font_extents(native_context, &fe);
-
         for(const auto & it_size : it.second) {
             cairo_set_font_size (native_context, it_size.first);
+
+            cairo_font_extents_t fe;
+            cairo_font_extents(native_context, &fe);
 
             for(const auto & it_color : it_size.second) {
                 wxColour fore;
