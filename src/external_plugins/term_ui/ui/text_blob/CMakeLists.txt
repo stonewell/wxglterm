@@ -1,10 +1,5 @@
 SET(text_blob_src
     text_blob.h text_blob.cxx
-    font_manager.cxx font_manager.h
-    font_impl.h font_impl.cxx
-    font.h
-    err_msg.cxx err_msg.h
-    char_width.h char_width.cxx
 )
 
 IF (APPLE)
@@ -14,7 +9,13 @@ IF (APPLE)
 
 ELSE()
     LIST(APPEND text_blob_src
-        text_blob_cairo.cxx)
+        text_blob_cairo.cxx
+	font_manager.cxx font_manager.h
+	font_impl.h font_impl.cxx
+	font.h
+	err_msg.cxx err_msg.h
+	char_width.h char_width.cxx
+	)
     SET(EXTRA_INCLUDE ${Cairo_INCLUDE_DIR})
 ENDIF()
 
