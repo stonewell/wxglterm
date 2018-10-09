@@ -7,6 +7,7 @@
 
 #include <wx/dcbuffer.h>
 #include <wx/clipbrd.h>
+#include <wx/region.h>
 
 #include "term_context.h"
 #include "term_buffer.h"
@@ -80,34 +81,6 @@ void DrawPane::RequestRefresh()
 
     // Do send it
     wxPostEvent(this, event);
-    //wxWakeUpIdle();
-
-    // if (!buffer)
-    // {
-    // TermContextPtr context = std::dynamic_pointer_cast<TermContext>(m_TermWindow->GetPluginContext());
-
-    // if (!context)
-    //     return;
-
-    // buffer = context->GetTermBuffer();
-    // }
-    // if (!buffer)
-    //     return;
-
-    // wxRect clientSize = GetClientSize();
-
-    // wxRegion clipRegion(clientSize);
-
-    // CalculateClipRegion(clipRegion, buffer);
-
-    // wxRegionIterator upd(clipRegion);
-    // while (upd)
-    // {
-    //     RefreshRect(upd.GetRect());
-    //     upd++;
-    // }
-
-    //m_RefreshTimer.StartOnce(20);
 }
 
 void DrawPane::OnEraseBackground(wxEraseEvent & /*event*/)
@@ -116,12 +89,7 @@ void DrawPane::OnEraseBackground(wxEraseEvent & /*event*/)
 
 void DrawPane::OnPaint(wxPaintEvent & /*event*/)
 {
-    TermContextPtr context = std::dynamic_pointer_cast<TermContext>(m_TermWindow->GetPluginContext());
-
-    if (!context)
-        return;
-
-    TermBufferPtr buffer = context->GetTermBuffer();
+    TermBufferPtr buffer = EnsureTermBuffer();
 
     if (!buffer)
         return;
@@ -261,11 +229,6 @@ wxFont * DrawPane::GetFont(FontCategoryEnum font_category)
 void DrawPane::OnIdle(wxIdleEvent& evt)
 {
     (void)evt;
-    PaintOnDemand();
-
-    //if (m_RefreshNow)
-        //evt.RequestMore(); // render continuously, not only once on idle
-        //wxWakeUpIdle();
 }
 
 void DrawPane::InitColorTable()
@@ -307,19 +270,11 @@ void DrawPane::OnTimer(wxTimerEvent& event)
 {
     (void)event;
     PaintOnDemand();
-    //Refresh();
 }
 
 void DrawPane::OnRefreshEvent(wxCommandEvent& event)
 {
     (void)event;
-    // PaintOnDemand();
-
-    // if (m_RefreshNow) {
-    //     wxCommandEvent event(MY_REFRESH_EVENT);
-
-    //     wxPostEvent(this, event);
-    // }
     m_RefreshTimer.StartOnce(20);
 }
 

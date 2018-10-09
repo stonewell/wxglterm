@@ -4,7 +4,10 @@
 
 #include "term_window.h"
 #include "draw_pane.h"
+
 #include <wx/dcbuffer.h>
+#include "wx/dcgraph.h"
+#include "wx/graphics.h"
 
 #include "term_context.h"
 #include "term_buffer.h"
@@ -53,15 +56,20 @@ void DrawPane::DrawContent(wxDC &dc,
                            uint32_t mode,
                            wxCoord & last_x,
                            wxCoord & last_y,
-                           bool drawBySingleChar)
+#if USE_TEXT_BLOB
+                           wxTextBlob & text_blob
+#else
+                           bool drawBySingleChar
+#endif
+                           )
 {
+    (void)dc;
+#if !USE_TEXT_BLOB
     wxSize content_size = dc.GetMultiLineTextExtent(content);
     bool multi_line = content.Find('\n', true) > 0;
 
     wxSize content_last_line_size {0, 0};
     wxSize content_before_last_line_size {0, 0};
-
-    std::bitset<16> m(last_mode);
 
     if (multi_line)
     {
@@ -69,6 +77,9 @@ void DrawPane::DrawContent(wxDC &dc,
         content_before_last_line_size.SetHeight(content_size.GetHeight() - content_last_line_size.GetHeight());
         content_before_last_line_size.SetWidth(content_size.GetWidth());
     }
+#endif
+
+    std::bitset<16> m(last_mode);
 
     uint32_t back_color_use = last_back_color;
     uint32_t fore_color_use = last_fore_color;
@@ -86,7 +97,9 @@ void DrawPane::DrawContent(wxDC &dc,
         font = GetFont(DrawPane::Bold);
     }
 
+#if !USE_TEXT_BLOB
     dc.SetFont(*font);
+#endif
 
     if (m.test(TermCell::Cursor))
     {
@@ -102,6 +115,7 @@ void DrawPane::DrawContent(wxDC &dc,
         fore_color_use = tmp;
     }
 
+#if !USE_TEXT_BLOB
     if (back_color_use != TermCell::DefaultBackColorIndex)
     {
         wxBrush brush(__GetColorByIndex(back_color_use));
@@ -153,6 +167,15 @@ void DrawPane::DrawContent(wxDC &dc,
             last_x += w * m_CellWidth;
         }
     }
+#else
+    wxPoint pt = text_blob.AddText(content, {last_x, last_y},
+                      font,
+                      __GetColorByIndex(fore_color_use),
+                      back_color_use != TermCell::DefaultBackColorIndex ? __GetColorByIndex(back_color_use) : wxNullColour);
+
+    last_x = pt.x;
+    last_y = pt.y;
+#endif
 
     content.Clear();
     last_fore_color = fore_color;
@@ -160,9 +183,11 @@ void DrawPane::DrawContent(wxDC &dc,
     last_mode = mode;
 }
 
-void DrawPane::CalculateClipRegion(wxRegion & clipRegion, TermBufferPtr buffer)
+void DrawPane::CalculateClipRegion(wxRegion & clipRegion, TermBufferPtr buffer, const wxRegion & updateRegion)
 {
     wxRect clientSize = GetClientSize();
+
+    clientSize.SetY(PADDING);
 
     clipRegion.Union(clientSize);
 
@@ -171,11 +196,14 @@ void DrawPane::CalculateClipRegion(wxRegion & clipRegion, TermBufferPtr buffer)
     for (auto row = 0u; row < rows; row++) {
         auto line = buffer->GetLine(row);
 
+        wxRect rowRect(0, PADDING + row * m_LineHeight, clientSize.GetWidth(), m_LineHeight);
+        if (updateRegion.Contains(rowRect) != wxOutRegion)
+            line->SetModified(true);
+
         if (!clipRegion.IsEmpty()
             && row == line->GetLastRenderLineIndex()
             && !line->IsModified())
         {
-            wxRect rowRect(0, PADDING + row * m_LineHeight, clientSize.GetWidth(), m_LineHeight);
             clipRegion.Subtract(rowRect);
         }
     }
@@ -216,8 +244,17 @@ void DrawPane::DoPaint(wxDC & dc, TermBufferPtr buffer, bool full_paint, const s
     dc.Clear();
     std::bitset<16> m(buffer->GetMode());
 
+#if USE_TEXT_BLOB
+    wxTextBlob text_blob;
+    text_blob.SetLineHeight(m_LineHeight);
+    text_blob.SetGlyphAdvanceX(m_CellWidth);
+    text_blob.SetPPI(dc.GetPPI());
+#endif
+
     for (auto row = 0u; row < rows; row++) {
         auto line = buffer->GetLine(row);
+
+        last_x = PADDING;
 
         if ((!full_paint &&
              row == line->GetLastRenderLineIndex()
@@ -237,12 +274,15 @@ void DrawPane::DoPaint(wxDC & dc, TermBufferPtr buffer, bool full_paint, const s
                             TermCell::DefaultBackColorIndex,
                             0,
                             last_x,
-                            last_y);
+                            last_y
+#if USE_TEXT_BLOB
+                            ,text_blob
+#endif
+                            );
             }
 
             last_x = PADDING;
             last_y = y;
-
             continue;
         }
 
@@ -281,7 +321,11 @@ void DrawPane::DoPaint(wxDC & dc, TermBufferPtr buffer, bool full_paint, const s
                                 back_color,
                                 mode,
                                 last_x,
-                                last_y);
+                                last_y
+#if USE_TEXT_BLOB
+                                ,text_blob
+#endif
+                                );
                     last_y = y;
                 }
 
@@ -308,7 +352,11 @@ void DrawPane::DoPaint(wxDC & dc, TermBufferPtr buffer, bool full_paint, const s
                         TermCell::DefaultBackColorIndex,
                         0,
                         last_x,
-                        last_y);
+                        last_y
+#if USE_TEXT_BLOB
+                        ,text_blob
+#endif
+                        );
 
             last_x = PADDING;
             last_y = y;
@@ -326,8 +374,24 @@ void DrawPane::DoPaint(wxDC & dc, TermBufferPtr buffer, bool full_paint, const s
                     TermCell::DefaultBackColorIndex,
                     0,
                     last_x,
-                    last_y);
+                    last_y
+#if USE_TEXT_BLOB
+                    ,text_blob
+#endif
+                    );
     }
+
+#if USE_TEXT_BLOB
+    if ( wxGCDC *gcdc = wxDynamicCast(&dc, wxGCDC) ) {
+        text_blob.Render(gcdc->GetGraphicsContext());
+    } else if (wxMemoryDC * mdc = wxDynamicCast(&dc, wxMemoryDC)) {
+        wxScopedPtr<wxGraphicsContext> gdc{wxGraphicsContext::Create(*mdc)};
+        text_blob.Render(gdc.get());
+    } else if (wxPaintDC * mdc = wxDynamicCast(&dc, wxPaintDC)) {
+        wxScopedPtr<wxGraphicsContext> gdc{wxGraphicsContext::Create(*mdc)};
+        text_blob.Render(gdc.get());
+    }
+#endif
 }
 
 void DrawPane::PaintOnDemand()

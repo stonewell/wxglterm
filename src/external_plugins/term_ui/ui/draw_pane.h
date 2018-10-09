@@ -5,6 +5,10 @@
 #include <bitset>
 #include <vector>
 
+#include "text_blob.h"
+
+#define USE_TEXT_BLOB 1
+
 class DrawPane : public wxPanel {
 public:
     DrawPane(wxFrame * parent,
@@ -86,7 +90,7 @@ private:
                  , TermBufferPtr buffer
                  , bool full_paint
                  , const std::vector<uint32_t> & rowsToDraw = std::vector<uint32_t>());
-    void CalculateClipRegion(wxRegion & clipRegion, TermBufferPtr buffer);
+    void CalculateClipRegion(wxRegion & clipRegion, TermBufferPtr buffer, const wxRegion & updateRegion = wxRegion(0, 0, 0, 0));
 
     void DrawContent(wxDC &dc,
                      wxString & content,
@@ -99,7 +103,12 @@ private:
                      uint32_t mode,
                      wxCoord & last_x,
                      wxCoord & last_y,
-                     bool drawBySingleChar = false);
+#if USE_TEXT_BLOB
+                     wxTextBlob & text_blob
+#else
+                     bool drawBySingleChar = false
+#endif
+                     );
 
     void InitColorTable();
 
