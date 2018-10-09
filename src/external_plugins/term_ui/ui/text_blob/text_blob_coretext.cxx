@@ -8,8 +8,10 @@
 #include <algorithm>
 #include <vector>
 
+#include "char_width.h"
+
 static
-void __DoDrawText(CGContextRef cgContext, const wxTextBlob::TextPart & text_part);
+void __DoDrawText(CGContextRef cgContext, const wxTextBlob::TextPart & text_part, double adv_x);
 
 void wxTextBlob::DoDrawBackground(wxGraphicsContext * context, void * rendering_data)
 {
@@ -30,7 +32,7 @@ void wxTextBlob::DoDrawText(wxGraphicsContext * context, void * rendering_data)
                 it_end = m_TextParts.end();
         it != it_end;
         it++) {
-        __DoDrawText(native_context, *it);
+        __DoDrawText(native_context, *it, m_GlyphAdvanceX);
     }
 }
 
@@ -59,13 +61,17 @@ void wxTextBlob::EndTextRendering(void * rendering_data) {
 }
 
 static
-void __DoDrawText(CGContextRef cgContext, const wxTextBlob::TextPart & text_part)
+void __DrawLine(const wxString & str, CTLineRef line, CGContextRef cgContext, double adv_x);
+
+static
+void __DoDrawText(CGContextRef cgContext, const wxTextBlob::TextPart & text_part, double adv_x)
 {
     wxCFStringRef text(text_part.text, wxLocale::GetSystemEncoding() );
     CTFontRef font = text_part.pFont->OSXGetCTFont();
     CGColorRef col = text_part.fore.CreateCGColor();
-    CFStringRef keys[] = { kCTFontAttributeName , kCTForegroundColorAttributeName };
-    CFTypeRef values[] = { font, col };
+
+    CFStringRef keys[] = { kCTFontAttributeName , kCTForegroundColorAttributeName};
+    CFTypeRef values[] = { font, col};
 
     wxCFRef<CFDictionaryRef> attributes( CFDictionaryCreate(kCFAllocatorDefault, (const void**) &keys, (const void**) &values,
                                                     WXSIZEOF( keys ), &kCFTypeDictionaryKeyCallBacks, &kCFTypeDictionaryValueCallBacks) );
@@ -84,7 +90,10 @@ void __DoDrawText(CGContextRef cgContext, const wxTextBlob::TextPart & text_part
     CGContextScaleCTM(cgContext, 1, -1);
     CGContextSetTextMatrix(cgContext, CGAffineTransformIdentity);
 
-    CTLineDraw( line, cgContext );
+    if (!adv_x)
+        CTLineDraw(line, cgContext);
+    else
+        __DrawLine(text_part.text, line, cgContext, adv_x);
 
     if ( text_part.pFont->GetUnderlined() ) {
         //AKT: draw horizontal line 1 pixel thick and with 1 pixel gap under baseline
@@ -111,4 +120,75 @@ void __DoDrawText(CGContextRef cgContext, const wxTextBlob::TextPart & text_part
     CGContextRestoreGState(cgContext);
     CGContextSetTextMatrix(cgContext, textMatrix);
     CGColorRelease( col );
+}
+
+static
+void __ApplyStyles(CTRunRef run, CGContextRef context) {
+    CFDictionaryRef attributes = CTRunGetAttributes(run);
+
+    // Set the font
+    CTFontRef runFont = (CTFontRef)CFDictionaryGetValue(attributes, kCTFontAttributeName);
+    CGFontRef cgFont = CTFontCopyGraphicsFont(runFont, NULL);
+    CGContextSetFont(context, cgFont);
+    CGContextSetFontSize(context, CTFontGetSize(runFont));
+    CFRelease(cgFont);
+
+    // Set the color
+    CGColorRef color = (CGColorRef)CFDictionaryGetValue(attributes, kCTForegroundColorAttributeName);
+    CGContextSetFillColorWithColor(context, color);
+}
+
+static
+void __DrawRun(const wxString & text, CTRunRef run, CGContextRef cgContext, double adv_x) {
+    __ApplyStyles(run, cgContext);
+
+    CFRange range = CTRunGetStringRange(run);
+    wxWCharBuffer buf = text.wc_str();
+
+    std::vector<CGPoint> positions;
+    std::vector<CGGlyph> glyphs;
+
+    CFDictionaryRef attributes = CTRunGetAttributes(run);
+    CTFontRef runFont = (CTFontRef)CFDictionaryGetValue(attributes, kCTFontAttributeName);
+
+    CGPoint pt = CGPointMake(0, 0);
+
+    for(size_t i = 0; i < buf.length(); i++) {
+        wchar_t ch = buf[(size_t)i];
+
+        if ((CFIndex)i < range.location) {
+            pt.x += (char_width(ch) > 1 ? adv_x * 2 : adv_x);
+            continue;
+        }
+
+        if ((CFIndex)i >= range.location + range.length)
+            break;
+
+        CGGlyph glyph;
+        CTFontGetGlyphsForCharacters(runFont, (UniChar*)&ch, &glyph, 1);
+
+        positions.push_back(pt);
+        glyphs.push_back(glyph);
+
+        pt.x += (char_width(ch) > 1 ? adv_x * 2 : adv_x);
+    }
+
+    if (glyphs.size() > 0) {
+        CGContextShowGlyphsAtPositions(cgContext, &glyphs[0], &positions[0], glyphs.size());
+    }
+}
+
+static
+void __DrawLine(const wxString & text, CTLineRef line, CGContextRef cgContext, double adv_x) {
+    (void)line;
+    (void)cgContext;
+    (void)adv_x;
+
+    CFArrayRef runs = CTLineGetGlyphRuns(line);
+
+    for(CFIndex i=0;i < CFArrayGetCount(runs); i++) {
+        CTRunRef run = (CTRunRef)CFArrayGetValueAtIndex(runs, i);
+
+        __DrawRun(text, run, cgContext, adv_x);
+    }
 }

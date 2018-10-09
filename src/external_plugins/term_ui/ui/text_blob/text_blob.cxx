@@ -48,6 +48,16 @@ wxPoint wxTextBlob::AddText(const wxString & text,
                                            nullptr,
                                            &leading);
 
+        if (m_GlyphAdvanceX) {
+            wxWCharBuffer buf = token.wc_str();
+
+            width = 0;
+            for(size_t i=0; i < buf.length(); i++) {
+                wchar_t ch = buf[i];
+                width += (char_width(ch) > 1 ? 2 * m_GlyphAdvanceX : m_GlyphAdvanceX);
+            }
+        }
+
         if (empty_token) width = 0;
 
         m_TextParts.push_back(
