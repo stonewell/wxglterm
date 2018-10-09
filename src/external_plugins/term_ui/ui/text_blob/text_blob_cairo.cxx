@@ -97,7 +97,7 @@ void wxTextBlob::DoDrawText(wxGraphicsContext * context, void * rendering_data)
                                       (double)fore.Blue() / 255.0,
                                       (double)fore.Alpha()/ 255.0);
 
-                std::vector<cairo_glyph_t> glyphs(it_color.second.size());
+                std::vector<cairo_glyph_t> glyphs;
 
                 for(const auto & it_glyph : it_color.second) {
                     glyphs.push_back({it_glyph.index,
