@@ -10,6 +10,40 @@
 
 #include "char_width.h"
 
+#define USE_DELEGATE 0
+
+#if USE_DELEGATE
+typedef struct __DelegateCallbackData {
+    CGFloat ascent;
+    CGFloat descent;
+    CGFloat adv_x;
+} DelegateCallbackData;
+
+/* Callbacks */
+static
+void MyDeallocationCallback( void* refCon ){
+    (void)refCon;
+}
+
+static
+CGFloat MyGetAscentCallback( void *refCon ){
+    DelegateCallbackData * data = (DelegateCallbackData*)refCon;
+    return data->ascent;
+}
+
+static
+CGFloat MyGetDescentCallback( void *refCon ){
+    DelegateCallbackData * data = (DelegateCallbackData*)refCon;
+    return data->descent;
+}
+
+static
+CGFloat MyGetWidthCallback( void* refCon ){
+    DelegateCallbackData * data = (DelegateCallbackData*)refCon;
+    return data->adv_x;
+}
+#endif
+
 static
 void __DoDrawText(CGContextRef cgContext, const wxTextBlob::TextPart & text_part, double adv_x);
 
@@ -60,8 +94,10 @@ void wxTextBlob::EndTextRendering(void * rendering_data) {
     delete rdata;
 }
 
+#if !USE_DELEGATE
 static
 void __DrawLine(const wxString & str, CTLineRef line, CGContextRef cgContext, double adv_x);
+#endif
 
 static
 void __DoDrawText(CGContextRef cgContext, const wxTextBlob::TextPart & text_part, double adv_x)
@@ -70,11 +106,36 @@ void __DoDrawText(CGContextRef cgContext, const wxTextBlob::TextPart & text_part
     CTFontRef font = text_part.pFont->OSXGetCTFont();
     CGColorRef col = text_part.fore.CreateCGColor();
 
-    CFStringRef keys[] = { kCTFontAttributeName , kCTForegroundColorAttributeName};
-    CFTypeRef values[] = { font, col};
+#if USE_DELEGATE
+    DelegateCallbackData data {
+        CTFontGetAscent(font),
+        CTFontGetDescent(font),
+        adv_x
+    };
+
+    CTRunDelegateCallbacks callbacks;
+    callbacks.version = kCTRunDelegateVersion1;
+    callbacks.dealloc = MyDeallocationCallback;
+    callbacks.getAscent = MyGetAscentCallback;
+    callbacks.getDescent = MyGetDescentCallback;
+    callbacks.getWidth = MyGetWidthCallback;
+    CTRunDelegateRef delegate = CTRunDelegateCreate(&callbacks, &data);
+#endif
+
+    CFStringRef keys[] = { kCTFontAttributeName , kCTForegroundColorAttributeName
+#if USE_DELEGATE
+                           , kCTRunDelegateAttributeName
+#endif
+    };
+
+    CFTypeRef values[] = { font, col
+#if USE_DELEGATE
+                           , delegate
+#endif
+    };
 
     wxCFRef<CFDictionaryRef> attributes( CFDictionaryCreate(kCFAllocatorDefault, (const void**) &keys, (const void**) &values,
-                                                    WXSIZEOF( keys ), &kCFTypeDictionaryKeyCallBacks, &kCFTypeDictionaryValueCallBacks) );
+                                                            WXSIZEOF( keys ), &kCFTypeDictionaryKeyCallBacks, &kCFTypeDictionaryValueCallBacks) );
     wxCFRef<CFAttributedStringRef> attrtext( CFAttributedStringCreate(kCFAllocatorDefault, text, attributes) );
     wxCFRef<CTLineRef> line( CTLineCreateWithAttributedString(attrtext) );
 
@@ -90,10 +151,14 @@ void __DoDrawText(CGContextRef cgContext, const wxTextBlob::TextPart & text_part
     CGContextScaleCTM(cgContext, 1, -1);
     CGContextSetTextMatrix(cgContext, CGAffineTransformIdentity);
 
+#if USE_DELEGATE
+        CTLineDraw(line, cgContext);
+#else
     if (!adv_x)
         CTLineDraw(line, cgContext);
     else
         __DrawLine(text_part.text, line, cgContext, adv_x);
+#endif
 
     if ( text_part.pFont->GetUnderlined() ) {
         //AKT: draw horizontal line 1 pixel thick and with 1 pixel gap under baseline
@@ -122,6 +187,7 @@ void __DoDrawText(CGContextRef cgContext, const wxTextBlob::TextPart & text_part
     CGColorRelease( col );
 }
 
+#if !USE_DELEGATE
 static
 void __ApplyStyles(CTRunRef run, CGContextRef context) {
     CFDictionaryRef attributes = CTRunGetAttributes(run);
@@ -192,3 +258,4 @@ void __DrawLine(const wxString & text, CTLineRef line, CGContextRef cgContext, d
         __DrawRun(text, run, cgContext, adv_x);
     }
 }
+#endif
