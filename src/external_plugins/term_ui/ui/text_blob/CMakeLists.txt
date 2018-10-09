@@ -4,7 +4,7 @@ SET(text_blob_src
 
 IF (APPLE)
     LIST(APPEND text_blob_src
-        text_blob_generic.cxx)
+        text_blob_coretext.cxx)
     SET(EXTRA_INCLUDE "")
 
 ELSE()
