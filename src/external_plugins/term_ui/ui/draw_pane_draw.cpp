@@ -248,7 +248,7 @@ void DrawPane::DoPaint(wxDC & dc, TermBufferPtr buffer, bool full_paint, const s
     wxTextBlob text_blob;
     text_blob.SetLineHeight(m_LineHeight);
     text_blob.SetGlyphAdvanceX(m_CellWidth);
-    text_blob.SetPPI(dc.GetPPI());
+    text_blob.SetPPI(wxGetDisplayPPI());
 #endif
 
     for (auto row = 0u; row < rows; row++) {
