@@ -137,6 +137,22 @@ void DrawPane::OnKeyDown(wxKeyEvent& event)
     if (event.MetaDown()) mods |= InputHandler::ModifierEnum::MOD_SUPER;
     if (event.ControlDown() && !event.RawControlDown()) mods |= InputHandler::ModifierEnum::MOD_SUPER;
 
+    switch((InputHandler::KeyCodeEnum)key) {
+    case InputHandler::KeyCodeEnum::KEY_LEFT_SHIFT:
+    case InputHandler::KeyCodeEnum::KEY_RIGHT_SHIFT:
+    case InputHandler::KeyCodeEnum::KEY_LEFT_CONTROL:
+    case InputHandler::KeyCodeEnum::KEY_RIGHT_CONTROL:
+    case InputHandler::KeyCodeEnum::KEY_LEFT_ALT:
+    case InputHandler::KeyCodeEnum::KEY_RIGHT_ALT:
+    case InputHandler::KeyCodeEnum::KEY_LEFT_SUPER:
+    case InputHandler::KeyCodeEnum::KEY_RIGHT_SUPER:
+        event.Skip();
+        return;
+    default:
+        break;
+    }
+    std::cout << "mods:" << (int)mods << ", key:" << (int)key << std::endl;
+
     if (!input_handler->ProcessKey((InputHandler::KeyCodeEnum)key,
                                   (InputHandler::ModifierEnum)mods,
                                    true)) {
