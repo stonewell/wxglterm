@@ -120,6 +120,7 @@ InputHandler::KeyCodeEnum wxKeyToInputHandlerKey(wxKeyCode uc) {
 
 void DrawPane::OnKeyDown(wxKeyEvent& event)
 {
+    m_ModKeyDown = false;
     InputHandler::KeyCodeEnum key = wxKeyToInputHandlerKey((wxKeyCode)event.GetKeyCode());
 
     TermContextPtr context = std::dynamic_pointer_cast<TermContext>(m_TermWindow->GetPluginContext());
@@ -137,6 +138,22 @@ void DrawPane::OnKeyDown(wxKeyEvent& event)
     if (event.MetaDown()) mods |= InputHandler::ModifierEnum::MOD_SUPER;
     if (event.ControlDown() && !event.RawControlDown()) mods |= InputHandler::ModifierEnum::MOD_SUPER;
 
+    switch((InputHandler::KeyCodeEnum)key) {
+    case InputHandler::KeyCodeEnum::KEY_LEFT_SHIFT:
+    case InputHandler::KeyCodeEnum::KEY_RIGHT_SHIFT:
+    case InputHandler::KeyCodeEnum::KEY_LEFT_CONTROL:
+    case InputHandler::KeyCodeEnum::KEY_RIGHT_CONTROL:
+    case InputHandler::KeyCodeEnum::KEY_LEFT_ALT:
+    case InputHandler::KeyCodeEnum::KEY_RIGHT_ALT:
+    case InputHandler::KeyCodeEnum::KEY_LEFT_SUPER:
+    case InputHandler::KeyCodeEnum::KEY_RIGHT_SUPER:
+        event.Skip();
+        m_ModKeyDown = true;
+        return;
+    default:
+        break;
+    }
+
     if (!input_handler->ProcessKey((InputHandler::KeyCodeEnum)key,
                                   (InputHandler::ModifierEnum)mods,
                                    true)) {
@@ -146,11 +163,61 @@ void DrawPane::OnKeyDown(wxKeyEvent& event)
 
 void DrawPane::OnKeyUp(wxKeyEvent& event)
 {
-    (void)event;
+    InputHandler::KeyCodeEnum key = wxKeyToInputHandlerKey((wxKeyCode)event.GetKeyCode());
+    int mods = 0;
+
+    if (event.ShiftDown()) mods |= InputHandler::ModifierEnum::MOD_SHIFT;
+    if (event.AltDown()) mods |= InputHandler::ModifierEnum::MOD_ALT;
+    if (event.RawControlDown()) mods |= InputHandler::ModifierEnum::MOD_CONTROL;
+    if (event.MetaDown()) mods |= InputHandler::ModifierEnum::MOD_SUPER;
+    if (event.ControlDown() && !event.RawControlDown()) mods |= InputHandler::ModifierEnum::MOD_SUPER;
+
+    if (m_ModKeyDown) {
+        TermContextPtr context = std::dynamic_pointer_cast<TermContext>(m_TermWindow->GetPluginContext());
+
+        if (!context)
+            return;
+
+        InputHandlerPtr input_handler = context->GetInputHandler();
+
+        switch((InputHandler::KeyCodeEnum)key) {
+        case InputHandler::KeyCodeEnum::KEY_LEFT_SHIFT:
+        case InputHandler::KeyCodeEnum::KEY_RIGHT_SHIFT:
+            mods |= InputHandler::ModifierEnum::MOD_SHIFT;
+            key = InputHandler::KeyCodeEnum::KEY_UNKNOWN;
+            break;
+        case InputHandler::KeyCodeEnum::KEY_LEFT_CONTROL:
+        case InputHandler::KeyCodeEnum::KEY_RIGHT_CONTROL:
+            mods |= InputHandler::ModifierEnum::MOD_CONTROL;
+            key = InputHandler::KeyCodeEnum::KEY_UNKNOWN;
+            break;
+        case InputHandler::KeyCodeEnum::KEY_LEFT_ALT:
+        case InputHandler::KeyCodeEnum::KEY_RIGHT_ALT:
+            mods |= InputHandler::ModifierEnum::MOD_ALT;
+            key = InputHandler::KeyCodeEnum::KEY_UNKNOWN;
+            break;
+        case InputHandler::KeyCodeEnum::KEY_LEFT_SUPER:
+        case InputHandler::KeyCodeEnum::KEY_RIGHT_SUPER: {
+            mods |= InputHandler::ModifierEnum::MOD_SUPER;
+            key = InputHandler::KeyCodeEnum::KEY_UNKNOWN;
+        }
+            break;
+        default:
+            break;
+        }
+
+        if (!input_handler->ProcessKey((InputHandler::KeyCodeEnum)key,
+                                       (InputHandler::ModifierEnum)mods,
+                                       true)) {
+            event.Skip();
+        }
+    }
 }
 
 void DrawPane::OnChar(wxKeyEvent& event)
 {
+    event.DoAllowNextEvent();
+    event.Skip();
     wxChar uc = event.GetUnicodeKey();
 
     if (uc == WXK_NONE)

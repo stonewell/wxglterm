@@ -133,4 +133,5 @@ private:
 
     bool m_EnableMouseTrack;
     int m_SavedMouseButton;
+    bool m_ModKeyDown;
 };
