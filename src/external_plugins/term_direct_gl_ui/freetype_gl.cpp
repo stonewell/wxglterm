@@ -74,7 +74,7 @@ void freetype_gl_context::init_font(const std::string & name,
               << ",l:" << f->GetHeight()
               << std::endl;
 
-    this->line_height = ceil(f->GetHeight()) + 1;
+    this->line_height = ceil(f->GetHeight());
     this->col_width = 0.0f;
 
     for(size_t i=0;i < strlen(SINGLE_WIDTH_CHARACTERS); i++) {
