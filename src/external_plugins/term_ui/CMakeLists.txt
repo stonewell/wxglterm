@@ -1,8 +1,22 @@
-#
 FIND_PACKAGE(wxWidgets 3 REQUIRED
   std
   richtext
   )
+
+IF (NOT APPLE)
+   FIND_PACKAGE(FontConfig REQUIRED)
+   FIND_PACKAGE(Freetype REQUIRED)
+   FIND_PACKAGE(Cairo REQUIRED)
+   SET(EXTRA_LIBRAY
+	${Cairo_LIBRARY}
+	${FREETYPE_LIBRARIES}
+	${FONTCONFIG_LIBRARY}
+	)
+   SET(EXTRA_INCLUDE
+	${FREETYPE_INCLUDE_DIRS}
+	)
+ENDIF()
+
 
 ADD_SUBDIRECTORY(ui)
 
@@ -28,10 +42,12 @@ TARGET_INCLUDE_DIRECTORIES(term_ui PRIVATE
   "${pybind11_INCLUDE_DIRS}"
   "${PYTHON_INCLUDE_DIRS}"
   "ui"
+  "ui/text_blob"
   "../../interface"
   "../../utils"
   "../../utils/portable_thread/includes"
   "../../plugins"
+  ${EXTRA_INCLUDE}
   )
 
 TARGET_LINK_LIBRARIES(term_ui
@@ -41,6 +57,7 @@ TARGET_LINK_LIBRARIES(term_ui
   ${pybind11_LIBRARIES}
   ${PYTHON_LIBRARIES}
   ${wxWidgets_LIBRARIES}
+  ${EXTRA_LIBRARY}
   )
 
 INSTALL(TARGETS term_ui DESTINATION share/wxglterm/plugins)
