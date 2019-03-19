@@ -1,19 +1,18 @@
---- src/external_plugins/term_gl_ui/freetype-gl-prefix/src/freetype-gl/text-buffer.c	2018-02-16 09:57:40.092582361 -0800
-+++ src/external_plugins/term_gl_ui/term_text_buffer.c	2018-04-24 13:45:31.449232268 -0700
-@@ -12,66 +12,33 @@
+--- src/external_plugins/term_gl_ui/freetype-gl-prefix/src/freetype-gl/text-buffer.c	2019-03-17 20:36:49.000000000 -0700
++++ src/external_plugins/term_gl_ui/term_text_buffer.c	2019-03-18 22:24:17.000000000 -0700
+@@ -12,6 +12,8 @@
  #include "opengl.h"
  #include "text-buffer.h"
  #include "utf8-utils.h"
 +#include "term_text_buffer.h"
 +#include "char_width.h"
  
--#define SET_GLYPH_VERTEX(value,x0,y0,z0,s0,t0,r,g,b,a,sh,gm) { \
--	glyph_vertex_t *gv=&value;                                 \
--	gv->x=x0; gv->y=y0; gv->z=z0;                              \
--	gv->u=s0; gv->v=t0;                                        \
--	gv->r=r; gv->g=g; gv->b=b; gv->a=a;                        \
--	gv->shift=sh; gv->gamma=gm;}
--
+ #define SET_GLYPH_VERTEX(value,x0,y0,z0,s0,t0,r,g,b,a,sh,gm) { \
+     glyph_vertex_t *gv=&value;                                 \
+@@ -20,58 +22,22 @@
+     gv->r=r; gv->g=g; gv->b=b; gv->a=a;                        \
+     gv->shift=sh; gv->gamma=gm;}
+ 
 -// ----------------------------------------------------------------------------
 -
 -text_buffer_t *
@@ -38,12 +37,6 @@
 -}
 -
 -// ----------------------------------------------------------------------------
-+#define SET_GLYPH_VERTEX(value,x0,y0,z0,s0,t0,r,g,b,a,sh,gm) {  \
-+        glyph_vertex_t *gv=&value;                              \
-+        gv->x=x0; gv->y=y0; gv->z=z0;                           \
-+        gv->u=s0; gv->v=t0;                                     \
-+        gv->r=r; gv->g=g; gv->b=b; gv->a=a;                     \
-+        gv->shift=sh; gv->gamma=gm;}
  void
 -text_buffer_delete( text_buffer_t * self )
 -{
@@ -51,9 +44,9 @@
 -    vertex_buffer_delete( self->buffer );
 -    free( self );
 -}
-+text_buffer_move_last_line( text_buffer_t * self, float dy );
- 
+-
 -// ----------------------------------------------------------------------------
++text_buffer_move_last_line( text_buffer_t * self, float dy );
  void
 -text_buffer_clear( text_buffer_t * self )
 -{
@@ -79,16 +72,14 @@
 +                           vec2 * pen, markup_t * markup,
 +                           const char * current, const char * previous );
  
--// ----------------------------------------------------------------------------
+ // ----------------------------------------------------------------------------
  void
 -text_buffer_printf( text_buffer_t * self, vec2 *pen, ... )
-+term_text_buffer_printf( text_buffer_t * self,
-+                         double col_width,
-+                         vec2 *pen, ... )
++term_text_buffer_printf( text_buffer_t * self, double col_width, vec2 *pen, ... )
  {
      markup_t *markup;
      char *text;
-@@ -90,38 +57,11 @@ text_buffer_printf( text_buffer_t * self
+@@ -90,31 +56,12 @@ text_buffer_printf( text_buffer_t * self
              return;
          }
          text = va_arg( args, char * );
@@ -98,7 +89,7 @@
      va_end ( args );
  }
  
--// ----------------------------------------------------------------------------
+ // ----------------------------------------------------------------------------
 -void
 -text_buffer_move_last_line( text_buffer_t * self, float dy )
 -{
@@ -118,17 +109,10 @@
 -
 -
 -// ----------------------------------------------------------------------------
--// text_buffer_finish_line (internal use only)
--// 
--//  Performs calculations needed at the end of each line of text 
--//  and prepares for the next line if necessary
--//
--//  advancePen: if true, advance the pen to the next line
--//
- static void
- text_buffer_finish_line( text_buffer_t * self, vec2 * pen, bool advancePen )
- {
-@@ -166,7 +106,8 @@ text_buffer_finish_line( text_buffer_t *
+ // text_buffer_finish_line (internal use only)
+ //
+ // Performs calculations needed at the end of each line of text
+@@ -166,7 +113,8 @@ text_buffer_finish_line( text_buffer_t *
      if ( advancePen )
      {
          pen->x = self->origin.x;
@@ -138,21 +122,17 @@
      }
  
      self->line_descender = 0;
-@@ -177,9 +118,10 @@ text_buffer_finish_line( text_buffer_t *
+@@ -177,7 +125,8 @@ text_buffer_finish_line( text_buffer_t *
  
  // ----------------------------------------------------------------------------
  void
 -text_buffer_add_text( text_buffer_t * self,
--                      vec2 * pen, markup_t * markup,
--                      const char * text, size_t length )
 +term_text_buffer_add_text( text_buffer_t * self,
-+                           double col_width,
-+                           vec2 * pen, markup_t * markup,
-+                           const char * text, size_t length )
++                      double col_width,
+                       vec2 * pen, markup_t * markup,
+                       const char * text, size_t length )
  {
-     size_t i;
-     const char * prev_character = NULL;
-@@ -220,7 +162,7 @@ text_buffer_add_text( text_buffer_t * se
+@@ -220,7 +169,7 @@ text_buffer_add_text( text_buffer_t * se
  
      for( i = 0; length; i += utf8_surrogate_len( text + i ) )
      {
@@ -161,21 +141,17 @@
          prev_character = text + i;
          length--;
      }
-@@ -230,9 +172,10 @@ text_buffer_add_text( text_buffer_t * se
+@@ -230,7 +179,8 @@ text_buffer_add_text( text_buffer_t * se
  
  // ----------------------------------------------------------------------------
  void
 -text_buffer_add_char( text_buffer_t * self,
--                      vec2 * pen, markup_t * markup,
--                      const char * current, const char * previous )
 +term_text_buffer_add_char( text_buffer_t * self,
-+                           double col_width,
-+                           vec2 * pen, markup_t * markup,
-+                           const char * current, const char * previous )
++                      double col_width,
+                       vec2 * pen, markup_t * markup,
+                       const char * current, const char * previous )
  {
-     size_t vcount = 0;
-     size_t icount = 0;
-@@ -267,6 +210,7 @@ text_buffer_add_char( text_buffer_t * se
+@@ -267,6 +217,7 @@ text_buffer_add_char( text_buffer_t * se
      if( *current == '\n' )
      {
          text_buffer_finish_line(self, pen, true);
@@ -183,7 +159,7 @@
          return;
      }
  
-@@ -284,6 +228,9 @@ text_buffer_add_char( text_buffer_t * se
+@@ -284,6 +235,9 @@ text_buffer_add_char( text_buffer_t * se
      }
      pen->x += kerning;
  
@@ -193,20 +169,20 @@
      // Background
      if( markup->background_color.alpha > 0 )
      {
-@@ -292,9 +239,9 @@ text_buffer_add_char( text_buffer_t * se
+@@ -292,9 +246,9 @@ text_buffer_add_char( text_buffer_t * se
          float b = markup->background_color.b;
          float a = markup->background_color.a;
          float x0 = ( pen->x -kerning );
 -        float y0 = (float)(int)( pen->y + font->descender );
 -        float x1 = ( x0 + glyph->advance_x );
 -        float y1 = (float)(int)( y0 + font->height + font->linegap );
-+        float y0 = (float)(int)( floor(pen->y + markup->font->descender));
++        float y0 = (float)(int)( floor(pen->y + font->descender) );
 +        float x1 = ( x0 + glyph_advance_x );
 +        float y1 = (float)(int)( pen->y + markup->font->ascender + 1);
          float s0 = black->s0;
          float t0 = black->t0;
          float s1 = black->s1;
-@@ -327,7 +274,7 @@ text_buffer_add_char( text_buffer_t * se
+@@ -327,7 +281,7 @@ text_buffer_add_char( text_buffer_t * se
          float a = markup->underline_color.a;
          float x0 = ( pen->x - kerning );
          float y0 = (float)(int)( pen->y + font->underline_position );
@@ -215,7 +191,7 @@
          float y1 = (float)(int)( y0 + font->underline_thickness );
          float s0 = black->s0;
          float t0 = black->t0;
-@@ -361,7 +308,7 @@ text_buffer_add_char( text_buffer_t * se
+@@ -361,7 +315,7 @@ text_buffer_add_char( text_buffer_t * se
          float a = markup->overline_color.a;
          float x0 = ( pen->x -kerning );
          float y0 = (float)(int)( pen->y + (int)font->ascender );
@@ -224,22 +200,14 @@
          float y1 = (float)(int)( y0 + (int)font->underline_thickness );
          float s0 = black->s0;
          float t0 = black->t0;
-@@ -394,7 +341,7 @@ text_buffer_add_char( text_buffer_t * se
-         float a = markup->strikethrough_color.a;
-         float x0  = ( pen->x -kerning );
-         float y0  = (float)(int)( pen->y + (int)font->ascender*.33f);
--        float x1  = ( x0 + glyph->advance_x );
-+        float x1  = ( x0 + glyph_advance_x );
-         float y1  = (float)(int)( y0 + (int)font->underline_thickness );
-         float s0 = black->s0;
-         float t0 = black->t0;
-@@ -450,91 +397,7 @@ text_buffer_add_char( text_buffer_t * se
+@@ -450,90 +404,6 @@ text_buffer_add_char( text_buffer_t * se
          icount += 6;
  
          vertex_buffer_push_back( buffer, vertices, vcount, indices, icount );
 -        pen->x += glyph->advance_x * (1.0f + markup->spacing);
--    }
--}
++        pen->x += glyph_advance_x;
+     }
+ }
 -
 -// ----------------------------------------------------------------------------
 -void
@@ -250,13 +218,12 @@
 -    {
 -        return;
 -    }
- 
+-
 -    size_t total_items = vector_size( self->buffer->items );
 -    if ( self->line_start != total_items )
 -    {
 -        text_buffer_finish_line( self, pen, false );
-+        pen->x += glyph_advance_x;
-     }
+-    }
 -
 -
 -    size_t i, j;
@@ -311,7 +278,6 @@
 -                vertex->x += dx;
 -            }
 -        }
--        
 -    }
 -}
 -
@@ -325,4 +291,4 @@
 -    }
 -
 -    return self->bounds;
- }
+-}
