@@ -51,12 +51,18 @@ endif()
 SET(CXX_STANDARD_REQUIRED OFF)
 SET(CXX_EXTENSION NO)
 
+if (MINGW)
+  set(extra_flags "-Wa,-mbig-obj")
+else()
+set(extra_flags "")
+endif()
+
 if (NOT CONFIGURED_ONCE)
-    set(CMAKE_C_FLAGS "-fPIC ${warnings}"
+    set(CMAKE_C_FLAGS "-fPIC ${warnings} ${extra_flags} "
         CACHE STRING "Flags used by the compiler during all build types." FORCE)
-    set(CMAKE_CXX_FLAGS "-fPIC ${warnings} -std=c++14"
+    set(CMAKE_CXX_FLAGS "-fPIC ${warnings} -std=c++14 ${extra_flags}"
         CACHE STRING "Flags used by the compiler during all build types." FORCE)
-    set(CMAKE_LINK_FLAGS "${no_undefined}"
+    set(CMAKE_LINK_FLAGS "${CMAKE_LINK_FLAGS} ${no_undefined}"
         CACHE STRING "Flags used by the linker during all build types." FORCE)
 endif()
 

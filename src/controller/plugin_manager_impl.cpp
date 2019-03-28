@@ -196,6 +196,10 @@ void PluginManagerImpl::LoadDylibPlugin(const char * plugin_file_path)
 
     if (!h)
     {
+        std::cerr << "!!!!!load dylib plugin from file:"
+                  << plugin_file_path
+                  << " failed ......"
+                  << std::endl;
         return;
     }
 

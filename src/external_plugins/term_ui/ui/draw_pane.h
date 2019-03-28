@@ -1,9 +1,10 @@
 #pragma once
 
 #include <wx/wx.h>
-#include "term_cell.h"
 #include <bitset>
 #include <vector>
+
+#include "term_cell.h"
 
 #include "text_blob.h"
 

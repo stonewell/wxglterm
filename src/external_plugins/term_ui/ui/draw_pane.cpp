@@ -163,14 +163,21 @@ void DrawPane::OnSize(wxSizeEvent& /*event*/)
                      GetFont());
 
     if (m_AppDebug)
-        printf("cell width:%u, line height:%u, %lu\n", dc.GetTextExtent(SINGLE_WIDTH_CHARACTERS).GetWidth(), m_LineHeight,
-               sizeof(SINGLE_WIDTH_CHARACTERS));
+        std::cout << "cell width:"
+                  << dc.GetTextExtent(SINGLE_WIDTH_CHARACTERS).GetWidth()
+                  << ", line height:"
+                  << m_LineHeight
+                  << ", "
+                  << sizeof(SINGLE_WIDTH_CHARACTERS)
+                  << std::endl;
 
     m_CellWidth /= (sizeof(SINGLE_WIDTH_CHARACTERS) - 1);
 
     if (m_AppDebug)
-        printf("cell width:%u, line height:%u, %lu\n", m_CellWidth, m_LineHeight,
-               sizeof(SINGLE_WIDTH_CHARACTERS));
+        std::cout << "cell width:" << m_CellWidth
+                  << ", line height:" << m_LineHeight
+                  << ", " << sizeof(SINGLE_WIDTH_CHARACTERS)
+                  << std::endl;
 
     buffer->Resize((clientSize.GetHeight() - PADDING * 2) / m_LineHeight,
                    (clientSize.GetWidth() - PADDING * 2) / m_CellWidth);

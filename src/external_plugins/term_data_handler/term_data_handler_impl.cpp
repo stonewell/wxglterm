@@ -5,11 +5,13 @@
 #include <list>
 #include <chrono>
 
-#include <unistd.h>
 #include <string.h>
 
+#ifndef _WIN32
+#include <unistd.h>
 #include <sys/select.h>
 #include <sys/wait.h>
+#endif
 
 #include "plugin.h"
 #include "term_network.h"

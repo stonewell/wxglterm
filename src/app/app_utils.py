@@ -6,13 +6,11 @@ app_name = 'wxglterm'
 config_file_ext = 'json'
 config_file_name = '.'.join([app_name, config_file_ext])
 
-if sys.platform == 'win32':
-    raise ValueError('windows not supported!')
-
-
 def user_config_dir():
     if sys.platform == 'darwin':
         p = os.path.expanduser('~/Library/Preferences')
+    elif sys.platform == 'win32':
+        raise ValueError('windows not supported!')
     else:
         p = os.getenv('XDG_CONFIG_HOME',
                       os.path.expanduser('~/.config'))

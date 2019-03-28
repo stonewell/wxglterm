@@ -126,14 +126,14 @@ public:
         KEY_RIGHT_ALT = 346,
         KEY_RIGHT_SUPER = 347,
         KEY_MENU = 348,
-        KEY_LAST = KEY_MENU,
+        KEY_LAST = KEY_MENU
     };
 
     enum ModifierEnum {
-        MOD_SHIFT = 1,
-        MOD_CONTROL = 2,
-        MOD_ALT = 4,
-        MOD_SUPER = 8
+        MOD_SHIFT_V = 1,
+        MOD_CONTROL_V = 2,
+        MOD_ALT_V = 4,
+        MOD_SUPER_V = 8
     };
 
     enum MouseButtonEnum {

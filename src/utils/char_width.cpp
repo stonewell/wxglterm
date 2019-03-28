@@ -82,6 +82,8 @@ size_t char_width(wchar_t ucs) {
     if (bisearch(ucs, zero_width_chars, sizeof(zero_width_chars) / sizeof(uint32_t) / 2 - 1) == 1)
         return 0;
 
+    uint32_t m = ucs;
+
     if (ucs >= 0x1100 &&
         (ucs <= 0x115f ||                    // Hangul Jamo init. consonants
          ucs == 0x2329 || ucs == 0x232a ||
@@ -93,8 +95,8 @@ size_t char_width(wchar_t ucs) {
          (ucs >= 0xfe30 && ucs <= 0xfe6f) || // CJK Compatibility F||ms
          (ucs >= 0xff00 && ucs <= 0xff60) || // Fullwidth F||ms
          (ucs >= 0xffe0 && ucs <= 0xffe6) ||
-         (ucs >= 0x20000 && ucs <= 0x2fffd) ||
-         (ucs >= 0x30000 && ucs <= 0x3fffd)))
+         (m >= 0x20000 && m <= 0x2fffd) ||
+         (m >= 0x30000 && m <= 0x3fffd)))
         return 2;
 
     return 1;

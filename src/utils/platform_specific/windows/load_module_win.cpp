@@ -16,5 +16,5 @@ Handle LoadDyModuleFromFile(const char * file_path)
 
 void * GetDyProcAddress(Handle module, const char * func_name)
 {
-    return GetProcAddress((HMODULE)module.get(), func_name);
+    return (void *)GetProcAddress((HMODULE)module.get(), func_name);
 }

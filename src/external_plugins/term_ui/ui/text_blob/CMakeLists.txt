@@ -8,7 +8,7 @@ IF (APPLE)
         text_blob_coretext.cxx)
     SET(EXTRA_INCLUDE "")
 
-ELSE()
+ELSEIF(NOT WIN32)
     LIST(APPEND text_blob_src
         text_blob_cairo.cxx
 	font_manager.cxx font_manager.h
@@ -17,6 +17,10 @@ ELSE()
 	err_msg.cxx err_msg.h
 	)
     SET(EXTRA_INCLUDE ${Cairo_INCLUDE_DIR})
+ELSE()
+    LIST(APPEND text_blob_src
+        text_blob_generic.cxx)
+    SET(EXTRA_INCLUDE "")
 ENDIF()
 
 ADD_LIBRARY(text_blob OBJECT

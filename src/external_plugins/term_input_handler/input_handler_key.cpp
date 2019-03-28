@@ -43,9 +43,9 @@ bool DefaultInputHandler::ProcessKey(InputHandler::KeyCodeEnum key, InputHandler
     std::vector<unsigned char> data;
 
     bool paste_data =
-            (mods == InputHandler::MOD_SHIFT && key == InputHandler::KEY_INSERT)
+            (mods == InputHandler::MOD_SHIFT_V && key == InputHandler::KEY_INSERT)
 #ifdef __APPLE__
-            || (mods == InputHandler::MOD_SUPER && key == InputHandler::KEY_V)
+            || (mods == InputHandler::MOD_SUPER_V && key == InputHandler::KEY_V)
 #endif
             ;
     if (paste_data) {
@@ -66,11 +66,11 @@ bool DefaultInputHandler::ProcessKey(InputHandler::KeyCodeEnum key, InputHandler
         return true;
     }
 
-    if (mods & InputHandler::MOD_ALT){
+    if (mods & InputHandler::MOD_ALT_V){
         data.push_back('\x1B');
     }
 
-    if (key != InputHandler::KEY_UNKNOWN && (mods & InputHandler::MOD_CONTROL)) {
+    if (key != InputHandler::KEY_UNKNOWN && (mods & InputHandler::MOD_CONTROL_V)) {
         if (key >= 'a' && key <= 'z')
             data.push_back((char)(key - 'a' + 1));
         if (key >= 'A' && key <= 'Z')
@@ -94,7 +94,7 @@ bool DefaultInputHandler::ProcessKey(InputHandler::KeyCodeEnum key, InputHandler
 
     //add char when there only ALT pressed
     if (data.size() == 1 && data[0] == '\x1B' && key >= 0 && key <0x80) {
-        if (!(mods & InputHandler::MOD_SHIFT) && (key >= 'A' && key <= 'Z')) {
+        if (!(mods & InputHandler::MOD_SHIFT_V) && (key >= 'A' && key <= 'Z')) {
             key = (InputHandler::KeyCodeEnum)(key - 'A' + 'a');
         }
         data.push_back((char)key);

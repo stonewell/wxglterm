@@ -132,11 +132,11 @@ void DrawPane::OnKeyDown(wxKeyEvent& event)
 
     int mods = 0;
 
-    if (event.ShiftDown()) mods |= InputHandler::ModifierEnum::MOD_SHIFT;
-    if (event.AltDown()) mods |= InputHandler::ModifierEnum::MOD_ALT;
-    if (event.RawControlDown()) mods |= InputHandler::ModifierEnum::MOD_CONTROL;
-    if (event.MetaDown()) mods |= InputHandler::ModifierEnum::MOD_SUPER;
-    if (event.ControlDown() && !event.RawControlDown()) mods |= InputHandler::ModifierEnum::MOD_SUPER;
+    if (event.ShiftDown()) mods |= InputHandler::ModifierEnum::MOD_SHIFT_V;
+    if (event.AltDown()) mods |= InputHandler::ModifierEnum::MOD_ALT_V;
+    if (event.RawControlDown()) mods |= InputHandler::ModifierEnum::MOD_CONTROL_V;
+    if (event.MetaDown()) mods |= InputHandler::ModifierEnum::MOD_SUPER_V;
+    if (event.ControlDown() && !event.RawControlDown()) mods |= InputHandler::ModifierEnum::MOD_SUPER_V;
 
     switch((InputHandler::KeyCodeEnum)key) {
     case InputHandler::KeyCodeEnum::KEY_LEFT_SHIFT:
@@ -166,11 +166,11 @@ void DrawPane::OnKeyUp(wxKeyEvent& event)
     InputHandler::KeyCodeEnum key = wxKeyToInputHandlerKey((wxKeyCode)event.GetKeyCode());
     int mods = 0;
 
-    if (event.ShiftDown()) mods |= InputHandler::ModifierEnum::MOD_SHIFT;
-    if (event.AltDown()) mods |= InputHandler::ModifierEnum::MOD_ALT;
-    if (event.RawControlDown()) mods |= InputHandler::ModifierEnum::MOD_CONTROL;
-    if (event.MetaDown()) mods |= InputHandler::ModifierEnum::MOD_SUPER;
-    if (event.ControlDown() && !event.RawControlDown()) mods |= InputHandler::ModifierEnum::MOD_SUPER;
+    if (event.ShiftDown()) mods |= InputHandler::ModifierEnum::MOD_SHIFT_V;
+    if (event.AltDown()) mods |= InputHandler::ModifierEnum::MOD_ALT_V;
+    if (event.RawControlDown()) mods |= InputHandler::ModifierEnum::MOD_CONTROL_V;
+    if (event.MetaDown()) mods |= InputHandler::ModifierEnum::MOD_SUPER_V;
+    if (event.ControlDown() && !event.RawControlDown()) mods |= InputHandler::ModifierEnum::MOD_SUPER_V;
 
     if (m_ModKeyDown) {
         TermContextPtr context = std::dynamic_pointer_cast<TermContext>(m_TermWindow->GetPluginContext());
@@ -183,22 +183,22 @@ void DrawPane::OnKeyUp(wxKeyEvent& event)
         switch((InputHandler::KeyCodeEnum)key) {
         case InputHandler::KeyCodeEnum::KEY_LEFT_SHIFT:
         case InputHandler::KeyCodeEnum::KEY_RIGHT_SHIFT:
-            mods |= InputHandler::ModifierEnum::MOD_SHIFT;
+            mods |= InputHandler::ModifierEnum::MOD_SHIFT_V;
             key = InputHandler::KeyCodeEnum::KEY_UNKNOWN;
             break;
         case InputHandler::KeyCodeEnum::KEY_LEFT_CONTROL:
         case InputHandler::KeyCodeEnum::KEY_RIGHT_CONTROL:
-            mods |= InputHandler::ModifierEnum::MOD_CONTROL;
+            mods |= InputHandler::ModifierEnum::MOD_CONTROL_V;
             key = InputHandler::KeyCodeEnum::KEY_UNKNOWN;
             break;
         case InputHandler::KeyCodeEnum::KEY_LEFT_ALT:
         case InputHandler::KeyCodeEnum::KEY_RIGHT_ALT:
-            mods |= InputHandler::ModifierEnum::MOD_ALT;
+            mods |= InputHandler::ModifierEnum::MOD_ALT_V;
             key = InputHandler::KeyCodeEnum::KEY_UNKNOWN;
             break;
         case InputHandler::KeyCodeEnum::KEY_LEFT_SUPER:
         case InputHandler::KeyCodeEnum::KEY_RIGHT_SUPER: {
-            mods |= InputHandler::ModifierEnum::MOD_SUPER;
+            mods |= InputHandler::ModifierEnum::MOD_SUPER_V;
             key = InputHandler::KeyCodeEnum::KEY_UNKNOWN;
         }
             break;
