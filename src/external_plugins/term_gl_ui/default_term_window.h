@@ -17,8 +17,7 @@
 #include <mutex>
 
 class DefaultTermWindow :
-        public virtual PluginBase
-        , public virtual TermWindow {
+        public TermWindow {
 public:
     enum {
         PADDING = 5,
@@ -30,6 +29,8 @@ public:
         if (m_MainDlg)
             glfwDestroyWindow(m_MainDlg);
     }
+
+    PLUGIN_BASE_DEFINE();
 
 public:
     void Refresh() override;

@@ -35,13 +35,12 @@ static
 void delete_data(void * data);
 
 class TermNetworkPty
-        : public virtual PluginBase
-        , public virtual TermNetwork
-        , public virtual PortableThread::IPortableRunnable
+        : public TermNetwork
+        , public PortableThread::IPortableRunnable
 {
 public:
     TermNetworkPty() :
-        PluginBase("term_network_use_pty", "terminal network plugin using pty", 1)
+        PLUGIN_BASE_INIT_LIST("term_network_use_pty", "terminal network plugin using pty", 1)
         , m_Rows(0)
         , m_Cols(0)
         , m_MasterFD(-1)
@@ -51,6 +50,8 @@ public:
     }
 
     virtual ~TermNetworkPty() = default;
+
+    PLUGIN_BASE_DEFINE();
 
     MultipleInstancePluginPtr NewInstance() override {
         return MultipleInstancePluginPtr{new TermNetworkPty, delete_data};

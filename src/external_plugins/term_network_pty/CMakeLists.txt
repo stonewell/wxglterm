@@ -19,10 +19,11 @@ TARGET_INCLUDE_DIRECTORIES(term_network_pty PRIVATE
   "../../utils/portable_thread/includes"
   )
 
-TARGET_LINK_LIBRARIES(term_network_pty
+TARGET_LINK_LIBRARIES(term_network_pty PRIVATE
   utils
   plugins
   ${UTIL_LIB}
+  pybind11::embed
   )
 
 INSTALL(TARGETS term_network_pty DESTINATION share/wxglterm/plugins)

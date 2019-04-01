@@ -81,6 +81,7 @@ TARGET_LINK_LIBRARIES(term_direct_gl_ui PRIVATE
   utils
   plugins
   glfw
+  pybind11::embed
   ${OPENGL_LIBRARY}
   ${FREETYPE_LIBRARIES}
   ${freetype-direct-gl_LIBRARIES}

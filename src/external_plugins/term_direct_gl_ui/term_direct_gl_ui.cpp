@@ -1,4 +1,4 @@
-#include <pybind11/embed.h>
+#include "pybind11/embed.h"
 
 #include "plugin.h"
 #include "plugin_manager.h"
@@ -52,16 +52,18 @@ public:
     }
 };
 
-class DefaultTermUI : public virtual PluginBase, public virtual TermUI {
+class DefaultTermUI : public TermUI {
     static __GLTermUIInitializer _initializer;
 public:
     DefaultTermUI() :
-        PluginBase("term_direct_gl_ui", "freetype direct opengl terminal ui plugin", 1)
+        PLUGIN_BASE_INIT_LIST("term_direct_gl_ui", "freetype direct opengl terminal ui plugin", 1)
     {
     }
 
     virtual ~DefaultTermUI() {
     }
+
+    PLUGIN_BASE_DEFINE();
 
     struct TaskEntry {
         TaskPtr task;

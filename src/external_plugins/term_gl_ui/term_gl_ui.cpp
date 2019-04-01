@@ -54,16 +54,18 @@ public:
     }
 };
 
-class DefaultTermUI : public virtual PluginBase, public virtual TermUI {
+class DefaultTermUI : public TermUI {
     static __GLTermUIInitializer _initializer;
 public:
     DefaultTermUI() :
-        PluginBase("term_gl_ui", "opengl terminal ui plugin", 1)
+        PLUGIN_BASE_INIT_LIST("term_gl_ui", "opengl terminal ui plugin", 1)
     {
     }
 
     virtual ~DefaultTermUI() {
     }
+
+    PLUGIN_BASE_DEFINE();
 
     struct TaskEntry {
         TaskPtr task;

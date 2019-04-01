@@ -23,10 +23,10 @@
 
 #define PADDING (5)
 
-class __SetWindowTitleTask : public virtual PluginBase, public virtual Task {
+class __SetWindowTitleTask : public Task {
 public:
     __SetWindowTitleTask(GLFWwindow * dlg, const std::string & title) :
-        PluginBase("set_window_title_task", "default task set window title", 1)
+        PLUGIN_BASE_INIT_LIST("set_window_title_task", "default task set window title", 1)
         , m_Cancelled(false)
         , m_Title{title}
         , m_MainDlg{dlg}
@@ -34,6 +34,8 @@ public:
     }
 
     virtual ~__SetWindowTitleTask() = default;
+
+    PLUGIN_BASE_DEFINE();
 
 public:
     void Run() override {
@@ -171,7 +173,7 @@ void cursor_position_callback(GLFWwindow* window, double xpos, double ypos)
 }
 
 DefaultTermWindow::DefaultTermWindow()
-    : PluginBase("term_gl_window", "opengl terminal window plugin", 1)
+    : PLUGIN_BASE_INIT_LIST("term_gl_window", "opengl terminal window plugin", 1)
     , m_MainDlg {nullptr}
     , m_FreeTypeGLContext {nullptr}
     , m_TextBuffer {nullptr}
