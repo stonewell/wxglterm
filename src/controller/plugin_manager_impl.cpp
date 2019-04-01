@@ -27,7 +27,7 @@ namespace py = pybind11;
 extern bool g_AppDebug;
 
 static
-void insert_into_forward_list(PluginList & plugin_list, SharedPluginPtr plugin)
+void insert_into_forward_list(PluginList & plugin_list, PluginPtr plugin)
 {
     PluginList::iterator it, it_end, it_before;
 
@@ -55,7 +55,7 @@ PluginManagerImpl::~PluginManagerImpl()
 {
 }
 
-void PluginManagerImpl::RegisterPlugin(SharedPluginPtr plugin)
+void PluginManagerImpl::RegisterPlugin(PluginPtr plugin)
 {
     print_plugin_info(plugin.get());
 
@@ -142,7 +142,7 @@ void PluginManagerImpl::LoadPythonPlugin(const char * plugin_file_path)
     }
 }
 
-SharedPluginPtr PluginManagerImpl::GetPlugin(const char * plugin_name, uint64_t plugin_version_code)
+PluginPtr PluginManagerImpl::GetPlugin(const char * plugin_name, uint64_t plugin_version_code)
 {
     if (g_AppDebug) {
         std::cerr << "get plugin:"
@@ -161,7 +161,7 @@ SharedPluginPtr PluginManagerImpl::GetPlugin(const char * plugin_name, uint64_t 
     PluginMap::iterator it = m_PluginMap.find(plugin_name);
 
     if (it == m_PluginMap.end())
-        return SharedPluginPtr {};
+        return PluginPtr {};
 
     if (plugin_version_code == static_cast<uint64_t>(PluginManager::Latest))
     {

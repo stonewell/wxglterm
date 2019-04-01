@@ -4,7 +4,7 @@
 #include "py_multiple_instance_plugin.h"
 
 template<class InputHandlerBase = InputHandler>
-class PyInputHandler : public virtual PyMultipleInstancePlugin<InputHandlerBase> {
+class PyInputHandler : public PyMultipleInstancePlugin<InputHandlerBase> {
 public:
     using PyMultipleInstancePlugin<InputHandlerBase>::PyMultipleInstancePlugin;
 

@@ -4,7 +4,7 @@
 #include "py_multiple_instance_plugin.h"
 
 template<class TermSelectionBase = TermSelection>
-class PyTermSelection : public virtual PyPlugin<TermSelectionBase> {
+class PyTermSelection : public PyPlugin<TermSelectionBase> {
 public:
     using PyPlugin<TermSelectionBase>::PyPlugin;
 

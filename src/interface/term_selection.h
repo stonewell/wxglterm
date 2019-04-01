@@ -2,7 +2,7 @@
 
 #include "plugin.h"
 
-class TermSelection : public virtual Plugin {
+class TermSelection : public Plugin {
 public:
     virtual uint32_t GetRowBegin() const = 0;
     virtual void SetRowBegin(uint32_t rowBegin) = 0;

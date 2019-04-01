@@ -2,7 +2,7 @@
 
 #include "multiple_instance_plugin.h"
 
-class Context : public virtual MultipleInstancePlugin {
+class Context : public MultipleInstancePlugin {
 public:
     Context() = default;
     virtual ~Context() = default;

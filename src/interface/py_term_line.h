@@ -4,7 +4,7 @@
 #include "py_plugin.h"
 
 template<class TermLineBase = TermLine>
-class PyTermLine : public virtual PyPlugin<TermLineBase> {
+class PyTermLine : public PyPlugin<TermLineBase> {
 public:
     using PyPlugin<TermLineBase>::PyPlugin;
 

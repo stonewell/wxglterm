@@ -1,16 +1,17 @@
 #pragma once
 
 class DefaultInputHandler
-        : public virtual PluginBase
-        , public virtual InputHandler
+        : public InputHandler
 {
 public:
     DefaultInputHandler() :
-        PluginBase("default_term_input_handler", "default input handler plugin for keyboard and mouse", 1)
+        PLUGIN_BASE_INIT_LIST("default_term_input_handler", "default input handler plugin for keyboard and mouse", 1)
     {
     }
 
     virtual ~DefaultInputHandler() = default;
+
+	PLUGIN_BASE_DEFINE();
 
     MultipleInstancePluginPtr NewInstance() override {
         return MultipleInstancePluginPtr{new DefaultInputHandler};

@@ -2,7 +2,7 @@
 
 #include "plugin.h"
 
-class TermLine : public virtual Plugin {
+class TermLine : public Plugin {
 public:
     virtual void Resize(uint32_t col) = 0;
     virtual void Resize(uint32_t col, TermCellPtr cell_template) = 0;

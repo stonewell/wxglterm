@@ -4,7 +4,7 @@
 #include "task.h"
 
 template<class TaskBase = Task>
-class PyTask : public virtual PyMultipleInstancePlugin<TaskBase> {
+class PyTask : public PyMultipleInstancePlugin<TaskBase> {
 public:
     using PyMultipleInstancePlugin<TaskBase>::PyMultipleInstancePlugin;
 

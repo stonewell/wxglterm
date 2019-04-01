@@ -2,7 +2,7 @@
 
 #include "plugin.h"
 
-class MultipleInstancePlugin : public virtual Plugin {
+class MultipleInstancePlugin : public Plugin {
 public:
     MultipleInstancePlugin() = default;
     virtual ~MultipleInstancePlugin() = default;

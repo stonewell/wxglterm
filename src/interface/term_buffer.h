@@ -4,7 +4,7 @@
 #include "term_line.h"
 #include "term_cell.h"
 
-class TermBuffer : public virtual MultipleInstancePlugin {
+class TermBuffer : public MultipleInstancePlugin {
 public:
     virtual void Resize(uint32_t row, uint32_t col) = 0;
 

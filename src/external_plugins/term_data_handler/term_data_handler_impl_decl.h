@@ -17,15 +17,14 @@ using TermDataQueue = moodycamel::BlockingReaderWriterQueue<unsigned char, 4096>
 #endif
 
 class ATTR_HIDDEN TermDataHandlerImpl
-        : public virtual PluginBase
-        , public virtual TermDataHandler
-        , public virtual PortableThread::IPortableRunnable
+        : public TermDataHandler
+        , public PortableThread::IPortableRunnable
 {
 public:
     TermDataHandlerImpl()
-        : PluginBase("term_data_handler", "terminal data handler", 1)
-        , TermDataHandler()
+        : TermDataHandler()
         , PortableThread::IPortableRunnable()
+        , PLUGIN_BASE_INIT_LIST("term_data_handler", "terminal data handler", 1)
         , m_DataHandlerThread(this)
         , m_TermDataQueue {4096}
         , m_Stopped{true}
@@ -35,13 +34,15 @@ public:
 
     virtual ~TermDataHandlerImpl() = default;
 
+	PLUGIN_BASE_DEFINE_PREFIX(, , , Internal_, , );
+
     MultipleInstancePluginPtr NewInstance() override {
         return MultipleInstancePluginPtr{new TermDataHandlerImpl};
     }
 
     void InitPlugin(ContextPtr context,
                     AppConfigPtr plugin_config) override {
-        PluginBase::InitPlugin(context, plugin_config);
+        Internal_InitPlugin(context, plugin_config);
 
         m_DataContext.cap_debug = m_Debug;
 

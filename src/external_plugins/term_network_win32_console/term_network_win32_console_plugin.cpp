@@ -29,13 +29,12 @@ extern
 HRESULT InitializeStartupInfoAttachedToPseudoConsole(STARTUPINFOEX*, HPCON);
 
 class TermNetworkWin32Console
-        : public virtual PluginBase
-        , public virtual TermNetwork
-        , public virtual PortableThread::IPortableRunnable
+        : public TermNetwork
+        , public PortableThread::IPortableRunnable
 {
 public:
     TermNetworkWin32Console() :
-        PluginBase("term_network_win32_console", "terminal network plugin using win32 console", 1)
+        PLUGIN_BASE_INIT_LIST("term_network_win32_console", "terminal network plugin using win32 console", 1)
         , hPC { INVALID_HANDLE_VALUE }
         , hPipeIn { INVALID_HANDLE_VALUE }
         , hPipeOut { INVALID_HANDLE_VALUE }
@@ -47,6 +46,8 @@ public:
     }
 
     virtual ~TermNetworkWin32Console() = default;
+	
+	PLUGIN_BASE_DEFINE();
 
     MultipleInstancePluginPtr NewInstance() override {
         return MultipleInstancePluginPtr{new TermNetworkWin32Console, delete_data};
@@ -254,7 +255,6 @@ private:
     std::vector<unsigned char> m_ReadBuffer;
     PortableThread::CPortableThread m_PtyReaderThread;
     std::vector<char *> m_Envs;
-    pid_t m_PtyPid;
 };
 
 void delete_data(void * data) {

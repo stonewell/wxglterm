@@ -8,10 +8,10 @@
 #include <iomanip>
 #include <string.h>
 
-class DefaultTermCell : public virtual PluginBase, public virtual TermCell {
+class DefaultTermCell : public TermCell {
 public:
     DefaultTermCell(TermLine * term_line) :
-        PluginBase("default_term_cell", "default terminal cell plugin", 0)
+        PLUGIN_BASE_INIT_LIST("default_term_cell", "default terminal cell plugin", 0)
         , m_TermLine(term_line)
         , m_Char(' ')
         , m_ForeColorIdx{TermCell::DefaultForeColorIndex}
@@ -23,6 +23,8 @@ public:
         (void)m_TermLine;
         SetModified(false);
     }
+
+	PLUGIN_BASE_DEFINE();
 
     wchar_t GetChar() const {
         return m_Char;

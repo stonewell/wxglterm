@@ -4,7 +4,7 @@
 #include "term_window.h"
 
 template<class TermWindowBase = TermWindow>
-class PyTermWindow : public virtual PyPlugin<TermWindowBase> {
+class PyTermWindow : public PyPlugin<TermWindowBase> {
 public:
     using PyPlugin<TermWindowBase>::PyPlugin;
 

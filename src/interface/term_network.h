@@ -3,7 +3,7 @@
 #include "multiple_instance_plugin.h"
 #include <vector>
 
-class TermNetwork : public virtual MultipleInstancePlugin {
+class TermNetwork : public MultipleInstancePlugin {
 public:
     virtual void Disconnect() = 0;
     virtual void Connect(const char * host, int port, const char * user_name, const char * password) = 0;

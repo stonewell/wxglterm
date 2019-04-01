@@ -4,7 +4,7 @@
 #include "term_ui.h"
 
 template<class TermUIBase = TermUI>
-class PyTermUI : public virtual PyPlugin<TermUIBase> {
+class PyTermUI : public PyPlugin<TermUIBase> {
 public:
     using PyPlugin<TermUIBase>::PyPlugin;
 

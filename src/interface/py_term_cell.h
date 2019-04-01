@@ -4,7 +4,7 @@
 #include "term_cell.h"
 
 template<class TermCellBase = TermCell>
-class PyTermCell : public virtual PyPlugin<TermCellBase> {
+class PyTermCell : public PyPlugin<TermCellBase> {
 public:
     using PyPlugin<TermCellBase>::PyPlugin;
 

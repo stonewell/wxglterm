@@ -3,10 +3,10 @@
 #include "plugin_base.h"
 #include "term_selection.h"
 
-class DefaultTermSelection : public virtual PluginBase, public virtual TermSelection {
+class DefaultTermSelection : public TermSelection {
 public:
     DefaultTermSelection() :
-        PluginBase("default_term_buffer_cpp", "default terminal buffer plugin", 1)
+        PLUGIN_BASE_INIT_LIST("default_term_buffer_cpp", "default terminal buffer plugin", 1)
         , m_RowBegin{0}
         , m_ColBegin(0)
         , m_RowEnd{0}
@@ -15,6 +15,8 @@ public:
     }
 
     virtual ~DefaultTermSelection() = default;
+
+	PLUGIN_BASE_DEFINE();
 
     uint32_t GetRowBegin() const override {
         return m_RowBegin;

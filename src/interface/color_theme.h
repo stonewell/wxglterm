@@ -11,7 +11,7 @@ public:
         , a(0xFF) {
     }
 
-    virtual ~TermColor() = default;
+    ~TermColor() = default;
 
     uint8_t r;
     uint8_t g;
@@ -19,7 +19,7 @@ public:
     uint8_t a;
 };
 
-class TermColorTheme : public virtual MultipleInstancePlugin  {
+class TermColorTheme : public MultipleInstancePlugin  {
 public:
     virtual bool Load(const char * name) = 0;
     virtual bool LoadWithValues(const char * name, const char * value) = 0;

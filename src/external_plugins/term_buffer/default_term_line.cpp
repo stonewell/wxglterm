@@ -5,15 +5,17 @@
 #include "term_buffer.h"
 #include <vector>
 
-class DefaultTermLine : public virtual PluginBase, public virtual TermLine {
+class DefaultTermLine : public TermLine {
 public:
     DefaultTermLine(TermBuffer * term_buffer) :
-        PluginBase("default_term_line", "default terminal line plugin", 0)
+        PLUGIN_BASE_INIT_LIST("default_term_line", "default terminal line plugin", 0)
         , m_TermBuffer(term_buffer)
         , m_LastRenderLineIndex { (uint32_t)-1 }
     {
         (void)m_TermBuffer;
     }
+
+	PLUGIN_BASE_DEFINE();
 
     void Resize(uint32_t col) override {
         Resize(col, CreateDefaultTermCell(this));

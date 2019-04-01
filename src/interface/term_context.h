@@ -4,7 +4,7 @@
 
 #include "term_handles.h"
 
-class TermContext : public virtual Context {
+class TermContext : public Context {
 public:
     TermContext() = default;
     virtual ~TermContext() = default;

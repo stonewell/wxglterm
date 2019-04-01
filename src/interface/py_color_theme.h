@@ -4,7 +4,7 @@
 #include "py_multiple_instance_plugin.h"
 
 template<class TermColorThemeBase = TermColorTheme>
-class PyTermColorTheme : public virtual PyMultipleInstancePlugin<TermColorThemeBase> {
+class PyTermColorTheme : public PyMultipleInstancePlugin<TermColorThemeBase> {
 public:
     using PyMultipleInstancePlugin<TermColorThemeBase>::PyMultipleInstancePlugin;
 

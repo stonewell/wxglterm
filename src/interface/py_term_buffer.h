@@ -4,7 +4,7 @@
 #include "py_multiple_instance_plugin.h"
 
 template<class TermBufferBase = TermBuffer>
-class PyTermBuffer : public virtual PyMultipleInstancePlugin<TermBufferBase> {
+class PyTermBuffer : public PyMultipleInstancePlugin<TermBufferBase> {
 public:
     using PyMultipleInstancePlugin<TermBufferBase>::PyMultipleInstancePlugin;
 

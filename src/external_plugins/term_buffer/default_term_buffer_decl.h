@@ -6,10 +6,12 @@
 #include "plugin_base.h"
 #include "term_buffer.h"
 
-class DefaultTermBuffer : public virtual PluginBase, public virtual TermBuffer {
+class DefaultTermBuffer : public TermBuffer {
 public:
     DefaultTermBuffer();
     virtual ~DefaultTermBuffer() = default;
+
+	PLUGIN_BASE_DEFINE();
 
     MultipleInstancePluginPtr NewInstance() override;
 

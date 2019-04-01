@@ -4,7 +4,7 @@
 #include "term_network.h"
 
 template<class TermNetworkBase = TermNetwork>
-class PyTermNetwork : public virtual PyMultipleInstancePlugin<TermNetworkBase> {
+class PyTermNetwork : public PyMultipleInstancePlugin<TermNetworkBase> {
 public:
     using PyMultipleInstancePlugin<TermNetworkBase>::PyMultipleInstancePlugin;
 

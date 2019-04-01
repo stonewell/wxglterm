@@ -54,14 +54,16 @@ private:
     bool m_Repeated;
 };
 
-class DefaultTermWindow : public virtual PluginBase, public virtual TermWindow, public WindowManager {
+class DefaultTermWindow : public TermWindow, public WindowManager {
 public:
     DefaultTermWindow() :
-        PluginBase("default_term_window", "default terminal window plugin", 1)
+        PLUGIN_BASE_INIT_LIST("default_term_window", "default terminal window plugin", 1)
         , m_MainDlg(nullptr) {
     }
 
     virtual ~DefaultTermWindow() = default;
+
+	PLUGIN_BASE_DEFINE();
 
 public:
     void Refresh() override {
@@ -172,7 +174,7 @@ private:
     wxCriticalSection m_MainWndLock;
 };
 
-class DefaultTermUI : public virtual PluginBase, public virtual TermUI {
+class DefaultTermUI : public TermUI {
 public:
     static void Initialize() {
         if (!wxApp::GetInstance()) {
@@ -183,12 +185,13 @@ public:
     }
 
     DefaultTermUI() :
-        PluginBase("default_term_ui", "default terminal ui plugin", 1)
+        PLUGIN_BASE_INIT_LIST("default_term_ui", "default terminal ui plugin", 1)
     {
     }
 
     virtual ~DefaultTermUI() = default;
 
+	PLUGIN_BASE_DEFINE();
     TermWindowPtr CreateWindow() {
         DefaultTermUI::Initialize();
 

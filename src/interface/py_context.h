@@ -4,7 +4,7 @@
 #include "plugin_context.h"
 
 template<class ContextBase = Context>
-class PyPluginContext : public virtual PyMultipleInstancePlugin<ContextBase> {
+class PyPluginContext : public PyMultipleInstancePlugin<ContextBase> {
 public:
     using PyMultipleInstancePlugin<ContextBase>::PyMultipleInstancePlugin;
 

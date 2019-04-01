@@ -10,11 +10,10 @@
 #include <vector>
 #include <iostream>
 
-class __ClonedTermBuffer : public virtual PluginBase, public virtual TermBuffer {
-    __InternalTermBuffer m_Buffer;
+class __ClonedTermBuffer : public TermBuffer {
 public:
     __ClonedTermBuffer(const __InternalTermBuffer & buffer) :
-        PluginBase("default_term_buffer", "default terminal buffer plugin", 0)
+        PLUGIN_BASE_INIT_LIST("default_term_buffer", "default terminal buffer plugin", 0)
         , m_Buffer { buffer }
     {
     }
@@ -23,6 +22,12 @@ public:
         return MultipleInstancePluginPtr{};
     }
 
+	PLUGIN_BASE_DEFINE();
+
+private:
+    __InternalTermBuffer m_Buffer;
+
+public:
     void Resize(uint32_t row, uint32_t col) {
         (void)row;
         (void)col;

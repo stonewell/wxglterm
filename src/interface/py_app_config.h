@@ -3,7 +3,7 @@
 #include "app_config.h"
 
 template<class AppConfigBase = AppConfig>
-class PyAppConfig : public virtual AppConfigBase {
+class PyAppConfig : public AppConfigBase {
 public:
     using AppConfigBase::AppConfigBase;
 

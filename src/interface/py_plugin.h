@@ -4,7 +4,7 @@
 #include "plugin_context.h"
 
 template<class PluginBase = Plugin>
-class PyPlugin : public virtual PluginBase {
+class PyPlugin : public PluginBase {
 public:
     using PluginBase::PluginBase;
 

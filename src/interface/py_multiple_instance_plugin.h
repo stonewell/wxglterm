@@ -4,7 +4,7 @@
 #include "py_plugin.h"
 
 template<class MultipleInstancePluginBase = MultipleInstancePlugin>
-class PyMultipleInstancePlugin : public virtual PyPlugin<MultipleInstancePluginBase> {
+class PyMultipleInstancePlugin : public PyPlugin<MultipleInstancePluginBase> {
 public:
     using PyPlugin<MultipleInstancePluginBase>::PyPlugin;
 

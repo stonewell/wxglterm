@@ -11,15 +11,17 @@
 #include "app_config_impl.h"
 #include "plugin_base.h"
 
-class __ShowContextWindowTask : public virtual PluginBase, public virtual Task {
+class __ShowContextWindowTask : public Task {
 public:
     __ShowContextWindowTask() :
-        PluginBase("show_context_window_task", "default task show main window", 1)
+        PLUGIN_BASE_INIT_LIST("show_context_window_task", "default task show main window", 1)
         , m_Cancelled(false)
     {
     }
 
     virtual ~__ShowContextWindowTask() = default;
+
+	PLUGIN_BASE_DEFINE();
 
 public:
     virtual void Run() override {

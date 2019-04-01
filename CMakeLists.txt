@@ -38,13 +38,13 @@ ENDIF(APPLE)
 SET(CMAKE_MODULE_PATH ${CMAKE_MODULE_PATH} "${CMAKE_CURRENT_SOURCE_DIR}/cmake/Modules/")
 
 if ("${CMAKE_CXX_COMPILER_ID}" STREQUAL "GNU")
-  set(warnings "-Wall -Wextra -Werror -Wno-cast-function-type -Wno-ignored-qualifiers -D_hypot=hypot")
+  set(warnings "-fPIC -Wall -Wextra -Werror -Wno-cast-function-type -Wno-ignored-qualifiers -D_hypot=hypot")
   set(no_undefined "-Wl,--no-undefined")
 elseif ("${CMAKE_CXX_COMPILER_ID}" STREQUAL "Clang")
-  set(warnings "-Wall -Wextra -Werror -Wno-inconsistent-missing-override")
+  set(warnings "-fPIC -Wall -Wextra -Werror -Wno-inconsistent-missing-override")
   set(no_undefined "-Wl,-undefined,error")
 elseif ("${CMAKE_CXX_COMPILER_ID}" STREQUAL "MSVC")
-    set(warnings "/W4 /WX /EHsc /wd4250 /wd4245 /D_CRT_SECURE_NO_WARNINGS /DNOMINMAX /bigobj")
+    set(warnings "/W4 /WX /EHsc /wd4250 /wd4245 /D_CRT_SECURE_NO_WARNINGS")
     set(no_undefined "")
 endif()
 
@@ -54,13 +54,13 @@ SET(CXX_EXTENSION NO)
 if (MINGW)
   set(extra_flags "-Wa,-mbig-obj")
 else()
-set(extra_flags "")
+  set(extra_flags "")
 endif()
 
 if (NOT CONFIGURED_ONCE)
-    set(CMAKE_C_FLAGS "-fPIC ${warnings} ${extra_flags} "
+    set(CMAKE_C_FLAGS "${warnings} ${extra_flags} "
         CACHE STRING "Flags used by the compiler during all build types." FORCE)
-    set(CMAKE_CXX_FLAGS "-fPIC ${warnings} -std=c++14 ${extra_flags}"
+    set(CMAKE_CXX_FLAGS "${warnings} -std=c++14 ${extra_flags}"
         CACHE STRING "Flags used by the compiler during all build types." FORCE)
     set(CMAKE_LINK_FLAGS "${CMAKE_LINK_FLAGS} ${no_undefined}"
         CACHE STRING "Flags used by the linker during all build types." FORCE)

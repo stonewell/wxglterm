@@ -2,7 +2,7 @@
 
 #include "plugin.h"
 
-class TermCell : public virtual Plugin {
+class TermCell : public Plugin {
 public:
     enum ColorIndexEnum {
         DefaultForeColorIndex = 256,

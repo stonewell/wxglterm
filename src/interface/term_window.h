@@ -2,7 +2,7 @@
 
 #include "plugin.h"
 
-class TermWindow : public virtual Plugin {
+class TermWindow : public Plugin {
 public:
     TermWindow() = default;
     virtual ~TermWindow() = default;

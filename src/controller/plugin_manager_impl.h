@@ -9,9 +9,7 @@
 #include <string>
 #include <map>
 
-using SharedPluginPtr = std::shared_ptr<Plugin>;
-
-using PluginList = std::forward_list<SharedPluginPtr>;
+using PluginList = std::forward_list<PluginPtr>;
 using PluginMap = std::map<std::string, PluginList>;
 using HandleList = std::forward_list<Handle>;
 
@@ -21,9 +19,9 @@ public:
     virtual ~PluginManagerImpl();
 
 public:
-    void RegisterPlugin(SharedPluginPtr plugin) override;
+    void RegisterPlugin(PluginPtr plugin) override;
     void RegisterPlugin(const char * plugin_file_path) override;
-    SharedPluginPtr GetPlugin(const char * plugin_name, uint64_t plugin_version_code) override;
+    PluginPtr GetPlugin(const char * plugin_name, uint64_t plugin_version_code) override;
 
 private:
     void LoadPythonPlugin(const char * plugin_file_path);
