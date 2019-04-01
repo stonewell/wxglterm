@@ -21,6 +21,8 @@
 
 #include "pseudo_console_api.h"
 
+#include "term_network_win32_console_export.h"
+
 static
 void delete_data(void * data);
 extern
@@ -46,7 +48,7 @@ public:
     }
 
     virtual ~TermNetworkWin32Console() = default;
-	
+
 	PLUGIN_BASE_DEFINE();
 
     MultipleInstancePluginPtr NewInstance() override {
@@ -262,6 +264,6 @@ void delete_data(void * data) {
 }
 
 extern "C"
-void register_plugins(PluginManagerPtr plugin_manager) {
+void TERM_NETWORK_WIN32_CONSOLE_EXPORT register_plugins(PluginManagerPtr plugin_manager) {
     plugin_manager->RegisterPlugin(PluginPtr {new TermNetworkWin32Console, delete_data});;
 }

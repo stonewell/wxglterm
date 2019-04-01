@@ -30,10 +30,14 @@ SET(term_ui_src
 
 ADD_LIBRARY(term_ui SHARED ${term_ui_src})
 
+include(GenerateExportHeader)
+generate_export_header(term_ui)
+
 set_target_properties( term_ui
     PROPERTIES
     LIBRARY_OUTPUT_DIRECTORY "${CMAKE_BINARY_DIR}/plugins"
-    RUNTIME_OUTPUT_DIRECTORY "${CMAKE_BINARY_DIR}/plugins"
+    RUNTIME_OUTPUT_DIRECTORY_DEBUG "${CMAKE_BINARY_DIR}/plugins"
+    RUNTIME_OUTPUT_DIRECTORY_RELEASE "${CMAKE_BINARY_DIR}/plugins"
 )
 
 TARGET_COMPILE_DEFINITIONS(term_ui PRIVATE
@@ -43,8 +47,7 @@ TARGET_COMPILE_DEFINITIONS(term_ui PRIVATE
 TARGET_INCLUDE_DIRECTORIES(term_ui PRIVATE
   "${wxWidgets_INCLUDE_DIRS}"
   "${CMAKE_CURRENT_SRC_DIR}"
-  "${pybind11_INCLUDE_DIRS}"
-  "${PYTHON_INCLUDE_DIRS}"
+  "${CMAKE_CURRENT_BINARY_DIR}"
   "ui"
   "ui/text_blob"
   "../../interface"

@@ -12,15 +12,18 @@ default_term_buffer_clone_impl.cpp
 
 ADD_LIBRARY(term_buffer SHARED ${term_buffer_src})
 
+include(GenerateExportHeader)
+generate_export_header(term_buffer)
+
 set_target_properties( term_buffer
     PROPERTIES
     LIBRARY_OUTPUT_DIRECTORY "${CMAKE_BINARY_DIR}/plugins"
-    RUNTIME_OUTPUT_DIRECTORY "${CMAKE_BINARY_DIR}/plugins"
+    RUNTIME_OUTPUT_DIRECTORY_DEBUG "${CMAKE_BINARY_DIR}/plugins"
+    RUNTIME_OUTPUT_DIRECTORY_RELEASE "${CMAKE_BINARY_DIR}/plugins"
 )
 
 TARGET_INCLUDE_DIRECTORIES(term_buffer PRIVATE
-  "${pybind11_INCLUDE_DIRS}"
-  "${PYTHON_INCLUDE_DIRS}"
+  ${CMAKE_CURRENT_BINARY_DIR}
   "../../interface"
   "../../utils"
   "../../utils/portable_thread/includes"
@@ -30,8 +33,6 @@ TARGET_INCLUDE_DIRECTORIES(term_buffer PRIVATE
 TARGET_LINK_LIBRARIES(term_buffer
   utils
   plugins
-  ${pybind11_LIBRARIES}
-  ${PYTHON_LIBRARIES}
   )
 
 INSTALL(TARGETS term_buffer DESTINATION share/wxglterm/plugins)

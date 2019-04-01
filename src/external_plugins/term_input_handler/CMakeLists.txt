@@ -7,14 +7,19 @@ SET(input_handler_src
 
 ADD_LIBRARY(term_input_handler SHARED ${input_handler_src})
 
+include(GenerateExportHeader)
+generate_export_header(term_input_handler)
+
 set_target_properties(term_input_handler
     PROPERTIES
     LIBRARY_OUTPUT_DIRECTORY "${CMAKE_BINARY_DIR}/plugins"
-    RUNTIME_OUTPUT_DIRECTORY "${CMAKE_BINARY_DIR}/plugins"
+    RUNTIME_OUTPUT_DIRECTORY_DEBUG "${CMAKE_BINARY_DIR}/plugins"
+    RUNTIME_OUTPUT_DIRECTORY_RELEASE "${CMAKE_BINARY_DIR}/plugins"
 )
 
 TARGET_INCLUDE_DIRECTORIES(term_input_handler PRIVATE
   "${CMAKE_CURRENT_SRC_DIR}"
+  "${CMAKE_CURRENT_BINARY_DIR}"
   "../../interface"
   "../../utils"
   "../../plugins"

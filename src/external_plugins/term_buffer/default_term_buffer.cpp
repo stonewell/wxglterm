@@ -10,11 +10,13 @@
 #include "internal_term_buffer.h"
 #include "default_term_buffer_decl.h"
 
+#include "term_buffer_export.h"
+
 TermBufferPtr CreateDefaultTermBuffer() {
     return TermBufferPtr { new DefaultTermBuffer() };
 }
 
 extern "C"
-void register_plugins(PluginManagerPtr plugin_manager) {
+void TERM_BUFFER_EXPORT register_plugins(PluginManagerPtr plugin_manager) {
     plugin_manager->RegisterPlugin(std::dynamic_pointer_cast<Plugin>(CreateDefaultTermBuffer()));
 }

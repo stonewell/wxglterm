@@ -20,10 +20,14 @@ ADD_LIBRARY(term_data_handler SHARED
   $<TARGET_OBJECTS:caps>
   )
 
+include(GenerateExportHeader)
+generate_export_header(term_data_handler)
+
 set_target_properties( term_data_handler
     PROPERTIES
     LIBRARY_OUTPUT_DIRECTORY "${CMAKE_BINARY_DIR}/plugins"
-    RUNTIME_OUTPUT_DIRECTORY "${CMAKE_BINARY_DIR}/plugins"
+    RUNTIME_OUTPUT_DIRECTORY_DEBUG "${CMAKE_BINARY_DIR}/plugins"
+    RUNTIME_OUTPUT_DIRECTORY_RELEASE "${CMAKE_BINARY_DIR}/plugins"
 )
 
 TARGET_INCLUDE_DIRECTORIES(term_data_handler PRIVATE

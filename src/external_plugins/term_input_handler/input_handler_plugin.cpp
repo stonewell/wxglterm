@@ -21,7 +21,9 @@
 #include "app_config_impl.h"
 #include "input_handler_plugin.h"
 
+#include "term_input_handler_export.h"
+
 extern "C"
-void register_plugins(PluginManagerPtr plugin_manager) {
+void TERM_INPUT_HANDLER_EXPORT register_plugins(PluginManagerPtr plugin_manager) {
     plugin_manager->RegisterPlugin(std::dynamic_pointer_cast<Plugin>(InputHandlerPtr {new DefaultInputHandler}));
 }

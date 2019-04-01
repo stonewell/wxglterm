@@ -5,13 +5,18 @@ SET(term_network_win32_console_src
 
 ADD_LIBRARY(term_network_win32_console SHARED ${term_network_win32_console_src})
 
+include(GenerateExportHeader)
+generate_export_header(term_network_win32_console)
+
 set_target_properties(term_network_win32_console
     PROPERTIES
-    RUNTIME_OUTPUT_DIRECTORY "${CMAKE_BINARY_DIR}/plugins"
+    RUNTIME_OUTPUT_DIRECTORY_DEBUG "${CMAKE_BINARY_DIR}/plugins"
+    RUNTIME_OUTPUT_DIRECTORY_RELEASE "${CMAKE_BINARY_DIR}/plugins"
 )
 
 TARGET_INCLUDE_DIRECTORIES(term_network_win32_console PRIVATE
   "${CMAKE_CURRENT_SRC_DIR}"
+  "${CMAKE_CURRENT_BINARY_DIR}"
   "../../interface"
   "../../utils"
   "../../plugins"
