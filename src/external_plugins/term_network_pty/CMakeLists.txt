@@ -13,8 +13,6 @@ set_target_properties( term_network_pty
 
 TARGET_INCLUDE_DIRECTORIES(term_network_pty PRIVATE
   "${CMAKE_CURRENT_SRC_DIR}"
-  "${pybind11_INCLUDE_DIRS}"
-  "${PYTHON_INCLUDE_DIRS}"
   "../../interface"
   "../../utils"
   "../../plugins"
@@ -24,8 +22,6 @@ TARGET_INCLUDE_DIRECTORIES(term_network_pty PRIVATE
 TARGET_LINK_LIBRARIES(term_network_pty
   utils
   plugins
-  ${pybind11_LIBRARIES}
-  ${PYTHON_LIBRARIES}
   ${UTIL_LIB}
   )
 

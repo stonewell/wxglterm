@@ -12,8 +12,6 @@ set_target_properties(term_network_win32_console
 
 TARGET_INCLUDE_DIRECTORIES(term_network_win32_console PRIVATE
   "${CMAKE_CURRENT_SRC_DIR}"
-  "${pybind11_INCLUDE_DIRS}"
-  "${PYTHON_INCLUDE_DIRS}"
   "../../interface"
   "../../utils"
   "../../plugins"
@@ -23,8 +21,6 @@ TARGET_INCLUDE_DIRECTORIES(term_network_win32_console PRIVATE
 TARGET_LINK_LIBRARIES(term_network_win32_console
   utils
   plugins
-  ${pybind11_LIBRARIES}
-  ${PYTHON_LIBRARIES}
   )
 
 TARGET_COMPILE_DEFINITIONS(term_network_win32_console PRIVATE

@@ -9,6 +9,8 @@ ADD_DEPENDENCIES(controller pybind11)
 TARGET_INCLUDE_DIRECTORIES(controller PRIVATE
   "../interface"
   "../utils"
-  "${pybind11_INCLUDE_DIRS}"
-  "${PYTHON_INCLUDE_DIRS}"
+)
+
+TARGET_LINK_LIBRARIES(controller PRIVATE
+    pybind11::embed
 )

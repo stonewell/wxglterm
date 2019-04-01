@@ -1,5 +1,3 @@
-#include <pybind11/embed.h>
-
 #include <iostream>
 #ifndef _WIN32
 #include <unistd.h>
@@ -40,12 +38,10 @@ void send_data(TermNetworkPtr network, const std::vector<unsigned char> & data){
                   << std::endl
                   << e.what()
                   << std::endl;
-        PyErr_Print();
     }
     catch(...)
     {
         std::cerr << "!!Error Send"
                   << std::endl;
-        PyErr_Print();
     }
 }

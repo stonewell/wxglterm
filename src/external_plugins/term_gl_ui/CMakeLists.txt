@@ -1,3 +1,4 @@
+
 FIND_PACKAGE(OpenGL REQUIRED)
 FIND_PACKAGE(Freetype REQUIRED)
 FIND_PACKAGE(glfw3 3.2 REQUIRED)
@@ -87,8 +88,6 @@ TARGET_INCLUDE_DIRECTORIES(term_gl_ui
     PRIVATE
 	"${CMAKE_CURRENT_SRC_DIR}"
 	"${CMAKE_CURRENT_BINARY_DIR}"
-        "${pybind11_INCLUDE_DIRS}"
-	"${PYTHON_INCLUDE_DIRS}"
   	"ui"
   	"../../interface"
   	"../../utils"
@@ -105,8 +104,6 @@ TARGET_INCLUDE_DIRECTORIES(term_gl_ui
 TARGET_LINK_LIBRARIES(term_gl_ui
   utils
   plugins
-  ${pybind11_LIBRARIES}
-  ${PYTHON_LIBRARIES}
   glfw
   ${OPENGL_LIBRARY}
   ${FREETYPE_LIBRARIES}

@@ -13,9 +13,11 @@ IF (NOT APPLE AND NOT WIN32)
 	${FREETYPE_INCLUDE_DIRS}
 	)
 ELSEIF (WIN32)
-    SET(EXTRA_LIBRARY "uxtheme"
-        "uuid" "oleacc"
-	)
+    # make sure the uuid and oleacc in order
+    # add uxtheme lib
+    LIST(REMOVE_DUPLICATES wxWidgets_LIBRARIES)
+    LIST(REMOVE_ITEM wxWidgets_LIBRARIES oleacc)
+    LIST(APPEND wxWidgets_LIBRARIES uuid oleacc uxtheme)
 ENDIF()
 
 
@@ -52,14 +54,12 @@ TARGET_INCLUDE_DIRECTORIES(term_ui PRIVATE
   ${EXTRA_INCLUDE}
   )
 
-TARGET_LINK_LIBRARIES(term_ui
-  utils
-  plugins
-  wxglterm_ui
-  ${pybind11_LIBRARIES}
-  ${PYTHON_LIBRARIES}
-  ${wxWidgets_LIBRARIES}
-  ${EXTRA_LIBRARY}
+TARGET_LINK_LIBRARIES(term_ui PRIVATE
+    utils
+    plugins
+    wxglterm_ui
+    ${wxWidgets_LIBRARIES}
+    ${EXTRA_LIBRARY}
   )
 
 INSTALL(TARGETS term_ui DESTINATION share/wxglterm/plugins)

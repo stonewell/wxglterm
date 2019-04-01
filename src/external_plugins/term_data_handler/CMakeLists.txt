@@ -29,8 +29,6 @@ set_target_properties( term_data_handler
 TARGET_INCLUDE_DIRECTORIES(term_data_handler PRIVATE
   "${CMAKE_CURRENT_SRC_DIR}"
   "${CMAKE_CURRENT_BINARY_DIR}"
-  "${pybind11_INCLUDE_DIRS}"
-  "${PYTHON_INCLUDE_DIRS}"
   "../../interface"
   "../../utils"
   "../../caps"
@@ -38,11 +36,10 @@ TARGET_INCLUDE_DIRECTORIES(term_data_handler PRIVATE
   "../../utils/portable_thread/includes"
   )
 
-TARGET_LINK_LIBRARIES(term_data_handler
-  utils
-  plugins
-  ${pybind11_LIBRARIES}
-  ${PYTHON_LIBRARIES}
+TARGET_LINK_LIBRARIES(term_data_handler PRIVATE
+    utils
+    plugins
+    pybind11::embed
   )
 
 INSTALL(TARGETS term_data_handler DESTINATION share/wxglterm/plugins)

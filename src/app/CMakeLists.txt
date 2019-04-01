@@ -22,20 +22,18 @@ ADD_CUSTOM_COMMAND(OUTPUT app_utils.inc
 TARGET_COMPILE_DEFINITIONS(wxglterm PRIVATE
   )
 TARGET_INCLUDE_DIRECTORIES(wxglterm PRIVATE
-  "${pybind11_INCLUDE_DIRS}"
-  "${PYTHON_INCLUDE_DIRS}"
   "../controller"
   "../interface"
   "../utils"
   "../plugins"
   ${CMAKE_CURRENT_BINARY_DIR}
   )
-TARGET_LINK_LIBRARIES(wxglterm
+TARGET_LINK_LIBRARIES(wxglterm PRIVATE
   plugins
   controller
   wxglterm_interface_static
   utils
-  ${pybind11_LIBRARIES}
+  pybind11::embed
   ${PYTHON_LIBRARIES}
   ${CMAKE_DL_LIBS}
   )

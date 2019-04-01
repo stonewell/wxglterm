@@ -112,9 +112,7 @@ TARGET_INCLUDE_DIRECTORIES(scintilla_editor
   PRIVATE
   "${CMAKE_CURRENT_SRC_DIR}"
   "${CMAKE_CURRENT_BINARY_DIR}"
-  "${pybind11_INCLUDE_DIRS}"
-  "${PYTHON_INCLUDE_DIRS}"
-  "ui"
+ "ui"
   "../../interface"
   "../../utils"
   "../../utils/portable_thread/includes"
@@ -126,8 +124,6 @@ TARGET_INCLUDE_DIRECTORIES(scintilla_editor
 TARGET_LINK_LIBRARIES(scintilla_editor
   utils
   plugins
-  ${pybind11_LIBRARIES}
-  ${PYTHON_LIBRARIES}
   "${scintilla_LIBRARIES}"
   "${scite_LIBRARIES}"
   )

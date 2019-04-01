@@ -61,9 +61,7 @@ TARGET_INCLUDE_DIRECTORIES(term_direct_gl_ui
     PRIVATE
 	"${CMAKE_CURRENT_SRC_DIR}"
 	"${CMAKE_CURRENT_BINARY_DIR}"
-        "${pybind11_INCLUDE_DIRS}"
-	"${PYTHON_INCLUDE_DIRS}"
-  	"ui"
+ 	"ui"
   	"../../interface"
   	"../../utils"
   	"../../utils/portable_thread/includes"
@@ -79,11 +77,9 @@ TARGET_INCLUDE_DIRECTORIES(term_direct_gl_ui
 	"${GLFW_HACK_FIX_INCLUDE_DIR}"
 )
 
-TARGET_LINK_LIBRARIES(term_direct_gl_ui
+TARGET_LINK_LIBRARIES(term_direct_gl_ui PRIVATE
   utils
   plugins
-  ${pybind11_LIBRARIES}
-  ${PYTHON_LIBRARIES}
   glfw
   ${OPENGL_LIBRARY}
   ${FREETYPE_LIBRARIES}

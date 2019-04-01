@@ -10,5 +10,8 @@ int test_main() {
 
     std::cout << "find the function:" << pfn << std::endl;
 
-    return pfn();
+    if (pfn)
+        return pfn();
+
+    return 0;
 }

@@ -4,11 +4,12 @@ SET(plugins_src
 )
 
 ADD_LIBRARY(plugins STATIC ${plugins_src})
-ADD_DEPENDENCIES(plugins pybind11)
 
 TARGET_INCLUDE_DIRECTORIES(plugins PRIVATE
-  "${pybind11_INCLUDE_DIRS}"
-  "${PYTHON_INCLUDE_DIRS}"
   "../interface"
   "../utils"
 )
+
+TARGET_LINK_LIBRARIES(plugins PRIVATE
+    pybind11::embed
+    )

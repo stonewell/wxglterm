@@ -26,6 +26,8 @@ TARGET_INCLUDE_DIRECTORIES(caps PRIVATE
   "${CMAKE_CURRENT_SRC_DIR}"
   "../interface"
   "../utils"
-  "${pybind11_INCLUDE_DIRS}"
-  "${PYTHON_INCLUDE_DIRS}"
   )
+
+TARGET_LINK_LIBRARIES(caps PRIVATE
+    pybind11::embed
+    )

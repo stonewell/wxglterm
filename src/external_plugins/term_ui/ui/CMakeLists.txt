@@ -9,8 +9,6 @@ ADD_LIBRARY(wxglterm_ui
     $<TARGET_OBJECTS:text_blob>
 )
 
-ADD_DEPENDENCIES(wxglterm_ui pybind11)
-
 FIND_LIBRARY(APPLICATION_SERVICES_FRAMEWORK ApplicationServices REQUIRED)
 
 TARGET_COMPILE_DEFINITIONS(wxglterm_ui PRIVATE
@@ -19,11 +17,13 @@ TARGET_COMPILE_DEFINITIONS(wxglterm_ui PRIVATE
 
 TARGET_INCLUDE_DIRECTORIES(wxglterm_ui PRIVATE
     "${wxWidgets_INCLUDE_DIRS}"
-    "${pybind11_INCLUDE_DIRS}"
-    "${PYTHON_INCLUDE_DIRS}"
     ${FREETYPE_INCLUDE_DIRS}
     "../../../controller"
     "../../../interface"
     "../../../utils"
     "text_blob"
+    )
+
+TARGET_LINK_LIBRARIES(wxglterm_ui PUBLIC
+    pybind11::embed
     )

@@ -82,7 +82,9 @@ HRESULT InitializeStartupInfoAttachedToPseudoConsole(STARTUPINFOEX* pStartupInfo
 
 extern "C"
 int test_main() {
-    COORD c_size {.X=80, .Y=25};
+    COORD c_size;
+    c_size.X=80;
+    c_size.Y=25;
 
     HPCON hPC = 0;
     HANDLE hPipeIn, hPipeOut;

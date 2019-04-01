@@ -1,4 +1,4 @@
-CMAKE_MINIMUM_REQUIRED(VERSION 2.8)
+CMAKE_MINIMUM_REQUIRED(VERSION 3.0)
 
 CMAKE_POLICY(
     SET CMP0048 NEW
@@ -38,7 +38,7 @@ ENDIF(APPLE)
 SET(CMAKE_MODULE_PATH ${CMAKE_MODULE_PATH} "${CMAKE_CURRENT_SOURCE_DIR}/cmake/Modules/")
 
 if ("${CMAKE_CXX_COMPILER_ID}" STREQUAL "GNU")
-  set(warnings "-Wall -Wextra -Werror -Wno-cast-function-type -Wno-ignored-qualifiers")
+  set(warnings "-Wall -Wextra -Werror -Wno-cast-function-type -Wno-ignored-qualifiers -D_hypot=hypot")
   set(no_undefined "-Wl,--no-undefined")
 elseif ("${CMAKE_CXX_COMPILER_ID}" STREQUAL "Clang")
   set(warnings "-Wall -Wextra -Werror -Wno-inconsistent-missing-override")
@@ -65,26 +65,6 @@ if (NOT CONFIGURED_ONCE)
     set(CMAKE_LINK_FLAGS "${CMAKE_LINK_FLAGS} ${no_undefined}"
         CACHE STRING "Flags used by the linker during all build types." FORCE)
 endif()
-
-EXTERNALPROJECT_ADD(
-  pybind11
-
-  GIT_REPOSITORY "https://github.com/pybind/pybind11.git"
-  GIT_TAG "master"
-
-  PATCH_COMMAND ""
-  UPDATE_DISCONNECTED ON
-
-  CMAKE_ARGS -DCMAKE_BUILD_TYPE=Debug -DPYBIND11_TEST=OFF -DPYBIND11_INSTALL=OFF
-
-  INSTALL_COMMAND ""
-  TEST_COMMAND ""
-)
-
-ExternalProject_Add_StepTargets(pybind11 update)
-
-EXTERNALPROJECT_GET_PROPERTY(pybind11 SOURCE_DIR BINARY_DIR)
-SET(pybind11_INCLUDE_DIRS ${SOURCE_DIR}/include)
 
 FIND_PACKAGE(PythonInterp 3 REQUIRED)
 FIND_PACKAGE(PythonLibs 3 REQUIRED)
@@ -113,6 +93,7 @@ IF (USE_GLFW_HACK_FIX)
    ADD_DEFINITIONS(-DGLFW_HACK_FIX -DGL_SILENCE_DEPRECATION)
 ENDIF()
 
+ADD_SUBDIRECTORY(third_party/pybind11)
 ADD_SUBDIRECTORY(src/interface)
 ADD_SUBDIRECTORY(src/controller)
 ADD_SUBDIRECTORY(src/utils)

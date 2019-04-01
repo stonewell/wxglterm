@@ -14,8 +14,6 @@ set_target_properties(scintilla_editor_input_handler
 
 TARGET_INCLUDE_DIRECTORIES(scintilla_editor_input_handler PRIVATE
   "${CMAKE_CURRENT_SRC_DIR}"
-  "${pybind11_INCLUDE_DIRS}"
-  "${PYTHON_INCLUDE_DIRS}"
   "../../interface"
   "../../utils"
   "../../plugins"
@@ -24,8 +22,6 @@ TARGET_INCLUDE_DIRECTORIES(scintilla_editor_input_handler PRIVATE
 TARGET_LINK_LIBRARIES(scintilla_editor_input_handler
   utils
   plugins
-  ${pybind11_LIBRARIES}
-  ${PYTHON_LIBRARIES}
   )
 
 INSTALL(TARGETS scintilla_editor_input_handler DESTINATION share/wxglterm/plugins)

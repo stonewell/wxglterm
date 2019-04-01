@@ -1,5 +1,3 @@
-#include <pybind11/embed.h>
-
 #include <iostream>
 #ifndef _WIN32
 #include <unistd.h>

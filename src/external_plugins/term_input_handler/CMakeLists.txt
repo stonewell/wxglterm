@@ -15,18 +15,14 @@ set_target_properties(term_input_handler
 
 TARGET_INCLUDE_DIRECTORIES(term_input_handler PRIVATE
   "${CMAKE_CURRENT_SRC_DIR}"
-  "${pybind11_INCLUDE_DIRS}"
-  "${PYTHON_INCLUDE_DIRS}"
   "../../interface"
   "../../utils"
   "../../plugins"
   )
 
-TARGET_LINK_LIBRARIES(term_input_handler
-  utils
-  plugins
-  ${pybind11_LIBRARIES}
-  ${PYTHON_LIBRARIES}
+TARGET_LINK_LIBRARIES(term_input_handler PRIVATE
+    utils
+    plugins
   )
 
 INSTALL(TARGETS term_input_handler DESTINATION share/wxglterm/plugins)

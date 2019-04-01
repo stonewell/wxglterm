@@ -1,5 +1,4 @@
 #include <windows.h>
-#include <pybind11/embed.h>
 
 #include <iostream>
 #ifndef _WIN32
@@ -96,8 +95,8 @@ public:
         }
 
         COORD c_size;
-        c_size.X = (short)m_Cols ? m_Cols : 80;
-        c_size.Y = (short)m_Rows ? m_Rows : 25;
+        c_size.X = (short)m_Cols ? (short)m_Cols : 80;
+        c_size.Y = (short)m_Rows ? (short)m_Rows : 25;
         HRESULT hr = CreatePseudoConsoleAndPipes(c_size, &hPC, &hPipeIn, &hPipeOut);
 
         if (S_OK == hr)
