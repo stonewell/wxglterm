@@ -7,7 +7,10 @@ namespace py = pybind11;
 #include "app_config_impl.h"
 #include "load_module.h"
 
+#if !defined(_WIN32) || defined(__GNUC__)
 #pragma GCC visibility push(hidden)
+#endif
+
 class AppConfigImpl : public virtual AppConfig {
 public:
     AppConfigImpl();
@@ -154,4 +157,7 @@ std::shared_ptr<AppConfig> CreateAppConfigFromFile(const char * file_path)
 
     return config;
 }
+
+#if !defined(_WIN32) || defined(__GNUC__)
 #pragma GCC visibility pop
+#endif

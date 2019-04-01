@@ -41,7 +41,9 @@ public:
     PyGILState_STATE gstate;
 };
 
+#if !defined(_WIN32) || defined(__GNUC__)
 #pragma GCC visibility push(hidden)
+#endif
 
 TermDataHandlerPtr CreateTermDataHandler()
 {
@@ -248,4 +250,7 @@ void TermDataHandlerImpl::Stop() {
     m_DataContext.cell_template = nullptr;
     m_DataContext.default_cell_template = nullptr;
 }
+
+#if !defined(_WIN32) || defined(__GNUC__)
 #pragma GCC visibility pop
+#endif

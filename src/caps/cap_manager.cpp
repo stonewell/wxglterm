@@ -91,6 +91,7 @@ void output_char(term_data_context_s & term_context, char data, bool insert) {
                                          &term_context.remain_buffer[term_context.remain_buffer.size() - 1] + 1);
             converted = wcharconv.converted();
         } catch(const std::range_error& e) {
+            (void)e;
             converted = wcharconv.converted();
             if (converted == 0)
                 return;

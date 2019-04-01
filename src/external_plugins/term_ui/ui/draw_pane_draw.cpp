@@ -387,8 +387,8 @@ void DrawPane::DoPaint(wxDC & dc, TermBufferPtr buffer, bool full_paint, const s
     } else if (wxMemoryDC * mdc = wxDynamicCast(&dc, wxMemoryDC)) {
         wxScopedPtr<wxGraphicsContext> gdc{wxGraphicsContext::Create(*mdc)};
         text_blob.Render(gdc.get());
-    } else if (wxPaintDC * mdc = wxDynamicCast(&dc, wxPaintDC)) {
-        wxScopedPtr<wxGraphicsContext> gdc{wxGraphicsContext::Create(*mdc)};
+    } else if (wxPaintDC * mmdc = wxDynamicCast(&dc, wxPaintDC)) {
+        wxScopedPtr<wxGraphicsContext> gdc{wxGraphicsContext::Create(*mmdc)};
         text_blob.Render(gdc.get());
     }
 #endif

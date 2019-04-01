@@ -10,7 +10,13 @@
 
 using TermDataQueue = moodycamel::BlockingReaderWriterQueue<unsigned char, 4096>;
 
-class __attribute__ ((visibility ("hidden"))) TermDataHandlerImpl
+#if !defined(_WIN32) || defined(__GNUC__)
+#define ATTR_HIDDEN __attribute__ ((visibility ("hidden")))
+#else
+#define ATTR_HIDDEN
+#endif
+
+class ATTR_HIDDEN TermDataHandlerImpl
         : public virtual PluginBase
         , public virtual TermDataHandler
         , public virtual PortableThread::IPortableRunnable

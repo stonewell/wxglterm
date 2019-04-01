@@ -77,7 +77,7 @@ int bisearch(uint32_t ucs, uint32_t tbl[][2], uint32_t max){
 
 size_t char_width(wchar_t ucs) {
     if (ucs < 32 || (ucs >= 0x7f && ucs < 0xa0))
-        return -1;
+        return (size_t)-1;
 
     if (bisearch(ucs, zero_width_chars, sizeof(zero_width_chars) / sizeof(uint32_t) / 2 - 1) == 1)
         return 0;

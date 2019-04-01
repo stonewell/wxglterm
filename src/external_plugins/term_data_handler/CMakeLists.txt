@@ -23,6 +23,7 @@ ADD_LIBRARY(term_data_handler SHARED
 set_target_properties( term_data_handler
     PROPERTIES
     LIBRARY_OUTPUT_DIRECTORY "${CMAKE_BINARY_DIR}/plugins"
+    RUNTIME_OUTPUT_DIRECTORY "${CMAKE_BINARY_DIR}/plugins"
 )
 
 TARGET_INCLUDE_DIRECTORIES(term_data_handler PRIVATE

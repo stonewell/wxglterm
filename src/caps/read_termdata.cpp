@@ -95,15 +95,15 @@ bool get_entry(const std::string & termcap_file_path,
                std::string & term_entry,
                uint32_t depth)
 {
-    entry_map_t::iterator it = entry_map.find(term_name);
+    entry_map_t::iterator entry_it = entry_map.find(term_name);
 
-    if (it != entry_map.end()) {
+    if (entry_it != entry_map.end()) {
         expand_cap(termcap_file_path,
-                   *it->second->begin(),
-                   *it->second->begin(),
+                   *entry_it->second->begin(),
+                   *entry_it->second->begin(),
                    depth);
 
-        term_entry = *it->second->begin();
+        term_entry = *entry_it->second->begin();
         return true;
     }
 

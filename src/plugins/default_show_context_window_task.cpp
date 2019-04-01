@@ -22,7 +22,7 @@ public:
     virtual ~__ShowContextWindowTask() = default;
 
 public:
-    void Run() override {
+    virtual void Run() override {
         if (m_Cancelled)
             return;
 
@@ -37,15 +37,15 @@ public:
         term_dataHandler->Start();
     }
 
-    void Cancel() override {
+    virtual void Cancel() override {
         m_Cancelled = true;
     }
 
-    bool IsCancelled() override {
+    virtual bool IsCancelled() override {
         return m_Cancelled;
     }
 
-    MultipleInstancePluginPtr NewInstance() override{
+    virtual MultipleInstancePluginPtr NewInstance() override{
         return MultipleInstancePluginPtr { new __ShowContextWindowTask() };
     }
 

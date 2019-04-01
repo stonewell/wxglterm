@@ -44,7 +44,7 @@ elseif ("${CMAKE_CXX_COMPILER_ID}" STREQUAL "Clang")
   set(warnings "-Wall -Wextra -Werror -Wno-inconsistent-missing-override")
   set(no_undefined "-Wl,-undefined,error")
 elseif ("${CMAKE_CXX_COMPILER_ID}" STREQUAL "MSVC")
-    set(warnings "/W4 /WX /EHsc")
+    set(warnings "/W4 /WX /EHsc /wd4250 /wd4245 /D_CRT_SECURE_NO_WARNINGS /DNOMINMAX /bigobj")
     set(no_undefined "")
 endif()
 
@@ -75,14 +75,16 @@ EXTERNALPROJECT_ADD(
   PATCH_COMMAND ""
   UPDATE_DISCONNECTED ON
 
-  CMAKE_ARGS -DCMAKE_BUILD_TYPE=Debug -DPYBIND11_TEST=OFF -DPYBIND11_INSTALL=ON -DCMAKE_INSTALL_PREFIX=${CMAKE_BINARY_DIR}/pybind11_install
+  CMAKE_ARGS -DCMAKE_BUILD_TYPE=Debug -DPYBIND11_TEST=OFF -DPYBIND11_INSTALL=OFF
 
+  INSTALL_COMMAND ""
   TEST_COMMAND ""
 )
 
 ExternalProject_Add_StepTargets(pybind11 update)
 
-SET(pybind11_INCLUDE_DIRS ${CMAKE_BINARY_DIR}/pybind11_install/include)
+EXTERNALPROJECT_GET_PROPERTY(pybind11 SOURCE_DIR BINARY_DIR)
+SET(pybind11_INCLUDE_DIRS ${SOURCE_DIR}/include)
 
 FIND_PACKAGE(PythonInterp 3 REQUIRED)
 FIND_PACKAGE(PythonLibs 3 REQUIRED)

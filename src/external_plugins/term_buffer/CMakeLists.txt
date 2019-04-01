@@ -15,6 +15,7 @@ ADD_LIBRARY(term_buffer SHARED ${term_buffer_src})
 set_target_properties( term_buffer
     PROPERTIES
     LIBRARY_OUTPUT_DIRECTORY "${CMAKE_BINARY_DIR}/plugins"
+    RUNTIME_OUTPUT_DIRECTORY "${CMAKE_BINARY_DIR}/plugins"
 )
 
 TARGET_INCLUDE_DIRECTORIES(term_buffer PRIVATE

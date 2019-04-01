@@ -102,3 +102,4 @@ pymterm.json
 *.log.*
 
 build/
+build-vc/

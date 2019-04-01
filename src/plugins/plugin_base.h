@@ -12,14 +12,14 @@ public:
     virtual ~PluginBase() = default;
 
 public:
-    const char * GetName() override {
+    virtual const char * GetName() override {
         return m_Name.c_str();
     }
-    const char * GetDescription() override {
+    virtual const char * GetDescription() override {
         return m_Description.c_str();
     }
 
-    uint32_t GetVersion() override {
+    virtual uint32_t GetVersion() override {
         return m_Version;
     }
 
@@ -30,10 +30,12 @@ public:
         bool app_debug = context->GetAppConfig()->GetEntryBool("app_debug", false);
         m_Debug = plugin_config->GetEntryBool("debug", app_debug);
     }
-    ContextPtr GetPluginContext() const override {
+
+    virtual ContextPtr GetPluginContext() const override {
         return m_Context;
     }
-    AppConfigPtr GetPluginConfig() const override {
+
+    virtual AppConfigPtr GetPluginConfig() const override {
         return m_PluginConfig;
     }
 

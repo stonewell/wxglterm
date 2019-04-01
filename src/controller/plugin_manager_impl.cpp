@@ -83,9 +83,9 @@ void PluginManagerImpl::RegisterPlugin(const char * plugin_file_path)
                   << plugin_file_path
                   << std::endl;
 
-    const char * ext = nullptr;
+    const char * ext = strrchr(plugin_file_path, '.');
 
-    if ((ext = strrchr(plugin_file_path, '.')))
+    if (ext)
     {
         if  (!strcmp(ext, EXT_PYTHON))
         {

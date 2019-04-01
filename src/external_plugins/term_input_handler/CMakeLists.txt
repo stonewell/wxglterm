@@ -10,6 +10,7 @@ ADD_LIBRARY(term_input_handler SHARED ${input_handler_src})
 set_target_properties(term_input_handler
     PROPERTIES
     LIBRARY_OUTPUT_DIRECTORY "${CMAKE_BINARY_DIR}/plugins"
+    RUNTIME_OUTPUT_DIRECTORY "${CMAKE_BINARY_DIR}/plugins"
 )
 
 TARGET_INCLUDE_DIRECTORIES(term_input_handler PRIVATE

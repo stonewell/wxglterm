@@ -1,4 +1,5 @@
 IF (WIN32)
+ADD_SUBDIRECTORY(term_network_win32_console)
 ELSE()
 ADD_SUBDIRECTORY(term_network_pty)
 ENDIF()

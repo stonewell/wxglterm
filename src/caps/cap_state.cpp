@@ -8,20 +8,20 @@ ControlDataStatePtr ControlDataState::add_state(char c, ControlDataStatePtr next
     return result.first->second;
 }
 
-AnyStatePtr ControlDataState::add_any_state(AnyStatePtr any_state) {
+AnyStatePtr ControlDataState::add_any_state(AnyStatePtr _any_state) {
     if (this->any_state)
         return this->any_state;
 
-    this->any_state = any_state;
-    return any_state;
+    this->any_state = _any_state;
+    return _any_state;
 }
 
-DigitStatePtr ControlDataState::add_digit_state(DigitStatePtr digit_state) {
+DigitStatePtr ControlDataState::add_digit_state(DigitStatePtr _digit_state) {
     if (this->digit_state)
         return this->digit_state;
 
-    this->digit_state = digit_state;
-    return digit_state;
+    this->digit_state = _digit_state;
+    return _digit_state;
 }
 
 void ControlDataState::reset() {
