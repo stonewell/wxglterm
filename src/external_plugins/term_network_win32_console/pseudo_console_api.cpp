@@ -37,14 +37,14 @@ public:
 public:
     Kernel32Api() {
         hKernel32 = LoadLibrary("kernel32");
-        fn_create = NULL;
-        fn_resize = NULL;
-        fn_close = NULL;
-        fn_init_thread_attr_list = NULL;
-        fn_update_thread_attr = NULL;
-        fn_delete_thread_attr_list = NULL;
+        fn_create = nullptr;
+        fn_resize = nullptr;
+        fn_close = nullptr;
+        fn_init_thread_attr_list = nullptr;
+        fn_update_thread_attr = nullptr;
+        fn_delete_thread_attr_list = nullptr;
 
-        if (hKernel32 != NULL) {
+        if (hKernel32 != nullptr) {
             fn_create = (pfn_CreatePseudoConsole)GetProcAddress(hKernel32, "CreatePseudoConsole");
             fn_resize = (pfn_ResizePseudoConsole)GetProcAddress(hKernel32, "ResizePseudoConsole");
             fn_close = (pfn_ClosePseudoConsole)GetProcAddress(hKernel32, "ClosePseudoConsole");
@@ -56,7 +56,7 @@ public:
     }
 
     ~Kernel32Api() {
-        if (hKernel32 != NULL)
+        if (hKernel32 != nullptr)
             FreeLibrary(hKernel32);
     }
 };
@@ -133,3 +133,7 @@ void DeleteProcThreadAttributeList(
         std::cerr << "DeleteProcThreadAttributeList is not found" << std::endl;
 }
 #endif
+
+bool HasConPtyApi() {
+    return  g_Kernel32Api.fn_create != nullptr;
+ }

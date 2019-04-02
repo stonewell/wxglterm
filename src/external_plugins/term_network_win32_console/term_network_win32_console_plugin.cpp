@@ -19,16 +19,12 @@
 
 #include "app_config_impl.h"
 
-#include "pseudo_console_api.h"
+#include "win32_console.h"
 
 #include "term_network_win32_console_export.h"
 
 static
 void delete_data(void * data);
-extern
-HRESULT CreatePseudoConsoleAndPipes(COORD, HPCON*, HANDLE*, HANDLE*);
-extern
-HRESULT InitializeStartupInfoAttachedToPseudoConsole(STARTUPINFOEX*, HPCON);
 
 class TermNetworkWin32Console
         : public TermNetwork
@@ -38,15 +34,15 @@ public:
     TermNetworkWin32Console() :
         PLUGIN_BASE_INIT_LIST("term_network_win32_console", "terminal network plugin using win32 console", 1)
         , m_Stopped{false}
-        , piClient {}
-        , startupInfo {}
-        , hPC { INVALID_HANDLE_VALUE }
-        , hPipeIn { INVALID_HANDLE_VALUE }
-        , hPipeOut { INVALID_HANDLE_VALUE }
         , m_Rows(0)
         , m_Cols(0)
         , m_ReadBuffer(8192)
         , m_PtyReaderThread(this)
+        , m_Envs {}
+        , m_Win32Console {}
+        , m_hPipeIn { INVALID_HANDLE_VALUE }
+        , m_hPipeOut { INVALID_HANDLE_VALUE }
+        , m_CmdLine {}
     {
     }
 
@@ -61,26 +57,8 @@ public:
     void Disconnect() override {
         m_Stopped = true;
 
-        // Now safe to clean-up client app's process-info & thread
-        if (piClient.hThread)
-            CloseHandle(piClient.hThread);
-
-        if (piClient.hProcess)
-            CloseHandle(piClient.hProcess);
-
-        // Cleanup attribute list
-        if (startupInfo.lpAttributeList) {
-            DeleteProcThreadAttributeList(startupInfo.lpAttributeList);
-            free(startupInfo.lpAttributeList);
-        }
-
-        // Close ConPTY - this will terminate client process if running
-        if (hPC != INVALID_HANDLE_VALUE)
-            ClosePseudoConsole(hPC);
-
-        // Clean-up the pipes
-        if (INVALID_HANDLE_VALUE != hPipeOut) CloseHandle(hPipeOut);
-        if (INVALID_HANDLE_VALUE != hPipeIn) CloseHandle(hPipeIn);
+        if (m_Win32Console)
+            m_Win32Console->Terminate();
 
         m_PtyReaderThread.Join();
     }
@@ -91,8 +69,6 @@ public:
         (void)port;
         (void)user_name;
         (void)password;
-
-        AllocConsole();
 
         std::string shell = GetPluginConfig()->GetEntry("shell", "NOT FOUND");
 
@@ -106,70 +82,39 @@ public:
                 shell = std::string("cmd.exe");
         }
 
-        COORD c_size;
-        c_size.X = (short)m_Cols ? (short)m_Cols : 80;
-        c_size.Y = (short)m_Rows ? (short)m_Rows : 25;
-        HRESULT hr = CreatePseudoConsoleAndPipes(c_size, &hPC, &hPipeIn, &hPipeOut);
+        m_CmdLine = {
+            _strdup(shell.c_str()),
+            [](char * data) {
+                free(data);
+            }};
 
-        if (S_OK == hr)
-        {
-            // Initialize the necessary startup info struct
-            if (S_OK == InitializeStartupInfoAttachedToPseudoConsole(&startupInfo, hPC))
-            {
-                m_CmdLine = {
-                    _strdup(shell.c_str()),
-                    [](char * data) {
-                        free(data);
-                    }};
+        m_Win32Console = CreateWin32Console();
 
-                std::cerr << "+++++++network command line:" << shell << std::endl;
+        if (m_Win32Console) {
+            if (m_Win32Console->Create(m_Rows, m_Cols, m_CmdLine, m_Envs)) {
+                m_hPipeIn = m_Win32Console->GetConInPipe();
+                m_hPipeOut = m_Win32Console->GetConOutPipe();
 
-                hr = CreateProcess(
-                    NULL,                           // No module name - use Command Line
-                    m_CmdLine.get(),                      // Command Line
-                    NULL,                           // Process handle not inheritable
-                    NULL,                           // Thread handle not inheritable
-                    FALSE,                          // Inherit handles
-                    EXTENDED_STARTUPINFO_PRESENT,   // Creation flags
-                    NULL,                           // Use parent's environment block
-                    NULL,                           // Use parent's starting directory
-                    &startupInfo.StartupInfo,       // Pointer to STARTUPINFO
-                    &piClient)                      // Pointer to PROCESS_INFORMATION
-                        ? S_OK
-                        : GetLastError();
-
-                if (S_OK == hr)
-                {
-                    m_PtyReaderThread.Start();
-                    std::cerr << "reader thread started" << std::endl;
-                }
-                else {
-                    std::cerr << "unable to create process:"
-                              << shell
-                              << ", hpc:" << hPC
-                              << ", error:" << GetLastError()
-                              << std::endl;
-                }
+                m_PtyReaderThread.Start();
+            } else {
+                std::cerr << "win32 console create process failed." << std::endl;
+                m_Win32Console = nullptr;
             }
-            else {
-                std::cerr << "initialize startup info and attach pseudo console"
-                          << std::endl;
-            }
-        }
-        else {
-            std::cerr << "unable to create pseudo console and pipes"
-                      << std::endl;
+        } else {
+            std::cerr << "win32 console create failed." << std::endl;
         }
     }
 
     void Send(const std::vector<unsigned char> & data, size_t n) override {
+        if (!m_Win32Console) return;
+
         size_t offset = 0;
         while(n > 0) {
             DWORD wc = 0;
 
             std::cerr << "send data:" << n << std::endl;
             DWORD wn = n > 4096 ? 4096 : (DWORD)(n & 0xFFFFFFFF);
-            if (!WriteFile(hPipeOut, &data[offset], wn, &wc, NULL) || wc == 0) {
+            if (!WriteFile(m_hPipeOut, &data[offset], wn, &wc, NULL) || wc == 0) {
                 std::cerr << "write failed:" << GetLastError() << std::endl;
                 break;
             }
@@ -183,17 +128,10 @@ public:
         m_Rows = row;
         m_Cols = col;
 
-        COORD c_size;
-        c_size.X = (short)col;
-        c_size.Y = (short)row;
+        if (!m_Win32Console) return;
 
-        std::cerr << "resized, row:" << row << ", col:" << col << std::endl;
-        if (hPC != INVALID_HANDLE_VALUE) {
-            if (S_OK != ResizePseudoConsole(hPC, c_size)) {
-                std::cerr << "failed resized, row:" << row << ", col:" << col << std::endl;
-            }
-        } else {
-            std::cerr << "resized, row:" << row << ", col:" << col << ", hpc not ready" << std::endl;
+        if (!m_Win32Console->Resize(row, col)) {
+            std::cerr << "win32 console resize failed, row:" << row << ", col:" << col << "." << std::endl;
         }
     }
 
@@ -215,7 +153,7 @@ public:
                 break;
             }
 
-            DWORD result = WaitForSingleObject(hPipeIn, 1000);
+            DWORD result = WaitForSingleObject(m_hPipeIn, 1000);
 
             switch(result) {
             case WAIT_OBJECT_0:
@@ -236,7 +174,7 @@ public:
             if (result == WAIT_OBJECT_0)
             {
                 DWORD count = 0;
-                if (!ReadFile(hPipeIn, &m_ReadBuffer[0], (DWORD)m_ReadBuffer.size(), &count, NULL)) {
+                if (!ReadFile(m_hPipeIn, &m_ReadBuffer[0], (DWORD)m_ReadBuffer.size(), &count, NULL)) {
                     std::cerr << "read failed\n" << std::endl;
                     term_window->Close();
                     break;
@@ -251,15 +189,7 @@ public:
     }
 
 private:
-    std::shared_ptr<char> m_CmdLine;
     bool m_Stopped;
-    PROCESS_INFORMATION piClient;
-    STARTUPINFOEX startupInfo;
-    HPCON hPC;
-
-    //  Create the Pseudo Console and pipes to it
-    HANDLE hPipeIn;
-    HANDLE hPipeOut;
 
     uint32_t m_Rows;
     uint32_t m_Cols;
@@ -267,6 +197,12 @@ private:
     std::vector<unsigned char> m_ReadBuffer;
     PortableThread::CPortableThread m_PtyReaderThread;
     std::vector<char *> m_Envs;
+
+    Win32ConsolePtr m_Win32Console;
+    HANDLE m_hPipeIn;
+    HANDLE m_hPipeOut;
+
+    std::shared_ptr<char> m_CmdLine;
 };
 
 void delete_data(void * data) {

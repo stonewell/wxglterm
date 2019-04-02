@@ -1,7 +1,9 @@
 SET(term_network_win32_console_src
   win32_con_pty.cpp
   pseudo_console_api.cpp pseudo_console_api.h
-  term_network_win32_console_plugin.cpp)
+  term_network_win32_console_plugin.cpp
+  win32_console.h win32_console.cpp
+  win32_con_pty_console.h win32_con_pty_console.cpp)
 
 ADD_LIBRARY(term_network_win32_console SHARED ${term_network_win32_console_src})
 
