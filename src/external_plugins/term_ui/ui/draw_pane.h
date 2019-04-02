@@ -10,7 +10,7 @@
 
 #define USE_TEXT_BLOB 1
 
-class DrawPane : public wxPanel {
+class DrawPane : public wxWindow {
 public:
     DrawPane(wxFrame * parent,
              TermWindow * termWindow);

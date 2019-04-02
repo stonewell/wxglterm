@@ -141,7 +141,7 @@ public:
                 if (S_OK == hr)
                 {
                     m_PtyReaderThread.Start();
-                std::cerr << "reader thread started" << std::endl;
+                    std::cerr << "reader thread started" << std::endl;
                 }
                 else {
                     std::cerr << "unable to create process:"
@@ -210,7 +210,7 @@ public:
 
         for (;;) {
 
-             if (m_Stopped) {
+            if (m_Stopped) {
                 std::cerr << "really stopped!" << std::endl;
                 break;
             }

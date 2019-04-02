@@ -46,7 +46,7 @@ BEGIN_EVENT_TABLE(DrawPane, wxPanel)
 EVT_MOUSE_EVENTS(DrawPane::OnMouseEvent)
 END_EVENT_TABLE()
 
-DrawPane::DrawPane(wxFrame * parent, TermWindow * termWindow) : wxPanel(parent)
+DrawPane::DrawPane(wxFrame * parent, TermWindow * termWindow) : wxWindow(parent, wxID_ANY)
         , m_RefreshNow(0)
         , m_RefreshLock()
         , m_TermWindow(termWindow)
