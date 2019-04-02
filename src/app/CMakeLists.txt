@@ -11,7 +11,6 @@ ADD_CUSTOM_TARGET(copy_py_plugins
 
 ADD_EXECUTABLE(wxglterm
     ${wxglterm_src}
-    test.cpp
     app_utils.inc)
 
 ADD_CUSTOM_COMMAND(OUTPUT app_utils.inc

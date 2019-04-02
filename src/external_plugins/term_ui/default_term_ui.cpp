@@ -90,7 +90,8 @@ public:
     }
 
     void Close() override {
-        m_MainDlg->Destroy();
+		if (m_MainDlg)
+			m_MainDlg->Destroy();
     }
 
     void SetWindowTitle(const std::string & title) override {

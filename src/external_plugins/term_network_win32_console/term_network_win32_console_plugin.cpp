@@ -37,6 +37,7 @@ class TermNetworkWin32Console
 public:
     TermNetworkWin32Console() :
         PLUGIN_BASE_INIT_LIST("term_network_win32_console", "terminal network plugin using win32 console", 1)
+        , m_Stopped{false}
         , hPC { INVALID_HANDLE_VALUE }
         , hPipeIn { INVALID_HANDLE_VALUE }
         , hPipeOut { INVALID_HANDLE_VALUE }
@@ -154,17 +155,19 @@ public:
     }
 
     void Send(const std::vector<unsigned char> & data, size_t n) override {
+        size_t offset = 0;
         while(n > 0) {
             DWORD wc = 0;
 
             std::cerr << "send data:" << n << std::endl;
             DWORD wn = n > 4096 ? 4096 : (DWORD)(n & 0xFFFFFFFF);
-            if (!WriteFile(hPipeOut, &data[0], wn, &wc, NULL) || wc == 0) {
+            if (!WriteFile(hPipeOut, &data[offset], wn, &wc, NULL) || wc == 0) {
                 std::cerr << "write failed:" << GetLastError() << std::endl;
                 break;
             }
 
             n -= wc;
+            offset += wc;
         }
     }
 
@@ -199,9 +202,8 @@ public:
 
         for (;;) {
 
-            std::cerr << "stopped!" << std::endl;
-            if (m_Stopped) {
-                std::cerr << "stopped!" << std::endl;
+             if (m_Stopped) {
+                std::cerr << "really stopped!" << std::endl;
                 break;
             }
 

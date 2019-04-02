@@ -57,7 +57,7 @@ public:
 
     ~Kernel32Api() {
         if (hKernel32 != NULL)
-            CloseHandle(hKernel32);
+            FreeLibrary(hKernel32);
     }
 };
 
@@ -66,8 +66,7 @@ Kernel32Api g_Kernel32Api{};
 
 HRESULT CreatePseudoConsole(COORD size, HANDLE hInput, HANDLE hOutput, DWORD dwFlags, HPCON * phPC) {
     if (g_Kernel32Api.fn_create) {
-        std::cerr << "!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!" << std::endl;
-        return g_Kernel32Api.fn_create(size, hInput, hOutput, dwFlags, phPC);
+         return g_Kernel32Api.fn_create(size, hInput, hOutput, dwFlags, phPC);
     }
     else
         std::cerr << "CreatePseudoConsole is not found" << std::endl;

@@ -183,10 +183,7 @@ bool wxGLTermApp::DoInit()
     auto term_color_theme = CreateTermColorTheme(term_context);
     auto input_handler = CreateInputHandler(term_context);
 
-    extern int test_main();
-    test_main();
-
-    if (term_context
+   if (term_context
         && term_ui
         && term_network
         && term_data_handler

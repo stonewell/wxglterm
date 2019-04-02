@@ -42,7 +42,7 @@ HRESULT InitializeStartupInfoAttachedToPseudoConsole(STARTUPINFOEX* pStartupInfo
 
     if (pStartupInfo)
     {
-        ZeroMemory(&pStartupInfo, sizeof(STARTUPINFOEX));
+        ZeroMemory(pStartupInfo, sizeof(STARTUPINFOEX));
 
         size_t attrListSize{};
 
