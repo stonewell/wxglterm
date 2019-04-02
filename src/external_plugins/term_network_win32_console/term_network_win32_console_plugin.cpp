@@ -38,6 +38,8 @@ public:
     TermNetworkWin32Console() :
         PLUGIN_BASE_INIT_LIST("term_network_win32_console", "terminal network plugin using win32 console", 1)
         , m_Stopped{false}
+        , piClient {}
+        , startupInfo {}
         , hPC { INVALID_HANDLE_VALUE }
         , hPipeIn { INVALID_HANDLE_VALUE }
         , hPipeOut { INVALID_HANDLE_VALUE }
@@ -60,15 +62,21 @@ public:
         m_Stopped = true;
 
         // Now safe to clean-up client app's process-info & thread
-        CloseHandle(piClient.hThread);
-        CloseHandle(piClient.hProcess);
+        if (piClient.hThread)
+            CloseHandle(piClient.hThread);
+
+        if (piClient.hProcess)
+            CloseHandle(piClient.hProcess);
 
         // Cleanup attribute list
-        DeleteProcThreadAttributeList(startupInfo.lpAttributeList);
-        free(startupInfo.lpAttributeList);
+        if (startupInfo.lpAttributeList) {
+            DeleteProcThreadAttributeList(startupInfo.lpAttributeList);
+            free(startupInfo.lpAttributeList);
+        }
 
         // Close ConPTY - this will terminate client process if running
-        ClosePseudoConsole(hPC);
+        if (hPC != INVALID_HANDLE_VALUE)
+            ClosePseudoConsole(hPC);
 
         // Clean-up the pipes
         if (INVALID_HANDLE_VALUE != hPipeOut) CloseHandle(hPipeOut);
