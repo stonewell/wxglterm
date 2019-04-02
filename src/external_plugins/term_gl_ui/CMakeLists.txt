@@ -28,6 +28,12 @@ ADD_DEPENDENCIES(update_external freetype-gl-update)
 
 EXTERNALPROJECT_GET_PROPERTY(freetype-gl SOURCE_DIR BINARY_DIR)
 
+SET(term_gl_ui_c_src
+  freetype_gl_font.c freetype_gl_font.h
+  term_text_buffer.c
+  mat4.c mat4.h
+  )
+
 SET(term_gl_ui_src
   term_gl_ui_plugin.cpp
   term_gl_ui.cpp term_gl_ui.h
@@ -37,13 +43,14 @@ SET(term_gl_ui_src
   freetype_gl.cpp freetype_gl.h
   shader.cpp shader.h
   term_text_buffer.h
-  freetype_gl_font.c freetype_gl_font.h
+)
+
+ADD_LIBRARY(term_gl_ui_c OBJECT
+  ${term_gl_ui_c_src}
 )
 
 ADD_LIBRARY(term_gl_ui SHARED ${term_gl_ui_src}
 		       text_vert.inc text_frag.inc
-		       term_text_buffer.c
-		       mat4.c mat4.h
 		       )
 
 ADD_DEPENDENCIES(term_gl_ui freetype-gl)
@@ -101,11 +108,29 @@ TARGET_INCLUDE_DIRECTORIES(term_gl_ui
 	"${GLFW_HACK_FIX_INCLUDE_DIR}"
 )
 
+TARGET_INCLUDE_DIRECTORIES(term_gl_ui_c
+    PRIVATE
+	"${CMAKE_CURRENT_SRC_DIR}"
+	"${CMAKE_CURRENT_BINARY_DIR}"
+  	"ui"
+  	"../../interface"
+  	"../../utils"
+  	"../../utils/portable_thread/includes"
+	"../../plugins"
+	"${freetype-gl_INCLUDE_DIR}"
+	"${freetype-gl_INCLUDE_DIR}/demos"
+	"${FONTCONFIG_INCLUDE_DIR}"
+	"${freetype-gl_INCLUDE_DIR}/windows/freetype"
+	$<TARGET_PROPERTY:glfw,INTERFACE_INCLUDE_DIRECTORIES>
+	"${GLFW_HACK_FIX_INCLUDE_DIR}"
+)
+
 TARGET_LINK_LIBRARIES(term_gl_ui
   utils
   plugins
   glfw
   pybind11::embed
+  term_gl_ui_c
   ${OPENGL_LIBRARY}
   ${FREETYPE_LIBRARIES}
   ${freetype-gl_LIBRARIES}
