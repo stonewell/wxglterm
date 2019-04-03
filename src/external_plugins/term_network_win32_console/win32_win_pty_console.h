@@ -20,6 +20,13 @@ public:
 private:
     HANDLE m_hPipeIn;
     HANDLE m_hPipeOut;
+
+    winpty_config_t * m_pWinPtyConfig;
+    winpty_t * m_pWinPty;
+    winpty_spawn_config_t * m_pWinPtySpawnConfig;
+
+    HANDLE m_hProcess;
+    HANDLE m_hThread;
 };
 
 bool HasWinPtyApi();
