@@ -57,6 +57,15 @@ bool Win32ConPtyConsole::Create(uint32_t rows, uint32_t cols,
                           << ", hr:" << hr
                           << ", error:" << GetLastError()
                           << std::endl;
+            } else {
+                std::cerr << "created process:"
+                          << cmd_line.get()
+                          << ", rows:"
+                          << rows << "," << c_size.Y
+                          << ", cols:"
+                          << cols
+                          << ", " << c_size.X
+                          << std::endl;
             }
         }
         else {
@@ -84,6 +93,7 @@ bool Win32ConPtyConsole::Resize(uint32_t rows, uint32_t cols) {
             std::cerr << "failed resized, row:" << rows << ", col:" << cols << std::endl;
             return false;
         }
+        std::cerr << "resized, row:" << rows << ", col:" << cols << std::endl;
         return true;
     } else {
         std::cerr << "resized, row:" << rows << ", col:" << cols << ", hpc not ready" << std::endl;
@@ -112,6 +122,12 @@ bool Win32ConPtyConsole::Terminate() {
     // Clean-up the pipes
     if (INVALID_HANDLE_VALUE != m_hPipeOut) CloseHandle(m_hPipeOut);
     if (INVALID_HANDLE_VALUE != m_hPipeIn) CloseHandle(m_hPipeIn);
+
+    ZeroMemory(&m_PiClient, sizeof(m_PiClient));
+    ZeroMemory(&m_StartupInfo, sizeof(m_StartupInfo));
+    m_hPC = INVALID_HANDLE_VALUE;
+    m_hPipeIn = INVALID_HANDLE_VALUE;
+    m_hPipeOut = INVALID_HANDLE_VALUE;
 
     return true;
 }

@@ -43,6 +43,14 @@ bool wxGLTermApp::Run(int /*argc*/, char ** /*argv*/)
                   << std::endl;
         PyErr_Print();
     }
+	catch(std::string & e_str)
+    {
+        std::cerr << "!!Error Initialize:"
+                  << std::endl
+                  << e_str
+                  << std::endl;
+        PyErr_Print();
+    }
     catch(...)
     {
         std::cerr << "!!Error Initialize"

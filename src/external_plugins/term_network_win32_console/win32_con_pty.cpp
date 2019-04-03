@@ -79,18 +79,3 @@ HRESULT InitializeStartupInfoAttachedToPseudoConsole(STARTUPINFOEX* pStartupInfo
     }
     return hr;
 }
-
-extern "C"
-int test_main() {
-    COORD c_size;
-    c_size.X=80;
-    c_size.Y=25;
-
-    HPCON hPC = 0;
-    HANDLE hPipeIn, hPipeOut;
-
-    HRESULT hr = CreatePseudoConsoleAndPipes(c_size, &hPC, &hPipeIn, &hPipeOut);
-
-    std::cout << "create result:" << hr << ", " << hPC << std::endl;
-    return 0;
-}

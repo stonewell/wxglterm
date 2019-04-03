@@ -132,6 +132,8 @@ public:
 
         if (!m_Win32Console->Resize(row, col)) {
             std::cerr << "win32 console resize failed, row:" << row << ", col:" << col << "." << std::endl;
+        } else {
+            std::cerr << "win32 console resize row:" << row << ", col:" << col << "." << std::endl;
         }
     }
 

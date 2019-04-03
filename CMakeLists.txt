@@ -87,8 +87,6 @@ configure_file(wxglterm.json.in wxglterm.json)
 configure_file(wxglterm_install.json.in wxglterm_install.json)
 configure_file(wxglterm.desktop.in wxglterm.desktop)
 
-ADD_CUSTOM_TARGET(update_external DEPENDS pybind11-update)
-
 IF (APPLE)
    EXEC_PROGRAM(uname ARGS -v  OUTPUT_VARIABLE DARWIN_VERSION)
    STRING(REGEX MATCH "[0-9]+" DARWIN_VERSION ${DARWIN_VERSION})
@@ -106,6 +104,25 @@ IF (USE_GLFW_HACK_FIX)
    MESSAGE(STATUS "include dir:${GLFW_HACK_FIX_INCLUDE_DIR}")
    ADD_DEFINITIONS(-DGLFW_HACK_FIX -DGL_SILENCE_DEPRECATION)
 ENDIF()
+
+find_package(Git QUIET)
+if(GIT_FOUND AND EXISTS "${PROJECT_SOURCE_DIR}/.git")
+# Update submodules as needed
+    option(GIT_SUBMODULE "Check submodules during build" ON)
+    if(GIT_SUBMODULE)
+        message(STATUS "Submodule update")
+        execute_process(COMMAND ${GIT_EXECUTABLE} submodule update --init --recursive
+                        WORKING_DIRECTORY ${CMAKE_CURRENT_SOURCE_DIR}
+                        RESULT_VARIABLE GIT_SUBMOD_RESULT)
+        if(NOT GIT_SUBMOD_RESULT EQUAL "0")
+            message(FATAL_ERROR "git submodule update --init failed with ${GIT_SUBMOD_RESULT}, please checkout submodules")
+        endif()
+    endif()
+endif()
+
+if(NOT EXISTS "${PROJECT_SOURCE_DIR}/third_party/pybind11")
+    message(FATAL_ERROR "The submodules were not downloaded! GIT_SUBMODULE was turned off or failed. Please update submodules and try again.")
+endif()
 
 ADD_SUBDIRECTORY(third_party/pybind11)
 ADD_SUBDIRECTORY(src/interface)
