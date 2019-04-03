@@ -24,12 +24,12 @@ Win32ConsolePtr CreateWin32Console(bool forceConPty, bool forceWinPty) {
         return Win32ConsolePtr{};
     }
 
-    if (use_con_pty) {
+    if ((forceConPty || !forceWinPty) && use_con_pty) {
         return std::make_shared<Win32ConPtyConsole>();
     }
 
 #ifdef BUILD_WITH_WINPTY
-    if (use_win_pty) {
+    if ((!forceConPty || forceWinPty) && use_win_pty) {
         return std::make_shared<Win32WinPtyConsole>();
     }
 #endif
