@@ -23,4 +23,4 @@ public:
 
 using Win32ConsolePtr = std::shared_ptr<Win32Console>;
 
-Win32ConsolePtr CreateWin32Console(bool forceConPty = false);
+Win32ConsolePtr CreateWin32Console(bool forceConPty = false, bool forceWinPty = false);

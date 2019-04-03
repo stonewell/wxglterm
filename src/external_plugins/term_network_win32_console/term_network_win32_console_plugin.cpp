@@ -71,6 +71,8 @@ public:
         (void)password;
 
         std::string shell = GetPluginConfig()->GetEntry("shell", "NOT FOUND");
+        bool force_winpty = GetPluginConfig()->GetEntryBool("force_winpty", false);
+        bool force_conpty = GetPluginConfig()->GetEntryBool("force_conpty", false);
 
         if (shell == "NOT FOUND")
         {
@@ -88,7 +90,7 @@ public:
                 free(data);
             }};
 
-        m_Win32Console = CreateWin32Console();
+        m_Win32Console = CreateWin32Console(force_conpty, force_winpty);
 
         if (m_Win32Console) {
             if (m_Win32Console->Create(m_Rows, m_Cols, m_CmdLine, m_Envs)) {

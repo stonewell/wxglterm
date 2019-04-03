@@ -8,9 +8,11 @@
 	    "name":"default_term_ui"
 	},
 	"network":{
-	    "name":"term_network_use_pty",
+	    "name":"@network_plugin@",
 	    "config":{
-		"shell":"/bin/bash"
+		"shell":"@network_plugin_shell@",
+		"force_winpty":false,
+		"force_conpty":false
 	    }
 	},
 	"buffer":{
