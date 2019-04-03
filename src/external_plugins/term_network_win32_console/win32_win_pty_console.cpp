@@ -151,14 +151,16 @@ bool Win32WinPtyConsole::Resize(uint32_t rows, uint32_t cols) {
 }
 
 bool Win32WinPtyConsole::Terminate() {
-    if (m_hProcess != INVALID_HANDLE_VALUE) {
-        CloseHandle(m_hProcess);
-        m_hProcess = INVALID_HANDLE_VALUE;
-    }
-
     if (m_hThread != INVALID_HANDLE_VALUE) {
         CloseHandle(m_hThread);
         m_hThread = INVALID_HANDLE_VALUE;
+    }
+
+    if (m_hProcess != INVALID_HANDLE_VALUE) {
+        TerminateProcess(m_hProcess, 0);
+        WaitForSingleObject(m_hProcess, INFINITE);
+        CloseHandle(m_hProcess);
+        m_hProcess = INVALID_HANDLE_VALUE;
     }
 
     if (m_hPipeIn != INVALID_HANDLE_VALUE) {

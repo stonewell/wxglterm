@@ -128,11 +128,15 @@ bool Win32ConPtyConsole::Resize(uint32_t rows, uint32_t cols) {
 
 bool Win32ConPtyConsole::Terminate() {
     // Now safe to clean-up client app's process-info & thread
-    if (m_PiClient.hThread)
+    if (m_PiClient.hThread) {
         CloseHandle(m_PiClient.hThread);
+    }
 
-    if (m_PiClient.hProcess)
+    if (m_PiClient.hProcess) {
+        TerminateProcess(m_PiClient.hProcess, 0);
+        WaitForSingleObject(m_PiClient.hProcess, INFINITE);
         CloseHandle(m_PiClient.hProcess);
+    }
 
     // Cleanup attribute list
     if (m_StartupInfo.lpAttributeList) {
