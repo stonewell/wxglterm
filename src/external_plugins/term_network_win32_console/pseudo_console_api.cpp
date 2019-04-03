@@ -36,7 +36,7 @@ public:
     HMODULE hKernel32;
 public:
     Kernel32Api() {
-        hKernel32 = LoadLibrary("kernel32");
+        hKernel32 = LoadLibraryA("kernel32");
         fn_create = nullptr;
         fn_resize = nullptr;
         fn_close = nullptr;

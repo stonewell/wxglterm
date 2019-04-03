@@ -15,8 +15,6 @@
 #include <iostream>
 #include <iterator>
 #include <functional>
-#include <locale>
-#include <codecvt>
 
 #include "base64.h"
 
@@ -62,9 +60,6 @@ private:
     std::string m_Title;
     GLFWwindow * m_MainDlg;
 };
-
-static
-std::wstring_convert<std::codecvt_utf8<wchar_t>, wchar_t> wcharconv;
 
 // ---------------------------------------------------------------- reshape ---
 static

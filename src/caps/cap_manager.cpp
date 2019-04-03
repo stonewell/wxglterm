@@ -13,7 +13,11 @@
 #include "string_utils.h"
 
 static
-std::wstring_convert<std::codecvt_utf8<wchar_t>, wchar_t> wcharconv;
+std::wstring_convert<std::codecvt_utf8<wchar_t
+#if defined(_WIN32) && defined(__GNUC__)
+                                       , 0x10ffff, std::little_endian
+#endif
+                                       >, wchar_t> wcharconv;
 
 DEFINE_CAP(bell);
 DEFINE_CAP(to_status_line);

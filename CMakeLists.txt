@@ -66,7 +66,8 @@ SET(CXX_STANDARD_REQUIRED OFF)
 SET(CXX_EXTENSION NO)
 
 if (MINGW)
-  set(extra_flags "-Wa,-mbig-obj")
+  set(extra_flags "-Wa,-mbig-obj -D_UNICODE -DUNICODE")
+  set(extra_link_flags "-municode")
 else()
   set(extra_flags "")
 endif()
@@ -76,7 +77,7 @@ if (NOT CONFIGURED_ONCE)
         CACHE STRING "Flags used by the compiler during all build types." FORCE)
     set(CMAKE_CXX_FLAGS "${warnings} -std=c++14 ${extra_flags}"
         CACHE STRING "Flags used by the compiler during all build types." FORCE)
-    set(CMAKE_LINK_FLAGS "${CMAKE_LINK_FLAGS} ${no_undefined}"
+    set(CMAKE_LINK_FLAGS "${CMAKE_LINK_FLAGS} ${no_undefined} ${extra_link_flags}"
         CACHE STRING "Flags used by the linker during all build types." FORCE)
 endif()
 

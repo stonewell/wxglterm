@@ -32,11 +32,7 @@ public:
 #include <iostream>
 #include <iterator>
 #include <functional>
-#include <locale>
-#include <codecvt>
 #include <unordered_set>
-static
-std::wstring_convert<std::codecvt_utf8<wchar_t>, wchar_t> wcharconv;
 
 static
 bool contains(const std::vector<uint32_t> & rowsToDraw, uint32_t row) {

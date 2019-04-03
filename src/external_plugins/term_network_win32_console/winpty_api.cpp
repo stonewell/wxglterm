@@ -71,7 +71,7 @@ public:
         , fn_winpty_error_msg {}
         , fn_winpty_error_free {}
     {
-        m_hWinPty = LoadLibrary("winpty.dll");
+        m_hWinPty = LoadLibraryA("winpty.dll");
 
         if (!m_hWinPty)
             return;

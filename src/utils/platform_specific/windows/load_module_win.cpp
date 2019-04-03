@@ -4,7 +4,7 @@
 Handle LoadDyModuleFromFile(const char * file_path)
 {
     Handle h {
-        LoadLibrary(file_path),
+        LoadLibraryA(file_path),
         [](void* module)
         {
             FreeLibrary((HMODULE)module);

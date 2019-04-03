@@ -26,6 +26,9 @@ private:
     //  Create the Pseudo Console and pipes to it
     HANDLE m_hPipeIn;
     HANDLE m_hPipeOut;
+#ifdef UNICODE
+    std::shared_ptr<wchar_t> m_WCmdLine;
+#endif
 };
 
 bool HasConPtyApi();

@@ -19,13 +19,8 @@
 
 #include "app_config_impl.h"
 
-#include <locale>
-#include <codecvt>
 #include <functional>
 #include "base64.h"
-
-static
-std::wstring_convert<std::codecvt_utf8<wchar_t>, wchar_t> wcharconv;
 
 void send_data(TermNetworkPtr network, const std::vector<unsigned char> & data){
     try

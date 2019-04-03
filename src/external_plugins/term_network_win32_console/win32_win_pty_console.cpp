@@ -5,7 +5,11 @@
 #include <codecvt>
 
 static
-std::wstring_convert<std::codecvt_utf8<wchar_t>, wchar_t> wcharconv;
+std::wstring_convert<std::codecvt_utf8<wchar_t
+                                       #ifdef __GNUC__
+                                       , 0x10ffff, std::little_endian
+                                       #endif
+                                       >, wchar_t> wcharconv;
 
 static HANDLE ConnectToNamedPipe(LPCWSTR name, DWORD access);
 
@@ -79,6 +83,8 @@ bool Win32WinPtyConsole::Create(uint32_t rows, uint32_t cols,
 
         if (!m_pWinPtySpawnConfig || err) {
             std::wcerr << "create winpty spawn config fail:"
+                       << w_cmd_line.c_str()
+                       << ", err code:"
                        << winpty_error_code(err)
                        << ", "
                        << winpty_error_msg(err)
@@ -98,6 +104,7 @@ bool Win32WinPtyConsole::Create(uint32_t rows, uint32_t cols,
 
         if (!rt || err) {
             std::wcerr << "create winpty spawn fail:"
+                       << ", err code:"
                        << winpty_error_code(err)
                        << ", "
                        << winpty_error_msg(err)

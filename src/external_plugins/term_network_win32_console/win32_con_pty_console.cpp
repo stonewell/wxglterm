@@ -1,5 +1,14 @@
 #include "win32_con_pty_console.h"
 #include <iostream>
+#include <locale>
+#include <codecvt>
+
+static
+std::wstring_convert<std::codecvt_utf8<wchar_t
+#if defined(_WIN32) && defined(__GNUC__)
+                                       , 0x10ffff, std::little_endian
+#endif
+                                       >, wchar_t> wcharconv;
 
 extern
 HRESULT CreatePseudoConsoleAndPipes(COORD, HPCON*, HANDLE*, HANDLE*);
@@ -12,6 +21,9 @@ Win32ConPtyConsole::Win32ConPtyConsole()
     , m_hPC { INVALID_HANDLE_VALUE }
     , m_hPipeIn { INVALID_HANDLE_VALUE }
     , m_hPipeOut { INVALID_HANDLE_VALUE }
+#ifdef UNICODE
+    , m_WCmdLine{}
+#endif
 {
 }
 
@@ -36,9 +48,22 @@ bool Win32ConPtyConsole::Create(uint32_t rows, uint32_t cols,
         hr = InitializeStartupInfoAttachedToPseudoConsole(&m_StartupInfo, m_hPC);
         if (S_OK == hr)
         {
+#ifdef UNICODE
+            std::wstring w_cmd_line = wcharconv.from_bytes(cmd_line.get());
+            m_WCmdLine = {
+                _wcsdup(w_cmd_line.c_str()),
+                [](wchar_t * data) {
+                    free(data);
+                }
+            };
+#endif
             hr = CreateProcess(
                 NULL,                           // No module name - use Command Line
-                cmd_line.get(),                      // Command Line
+#ifdef UNICODE
+                m_WCmdLine.get(),                      // Command Line
+#else
+                cmd_line.get(),
+#endif
                 NULL,                           // Process handle not inheritable
                 NULL,                           // Thread handle not inheritable
                 FALSE,                          // Inherit handles
