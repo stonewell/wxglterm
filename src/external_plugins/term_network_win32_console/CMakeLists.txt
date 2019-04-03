@@ -10,7 +10,8 @@ OPTION(BUILD_WITH_WINPTY "build opengl ui" ON)
 IF (BUILD_WITH_WINPTY)
     SET(EXTRA_INCLUDE_DIR ${WINPTY_ROOT_DIR}/include)
     SET(EXTRA_DEFINE "-DBUILD_WITH_WINPTY")
-    SET(WINPTY_SRC winpty_api.cpp winpty_api.h)
+    SET(WINPTY_SRC winpty_api.cpp winpty_api.h
+    		   win32_win_pty_console.h win32_win_pty_console.cpp)
 ENDIF()
 
 ADD_LIBRARY(term_network_win32_console SHARED
@@ -44,7 +45,8 @@ TARGET_LINK_LIBRARIES(term_network_win32_console
   )
 
 TARGET_COMPILE_DEFINITIONS(term_network_win32_console PRIVATE
-  "-D_WIN32_WINNT=0x0600 ${EXTRA_DEFINE}"
+  "-D_WIN32_WINNT=0x0600"
+  ${EXTRA_DEFINE}
   )
 
 INSTALL(TARGETS term_network_win32_console DESTINATION share/wxglterm/plugins)

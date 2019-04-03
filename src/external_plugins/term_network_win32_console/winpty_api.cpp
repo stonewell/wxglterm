@@ -118,3 +118,10 @@ public:
     pfn_winpty_set_size fn_winpty_set_size;
     pfn_winpty_free fn_winpty_free;
 };
+
+static
+WinptyApi g_winptyApi;
+
+bool HasWinPtyApi() {
+    return g_winptyApi.HasWinPtyApi();
+}
