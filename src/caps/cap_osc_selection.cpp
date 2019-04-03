@@ -1,5 +1,3 @@
-#include <pybind11/embed.h>
-
 #include "term_buffer.h"
 #include "term_window.h"
 #include "term_network.h"

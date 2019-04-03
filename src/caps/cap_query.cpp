@@ -1,5 +1,3 @@
-#include <pybind11/embed.h>
-
 #include "term_buffer.h"
 #include "term_window.h"
 #include "term_network.h"
@@ -29,13 +27,11 @@ void send(term_data_context_s & term_context,
                   << std::endl
                   << e.what()
                   << std::endl;
-        PyErr_Print();
     }
     catch(...)
     {
         std::cerr << "!!Error Send"
                   << std::endl;
-        PyErr_Print();
     }
 };
 

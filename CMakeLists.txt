@@ -124,6 +124,8 @@ if(NOT EXISTS "${PROJECT_SOURCE_DIR}/third_party/pybind11")
     message(FATAL_ERROR "The submodules were not downloaded! GIT_SUBMODULE was turned off or failed. Please update submodules and try again.")
 endif()
 
+ADD_CUSTOM_TARGET(update_external)
+
 ADD_SUBDIRECTORY(third_party/pybind11)
 ADD_SUBDIRECTORY(src/interface)
 ADD_SUBDIRECTORY(src/controller)

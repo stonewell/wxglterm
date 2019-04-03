@@ -27,7 +27,3 @@ TARGET_INCLUDE_DIRECTORIES(caps PRIVATE
   "../interface"
   "../utils"
   )
-
-TARGET_LINK_LIBRARIES(caps PRIVATE
-    pybind11::embed
-    )
