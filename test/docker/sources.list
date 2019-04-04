@@ -1,0 +1,7 @@
+deb http://mirror.math.princeton.edu/pub/ubuntu/ artful main restricted
+deb http://mirror.math.princeton.edu/pub/ubuntu/ artful-updates main restricted
+deb http://mirror.math.princeton.edu/pub/ubuntu/ artful universe
+deb http://mirror.math.princeton.edu/pub/ubuntu/ artful-updates universe
+deb http://mirror.math.princeton.edu/pub/ubuntu/ artful multiverse
+deb http://mirror.math.princeton.edu/pub/ubuntu/ artful-updates multiverse
+deb http://mirror.math.princeton.edu/pub/ubuntu/ artful-backports main restricted universe multiverse

@@ -7,6 +7,8 @@ INCLUDE(ExternalProject)
 
 SET(FREETYPE_GL_UPDATE git pull)
 
+SET(FREETYPE_GL_C_FLAGS "-fPIC -DGL_SILENCE_DEPRECATION=1")
+
 EXTERNALPROJECT_ADD(
   freetype-gl
 
@@ -16,7 +18,7 @@ EXTERNALPROJECT_ADD(
   PATCH_COMMAND ""
   UPDATE_DISCONNECTED ON
 
-  CMAKE_ARGS -Dfreetype-gl_BUILD_APIDOC=OFF -Dfreetype-gl_BUILD_DEMOS=OFF -Dfreetype-gl_BUILD_TESTS=OFF -Dfreetype-gl_BUILD_MAKEFONT=OFF -DCMAKE_C_FLAGS=-fPIC -DOpenGL_GL_PREFERENCE=GLVND -DCMAKE_C_FLAGS=-DGL_SILENCE_DEPRECATION
+  CMAKE_ARGS -Dfreetype-gl_BUILD_APIDOC=OFF -Dfreetype-gl_BUILD_DEMOS=OFF -Dfreetype-gl_BUILD_TESTS=OFF -Dfreetype-gl_BUILD_MAKEFONT=OFF -DCMAKE_C_FLAGS=${FREETYPE_GL_C_FLAGS} -DOpenGL_GL_PREFERENCE=GLVND
 
   TEST_COMMAND ""
 
@@ -51,6 +53,7 @@ ADD_LIBRARY(term_gl_ui_c OBJECT
 
 ADD_LIBRARY(term_gl_ui SHARED ${term_gl_ui_src}
 		       text_vert.inc text_frag.inc
+		       $<TARGET_OBJECTS:term_gl_ui_c>
 		       )
 
 ADD_DEPENDENCIES(term_gl_ui freetype-gl)
@@ -130,7 +133,6 @@ TARGET_LINK_LIBRARIES(term_gl_ui
   plugins
   glfw
   pybind11::embed
-  term_gl_ui_c
   ${OPENGL_LIBRARY}
   ${FREETYPE_LIBRARIES}
   ${freetype-gl_LIBRARIES}
