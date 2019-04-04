@@ -16,7 +16,7 @@ EXTERNALPROJECT_ADD(
   PATCH_COMMAND ""
   UPDATE_DISCONNECTED ON
 
-  CMAKE_ARGS -Dfreetype-gl_BUILD_APIDOC=OFF -Dfreetype-gl_BUILD_DEMOS=OFF -Dfreetype-gl_BUILD_TESTS=OFF -Dfreetype-gl_BUILD_MAKEFONT=OFF -DCMAKE_C_FLAGS=-fPIC -DOpenGL_GL_PREFERENCE=GLVND
+  CMAKE_ARGS -Dfreetype-gl_BUILD_APIDOC=OFF -Dfreetype-gl_BUILD_DEMOS=OFF -Dfreetype-gl_BUILD_TESTS=OFF -Dfreetype-gl_BUILD_MAKEFONT=OFF -DCMAKE_C_FLAGS=-fPIC -DOpenGL_GL_PREFERENCE=GLVND -DCMAKE_C_FLAGS=-DGL_SILENCE_DEPRECATION
 
   TEST_COMMAND ""
 
@@ -76,7 +76,7 @@ ADD_CUSTOM_COMMAND(OUTPUT text_frag.inc
   )
 ADD_CUSTOM_COMMAND(OUTPUT term_text_buffer.c
   COMMAND patch ${SOURCE_DIR}/text-buffer.c -i ${CMAKE_CURRENT_SOURCE_DIR}/term_text_buffer.c.patch -o term_text_buffer.c
-  DEPENDS ${SOURCE_DIR}/text-buffer.c ${CMAKE_CURRENT_SOURCE_DIR}/term_text_buffer.c.patch
+  DEPENDS freetype-gl ${SOURCE_DIR}/text-buffer.c ${CMAKE_CURRENT_SOURCE_DIR}/term_text_buffer.c.patch
   )
 ADD_CUSTOM_COMMAND(OUTPUT mat4.c mat4.h
   COMMAND
