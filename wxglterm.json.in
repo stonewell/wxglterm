@@ -37,6 +37,7 @@
 
     "term":{
 	"termcap_dir":"data",
+	"use_generic_cap":true,
 	"color_theme_dir":"data/color_theme",
 	"color_theme":{
 	    "name":"zenburn"

@@ -48,12 +48,15 @@ bool load_cap_str(const std::string & termcap_dir,
 void TermDataHandlerImpl::LoadNativeDataHandler() {
     std::string termcap_dir = GetPluginContext()->GetAppConfig()->GetEntry("/term/termcap_dir", "data");
     std::string term_name = GetPluginContext()->GetAppConfig()->GetEntry("/term/term_name", "xterm-256color");
+    bool use_generic = GetPluginContext()->GetAppConfig()->GetEntryBool("/term/use_generic_cap", "true");
 
     std::stringstream ss;
 
     std::string term_entry;
-    if (load_cap_str(termcap_dir, "generic-cap", term_entry))
-        ss << term_entry;
+    if (use_generic) {
+        if (load_cap_str(termcap_dir, "generic-cap", term_entry))
+            ss << term_entry;
+    }
 
     if (!load_cap_str(termcap_dir, term_name, term_entry)) {
         if (load_cap_str(termcap_dir, "xterm-256color", term_entry)) {

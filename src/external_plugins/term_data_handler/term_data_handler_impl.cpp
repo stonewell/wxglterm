@@ -184,11 +184,12 @@ void TermDataHandlerImpl::LoadPyDataHandler() {
 
         std::string termcap_dir = GetPluginContext()->GetAppConfig()->GetEntry("/term/termcap_dir", "data");
         std::string term_name = GetPluginContext()->GetAppConfig()->GetEntry("/term/term_name", "xterm-256color");
+        bool use_generic = GetPluginContext()->GetAppConfig()->GetEntryBool("/term/use_generic_cap", "true");
 
         m_DataHandler =
                 LoadPyModuleFromString(module_content,
                                        "term_data_handler_impl",
-                                       "term_data_handler_impl.py").attr("create_data_handler")(termcap_dir, term_name);
+                                       "term_data_handler_impl.py").attr("create_data_handler")(termcap_dir, term_name, use_generic);
     }
     catch(std::exception & e)
     {

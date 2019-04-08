@@ -12,11 +12,11 @@ class TermDataHandlerBase():
     def __init__(self):
         pass
 
-    def init_with_term_name(self, termcap_dir, term_name):
+    def init_with_term_name(self, termcap_dir, term_name, use_generic):
         # initialize term caps
         self._term_name = term_name
 
-        self._cap_str = self.__load_cap_str__(termcap_dir, 'generic-cap')
+        self._cap_str = self.__load_cap_str__(termcap_dir, 'generic-cap') if use_generic else ""
         try:
             self._cap_str += \
                 self.__load_cap_str__(termcap_dir, self._term_name)

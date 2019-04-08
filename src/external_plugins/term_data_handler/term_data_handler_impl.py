@@ -17,8 +17,8 @@ class __TermDataHandler(TermDataHandlerBase):
             self.cap_name, self.increase_param = cap_turple
 
 
-def create_data_handler(termcap_dir, term_name):
+def create_data_handler(termcap_dir, term_name, use_generic):
     handler = __TermDataHandler()
-    handler.init_with_term_name(termcap_dir, term_name)
+    handler.init_with_term_name(termcap_dir, term_name, use_generic)
 
     return handler
