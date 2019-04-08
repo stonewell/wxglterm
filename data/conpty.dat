@@ -3,19 +3,22 @@ conpty|win32 console with 256 colors:\
 	cursor_down=\EB:\
 	cursor_right=\EC:\
 	cursor_left=\ED:\
+	cursor_home=\E[H:\
+	cursor_end=\E[F:\
 	#reverse index
 	parm_up_cursor=\EM:\
 	restore_cursor=\E8:\
 	save_cursor=\E7:\
-	parm_up_cursor=\E[%dA:\
-	parm_down_cursor=\E[%dB:\
-	parm_right_cursor=\E[%dC:\
-	parm_left_cursor=\E[%dD:\
+	cursor_up=\E[%dA:\
+	cursor_down=\E[%dB:\
+	cursor_right=\E[%dC:\
+	cursor_left=\E[%dD:\
 	next_line=\E[%dE:\
 	prev_line=\E[%dF:\
-	column_address=\E[%dG:\
-	cursor_address=\E[%d;%dH:\
-	cursor_address=\E[%d;%df:\
+	column_address=\E[%i%dG:\
+	row_address=\E[%i%dd:\
+	cursor_address=\E[%i%d;%dH:\
+	cursor_address=\E[%i%d;%df:\
 	restore_cursor=\E[u:\
 	save_cursor=\E[s:\
 	enable_mode=\E[?%dh:\
@@ -38,7 +41,7 @@ conpty|win32 console with 256 colors:\
 	set_attributes=\E[%d\(;%d\)m:\
 	set_attributes=\E[\(;%d\)m:\
 	orig_pair=\E[m:\
-	#set_color_index=\E]4;%d;rgb:%d/%d/%d\E:\
+	set_color_index=\E]4;%d;rgb:%d/%d/%d\E:\
 	enable_keypad_appkeys=\E=:\
 	disable_keypad_appkeys=\E>:\
 	#report cursor position
@@ -58,6 +61,6 @@ conpty|win32 console with 256 colors:\
 	operating_system_control=\E]%d;%s^G:\
 	enter_ca_mode=\E[?1049h:\
 	exit_ca_mode=\E[?1049l:\
-	cursor_home=\E[H:\
-	cursor_end=\E[F:\
+	carriage_return=^M:\
+	line_feed=^J:\
 	soft_reset=\E[!p:

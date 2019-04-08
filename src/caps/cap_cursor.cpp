@@ -102,6 +102,13 @@ void next_line(term_data_context_s & term_context,
     term_context.term_buffer->SetCol(0);
     __parm_move_cursor(term_context, params, true, true, true);
 }
+
+void prev_line(term_data_context_s & term_context,
+               const term_data_param_list & params) {
+    term_context.term_buffer->SetCol(0);
+    __parm_move_cursor(term_context, params, false, true, true);
+}
+
 void line_feed(term_data_context_s & term_context,
                const term_data_param_list & params) {
     __parm_move_cursor(term_context, params, true, true, true);

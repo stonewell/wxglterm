@@ -14,8 +14,6 @@ HRESULT CreatePseudoConsoleAndPipes(COORD consoleSize, HPCON* phPC, HANDLE* phPi
     if (CreatePipe(&hPipePTYIn, phPipeOut, NULL, 0) &&
         CreatePipe(phPipeIn, &hPipePTYOut, NULL, 0))
     {
-        consoleSize.X = 80;
-        consoleSize.Y = 25;
         // Create the Pseudo Console of the required size, attached to the PTY-end of the pipes
         hr = CreatePseudoConsole(consoleSize, hPipePTYIn, hPipePTYOut, 0, phPC);
 

@@ -1,6 +1,8 @@
 #include <windows.h>
 
+#include <algorithm>
 #include <iostream>
+#include <fstream>
 #ifndef _WIN32
 #include <unistd.h>
 #endif
@@ -43,6 +45,8 @@ public:
         , m_hPipeIn { INVALID_HANDLE_VALUE }
         , m_hPipeOut { INVALID_HANDLE_VALUE }
         , m_CmdLine {}
+        , m_Log {}
+        , m_DoLog {false}
     {
     }
 
@@ -73,6 +77,12 @@ public:
         std::string shell = GetPluginConfig()->GetEntry("shell", "NOT FOUND");
         bool force_winpty = GetPluginConfig()->GetEntryBool("force_winpty", false);
         bool force_conpty = GetPluginConfig()->GetEntryBool("force_conpty", false);
+        std::string log_file = GetPluginConfig()->GetEntry("log_file", "NOT FOUND");
+
+        if (log_file != "NOT FOUND") {
+            m_Log.open(log_file);
+            m_DoLog = true;
+        }
 
         if (shell == "NOT FOUND")
         {
@@ -185,6 +195,18 @@ public:
                 }
 
                 if (count > 0) {
+					if (m_DoLog) {
+                        std::string log_msg{};
+
+                        for(size_t i=0;i < count; i++) {
+                            if (m_ReadBuffer[i] == '\x1b')
+                                log_msg.append("\\E");
+                            else
+                                log_msg.append((char *)&m_ReadBuffer[i], 1);
+                        }
+
+                        m_Log << log_msg;
+					}
                     term_data_handler->OnData(m_ReadBuffer, count);
                 }
             }
@@ -207,6 +229,8 @@ private:
     HANDLE m_hPipeOut;
 
     std::shared_ptr<char> m_CmdLine;
+    std::ofstream m_Log;
+    bool m_DoLog;
 };
 
 void delete_data(void * data) {
