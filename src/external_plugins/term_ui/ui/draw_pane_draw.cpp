@@ -418,8 +418,10 @@ void DrawPane::PaintOnDemand()
 
         wxRegion clipRegion(clientSize);
 
+#if USE_TEXT_BLOB
         wxBufferedDC bDC(&dc,
                          GetClientSize());
+#endif
 
         __ScopeLocker buffer_locker(m_Buffer);
         if (m_AppDebug)
@@ -447,13 +449,17 @@ void DrawPane::PaintOnDemand()
 
         if (paintChanged)
         {
-            CalculateClipRegion(clipRegion, m_Buffer);
+             CalculateClipRegion(clipRegion, m_Buffer);
 
-            dc.DestroyClippingRegion();
-            dc.SetDeviceClippingRegion(clipRegion);
+             dc.DestroyClippingRegion();
+             dc.SetDeviceClippingRegion(clipRegion);
         }
 
+#if USE_TEXT_BLOB
         DoPaint(bDC, m_Buffer, !paintChanged);
+#else
+        DoPaint(dc, m_Buffer, !paintChanged);
+#endif
 
         if (cell)
             cell->RemoveMode(TermCell::Cursor);

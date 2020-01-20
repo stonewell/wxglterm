@@ -30,6 +30,12 @@ wxCoord PADDING = 5;
 
 #define TIMER_ID (-1)
 
+#define USE_IDLE_EVENT 0
+#define USE_REQUEST_FRESH 1
+
+#define FPS (30)
+constexpr wxDouble REFRESH_DELTA = (1000.0 / FPS);
+
 wxDECLARE_EVENT(MY_REFRESH_EVENT, wxCommandEvent);
 // this is a definition so can't be in a header
 wxDEFINE_EVENT(MY_REFRESH_EVENT, wxCommandEvent);
@@ -61,6 +67,7 @@ DrawPane::DrawPane(wxFrame * parent, TermWindow * termWindow) : wxWindow(parent,
     InitColorTable();
 
     m_AppDebug = m_TermWindow->GetPluginContext()->GetAppConfig()->GetEntryBool("app_debug", false);
+    m_LastPaintTime = wxGetLocalTimeMillis();
     Connect( wxID_ANY, wxEVT_IDLE, wxIdleEventHandler(DrawPane::OnIdle) );
 }
 
@@ -72,6 +79,7 @@ DrawPane::~DrawPane()
 
 void DrawPane::RequestRefresh()
 {
+#if USE_REQUEST_FRESH
     {
         wxCriticalSectionLocker locker(m_RefreshLock);
         m_RefreshNow++;
@@ -81,6 +89,7 @@ void DrawPane::RequestRefresh()
 
     // Do send it
     wxPostEvent(this, event);
+#endif
 }
 
 void DrawPane::OnEraseBackground(wxEraseEvent & /*event*/)
@@ -136,6 +145,8 @@ void DrawPane::OnPaint(wxPaintEvent & /*event*/)
         if (cell)
             cell->RemoveMode(TermCell::Cursor);
     }
+
+    m_LastPaintTime = wxGetLocalTimeMillis();
 }
 
 void DrawPane::OnSize(wxSizeEvent& /*event*/)
@@ -236,6 +247,23 @@ wxFont * DrawPane::GetFont(FontCategoryEnum font_category)
 void DrawPane::OnIdle(wxIdleEvent& evt)
 {
     (void)evt;
+
+#if USE_IDLE_EVENT
+    try {
+        wxLongLong now = wxGetLocalTimeMillis();
+
+        if (now - REFRESH_DELTA >= m_LastPaintTime) {
+            m_LastPaintTime = wxGetLocalTimeMillis();
+
+            m_RefreshNow = 1;
+            PaintOnDemand();
+        }
+    }catch(...) {
+        std::cerr << "on idle paint error" << std::endl;
+    }
+
+    evt.RequestMore();
+#endif
 }
 
 void DrawPane::InitColorTable()
@@ -276,13 +304,17 @@ void DrawPane::InitColorTable()
 void DrawPane::OnTimer(wxTimerEvent& event)
 {
     (void)event;
+#if USE_REQUEST_FRESH
     PaintOnDemand();
+#endif
 }
 
 void DrawPane::OnRefreshEvent(wxCommandEvent& event)
 {
     (void)event;
-    m_RefreshTimer.StartOnce(20);
+#if USE_REQUEST_FRESH
+    m_RefreshTimer.StartOnce(REFRESH_DELTA);
+#endif
 }
 
 TermBufferPtr DrawPane::EnsureTermBuffer()

@@ -123,6 +123,8 @@ void TermDataHandlerImpl::ProcessSingleCharPy(const char * ch) {
 }
 
 void TermDataHandlerImpl::ProcessAllChars(char ch) {
+    (void)ch;
+#if USE_PROCESS_QUEUE
     std::chrono::high_resolution_clock::time_point start = std::chrono::high_resolution_clock::now();
 
     do {
@@ -139,10 +141,11 @@ void TermDataHandlerImpl::ProcessAllChars(char ch) {
 
     if (!m_Stopped)
         ProcessSingleChar(NULL);
+#endif
 }
 
 unsigned long TermDataHandlerImpl::Run(void * /*pArgument*/) {
-
+#if USE_PROCESS_QUEUE
     while(!m_Stopped) {
         char c = '\0';
 
@@ -165,14 +168,27 @@ unsigned long TermDataHandlerImpl::Run(void * /*pArgument*/) {
 
         m_DataContext.term_window->Refresh();
     };
+#endif
 
     return 0;
 }
 
 void TermDataHandlerImpl::OnData(const std::vector<unsigned char> & data, size_t data_len) {
+#if USE_PROCESS_QUEUE
     for (size_t i = 0; i < data_len; i++) {
         m_TermDataQueue.enqueue(data[i]);
     }
+#else
+    if (m_Stopped || data_len == 0)
+        return;
+
+    for (size_t i = 0; i < data_len; i++) {
+        ProcessSingleChar((const char*)&data[i]);
+    }
+
+    ProcessSingleChar(NULL);
+    m_DataContext.term_window->Refresh();
+#endif
 }
 
 void TermDataHandlerImpl::LoadPyDataHandler() {
@@ -229,7 +245,9 @@ void TermDataHandlerImpl::Start() {
 
     m_Stopped = false;
 
+#if USE_PROCESS_QUEUE
     m_DataHandlerThread.Start();
+#endif
 }
 
 void TermDataHandlerImpl::Stop() {
@@ -243,7 +261,9 @@ void TermDataHandlerImpl::Stop() {
 
     OnData(data, 1);
 
+#if USE_PROCESS_QUEUE
     m_DataHandlerThread.Join();
+#endif
 
     m_DataContext.term_buffer = nullptr;
     m_DataContext.term_window = nullptr;

@@ -8,7 +8,11 @@
 
 #include "text_blob.h"
 
+#if defined(__APPLE__)
 #define USE_TEXT_BLOB 1
+#else
+#define USE_TEXT_BLOB 0
+#endif
 
 class DrawPane : public wxWindow {
 public:
@@ -135,4 +139,5 @@ private:
     bool m_EnableMouseTrack;
     int m_SavedMouseButton;
     bool m_ModKeyDown;
+    wxLongLong m_LastPaintTime;
 };

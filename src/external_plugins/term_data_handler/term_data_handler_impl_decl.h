@@ -8,6 +8,8 @@
 #include "parse_termdata.h"
 #include "plugin_base.h"
 
+#define USE_PROCESS_QUEUE 0
+
 using TermDataQueue = moodycamel::BlockingReaderWriterQueue<unsigned char, 4096>;
 
 #if !defined(_WIN32) || defined(__GNUC__)
@@ -26,7 +28,9 @@ public:
         , PortableThread::IPortableRunnable()
         , PLUGIN_BASE_INIT_LIST("term_data_handler", "terminal data handler", 1)
         , m_DataHandlerThread(this)
-        , m_TermDataQueue {4096}
+#if USE_PROCESS_QUEUE
+        , m_TermDataQueue {40960}
+#endif
         , m_Stopped{true}
         , m_UsePythonImpl{true}
     {
@@ -71,7 +75,9 @@ private:
     void HandleCap(bool check_unknown = true, char c = 0);
 
     PortableThread::CPortableThread m_DataHandlerThread;
+#if USE_PROCESS_QUEUE
     TermDataQueue m_TermDataQueue;
+#endif
     bool m_Stopped;
     pybind11::object m_DataHandler;
 
