@@ -1,6 +1,5 @@
 #include "default_term_selection_decl.h"
 #include "default_term_line.h"
-#include "default_term_cell.h"
 
 #include "internal_term_shmem_buffer.h"
 #include "term_shmem_buffer_decl.h"
@@ -10,55 +9,23 @@
 #include <cassert>
 #include <functional>
 
-InternalTermShmemBuffer::InternalTermShmemBuffer(TermShmemBuffer* term_buffer) :
-    m_TermBuffer(term_buffer)
-    , m_Rows(0)
-    , m_Cols(0)
-    , m_CurRow(0)
-    , m_CurCol(0)
-    , m_ScrollRegionBegin(0)
-    , m_ScrollRegionEnd(0)
-    , m_Lines()
+InternalTermShmemBuffer::InternalTermShmemBuffer(TermShmemBuffer* term_buffer)
+    : m_TermBuffer {term_buffer}
+    , m_Rows {0}
+    , m_Cols {0}
+    , m_CurRow {0}
+    , m_CurCol {0}
+    , m_ScrollRegionBegin {0}
+    , m_ScrollRegionEnd {0}
+    , m_Lines{}
     , m_Selection{new DefaultTermSelection}
     , m_VisRowHeaderBegin {0}
     , m_VisRowScrollRegionBegin {0}
     , m_VisRowFooterBegin {0}
-    , m_Mode{0}
+    , m_Mode {0}
+    , m_Storage {CreateTermShmemStorage(1)}
+    , m_TermCellPool {CreateRawTermCell}
 {
-}
-
-InternalTermShmemBuffer::InternalTermShmemBuffer(const InternalTermShmemBuffer & term_buffer) :
-    m_TermBuffer(nullptr)
-    , m_Rows(term_buffer.m_Rows)
-    , m_Cols(term_buffer.m_Cols)
-    , m_CurRow(term_buffer.m_CurRow)
-    , m_CurCol(term_buffer.m_CurCol)
-    , m_ScrollRegionBegin(term_buffer.m_ScrollRegionBegin)
-    , m_ScrollRegionEnd(term_buffer.m_ScrollRegionEnd)
-    , m_Lines()
-    , m_Selection{new DefaultTermSelection}
-    , m_VisRowHeaderBegin {term_buffer.m_VisRowHeaderBegin}
-    , m_VisRowScrollRegionBegin {term_buffer.m_VisRowScrollRegionBegin}
-    , m_VisRowFooterBegin {term_buffer.m_VisRowFooterBegin}
-{
-    m_Lines.resize(term_buffer.m_Lines.size());
-    uint32_t index = 0;
-
-    for(TermLinePtr line : term_buffer.m_Lines) {
-        if (!line) {
-            index++;
-            continue;
-        }
-        TermLinePtr new_line = CreateDefaultTermLine(m_TermBuffer);
-        new_line->Resize(GetCols());
-
-        for(uint32_t i=0;i < GetCols(); i++) {
-            TermCellPtr cell = line->GetCell(i);
-            TermCellPtr new_cell = new_line->GetCell(i);
-            new_cell->Reset(cell);
-        }
-        m_Lines[index++] = new_line;
-    }
 }
 
 void InternalTermShmemBuffer::Resize(uint32_t row, uint32_t col) {
@@ -293,6 +260,15 @@ TermLinePtr InternalTermShmemBuffer::GetLine(uint32_t row) {
 
     printf("invalid row:%u, rows:%u\n", row, GetRows());
     return TermLinePtr{};
+}
+
+TermCellPtr InternalTermShmemBuffer::GetCell(uint32_t row, uint32_t col) {
+    auto line = GetLine(row);
+
+    if (line)
+        return line->GetCell(col);
+
+    return TermCellPtr{};
 }
 
 void InternalTermShmemBuffer::DeleteLines(uint32_t begin, uint32_t count, TermCellPtr cell_template) {

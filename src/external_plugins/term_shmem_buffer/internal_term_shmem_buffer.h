@@ -1,7 +1,9 @@
 #pragma once
 
 #include "default_term_line.h"
-#include "default_term_cell.h"
+#include "term_shmem_cell.h"
+#include "term_shmem_storage.h"
+#include "smart_object_pool.h"
 
 #include <bitset>
 
@@ -10,7 +12,10 @@ class TermShmemBuffer;
 class InternalTermShmemBuffer {
 public:
     InternalTermShmemBuffer(TermShmemBuffer* term_buffer);
-    InternalTermShmemBuffer(const InternalTermShmemBuffer & term_buffer);
+
+    InternalTermShmemBuffer() = delete;
+    InternalTermShmemBuffer(const InternalTermShmemBuffer & term_buffer) = delete;
+    InternalTermShmemBuffer & operator = (InternalTermShmemBuffer & v) = delete;
 
     void Resize(uint32_t row, uint32_t col);
 
@@ -34,15 +39,7 @@ public:
     void SetCol(uint32_t col);
 
     TermLinePtr GetLine(uint32_t row);
-
-    TermCellPtr GetCell(uint32_t row, uint32_t col) {
-        TermLinePtr line = GetLine(row);
-
-        if (line)
-            return line->GetCell(col);
-
-        return TermCellPtr{};
-    }
+    TermCellPtr GetCell(uint32_t row, uint32_t col);
 
     TermLinePtr GetCurLine() {
         return GetLine(GetRow());
@@ -95,14 +92,13 @@ public:
     void RemoveMode(uint32_t m);
 
 private:
-    bool IsDefaultCell(TermCellPtr cell);
+    bool IsDefaultCell(TermCellPtr pcell);
     bool __NormalizeBeginEndPositionResetLinesWhenDeleteOrInsert(uint32_t & begin,
                                                                  uint32_t count,
                                                                  uint32_t & end);
     bool HasScrollRegion();
     void ClearHistoryLinesData();
     uint32_t RowToLineIndex(uint32_t row);
-
 
     TermShmemBuffer * m_TermBuffer;
     uint32_t m_Rows;
@@ -122,4 +118,10 @@ private:
     uint32_t m_VisRowScrollRegionBegin;
     uint32_t m_VisRowFooterBegin;
     std::bitset<16> m_Mode;
+
+    TermShmemStoragePtr m_Storage;
+    SmartObjectPool<TermShmemCell> m_TermCellPool;
+    SmartObjectPool<TermLine> m_TermLinePool;
 };
+
+using InternalTermShmemBufferPtr = std::shared_ptr<InternalTermShmemBuffer>;

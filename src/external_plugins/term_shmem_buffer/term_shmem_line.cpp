@@ -1,16 +1,15 @@
 #include "plugin_base.h"
 
-#include "default_term_line.h"
-#include "default_term_cell.h"
+#include "term_shmem_line.h"
+#include "term_shmem_cell.h"
 #include "term_buffer.h"
-#include <vector>
 
-class DefaultTermLine : public TermLine {
+class TermShmemLineImpl : public TermShmemLine {
 public:
-    DefaultTermLine(TermBuffer * term_buffer) :
-        PLUGIN_BASE_INIT_LIST("default_term_line", "default terminal line plugin", 0)
+    TermShmemLineImpl(TermBuffer * term_buffer) :
+        PLUGIN_BASE_INIT_LIST("term_shmem_line", "terminal line using shared memory plugin", 0)
         , m_TermBuffer(term_buffer)
-        , m_LastRenderLineIndex { (uint32_t)-1 }
+        , m_Storage {nullptr}
     {
         (void)m_TermBuffer;
     }
@@ -18,14 +17,15 @@ public:
 	PLUGIN_BASE_DEFINE();
 
     void Resize(uint32_t col) override {
-        Resize(col, CreateDefaultTermCell(this));
+        m_Storage->cols = col;
+        m_Storage->modified = true;
     }
 
     void Resize(uint32_t col, TermCellPtr cell_template) override {
         auto cur_size = m_Cells.size();
 
         for(auto i = cur_size; i < col; i++) {
-            auto cell = CreateDefaultTermCell(this);
+            auto cell = CreateTermCellPtr();
             cell->Reset(cell_template);
             cell->SetChar(L' ');
             m_Cells.push_back(cell);
@@ -44,7 +44,7 @@ public:
         auto cell = m_Cells[col];
         if (!cell)
         {
-            cell = CreateDefaultTermCell(this);
+            cell = CreateTermCellPtr();
             m_Cells[col] = cell;
         }
 
@@ -86,27 +86,30 @@ public:
     }
 
     void SetModified(bool modified) override {
-        for(auto cell : m_Cells)
-        {
-            if (cell)
-                cell->SetModified(modified);
-        }
+        m_Storage->modified = modified;
     }
 
     uint32_t GetLastRenderLineIndex() const override {
-        return m_LastRenderLineIndex;
+        return m_Storage->last_render_index;
     }
 
     void SetLastRenderLineIndex(uint32_t index) override {
-        m_LastRenderLineIndex = index;
+        m_Storage->last_render_index = index;
+    }
+
+    LineStorage * GetStorage() override {
+        return m_Storage;
+    }
+
+    void SetStorage(LineStorage * storage) override {
+        m_Storage  = storage;
     }
 private:
     TermBuffer * m_TermBuffer;
-    TermCellVector m_Cells;
-    uint32_t m_LastRenderLineIndex;
+    LineStorage * m_Storage;
 };
 
-TermLinePtr CreateDefaultTermLine(TermBuffer * term_buffer)
+TermShmemLinePtr CreateTermLinePtr(TermBuffer * term_buffer)
 {
-    return TermLinePtr{ new DefaultTermLine(term_buffer) };
+    return TermShmemLinePtr{ new TermShmemLine(term_buffer) };
 }

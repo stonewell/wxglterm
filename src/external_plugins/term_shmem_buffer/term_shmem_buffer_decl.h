@@ -2,6 +2,7 @@
 
 #include <mutex>
 #include <unordered_map>
+#include <vector>
 
 #include "plugin_base.h"
 #include "term_buffer.h"
@@ -88,7 +89,7 @@ private:
     uint32_t m_DefaultMode;
     uint32_t m_CurBuffer;
 
-    InternalTermShmemBuffer m_Buffers[2];
+    InternalTermShmemBufferPtr m_Buffers[2];
 
     using property_bag_t = std::unordered_map<std::string, std::string>;
 

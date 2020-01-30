@@ -2,13 +2,14 @@ SET(term_shmem_buffer_src
   term_shmem_buffer.cpp
   term_shmem_buffer_decl.h
   term_shmem_buffer_impl.cpp
-  default_term_cell.cpp
-  default_term_cell.h
-  default_term_line.cpp
-  default_term_line.h
+  term_shmem_cell.cpp
+  term_shmem_cell.h
+  term_shmem_line.cpp
+  term_shmem_line.h
   default_term_selection_decl.h
   internal_term_shmem_buffer.cpp
   internal_term_shmem_buffer.h
+  term_shmem_storage.h term_shmem_storage.cxx
   )
 
 ADD_LIBRARY(term_shmem_buffer SHARED ${term_shmem_buffer_src})
@@ -29,6 +30,7 @@ TARGET_INCLUDE_DIRECTORIES(term_shmem_buffer PRIVATE
   "../../utils"
   "../../utils/portable_thread/includes"
   "../../plugins"
+  ${Boost_INCLUDE_DIRS}
   )
 
 TARGET_LINK_LIBRARIES(term_shmem_buffer

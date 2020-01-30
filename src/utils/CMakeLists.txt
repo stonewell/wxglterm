@@ -3,6 +3,7 @@ SET(utils_src
     app_config_impl.h  load_module.h  string_utils.h
     char_width.cpp char_width.h
     base64.h
+    smart_object_pool.h
     )
 
 IF (WIN32)
