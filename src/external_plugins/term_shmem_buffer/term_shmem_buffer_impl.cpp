@@ -1,8 +1,8 @@
 #include "plugin_base.h"
 
 #include "default_term_selection_decl.h"
-#include "default_term_line.h"
 #include "term_shmem_cell.h"
+#include "term_shmem_line.h"
 
 #include "internal_term_shmem_buffer.h"
 #include "term_shmem_buffer_decl.h"
@@ -133,7 +133,9 @@ void TermShmemBuffer::SetCellDefaults(wchar_t c,
 }
 
 TermCellPtr TermShmemBuffer::CreateCellWithDefaults() {
-    TermCellPtr cell = CreateTermCellPtr();
+    auto cell = CreateTermCellPtr();
+    CellStorage * cur_cell_storage = new CellStorage;
+    cell->SetStorage(cur_cell_storage, true);
 
     cell->SetChar(m_DefaultChar);
     cell->SetForeColorIndex(m_DefaultForeColorIndex);

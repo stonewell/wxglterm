@@ -25,10 +25,6 @@ public:
     virtual void SetStorage(LineStorage * storage) = 0;
 };
 
-class TermBuffer;
-
-using TermLineVector = std::vector<TermLinePtr>;
 using TermShmemLinePtr = std::shared_ptr<TermShmemLine>;
 
-TermShmemLinePtr CreateTermLinePtr(TermBuffer * term_buffer);
-TermShmemLine * CreateRawTermLine();
+TermShmemLinePtr CreateTermLinePtr();

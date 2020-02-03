@@ -24,11 +24,9 @@ public:
     virtual ~TermShmemCell() = default;
 
     virtual CellStorage * GetStorage() = 0;
-    virtual void SetStorage(CellStorage * storage) = 0;
+    virtual void SetStorage(CellStorage * storage, bool release_storage = false) = 0;
 };
 
-using TermCellVector = std::vector<TermCellPtr>;
 using TermShmemCellPtr = std::shared_ptr<TermShmemCell>;
 
 TermShmemCellPtr CreateTermCellPtr();
-TermShmemCell * CreateRawTermCell();

@@ -8,12 +8,25 @@
 #include <iomanip>
 #include <string.h>
 
+#include "smart_object_pool.h"
+
+static
+TermShmemCell * CreateRawTermCell();
+
+SmartObjectPool<TermShmemCell> g_TermCellPool{CreateRawTermCell};
+
 class TermShmemCellImpl : public TermShmemCell {
 public:
     TermShmemCellImpl()
         : PLUGIN_BASE_INIT_LIST("term_shmem_cell", "terminal cell using shared memory plugin", 0)
         , m_Storage {nullptr}
+        , m_ReleaseStorage {false}
     {
+    }
+
+    virtual ~TermShmemCellImpl() {
+        if (m_ReleaseStorage && m_Storage)
+            delete m_Storage;
     }
 
 	PLUGIN_BASE_DEFINE();
@@ -23,8 +36,11 @@ public:
         return m_Storage;
     }
 
-    void SetStorage(CellStorage * storage) override {
+    void SetStorage(CellStorage * storage, bool release_storage = false) override {
+        if (m_ReleaseStorage && m_Storage)
+            delete m_Storage;
         m_Storage = storage;
+        m_ReleaseStorage = release_storage;
     }
 
     wchar_t GetChar() const override {
@@ -97,12 +113,12 @@ public:
 
 private:
     CellStorage * m_Storage;
-
+    bool m_ReleaseStorage;
 };
 
 TermShmemCellPtr CreateTermCellPtr()
 {
-    return TermShmemCellPtr { CreateRawTermCell() };
+    return g_TermCellPool.acquire();
 }
 
 TermShmemCell * CreateRawTermCell() {

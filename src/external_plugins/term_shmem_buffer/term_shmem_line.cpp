@@ -4,14 +4,21 @@
 #include "term_shmem_cell.h"
 #include "term_buffer.h"
 
+#include "smart_object_pool.h"
+
+#include <cstring>
+
+static
+TermShmemLine * CreateRawTermLine();
+
+SmartObjectPool<TermShmemLine> g_TermLinePool{CreateRawTermLine};
+
 class TermShmemLineImpl : public TermShmemLine {
 public:
-    TermShmemLineImpl(TermBuffer * term_buffer) :
+    TermShmemLineImpl() :
         PLUGIN_BASE_INIT_LIST("term_shmem_line", "terminal line using shared memory plugin", 0)
-        , m_TermBuffer(term_buffer)
         , m_Storage {nullptr}
     {
-        (void)m_TermBuffer;
     }
 
 	PLUGIN_BASE_DEFINE();
@@ -22,64 +29,67 @@ public:
     }
 
     void Resize(uint32_t col, TermCellPtr cell_template) override {
-        auto cur_size = m_Cells.size();
-
-        for(auto i = cur_size; i < col; i++) {
-            auto cell = CreateTermCellPtr();
-            cell->Reset(cell_template);
-            cell->SetChar(L' ');
-            m_Cells.push_back(cell);
-        }
-
-        SetModified(true);
+        (void)cell_template;
+        m_Storage->cols = col;
+        m_Storage->modified = true;
     }
 
     TermCellPtr GetCell(uint32_t col) override {
-        if (col >= m_Cells.size()) {
-            printf("invalid col for getcell, col:%u, cols:%zu\n", col, m_Cells.size());
+        if (col >= m_Storage->cols) {
+            printf("invalid col for getcell, col:%u, cols:%u\n", col, m_Storage->cols);
 
             return TermCellPtr{};
         }
 
-        auto cell = m_Cells[col];
-        if (!cell)
-        {
-            cell = CreateTermCellPtr();
-            m_Cells[col] = cell;
-        }
+        CellStorage * cell_storage_begin = (CellStorage *)(m_Storage + 1);
+
+        CellStorage * cur_cell_storage = cell_storage_begin + col;
+
+        auto cell = CreateTermCellPtr();
+        cell->SetStorage(cur_cell_storage);
 
         return cell;
     }
 
     //return the erased extra cell
     TermCellPtr InsertCell(uint32_t col) override {
-        if (col >= m_Cells.size())
+        if (col >= m_Storage->cols)
             return TermCellPtr{};
 
-        TermCellVector::iterator it = m_Cells.begin() + col;
-        m_Cells.insert(it, TermCellPtr{});
+        CellStorage * cell_storage_begin = (CellStorage *)(m_Storage + 1);
+        CellStorage * cell_storage_end = cell_storage_begin + m_Storage->cols;
 
-        it = m_Cells.end() - 1;
+        CellStorage * cur_cell_storage = cell_storage_begin + col;
+        CellStorage * next_cell_storage = cur_cell_storage + 1;
+        CellStorage * last_cell_storage = cell_storage_end - 1;
 
-        TermCellPtr cell = *it;
+        CellStorage * deleted_cell = new CellStorage;
+        auto cell = CreateTermCellPtr();
+        cell->SetStorage(deleted_cell, true);
 
-        if (cell && cell->GetChar() == 0) {
-            it--;
-            cell = *it;
-
-            *it = TermCellPtr{};
+        if (last_cell_storage->c == 0) {
+            last_cell_storage--;
         }
 
-        m_Cells.erase(m_Cells.end() - 1);
+        memcpy(deleted_cell, last_cell_storage, CELL_STORAGE_SIZE);
+        *last_cell_storage = CellStorage{};
+
+        memmove(next_cell_storage, cur_cell_storage, last_cell_storage - cur_cell_storage);
 
         return cell;
     }
 
     bool IsModified() const override {
-        for(auto cell : m_Cells)
-        {
-            if (cell && cell->IsModified())
+        if (m_Storage->modified)
+            return true;
+
+        CellStorage * cell_storage_begin = (CellStorage *)(m_Storage + 1);
+        CellStorage * cell_storage_end = cell_storage_begin + m_Storage->cols;
+
+        while (cell_storage_begin < cell_storage_end) {
+            if (cell_storage_begin->modified)
                 return true;
+            cell_storage_begin++;
         }
 
         return false;
@@ -105,11 +115,14 @@ public:
         m_Storage  = storage;
     }
 private:
-    TermBuffer * m_TermBuffer;
     LineStorage * m_Storage;
 };
 
-TermShmemLinePtr CreateTermLinePtr(TermBuffer * term_buffer)
+TermShmemLinePtr CreateTermLinePtr()
 {
-    return TermShmemLinePtr{ new TermShmemLine(term_buffer) };
+    return g_TermLinePool.acquire();
+}
+
+TermShmemLine * CreateRawTermLine() {
+    return new TermShmemLineImpl();
 }

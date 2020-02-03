@@ -1,9 +1,8 @@
 #pragma once
 
-#include "default_term_line.h"
+#include "term_shmem_line.h"
 #include "term_shmem_cell.h"
 #include "term_shmem_storage.h"
-#include "smart_object_pool.h"
 
 #include <bitset>
 
@@ -97,8 +96,10 @@ private:
                                                                  uint32_t count,
                                                                  uint32_t & end);
     bool HasScrollRegion();
-    void ClearHistoryLinesData();
-    uint32_t RowToLineIndex(uint32_t row);
+    void ResetLineWithTemplate(LineStorage * line, TermCellPtr cell_template);
+    void ResetLinesWithLine(LineStorage * begin_line,
+                            LineStorage * end_line,
+                            LineStorage * line_template);
 
     TermShmemBuffer * m_TermBuffer;
     uint32_t m_Rows;
@@ -110,18 +111,11 @@ private:
     uint32_t m_ScrollRegionBegin;
     uint32_t m_ScrollRegionEnd;
 
-    TermLineVector m_Lines;
-
     TermSelectionPtr m_Selection;
 
-    uint32_t m_VisRowHeaderBegin;
-    uint32_t m_VisRowScrollRegionBegin;
-    uint32_t m_VisRowFooterBegin;
     std::bitset<16> m_Mode;
 
     TermShmemStoragePtr m_Storage;
-    SmartObjectPool<TermShmemCell> m_TermCellPool;
-    SmartObjectPool<TermLine> m_TermLinePool;
 };
 
 using InternalTermShmemBufferPtr = std::shared_ptr<InternalTermShmemBuffer>;
