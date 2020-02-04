@@ -30,8 +30,8 @@ wxCoord PADDING = 5;
 
 #define TIMER_ID (-1)
 
-#define USE_IDLE_EVENT 0
-#define USE_REQUEST_FRESH 1
+#define USE_IDLE_EVENT 1
+#define USE_REQUEST_FRESH 0
 
 #define FPS (30)
 constexpr wxDouble REFRESH_DELTA = (1000.0 / FPS);
@@ -249,17 +249,19 @@ void DrawPane::OnIdle(wxIdleEvent& evt)
     (void)evt;
 
 #if USE_IDLE_EVENT
-    try {
-        wxLongLong now = wxGetLocalTimeMillis();
+    wxLongLong now = wxGetLocalTimeMillis();
 
-        if (now - REFRESH_DELTA >= m_LastPaintTime) {
-            m_LastPaintTime = wxGetLocalTimeMillis();
+    if (now - REFRESH_DELTA >= m_LastPaintTime) {
+        m_RefreshNow = 1;
+        PaintOnDemand();
 
-            m_RefreshNow = 1;
-            PaintOnDemand();
-        }
-    }catch(...) {
-        std::cerr << "on idle paint error" << std::endl;
+        std::cout << "idle paint time:"
+                  << now
+                  << ","
+                  << (wxGetLocalTimeMillis() - now)
+                  << std::endl;
+
+        m_LastPaintTime = wxGetLocalTimeMillis();
     }
 
     evt.RequestMore();
@@ -304,9 +306,14 @@ void DrawPane::InitColorTable()
 void DrawPane::OnTimer(wxTimerEvent& event)
 {
     (void)event;
+    wxLongLong now = wxGetLocalTimeMillis();
 #if USE_REQUEST_FRESH
     PaintOnDemand();
 #endif
+    m_LastPaintTime = wxGetLocalTimeMillis();
+
+    std::cout << "paint time:" << (m_LastPaintTime - now)
+              << std::endl;
 }
 
 void DrawPane::OnRefreshEvent(wxCommandEvent& event)

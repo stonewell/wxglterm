@@ -181,12 +181,22 @@ void TermDataHandlerImpl::OnData(const std::vector<unsigned char> & data, size_t
 #else
     if (m_Stopped || data_len == 0)
         return;
+    std::chrono::high_resolution_clock::time_point start = std::chrono::high_resolution_clock::now();
+
 
     for (size_t i = 0; i < data_len; i++) {
         ProcessSingleChar((const char*)&data[i]);
     }
 
     ProcessSingleChar(NULL);
+
+    std::chrono::high_resolution_clock::time_point end = std::chrono::high_resolution_clock::now();
+
+    std::cout << "\tprocess data time:" << (std::chrono::duration_cast<std::chrono::microseconds>(end - start).count() / 1000)
+              << ", len:"
+              << data_len
+              << std::endl;
+
     m_DataContext.term_window->Refresh();
 #endif
 }

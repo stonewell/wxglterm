@@ -96,6 +96,8 @@ configure_file(wxglterm.json.in wxglterm.json)
 configure_file(wxglterm_install.json.in wxglterm_install.json)
 configure_file(wxglterm.desktop.in wxglterm.desktop)
 
+FIND_PACKAGE(Boost 1.62 REQUIRED)
+
 IF (APPLE)
    EXEC_PROGRAM(uname ARGS -v  OUTPUT_VARIABLE DARWIN_VERSION)
    STRING(REGEX MATCH "[0-9]+" DARWIN_VERSION ${DARWIN_VERSION})

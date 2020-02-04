@@ -17,6 +17,7 @@ ENDIF()
 
 ADD_SUBDIRECTORY(term_input_handler)
 ADD_SUBDIRECTORY(term_buffer)
+ADD_SUBDIRECTORY(term_shmem_buffer)
 
 IF (BUILD_SCINTILLA_EDITOR)
 ADD_SUBDIRECTORY(scintilla_editor)

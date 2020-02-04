@@ -11,7 +11,7 @@
 #if defined(__APPLE__)
 #define USE_TEXT_BLOB 1
 #else
-#define USE_TEXT_BLOB 0
+#define USE_TEXT_BLOB 1
 #endif
 
 class DrawPane : public wxWindow {
