@@ -33,7 +33,7 @@ public:
     virtual void AddMode(uint32_t m) = 0;
     virtual void RemoveMode(uint32_t m) = 0;
 
-    virtual void Reset(TermCellPtr cell) = 0;
+    virtual void Reset(const TermCellPtr & cell) = 0;
 
     virtual bool IsWideChar() const = 0;
     virtual void SetWideChar(bool wide_char) = 0;

@@ -85,7 +85,7 @@ public:
         m_Storage->modified = true;
     }
 
-    void Reset(TermCellPtr cell) override {
+    void Reset(const TermCellPtr & cell) override {
         m_Storage->c = cell->GetChar();
         m_Storage->fore = cell->GetForeColorIndex();
         m_Storage->back = cell->GetBackColorIndex();

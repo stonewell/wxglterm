@@ -86,7 +86,7 @@ TARGET_LINK_LIBRARIES(term_direct_gl_ui PRIVATE
   ${FREETYPE_LIBRARIES}
   ${freetype-direct-gl_LIBRARIES}
   ${FONTCONFIG_LIBRARY}
-  ${GLEW_LIBRARY}
+  GLEW
   ${GLFW_HACK_FIX_LIB}
   )
 

@@ -64,22 +64,22 @@ void TermShmemBuffer::SetCol(uint32_t col) {
 
 TermLinePtr TermShmemBuffer::GetLine(uint32_t row) {
     std::lock_guard<std::recursive_mutex> guard(m_UpdateLock);
-    return m_Buffers[m_CurBuffer]->GetLine(row);
+    return std::move(m_Buffers[m_CurBuffer]->GetLine(row));
 }
 
 TermCellPtr TermShmemBuffer::GetCell(uint32_t row, uint32_t col) {
     std::lock_guard<std::recursive_mutex> guard(m_UpdateLock);
-    return m_Buffers[m_CurBuffer]->GetCell(row, col);
+    return std::move(m_Buffers[m_CurBuffer]->GetCell(row, col));
 }
 
 TermLinePtr TermShmemBuffer::GetCurLine() {
     std::lock_guard<std::recursive_mutex> guard(m_UpdateLock);
-    return m_Buffers[m_CurBuffer]->GetCurLine();
+    return std::move(m_Buffers[m_CurBuffer]->GetCurLine());
 }
 
 TermCellPtr TermShmemBuffer::GetCurCell() {
     std::lock_guard<std::recursive_mutex> guard(m_UpdateLock);
-    return m_Buffers[m_CurBuffer]->GetCurCell();
+    return std::move(m_Buffers[m_CurBuffer]->GetCurCell());
 }
 
 uint32_t TermShmemBuffer::GetScrollRegionBegin() {
@@ -133,7 +133,7 @@ void TermShmemBuffer::SetCellDefaults(wchar_t c,
 }
 
 TermCellPtr TermShmemBuffer::CreateCellWithDefaults() {
-    auto cell = CreateTermCellPtr();
+    auto cell = std::move(CreateTermCellPtr());
     CellStorage * cur_cell_storage = new CellStorage;
     cell->SetStorage(cur_cell_storage, true);
 

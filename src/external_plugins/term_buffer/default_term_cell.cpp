@@ -62,7 +62,7 @@ public:
         m_Mode.reset(m);
     }
 
-    void Reset(TermCellPtr cell) override {
+    void Reset(const TermCellPtr & cell) override {
         m_Char = cell->GetChar();
         m_ForeColorIdx = cell->GetForeColorIndex();
         m_BackColorIdx = cell->GetBackColorIndex();

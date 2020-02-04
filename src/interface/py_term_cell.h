@@ -41,7 +41,7 @@ public:
         PYBIND11_OVERLOAD_PURE_NAME(void, TermCellBase, "remove_mode", RemoveMode, m);
     }
 
-    void Reset(TermCellPtr cell) override {
+    void Reset(const TermCellPtr & cell) override {
         PYBIND11_OVERLOAD_PURE_NAME(void, TermCellBase, "reset", Reset, cell);
     }
 
