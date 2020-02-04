@@ -7,6 +7,7 @@
 #include "smart_object_pool.h"
 
 #include <cstring>
+#include <cassert>
 
 static
 TermShmemLine * CreateRawTermLine();
@@ -37,6 +38,7 @@ public:
     TermCellPtr GetCell(uint32_t col) override {
         if (col >= m_Storage->cols) {
             printf("invalid col for getcell, col:%u, cols:%u\n", col, m_Storage->cols);
+            assert(false);
 
             return TermCellPtr{};
         }
@@ -72,7 +74,7 @@ public:
         }
 
         memcpy(deleted_cell, last_cell_storage, CELL_STORAGE_SIZE);
-        *last_cell_storage = CellStorage{};
+        memset((uint8_t*)last_cell_storage, 0, CELL_STORAGE_SIZE);
 
         memmove(next_cell_storage, cur_cell_storage, last_cell_storage - cur_cell_storage);
 
