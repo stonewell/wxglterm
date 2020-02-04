@@ -36,47 +36,26 @@ public:
     }
 
     TermCellPtr GetCell(uint32_t col) override {
-        if (col >= m_Storage->cols) {
-            printf("invalid col for getcell, col:%u, cols:%u\n", col, m_Storage->cols);
-            assert(false);
+        auto cell_storage = ::GetCell(m_Storage, col);
 
+        if (!cell_storage)
             return TermCellPtr{};
-        }
-
-        CellStorage * cell_storage_begin = (CellStorage *)(m_Storage + 1);
-
-        CellStorage * cur_cell_storage = cell_storage_begin + col;
 
         auto cell = CreateTermCellPtr();
-        cell->SetStorage(cur_cell_storage);
+        cell->SetStorage(cell_storage);
 
         return cell;
     }
 
     //return the erased extra cell
     TermCellPtr InsertCell(uint32_t col) override {
-        if (col >= m_Storage->cols)
+        CellStorage * deleted_cell = ::InsertCell(m_Storage, col);
+
+        if (!deleted_cell)
             return TermCellPtr{};
 
-        CellStorage * cell_storage_begin = (CellStorage *)(m_Storage + 1);
-        CellStorage * cell_storage_end = cell_storage_begin + m_Storage->cols;
-
-        CellStorage * cur_cell_storage = cell_storage_begin + col;
-        CellStorage * next_cell_storage = cur_cell_storage + 1;
-        CellStorage * last_cell_storage = cell_storage_end - 1;
-
-        CellStorage * deleted_cell = new CellStorage;
         auto cell = CreateTermCellPtr();
         cell->SetStorage(deleted_cell, true);
-
-        if (last_cell_storage->c == 0) {
-            last_cell_storage--;
-        }
-
-        memcpy(deleted_cell, last_cell_storage, CELL_STORAGE_SIZE);
-        memset((uint8_t*)last_cell_storage, 0, CELL_STORAGE_SIZE);
-
-        memmove(next_cell_storage, cur_cell_storage, last_cell_storage - cur_cell_storage);
 
         return cell;
     }
@@ -127,4 +106,44 @@ TermShmemLinePtr CreateTermLinePtr()
 
 TermShmemLine * CreateRawTermLine() {
     return new TermShmemLineImpl();
+}
+
+CellStorage * InsertCell(LineStorage * line, uint32_t col) {
+    if (col >= line->cols)
+        return nullptr;
+
+    CellStorage * cell_storage_begin = (CellStorage *)(line + 1);
+    CellStorage * cell_storage_end = cell_storage_begin + line->cols;
+
+    CellStorage * cur_cell_storage = cell_storage_begin + col;
+    CellStorage * next_cell_storage = cur_cell_storage + 1;
+    CellStorage * last_cell_storage = cell_storage_end - 1;
+
+    CellStorage * deleted_cell = new CellStorage;
+
+    if (last_cell_storage->c == 0) {
+        last_cell_storage--;
+    }
+
+    memcpy(deleted_cell, last_cell_storage, CELL_STORAGE_SIZE);
+    memset((uint8_t*)last_cell_storage, 0, CELL_STORAGE_SIZE);
+
+    memmove(next_cell_storage, cur_cell_storage, last_cell_storage - cur_cell_storage);
+
+    return deleted_cell;
+}
+
+CellStorage * GetCell(LineStorage * line, uint32_t col) {
+    if (col >= line->cols) {
+        printf("invalid col for getcell, col:%u, cols:%u\n", col, line->cols);
+        assert(false);
+
+        return nullptr;
+    }
+
+    CellStorage * cell_storage_begin = (CellStorage *)(line + 1);
+
+    CellStorage * cur_cell_storage = cell_storage_begin + col;
+
+    return cur_cell_storage;
 }

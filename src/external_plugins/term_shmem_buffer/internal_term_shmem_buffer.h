@@ -41,11 +41,11 @@ public:
     TermCellPtr GetCell(uint32_t row, uint32_t col);
 
     TermLinePtr GetCurLine() {
-        return GetLine(GetRow());
+        return std::move(GetLine(GetRow()));
     }
 
     TermCellPtr GetCurCell() {
-        return GetCell(GetRow(), GetCol());
+        return std::move(GetCell(GetRow(), GetCol()));
     }
 
     uint32_t GetScrollRegionBegin() const {
@@ -91,15 +91,23 @@ public:
     void RemoveMode(uint32_t m);
 
 private:
-    bool IsDefaultCell(TermCellPtr pcell);
+    void DeleteLines(uint32_t begin, uint32_t count, const CellStorage * cell_template);
+    void InsertLines(uint32_t begin, uint32_t count, const CellStorage * cell_template);
+    void ScrollBuffer(int32_t scroll_offset, const CellStorage * cell_template);
+    bool MoveCurRow(uint32_t offset, bool move_down, bool scroll_buffer, const CellStorage * cell_template);
+    void SetCurCellData(uint32_t ch, bool wide_char, bool insert, const CellStorage * cell_template);
+    bool IsDefaultCell(CellStorage * pcell);
     bool __NormalizeBeginEndPositionResetLinesWhenDeleteOrInsert(uint32_t & begin,
                                                                  uint32_t count,
                                                                  uint32_t & end);
     bool HasScrollRegion();
-    void ResetLineWithTemplate(LineStorage * line, TermCellPtr cell_template);
+    void ResetLineWithTemplate(LineStorage * line, const CellStorage * cell_template);
     void ResetLinesWithLine(LineStorage * begin_line,
                             LineStorage * end_line,
                             LineStorage * line_template);
+
+    LineStorage * __GetLine(uint32_t row);
+    CellStorage * __GetCell(uint32_t row, uint32_t col);
 
     TermShmemBuffer * m_TermBuffer;
     uint32_t m_Rows;

@@ -4,10 +4,6 @@
 #include <vector>
 
 struct CellStorage {
-    CellStorage()
-        : modified {false} {
-    }
-
     wchar_t c;
     uint32_t fore;
     uint32_t back;
@@ -30,3 +26,4 @@ public:
 using TermShmemCellPtr = std::shared_ptr<TermShmemCell>;
 
 TermShmemCellPtr CreateTermCellPtr();
+void ResetCell(CellStorage * cell_storage, const TermCellPtr & cell);

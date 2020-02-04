@@ -125,6 +125,16 @@ void InternalTermShmemBuffer::SetCurCellData(uint32_t ch,
                                              bool wide_char,
                                              bool insert,
                                              TermCellPtr cell_template) {
+    auto cell = std::dynamic_pointer_cast<TermShmemCell>(cell_template);
+
+    SetCurCellData(ch, wide_char, insert,
+                   cell->GetStorage());
+}
+
+void InternalTermShmemBuffer::SetCurCellData(uint32_t ch,
+                                             bool wide_char,
+                                             bool insert,
+                                             const CellStorage * cell_template) {
     int new_cell_count = wide_char ? 2 : 1;
 
     if (m_TermBuffer->m_Debug)
@@ -137,43 +147,43 @@ void InternalTermShmemBuffer::SetCurCellData(uint32_t ch,
             SetCol(0);
         }
 
-        TermCellPtr cell = GetCurCell();
+        auto cell_storage = __GetCell(GetRow(), GetCol());
 
-        if (!cell) return;
+        if (!cell_storage) return;
 
-        cell->Reset(cell_template);
-        cell->SetChar((wchar_t)ch);
-        cell->SetWideChar(wide_char);
+        memmove(cell_storage, cell_template, CELL_STORAGE_SIZE);
+        cell_storage->c = (wchar_t)ch;
+        cell_storage->w = wide_char;
         SetCol(m_CurCol + 1);
 
         if (wide_char) {
-            cell = GetCurCell();
-            cell->Reset(cell_template);
-            cell->SetChar((wchar_t)0);
+            auto cell_storage = __GetCell(GetRow(), GetCol());
+            memmove(cell_storage, cell_template, CELL_STORAGE_SIZE);
+            cell_storage->c = (wchar_t)0;
             SetCol(m_CurCol + 1);
         }
     } else {
         uint32_t saved_row = m_CurRow;
         uint32_t saved_col = m_CurCol;
 
-        TermLinePtr line = GetLine(m_CurRow);
+        auto line_storage = __GetLine(m_CurRow);
 
-        TermCellPtr extra_cell = line->InsertCell(m_CurCol);
+        auto extra_cell = ::InsertCell(line_storage, m_CurCol);
 
-        TermCellPtr cell = line->GetCell(m_CurCol);
-        cell->Reset(cell_template);
-        cell->SetChar((wchar_t)ch);
-        cell->SetWideChar(wide_char);
+        auto cell_storage = ::GetCell(line_storage, m_CurCol);
+        memmove(cell_storage, cell_template, CELL_STORAGE_SIZE);
+        cell_storage->c = (wchar_t)ch;
+        cell_storage->w = wide_char;
         SetCol(m_CurCol + 1);
 
-        TermCellPtr extra_cell_2{};
+        CellStorage * extra_cell_2 {nullptr};
 
         if (wide_char) {
-            extra_cell_2 = line->InsertCell(m_CurCol);
+            extra_cell_2 = ::InsertCell(line_storage, m_CurCol);
 
-            cell = line->GetCell(m_CurCol);
-            cell->Reset(cell_template);
-            cell->SetChar((wchar_t)0);
+            cell_storage = ::GetCell(line_storage, m_CurCol);
+            memmove(cell_storage, cell_template, CELL_STORAGE_SIZE);
+            cell_storage->c = (wchar_t)0;
             SetCol(m_CurCol + 1);
         }
 
@@ -184,15 +194,15 @@ void InternalTermShmemBuffer::SetCurCellData(uint32_t ch,
             if (m_CurRow > saved_row)
             {
                 if (!IsDefaultCell(extra_cell)) {
-                    SetCurCellData((uint32_t)extra_cell->GetChar(),
-                                   extra_cell->IsWideChar(),
+                    SetCurCellData((uint32_t)extra_cell->c,
+                                   extra_cell->w,
                                    insert,
                                    extra_cell);
                 }
 
                 if (!IsDefaultCell(extra_cell_2)) {
-                    SetCurCellData((uint32_t)extra_cell_2->GetChar(),
-                                   extra_cell_2->IsWideChar(),
+                    SetCurCellData((uint32_t)extra_cell_2->c,
+                                   extra_cell_2->w,
                                    insert,
                                    extra_cell_2);
                 }
@@ -207,47 +217,69 @@ void InternalTermShmemBuffer::SetCurCellData(uint32_t ch,
         SetCol(m_Cols - 1);
 }
 
-bool InternalTermShmemBuffer::IsDefaultCell(TermCellPtr cell) {
+bool InternalTermShmemBuffer::IsDefaultCell(CellStorage * cell) {
     if (!cell)
         return true;
 
-    TermShmemCellPtr shmem_cell = std::dynamic_pointer_cast<TermShmemCell>(cell);
-    if (!memcmp(EMPTY_CELL_STORAGE, shmem_cell->GetStorage(), CELL_STORAGE_SIZE))
+    if (!memcmp(EMPTY_CELL_STORAGE, cell, CELL_STORAGE_SIZE))
         return true;
 
-    return (cell->GetChar() == ' ' &&
-            cell->GetForeColorIndex() == m_TermBuffer->m_DefaultForeColorIndex &&
-            cell->GetBackColorIndex() == m_TermBuffer->m_DefaultBackColorIndex &&
-            cell->GetMode() == m_TermBuffer->m_DefaultMode);
+    return (cell->c == ' ' &&
+            cell->fore == m_TermBuffer->m_DefaultForeColorIndex &&
+            cell->back == m_TermBuffer->m_DefaultBackColorIndex &&
+            cell->mode == m_TermBuffer->m_DefaultMode);
 }
 
 TermLinePtr InternalTermShmemBuffer::GetLine(uint32_t row) {
-    if (row < GetRows()) {
-        auto buf = m_Storage->GetAddress();
-        size_t line_size = LINE_STORAGE_SIZE + CELL_STORAGE_SIZE * GetCols();
-        LineStorage * line_storage = (LineStorage *)(buf + line_size * row);
+    auto line_storage = __GetLine(row);
 
-        auto line = CreateTermLinePtr();
+    if (line_storage) {
+        auto line = std::move(CreateTermLinePtr());
         line->SetStorage(line_storage);
 
         return line;
     }
 
-    printf("invalid row:%u, rows:%u\n", row, GetRows());
-    assert(false);
     return TermLinePtr{};
 }
 
 TermCellPtr InternalTermShmemBuffer::GetCell(uint32_t row, uint32_t col) {
-    auto line = GetLine(row);
+    auto cell_storage = __GetCell(row, col);
 
-    if (line)
-        return line->GetCell(col);
+    if (cell_storage) {
+        auto cell = std::move(CreateTermCellPtr());
+        cell->SetStorage(cell_storage);
+
+        return cell;
+    }
 
     return TermCellPtr{};
 }
 
-void InternalTermShmemBuffer::ResetLineWithTemplate(LineStorage * line, TermCellPtr cell_template) {
+LineStorage * InternalTermShmemBuffer::__GetLine(uint32_t row) {
+    if (row < GetRows()) {
+        auto buf = m_Storage->GetAddress();
+        size_t line_size = LINE_STORAGE_SIZE + CELL_STORAGE_SIZE * GetCols();
+        LineStorage * line_storage = (LineStorage *)(buf + line_size * row);
+
+        return line_storage;
+    }
+
+    printf("invalid row:%u, rows:%u\n", row, GetRows());
+    assert(false);
+    return nullptr;
+}
+
+CellStorage * InternalTermShmemBuffer::__GetCell(uint32_t row, uint32_t col) {
+    auto line = __GetLine(row);
+
+    if (line)
+        return ::GetCell(line, col);
+
+    return nullptr;
+}
+
+void InternalTermShmemBuffer::ResetLineWithTemplate(LineStorage * line, const CellStorage * cell_template) {
     //create a default line then copy line to the left lines
     line->cols = GetCols();
     line->last_render_index = GetRows();
@@ -256,12 +288,7 @@ void InternalTermShmemBuffer::ResetLineWithTemplate(LineStorage * line, TermCell
     CellStorage * cell = (CellStorage *)(line + 1);
 
     for(uint32_t i=0;i < GetCols(); i++) {
-        cell->c = cell_template->GetChar();
-        cell->fore = cell_template->GetForeColorIndex();
-        cell->back = cell_template->GetBackColorIndex();
-        cell->mode = cell_template->GetMode();
-        cell->w = cell_template->IsWideChar();
-        cell->modified = true;
+        memmove(cell, cell_template, CELL_STORAGE_SIZE);
         cell++;
     }
 }
@@ -278,6 +305,12 @@ void InternalTermShmemBuffer::ResetLinesWithLine(LineStorage * begin_line,
 }
 
 void InternalTermShmemBuffer::DeleteLines(uint32_t begin, uint32_t count, TermCellPtr cell_template) {
+    auto cell = std::dynamic_pointer_cast<TermShmemCell>(cell_template);
+
+    DeleteLines(begin, count, cell->GetStorage());
+}
+
+void InternalTermShmemBuffer::DeleteLines(uint32_t begin, uint32_t count, const CellStorage * cell_template) {
     uint32_t end = m_Rows;
 
     if (__NormalizeBeginEndPositionResetLinesWhenDeleteOrInsert(begin,
@@ -307,6 +340,12 @@ void InternalTermShmemBuffer::DeleteLines(uint32_t begin, uint32_t count, TermCe
 }
 
 void InternalTermShmemBuffer::InsertLines(uint32_t begin, uint32_t count, TermCellPtr cell_template) {
+    auto cell = std::dynamic_pointer_cast<TermShmemCell>(cell_template);
+
+    InsertLines(begin, count, cell->GetStorage());
+}
+
+void InternalTermShmemBuffer::InsertLines(uint32_t begin, uint32_t count, const CellStorage * cell_template) {
     uint32_t end = m_Rows;
 
     if (__NormalizeBeginEndPositionResetLinesWhenDeleteOrInsert(begin,
@@ -334,6 +373,12 @@ void InternalTermShmemBuffer::InsertLines(uint32_t begin, uint32_t count, TermCe
 }
 
 void InternalTermShmemBuffer::ScrollBuffer(int32_t scroll_offset, TermCellPtr cell_template) {
+    auto cell = std::dynamic_pointer_cast<TermShmemCell>(cell_template);
+
+    ScrollBuffer(scroll_offset, cell->GetStorage());
+}
+
+void InternalTermShmemBuffer::ScrollBuffer(int32_t scroll_offset, const CellStorage * cell_template) {
     uint32_t begin = 0;
     uint32_t end = 0;
 
@@ -369,7 +414,19 @@ void InternalTermShmemBuffer::ScrollBuffer(int32_t scroll_offset, TermCellPtr ce
     }
 }
 
-bool InternalTermShmemBuffer::MoveCurRow(uint32_t offset, bool move_down, bool scroll_buffer, TermCellPtr cell_template) {
+bool InternalTermShmemBuffer::MoveCurRow(uint32_t offset,
+                                         bool move_down,
+                                         bool scroll_buffer,
+                                         TermCellPtr cell_template) {
+    auto cell = std::dynamic_pointer_cast<TermShmemCell>(cell_template);
+
+    return MoveCurRow(offset, move_down, scroll_buffer, cell->GetStorage());
+}
+
+bool InternalTermShmemBuffer::MoveCurRow(uint32_t offset,
+                                         bool move_down,
+                                         bool scroll_buffer,
+                                         const CellStorage * cell_template) {
     uint32_t begin = 0, end = GetRows() - 1;
 
     bool scrolled = false;

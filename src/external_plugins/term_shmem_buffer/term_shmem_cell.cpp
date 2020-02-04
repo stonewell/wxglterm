@@ -124,3 +124,12 @@ TermShmemCellPtr CreateTermCellPtr()
 TermShmemCell * CreateRawTermCell() {
     return new TermShmemCellImpl();
 }
+
+void ResetCell(CellStorage * cell_storage, const TermCellPtr & cell) {
+    cell_storage->c = cell->GetChar();
+    cell_storage->fore = cell->GetForeColorIndex();
+    cell_storage->back = cell->GetBackColorIndex();
+    cell_storage->mode = cell->GetMode();
+    cell_storage->w = cell->IsWideChar();
+    cell_storage->modified = true;
+}
