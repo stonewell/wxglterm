@@ -59,11 +59,11 @@ public:
     void SetScrollRegionBegin(uint32_t begin);
     void SetScrollRegionEnd(uint32_t end);
 
-    void DeleteLines(uint32_t begin, uint32_t count, TermCellPtr cell_template);
-    void InsertLines(uint32_t begin, uint32_t count, TermCellPtr cell_template);
+    void DeleteLines(uint32_t begin, uint32_t count, const TermCellPtr & cell_template);
+    void InsertLines(uint32_t begin, uint32_t count, const TermCellPtr & cell_template);
 
-    void ScrollBuffer(int32_t scroll_offset, TermCellPtr cell_template);
-    bool MoveCurRow(uint32_t offset, bool move_down, bool scroll_buffer, TermCellPtr cell_template);
+    void ScrollBuffer(int32_t scroll_offset, const TermCellPtr & cell_template);
+    bool MoveCurRow(uint32_t offset, bool move_down, bool scroll_buffer, const TermCellPtr & cell_template);
 
     void SetSelection(TermSelectionPtr selection) {
         m_Selection->SetRowBegin(selection->GetRowBegin());
@@ -83,7 +83,7 @@ public:
         m_Selection->SetColEnd(0);
     }
 
-    void SetCurCellData(uint32_t ch, bool wide_char, bool insert, TermCellPtr cell_template);
+    void SetCurCellData(uint32_t ch, bool wide_char, bool insert, const TermCellPtr & cell_template);
 
     uint32_t GetMode() const;
     void SetMode(uint32_t m);

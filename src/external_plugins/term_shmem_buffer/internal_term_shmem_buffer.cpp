@@ -124,7 +124,7 @@ bool  InternalTermShmemBuffer::__NormalizeBeginEndPositionResetLinesWhenDeleteOr
 void InternalTermShmemBuffer::SetCurCellData(uint32_t ch,
                                              bool wide_char,
                                              bool insert,
-                                             TermCellPtr cell_template) {
+                                             const TermCellPtr & cell_template) {
     auto cell = std::dynamic_pointer_cast<TermShmemCell>(cell_template);
 
     SetCurCellData(ch, wide_char, insert,
@@ -304,7 +304,7 @@ void InternalTermShmemBuffer::ResetLinesWithLine(LineStorage * begin_line,
     }
 }
 
-void InternalTermShmemBuffer::DeleteLines(uint32_t begin, uint32_t count, TermCellPtr cell_template) {
+void InternalTermShmemBuffer::DeleteLines(uint32_t begin, uint32_t count, const TermCellPtr & cell_template) {
     auto cell = std::dynamic_pointer_cast<TermShmemCell>(cell_template);
 
     DeleteLines(begin, count, cell->GetStorage());
@@ -339,7 +339,7 @@ void InternalTermShmemBuffer::DeleteLines(uint32_t begin, uint32_t count, const 
     ResetLinesWithLine(copy_end_line, end_line, copy_end_line);
 }
 
-void InternalTermShmemBuffer::InsertLines(uint32_t begin, uint32_t count, TermCellPtr cell_template) {
+void InternalTermShmemBuffer::InsertLines(uint32_t begin, uint32_t count, const TermCellPtr & cell_template) {
     auto cell = std::dynamic_pointer_cast<TermShmemCell>(cell_template);
 
     InsertLines(begin, count, cell->GetStorage());
@@ -372,7 +372,7 @@ void InternalTermShmemBuffer::InsertLines(uint32_t begin, uint32_t count, const 
     ResetLinesWithLine(begin_line, dest_begin_line, begin_line);
 }
 
-void InternalTermShmemBuffer::ScrollBuffer(int32_t scroll_offset, TermCellPtr cell_template) {
+void InternalTermShmemBuffer::ScrollBuffer(int32_t scroll_offset, const TermCellPtr & cell_template) {
     auto cell = std::dynamic_pointer_cast<TermShmemCell>(cell_template);
 
     ScrollBuffer(scroll_offset, cell->GetStorage());
@@ -417,7 +417,7 @@ void InternalTermShmemBuffer::ScrollBuffer(int32_t scroll_offset, const CellStor
 bool InternalTermShmemBuffer::MoveCurRow(uint32_t offset,
                                          bool move_down,
                                          bool scroll_buffer,
-                                         TermCellPtr cell_template) {
+                                         const TermCellPtr & cell_template) {
     auto cell = std::dynamic_pointer_cast<TermShmemCell>(cell_template);
 
     return MoveCurRow(offset, move_down, scroll_buffer, cell->GetStorage());

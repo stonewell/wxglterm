@@ -89,24 +89,24 @@ public:
         (void)end;
     }
 
-    void DeleteLines(uint32_t begin, uint32_t count, TermCellPtr cell_template) {
+    void DeleteLines(uint32_t begin, uint32_t count, const TermCellPtr & cell_template) {
         (void)begin;
         (void)count;
         (void)cell_template;
     }
 
-    void InsertLines(uint32_t begin, uint32_t count, TermCellPtr cell_template) {
+    void InsertLines(uint32_t begin, uint32_t count, const TermCellPtr & cell_template) {
         (void)begin;
         (void)count;
         (void)cell_template;
     }
 
-    void ScrollBuffer(int32_t scroll_offset, TermCellPtr cell_template) {
+    void ScrollBuffer(int32_t scroll_offset, const TermCellPtr & cell_template) {
         (void)scroll_offset;
         (void)cell_template;
     }
 
-    bool MoveCurRow(uint32_t offset, bool move_down, bool scroll_buffer, TermCellPtr cell_template) {
+    bool MoveCurRow(uint32_t offset, bool move_down, bool scroll_buffer, const TermCellPtr & cell_template) {
         (void)offset;
         (void)move_down;
         (void)scroll_buffer;
@@ -140,7 +140,7 @@ public:
 
     }
 
-    void SetCurCellData(uint32_t ch, bool wide_char, bool insert, TermCellPtr cell_template) {
+    void SetCurCellData(uint32_t ch, bool wide_char, bool insert, const TermCellPtr & cell_template) {
         (void)ch;
         (void)wide_char;
         (void)insert;

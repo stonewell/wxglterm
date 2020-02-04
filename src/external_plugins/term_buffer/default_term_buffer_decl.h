@@ -42,13 +42,13 @@ public:
 
     void SetScrollRegionEnd(uint32_t end) override;
 
-    void DeleteLines(uint32_t begin, uint32_t count, TermCellPtr cell_template) override;
+    void DeleteLines(uint32_t begin, uint32_t count, const TermCellPtr & cell_template) override;
 
-    void InsertLines(uint32_t begin, uint32_t count, TermCellPtr cell_template) override;
+    void InsertLines(uint32_t begin, uint32_t count, const TermCellPtr & cell_template) override;
 
-    void ScrollBuffer(int32_t scroll_offset, TermCellPtr cell_template) override;
+    void ScrollBuffer(int32_t scroll_offset, const TermCellPtr & cell_template) override;
 
-    bool MoveCurRow(uint32_t offset, bool move_down, bool scroll_buffer, TermCellPtr cell_template) override;
+    bool MoveCurRow(uint32_t offset, bool move_down, bool scroll_buffer, const TermCellPtr & cell_template) override;
 
     void SetCellDefaults(wchar_t c,
                          uint32_t fore_color_idx,
@@ -62,7 +62,7 @@ public:
 
     void ClearSelection() override;
 
-    void SetCurCellData(uint32_t ch, bool wide_char, bool insert, TermCellPtr cell_template) override;
+    void SetCurCellData(uint32_t ch, bool wide_char, bool insert, const TermCellPtr & cell_template) override;
 
     void LockUpdate() override;
 

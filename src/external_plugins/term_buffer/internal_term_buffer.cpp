@@ -185,7 +185,7 @@ bool  __InternalTermBuffer::__NormalizeBeginEndPositionResetLinesWhenDeleteOrIns
 void __InternalTermBuffer::SetCurCellData(uint32_t ch,
                                           bool wide_char,
                                           bool insert,
-                                          TermCellPtr cell_template) {
+                                          const TermCellPtr & cell_template) {
     int new_cell_count = wide_char ? 2 : 1;
 
     if (m_TermBuffer->m_Debug)
@@ -295,7 +295,7 @@ TermLinePtr __InternalTermBuffer::GetLine(uint32_t row) {
     return TermLinePtr{};
 }
 
-void __InternalTermBuffer::DeleteLines(uint32_t begin, uint32_t count, TermCellPtr cell_template) {
+void __InternalTermBuffer::DeleteLines(uint32_t begin, uint32_t count, const TermCellPtr & cell_template) {
     uint32_t end = m_Rows;
 
     //delete/insert lines will clear all saved history data
@@ -331,7 +331,7 @@ void __InternalTermBuffer::DeleteLines(uint32_t begin, uint32_t count, TermCellP
     m_Lines.erase(b_it, e_it);
 }
 
-void __InternalTermBuffer::InsertLines(uint32_t begin, uint32_t count, TermCellPtr cell_template) {
+void __InternalTermBuffer::InsertLines(uint32_t begin, uint32_t count, const TermCellPtr & cell_template) {
     uint32_t end = m_Rows;
 
     //delete/insert lines will clear all saved history data
@@ -364,7 +364,7 @@ void __InternalTermBuffer::InsertLines(uint32_t begin, uint32_t count, TermCellP
     m_Lines.insert(b_it, tmpVector.begin(), tmpVector.end());
 }
 
-void __InternalTermBuffer::ScrollBuffer(int32_t scroll_offset, TermCellPtr cell_template) {
+void __InternalTermBuffer::ScrollBuffer(int32_t scroll_offset, const TermCellPtr & cell_template) {
     if (scroll_offset < 0) {
         if (HasScrollRegion()) {
             uint32_t begin = m_VisRowScrollRegionBegin - scroll_offset;
@@ -424,7 +424,7 @@ void __InternalTermBuffer::ScrollBuffer(int32_t scroll_offset, TermCellPtr cell_
     }
 }
 
-bool __InternalTermBuffer::MoveCurRow(uint32_t offset, bool move_down, bool scroll_buffer, TermCellPtr cell_template) {
+bool __InternalTermBuffer::MoveCurRow(uint32_t offset, bool move_down, bool scroll_buffer, const TermCellPtr & cell_template) {
     uint32_t begin = 0, end = GetRows() - 1;
 
     bool scrolled = false;

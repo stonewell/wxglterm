@@ -102,22 +102,22 @@ void TermShmemBuffer::SetScrollRegionEnd(uint32_t end) {
     m_Buffers[m_CurBuffer]->SetScrollRegionEnd(end);
 }
 
-void TermShmemBuffer::DeleteLines(uint32_t begin, uint32_t count, TermCellPtr cell_template) {
+void TermShmemBuffer::DeleteLines(uint32_t begin, uint32_t count, const TermCellPtr & cell_template) {
     std::lock_guard<std::recursive_mutex> guard(m_UpdateLock);
     m_Buffers[m_CurBuffer]->DeleteLines(begin, count, cell_template);
 }
 
-void TermShmemBuffer::InsertLines(uint32_t begin, uint32_t count, TermCellPtr cell_template) {
+void TermShmemBuffer::InsertLines(uint32_t begin, uint32_t count, const TermCellPtr & cell_template) {
     std::lock_guard<std::recursive_mutex> guard(m_UpdateLock);
     m_Buffers[m_CurBuffer]->InsertLines(begin, count, cell_template);
 }
 
-void TermShmemBuffer::ScrollBuffer(int32_t scroll_offset, TermCellPtr cell_template) {
+void TermShmemBuffer::ScrollBuffer(int32_t scroll_offset, const TermCellPtr & cell_template) {
     std::lock_guard<std::recursive_mutex> guard(m_UpdateLock);
     m_Buffers[m_CurBuffer]->ScrollBuffer(scroll_offset, cell_template);
 }
 
-bool TermShmemBuffer::MoveCurRow(uint32_t offset, bool move_down, bool scroll_buffer, TermCellPtr cell_template) {
+bool TermShmemBuffer::MoveCurRow(uint32_t offset, bool move_down, bool scroll_buffer, const TermCellPtr & cell_template) {
     std::lock_guard<std::recursive_mutex> guard(m_UpdateLock);
     return m_Buffers[m_CurBuffer]->MoveCurRow(offset, move_down, scroll_buffer, cell_template);
 }
@@ -160,7 +160,7 @@ void TermShmemBuffer::ClearSelection() {
     m_Buffers[m_CurBuffer]->ClearSelection();
 }
 
-void TermShmemBuffer::SetCurCellData(uint32_t ch, bool wide_char, bool insert, TermCellPtr cell_template) {
+void TermShmemBuffer::SetCurCellData(uint32_t ch, bool wide_char, bool insert, const TermCellPtr & cell_template) {
     std::lock_guard<std::recursive_mutex> guard(m_UpdateLock);
     m_Buffers[m_CurBuffer]->SetCurCellData(ch,
                                           wide_char,
