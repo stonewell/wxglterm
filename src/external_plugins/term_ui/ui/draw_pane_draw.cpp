@@ -390,6 +390,9 @@ void DrawPane::DoPaint(wxDC & dc, TermBufferPtr buffer, bool full_paint, const s
     } else if (wxPaintDC * mmdc = wxDynamicCast(&dc, wxPaintDC)) {
         wxScopedPtr<wxGraphicsContext> gdc{wxGraphicsContext::Create(*mmdc)};
         text_blob.Render(gdc.get());
+    } else {
+        wxScopedPtr<wxGraphicsContext> gdc{wxGraphicsContext::Create(this)};
+        text_blob.Render(gdc.get());
     }
 #endif
 }
@@ -418,11 +421,6 @@ void DrawPane::PaintOnDemand()
 
         wxRegion clipRegion(clientSize);
 
-#if USE_TEXT_BLOB
-        wxBufferedDC bDC(&dc,
-                         GetClientSize());
-#endif
-
         __ScopeLocker buffer_locker(m_Buffer);
         if (m_AppDebug)
             std::cout << "buffer locked to draw" << std::endl;
@@ -449,17 +447,13 @@ void DrawPane::PaintOnDemand()
 
         if (paintChanged)
         {
-             CalculateClipRegion(clipRegion, m_Buffer);
+            CalculateClipRegion(clipRegion, m_Buffer);
 
-             dc.DestroyClippingRegion();
-             dc.SetDeviceClippingRegion(clipRegion);
+            dc.DestroyClippingRegion();
+            dc.SetDeviceClippingRegion(clipRegion);
         }
 
-#if USE_TEXT_BLOB
-        DoPaint(bDC, m_Buffer, !paintChanged);
-#else
         DoPaint(dc, m_Buffer, !paintChanged);
-#endif
 
         if (cell)
             cell->RemoveMode(TermCell::Cursor);

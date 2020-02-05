@@ -88,6 +88,7 @@ void wxTextBlob::DoDrawText(wxGraphicsContext * context, void * rendering_data)
     const FontColourCodepointMap & fcc_map = rdata->fcc_map;
 
     cairo_t * native_context = (cairo_t*)context->GetNativeContext();
+    native_context = cairo_reference(native_context);
 
     for(const auto & it : fcc_map) {
         auto ct = cairo_ft_font_face_create_for_ft_face (it.first, 0);
@@ -129,6 +130,8 @@ void wxTextBlob::DoDrawText(wxGraphicsContext * context, void * rendering_data)
             }
         }
     }
+
+    cairo_destroy(native_context);
 }
 
 void * wxTextBlob::BeginTextRendering() {
