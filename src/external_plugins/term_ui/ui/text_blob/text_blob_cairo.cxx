@@ -60,6 +60,17 @@ typedef struct __RenderingData {
     wxTextBlob::BackgroundRectVector bg_rect_vector;
 } RenderingData;
 
+/* cairo_show_glyphs accepts runs up to 102 glyphs before it allocates a
+ * temporary array.
+ *
+ * Setting this to a large value can cause dramatic slow-downs for some
+ * xservers (notably fglrx), see bug #410534.
+ *
+ * Moreover, setting it larger than %VTE_DRAW_MAX_LENGTH is nonsensical,
+ * as the higher layers will not submit runs longer than that value.
+ */
+#define MAX_RUN_LENGTH 100
+
 void wxTextBlob::DoDrawBackground(wxGraphicsContext * context, void * rendering_data)
 {
     RenderingData * rdata = (RenderingData*)rendering_data;
@@ -105,7 +116,16 @@ void wxTextBlob::DoDrawText(wxGraphicsContext * context, void * rendering_data)
                                       (double)it_glyph.pt.y + fe.ascent});
                 }
 
-                cairo_show_glyphs(native_context, &glyphs[0], glyphs.size());
+                size_t offset = 0;
+                size_t glyphs_count = glyphs.size();
+
+                while(glyphs_count > 0) {
+                    size_t show_count = glyphs_count > MAX_RUN_LENGTH ? MAX_RUN_LENGTH : glyphs_count;
+                    cairo_show_glyphs(native_context, &glyphs[offset], show_count);
+
+                    offset += show_count;
+                    glyphs_count -= show_count;
+                }
             }
         }
     }
@@ -155,7 +175,9 @@ void * wxTextBlob::BeginTextRendering() {
             auto p2 = p1.first->second.insert(std::make_pair((uint32_t)it->fore.GetRGBA(),
                                                              CodepointVector{}));
 
-            p2.first->second.push_back({ch, FT_Get_Char_Index(ft_face, (FT_Long)ch), pt});
+            auto char_index = FT_Get_Char_Index(ft_face, (FT_Long)ch);
+
+            p2.first->second.push_back({ch, char_index, pt});
 
             if (m_GlyphAdvanceX == 0) {
                 pt.x = it->pt.x + extents[i];
