@@ -183,7 +183,7 @@ void DrawPane::DrawContent(wxDC &dc,
     last_mode = mode;
 }
 
-void DrawPane::CalculateClipRegion(wxRegion & clipRegion, TermBufferPtr buffer, const wxRegion & updateRegion)
+void DrawPane::CalculateClipRegion(wxRegion & clipRegion, const TermBufferPtr & buffer, const wxRegion & updateRegion)
 {
     wxRect clientSize = GetClientSize();
 
@@ -219,7 +219,7 @@ bool contains(const std::vector<uint32_t> & rowsToDraw, uint32_t row) {
     return false;
 }
 
-void DrawPane::DoPaint(wxDC & dc, TermBufferPtr buffer, bool full_paint, const std::vector<uint32_t> & rowsToDraw)
+void DrawPane::DoPaint(wxDC & dc, const TermBufferPtr & buffer, bool full_paint, const std::vector<uint32_t> & rowsToDraw)
 {
     __DCAttributesChanger changer(&dc);
 

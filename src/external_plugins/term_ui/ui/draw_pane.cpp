@@ -79,12 +79,12 @@ DrawPane::~DrawPane()
 
 void DrawPane::RequestRefresh()
 {
-#if USE_REQUEST_FRESH
     {
         wxCriticalSectionLocker locker(m_RefreshLock);
         m_RefreshNow++;
     }
 
+#if USE_REQUEST_FRESH
     wxCommandEvent event(MY_REFRESH_EVENT);
 
     // Do send it
@@ -98,7 +98,7 @@ void DrawPane::OnEraseBackground(wxEraseEvent & /*event*/)
 
 void DrawPane::OnPaint(wxPaintEvent & /*event*/)
 {
-    TermBufferPtr buffer = EnsureTermBuffer();
+    TermBufferPtr buffer = std::move(EnsureTermBuffer());
 
     if (!buffer)
         return;
@@ -251,8 +251,7 @@ void DrawPane::OnIdle(wxIdleEvent& evt)
 #if USE_IDLE_EVENT
     wxLongLong now = wxGetLocalTimeMillis();
 
-    if (now - REFRESH_DELTA >= m_LastPaintTime) {
-        m_RefreshNow = 1;
+    if (now - REFRESH_DELTA >= m_LastPaintTime && m_RefreshNow) {
         PaintOnDemand();
 
         std::cout << "idle paint time:"
