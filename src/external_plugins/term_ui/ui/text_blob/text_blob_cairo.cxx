@@ -55,11 +55,6 @@ using ColourCodepointMap = std::unordered_map<uint32_t, CodepointVector>;
 using SizeColourCodepointMap = std::unordered_map<int, ColourCodepointMap>;
 using FontColourCodepointMap = std::unordered_map<FT_Face, SizeColourCodepointMap>;
 
-typedef struct __RenderingData {
-    FontColourCodepointMap fcc_map;
-    wxTextBlob::BackgroundRectVector bg_rect_vector;
-} RenderingData;
-
 /* cairo_show_glyphs accepts runs up to 102 glyphs before it allocates a
  * temporary array.
  *
@@ -70,6 +65,12 @@ typedef struct __RenderingData {
  * as the higher layers will not submit runs longer than that value.
  */
 #define MAX_RUN_LENGTH 100
+
+typedef struct __RenderingData {
+    FontColourCodepointMap fcc_map;
+    wxTextBlob::BackgroundRectVector bg_rect_vector;
+    cairo_glyph_t glyphs[MAX_RUN_LENGTH];
+} RenderingData;
 
 void wxTextBlob::DoDrawBackground(wxGraphicsContext * context, void * rendering_data)
 {
@@ -109,26 +110,26 @@ void wxTextBlob::DoDrawText(wxGraphicsContext * context, void * rendering_data)
                                       (double)fore.Blue() / 255.0,
                                       (double)fore.Alpha()/ 255.0);
 
-                std::vector<cairo_glyph_t> glyphs;
 
+                int glyph_index = 0;
                 for(const auto & it_glyph : it_color.second) {
-                    glyphs.push_back({it_glyph.index,
-                                      (double)it_glyph.pt.x,
-                                      (double)it_glyph.pt.y + fe.ascent});
+                    rdata->glyphs[glyph_index].index = it_glyph.index;
+                    rdata->glyphs[glyph_index].x = (double)it_glyph.pt.x;
+                    rdata->glyphs[glyph_index].y = (double)it_glyph.pt.y + fe.ascent;
+
+                    glyph_index++;
+
+                    if (glyph_index == MAX_RUN_LENGTH) {
+                        cairo_show_glyphs(native_context, rdata->glyphs, MAX_RUN_LENGTH);
+                        glyph_index = 0;
+                    }
                 }
 
-                size_t offset = 0;
-                size_t glyphs_count = glyphs.size();
-
-                while(glyphs_count > 0) {
-                    size_t show_count = glyphs_count > MAX_RUN_LENGTH ? MAX_RUN_LENGTH : glyphs_count;
-                    cairo_show_glyphs(native_context, &glyphs[offset], show_count);
-
-                    offset += show_count;
-                    glyphs_count -= show_count;
+                if (glyph_index > 0) {
+                    cairo_show_glyphs(native_context, rdata->glyphs, glyph_index);
                 }
-            }
-        }
+            } //all color
+        } //all font
     }
 
     cairo_destroy(native_context);

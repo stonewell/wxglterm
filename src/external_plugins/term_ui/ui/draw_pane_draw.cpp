@@ -425,6 +425,8 @@ void DrawPane::PaintOnDemand()
         if (m_AppDebug)
             std::cout << "buffer locked to draw" << std::endl;
 
+        wxLongLong now = wxGetLocalTimeMillis();
+
         bool paintChanged = true;
 
         TermCellPtr cell = m_Buffer->GetCurCell();
@@ -459,6 +461,12 @@ void DrawPane::PaintOnDemand()
             cell->RemoveMode(TermCell::Cursor);
         if (m_AppDebug)
             std::cout << "buffer draw done, unlock" << std::endl;
+
+        std::cout << "real paint time:"
+                  << now
+                  << ","
+                  << (wxGetLocalTimeMillis() - now)
+                  << std::endl;
     }
 
     {

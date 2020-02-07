@@ -33,7 +33,7 @@ wxCoord PADDING = 5;
 #define USE_IDLE_EVENT 1
 #define USE_REQUEST_FRESH 0
 
-#define FPS (30)
+#define FPS (120)
 constexpr wxDouble REFRESH_DELTA = (1000.0 / FPS);
 
 wxDECLARE_EVENT(MY_REFRESH_EVENT, wxCommandEvent);
