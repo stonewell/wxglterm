@@ -240,8 +240,10 @@ void DrawPane::DoPaint(wxDC & dc, const TermBufferPtr & buffer, bool full_paint,
     wxCoord last_x = PADDING;
     uint32_t last_mode = 0;
 
+#if !USE_TEXT_BLOB
     dc.SetBackground( backgroundBrush );
     dc.Clear();
+#endif
     std::bitset<16> m(buffer->GetMode());
 
 #if USE_TEXT_BLOB
@@ -382,18 +384,37 @@ void DrawPane::DoPaint(wxDC & dc, const TermBufferPtr & buffer, bool full_paint,
     }
 
 #if USE_TEXT_BLOB
+    wxGraphicsContext * gdc = nullptr;
+    bool delete_context = true;
+
     if ( wxGCDC *gcdc = wxDynamicCast(&dc, wxGCDC) ) {
-        text_blob.Render(gcdc->GetGraphicsContext());
+        gdc = gcdc->GetGraphicsContext();
+        delete_context = false;
     } else if (wxMemoryDC * mdc = wxDynamicCast(&dc, wxMemoryDC)) {
-        wxScopedPtr<wxGraphicsContext> gdc{wxGraphicsContext::Create(*mdc)};
-        text_blob.Render(gdc.get());
+        gdc = wxGraphicsContext::Create(*mdc);
     } else if (wxPaintDC * mmdc = wxDynamicCast(&dc, wxPaintDC)) {
-        wxScopedPtr<wxGraphicsContext> gdc{wxGraphicsContext::Create(*mmdc)};
-        text_blob.Render(gdc.get());
+        gdc = wxGraphicsContext::Create(*mmdc);
     } else {
-        wxScopedPtr<wxGraphicsContext> gdc{wxGraphicsContext::Create(this)};
-        text_blob.Render(gdc.get());
+        gdc = wxGraphicsContext::Create(this);
     }
+
+    wxCoord clip_x, clip_y, clip_width, clip_height;
+
+    dc.GetClippingBox(&clip_x, &clip_y, &clip_width, &clip_height);
+
+    gdc->SetCompositionMode(wxCOMPOSITION_SOURCE);
+    gdc->Clip(clip_x, clip_y, clip_width, clip_height);
+
+    gdc->BeginLayer(1.0);
+
+    gdc->SetBrush(backgroundBrush);
+    gdc->DrawRectangle(clip_x, clip_y, clip_width, clip_height);
+
+    text_blob.Render(gdc);
+    gdc->EndLayer();
+
+    if (delete_context)
+        delete gdc;
 #endif
 }
 
