@@ -4,6 +4,7 @@ SET(utils_src
     char_width.cpp char_width.h
     base64.h
     smart_object_pool.h
+    buffer_roller.h buffer_roller.cpp
     )
 
 IF (WIN32)
