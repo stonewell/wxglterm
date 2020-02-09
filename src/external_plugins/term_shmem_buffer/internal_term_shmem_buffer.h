@@ -124,6 +124,7 @@ private:
     std::bitset<16> m_Mode;
 
     TermShmemStoragePtr m_Storage;
+    size_t m_LineSize;
 };
 
 using InternalTermShmemBufferPtr = std::shared_ptr<InternalTermShmemBuffer>;

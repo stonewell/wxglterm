@@ -25,6 +25,7 @@ InternalTermShmemBuffer::InternalTermShmemBuffer(TermShmemBuffer* term_buffer)
     , m_Selection{new DefaultTermSelection}
     , m_Mode {0}
     , m_Storage {CreateTermShmemStorage(1)}
+    , m_LineSize {0}
 {
 }
 
@@ -33,14 +34,15 @@ void InternalTermShmemBuffer::Resize(uint32_t row, uint32_t col) {
         return;
     }
 
-    size_t storage_size = (LINE_STORAGE_SIZE + col * CELL_STORAGE_SIZE) * row;
-    size_t line_size = LINE_STORAGE_SIZE + CELL_STORAGE_SIZE * col;
+    m_LineSize = LINE_STORAGE_SIZE + CELL_STORAGE_SIZE * col;
+    size_t storage_size = m_LineSize * row;
 
     m_Storage = CreateTermShmemStorage(storage_size);
 
     auto buf = m_Storage->GetAddress();
+    printf("buf=%p, line size:%lu, %lx\n", buf, m_LineSize, m_LineSize);
     for(uint32_t i=0;i<row;i++) {
-        LineStorage * line = (LineStorage *)(buf + line_size * i);
+        LineStorage * line = (LineStorage *)(buf + m_LineSize * i);
 
         line->cols = col;
         line->last_render_index = row;
@@ -75,8 +77,6 @@ bool  InternalTermShmemBuffer::__NormalizeBeginEndPositionResetLinesWhenDeleteOr
 
     auto buf = m_Storage->GetAddress();
 
-    size_t line_size = LINE_STORAGE_SIZE + CELL_STORAGE_SIZE * m_Cols;
-
     bool reset_lines = false;
 
     if (HasScrollRegion())
@@ -102,8 +102,8 @@ bool  InternalTermShmemBuffer::__NormalizeBeginEndPositionResetLinesWhenDeleteOr
     }
 
     if (reset_lines) {
-        LineStorage * begin_line = (LineStorage *)(buf + line_size * begin);
-        LineStorage * end_line = (LineStorage *)(buf + line_size * end);
+        LineStorage * begin_line = (LineStorage *)(buf + m_LineSize * begin);
+        LineStorage * end_line = (LineStorage *)(buf + m_LineSize * end);
 
         memset((uint8_t*)begin_line, 0, BYTES_COUNT(end_line, begin_line));
 
@@ -114,7 +114,7 @@ bool  InternalTermShmemBuffer::__NormalizeBeginEndPositionResetLinesWhenDeleteOr
             begin_line->last_render_index = m_Rows;
             begin_line->modified = false;
 
-            begin_line = (LineStorage *)(((uint8_t*)begin_line) + line_size);
+            begin_line = (LineStorage *)(((uint8_t*)begin_line) + m_LineSize);
         }
     }
 
@@ -259,8 +259,7 @@ TermCellPtr InternalTermShmemBuffer::GetCell(uint32_t row, uint32_t col) {
 LineStorage * InternalTermShmemBuffer::__GetLine(uint32_t row) {
     if (row < m_Rows) {
         auto buf = m_Storage->GetAddress();
-        size_t line_size = LINE_STORAGE_SIZE + CELL_STORAGE_SIZE * m_Cols;
-        LineStorage * line_storage = (LineStorage *)(buf + line_size * row);
+        LineStorage * line_storage = (LineStorage *)(buf + m_LineSize * row);
 
         return line_storage;
     }
@@ -279,7 +278,6 @@ CellStorage * InternalTermShmemBuffer::__GetCell(uint32_t row, uint32_t col) {
 }
 
 void InternalTermShmemBuffer::ResetLineWithTemplate(LineStorage * line, const CellStorage * cell_template) {
-    //create a default line then copy line to the left lines
     line->cols = m_Cols;
     line->last_render_index = m_Rows;
     line->modified = false;
@@ -295,11 +293,10 @@ void InternalTermShmemBuffer::ResetLineWithTemplate(LineStorage * line, const Ce
 void InternalTermShmemBuffer::ResetLinesWithLine(LineStorage * begin_line,
                         LineStorage * end_line,
                         LineStorage * line_template) {
-    size_t line_size = LINE_STORAGE_SIZE + CELL_STORAGE_SIZE * m_Cols;
-
     while (begin_line < end_line) {
-        memmove(begin_line, line_template, line_size);
-        begin_line = (LineStorage *)(((uint8_t *)begin_line) + line_size);
+        if (begin_line != line_template)
+            memmove(begin_line, line_template, m_LineSize);
+        begin_line = (LineStorage *)(((uint8_t *)begin_line) + m_LineSize);
     }
 }
 
@@ -323,11 +320,10 @@ void InternalTermShmemBuffer::DeleteLines(uint32_t begin, uint32_t count, const 
         return;
 
     auto buf = m_Storage->GetAddress();
-    size_t line_size = LINE_STORAGE_SIZE + CELL_STORAGE_SIZE * m_Cols;
 
-    LineStorage * begin_line = (LineStorage *)(buf + line_size * begin);
-    LineStorage * end_line = (LineStorage *)(buf + line_size * end);
-    LineStorage * copy_start_line = (LineStorage *)(buf + line_size * (begin + count));
+    LineStorage * begin_line = (LineStorage *)(buf + m_LineSize * begin);
+    LineStorage * end_line = (LineStorage *)(buf + m_LineSize * end);
+    LineStorage * copy_start_line = (LineStorage *)(buf + m_LineSize * (begin + count));
 
     memmove(begin_line, copy_start_line, end_line - copy_start_line);
 
@@ -358,11 +354,10 @@ void InternalTermShmemBuffer::InsertLines(uint32_t begin, uint32_t count, const 
         return;
 
     auto buf = m_Storage->GetAddress();
-    size_t line_size = LINE_STORAGE_SIZE + CELL_STORAGE_SIZE * m_Cols;
 
-    LineStorage * begin_line = (LineStorage *)(buf + line_size * begin);
-    LineStorage * end_line = (LineStorage *)(buf + line_size * end);
-    LineStorage * copy_end_line = (LineStorage *)(buf + line_size * (end - count));
+    LineStorage * begin_line = (LineStorage *)(buf + m_LineSize * begin);
+    LineStorage * end_line = (LineStorage *)(buf + m_LineSize * end);
+    LineStorage * copy_end_line = (LineStorage *)(buf + m_LineSize * (end - count));
     LineStorage * dest_begin_line = (LineStorage *)(((uint8_t*)end_line) - BYTES_COUNT(copy_end_line, begin_line));
 
     memmove(dest_begin_line, begin_line, BYTES_COUNT(copy_end_line, begin_line));
@@ -390,19 +385,18 @@ void InternalTermShmemBuffer::ScrollBuffer(int32_t scroll_offset, const CellStor
     }
 
     auto buf = m_Storage->GetAddress();
-    size_t line_size = LINE_STORAGE_SIZE + CELL_STORAGE_SIZE * m_Cols;
-    LineStorage * begin_line = (LineStorage *)(buf + line_size * begin);
-    LineStorage * end_line = (LineStorage *)(buf + line_size * end);
+    LineStorage * begin_line = (LineStorage *)(buf + m_LineSize * begin);
+    LineStorage * end_line = (LineStorage *)(buf + m_LineSize * end);
 
     if (scroll_offset > 0) {
-        LineStorage * dest_begin_line = (LineStorage *)(buf + line_size * (begin + scroll_offset));
+        LineStorage * dest_begin_line = (LineStorage *)(buf + m_LineSize * (begin + scroll_offset));
 
         memmove(dest_begin_line, begin_line, BYTES_COUNT(end_line, dest_begin_line));
 
         ResetLineWithTemplate(begin_line, cell_template);
         ResetLinesWithLine(begin_line, dest_begin_line, begin_line);
     } else if (scroll_offset < 0) {
-        LineStorage * copy_begin_line = (LineStorage *)(buf + line_size * (begin - scroll_offset));
+        LineStorage * copy_begin_line = (LineStorage *)(buf + m_LineSize * (begin - scroll_offset));
         LineStorage * clear_begin_line = (LineStorage *)(((uint8_t*)begin_line) +
                                                          BYTES_COUNT(end_line, copy_begin_line));
 
