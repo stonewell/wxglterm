@@ -4,6 +4,7 @@
 #include "term_shmem_cell.h"
 #include "term_shmem_storage.h"
 
+#include "buffer_roller.h"
 #include <bitset>
 
 class TermShmemBuffer;
@@ -102,12 +103,14 @@ private:
                                                                  uint32_t & end);
     bool HasScrollRegion();
     void ResetLineWithTemplate(LineStorage * line, const CellStorage * cell_template);
-    void ResetLinesWithLine(LineStorage * begin_line,
-                            LineStorage * end_line,
+    void ResetLinesWithLine(size_t begin_line,
+                            size_t end_line,
                             LineStorage * line_template);
 
     LineStorage * __GetLine(uint32_t row);
     CellStorage * __GetCell(uint32_t row, uint32_t col);
+
+    void __CreateBufferRoller();
 
     TermShmemBuffer * m_TermBuffer;
     uint32_t m_Rows;
@@ -125,6 +128,7 @@ private:
 
     TermShmemStoragePtr m_Storage;
     size_t m_LineSize;
+    BufferRollerPtr m_BufferRoller;
 };
 
 using InternalTermShmemBufferPtr = std::shared_ptr<InternalTermShmemBuffer>;

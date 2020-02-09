@@ -75,7 +75,7 @@ void BufferRollerImpl::Normalize() {
 }
 
 void BufferRollerImpl::RollUp(uint32_t count) {
-    assert(m_Begin > m_OriginBegin && m_Begin < m_OriginEnd);
+    assert(m_Begin >= m_OriginBegin && m_Begin < m_OriginEnd);
 
     uint8_t * line = m_Begin + count * m_LineSize;
 
@@ -93,7 +93,7 @@ void BufferRollerImpl::RollUp(uint32_t count) {
 }
 
 void BufferRollerImpl::RollDown(uint32_t count) {
-    assert(m_Begin > m_OriginBegin && m_Begin < m_OriginEnd);
+    assert(m_Begin >= m_OriginBegin && m_Begin < m_OriginEnd);
 
     size_t s = m_Begin - m_OriginBegin;
     size_t r_s = count * m_LineSize;

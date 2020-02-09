@@ -136,7 +136,6 @@ CellStorage * InsertCell(LineStorage * line, uint32_t col) {
 CellStorage * GetCell(LineStorage * line, uint32_t col) {
     if (col >= line->cols) {
         printf("invalid col for getcell, col:%u, cols:%u\n", col, line->cols);
-        assert(false);
 
         return nullptr;
     }
