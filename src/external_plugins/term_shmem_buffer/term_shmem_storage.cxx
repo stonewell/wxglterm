@@ -29,6 +29,7 @@ private:
 }
 
 TermShmemStoragePtr CreateTermShmemStorage(size_t size) {
+    assert(size);
     auto p = std::make_shared<impl::TermShmemStorageImpl>(size);
 
     return p;

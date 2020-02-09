@@ -4,6 +4,7 @@
 #include <stack>
 #include <stdexcept>
 #include <functional>
+#include <mutex>
 
 template <class T, class D = std::default_delete<T>>
 class SmartObjectPool
@@ -43,12 +44,14 @@ public:
     virtual ~SmartObjectPool(){}
 
     void add(T * ptr) {
+        std::lock_guard<std::recursive_mutex> guard(m_UpdateLock);
         item_ptr_type tmp(ptr,
                           ReturnToPool_Deleter{weak_pool_ptr_type{this_ptr_}});
         pool_.push(tmp);
     }
 
     item_ptr_type acquire(bool create_new = true) {
+        std::lock_guard<std::recursive_mutex> guard(m_UpdateLock);
         if (pool_.empty() && !create_new)
             throw std::out_of_range("Cannot acquire object from an empty pool.");
 
@@ -79,4 +82,5 @@ private:
     std::shared_ptr<pointer_type > this_ptr_;
     std::stack<item_ptr_type> pool_;
     item_create_type item_create_func_;
+    std::recursive_mutex m_UpdateLock;
 };

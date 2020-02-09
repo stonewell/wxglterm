@@ -182,7 +182,6 @@ void TermShmemBuffer::EnableAlterBuffer(bool enable) {
     if (enable)
     {
         m_CurBuffer = 1;
-        m_Buffers[m_CurBuffer]->Resize(0, 0);
         m_Buffers[m_CurBuffer]->Resize(m_Buffers[0]->GetRows(), m_Buffers[0]->GetCols());
     }
     else
