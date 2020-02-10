@@ -398,17 +398,14 @@ void DrawPane::DoPaint(wxDC & dc, const TermBufferPtr & buffer, bool full_paint,
         gdc = wxGraphicsContext::Create(this);
     }
 
-    wxCoord clip_x, clip_y, clip_width, clip_height;
-
-    dc.GetClippingBox(&clip_x, &clip_y, &clip_width, &clip_height);
-
+    gdc->Clip(m_ClipRegion);
     gdc->SetCompositionMode(wxCOMPOSITION_SOURCE);
-    gdc->Clip(clip_x, clip_y, clip_width, clip_height);
 
     gdc->BeginLayer(1.0);
 
+    wxRect clientSize = m_ClipRegion.GetBox();
     gdc->SetBrush(backgroundBrush);
-    gdc->DrawRectangle(clip_x, clip_y, clip_width, clip_height);
+    gdc->DrawRectangle(clientSize.x, clientSize.y, clientSize.width, clientSize.height);
 
     text_blob.Render(gdc);
     gdc->EndLayer();
@@ -474,6 +471,8 @@ void DrawPane::PaintOnDemand()
 
             dc.DestroyClippingRegion();
             dc.SetDeviceClippingRegion(clipRegion);
+
+            m_ClipRegion = clipRegion;
         }
 
         DoPaint(dc, m_Buffer, !paintChanged);

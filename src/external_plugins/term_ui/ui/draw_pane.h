@@ -140,4 +140,5 @@ private:
     int m_SavedMouseButton;
     bool m_ModKeyDown;
     wxLongLong m_LastPaintTime;
+    wxRegion m_ClipRegion;
 };

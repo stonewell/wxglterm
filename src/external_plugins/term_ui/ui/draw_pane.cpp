@@ -123,8 +123,7 @@ void DrawPane::OnPaint(wxPaintEvent & /*event*/)
                 line->SetModified(true);
         }
 
-        wxRegion upd(GetUpdateRegion()); // get the update rect list
-
+        m_ClipRegion = GetUpdateRegion();
         auto rows = buffer->GetRows();
 
         std::vector<uint32_t> updateRows;
@@ -135,7 +134,7 @@ void DrawPane::OnPaint(wxPaintEvent & /*event*/)
 
             wxRect rowRect(0, PADDING + row * m_LineHeight, clientSize.GetWidth(), m_LineHeight);
 
-            if (wxOutRegion != upd.Contains(rowRect)) {
+            if (wxOutRegion != m_ClipRegion.Contains(rowRect)) {
                 updateRows.push_back(row);
             }
         }
