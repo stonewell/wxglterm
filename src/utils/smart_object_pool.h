@@ -47,7 +47,7 @@ public:
         std::lock_guard<std::recursive_mutex> guard(m_UpdateLock);
         item_ptr_type tmp(ptr,
                           ReturnToPool_Deleter{weak_pool_ptr_type{this_ptr_}});
-        pool_.push(tmp);
+        pool_.push(std::move(tmp));
     }
 
     item_ptr_type acquire(bool create_new = true) {

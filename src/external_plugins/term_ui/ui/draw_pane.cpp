@@ -107,17 +107,17 @@ void DrawPane::OnPaint(wxPaintEvent & /*event*/)
         __ScopeLocker locker(buffer);
         wxAutoBufferedPaintDC dc(this);
 
-        TermCellPtr cell = buffer->GetCurCell();
+        TermCellPtr cell = std::move(buffer->GetCurCell());
         if (cell) {
             if (cell->GetChar() == 0 && buffer->GetCol() > 0) {
-                cell = buffer->GetCell(buffer->GetRow(), buffer->GetCol() - 1);
+                cell = std::move(buffer->GetCell(buffer->GetRow(), buffer->GetCol() - 1));
             }
 
             if (cell) {
                 cell->AddMode(TermCell::Cursor);
             }
         } else {
-            TermLinePtr line = buffer->GetCurLine();
+            TermLinePtr line = std::move(buffer->GetCurLine());
 
             if (line)
                 line->SetModified(true);
@@ -130,7 +130,7 @@ void DrawPane::OnPaint(wxPaintEvent & /*event*/)
         wxRect clientSize = GetClientSize();
 
         for (auto row = 0u; row < rows; row++) {
-            auto line = buffer->GetLine(row);
+            auto line = std::move(buffer->GetLine(row));
 
             wxRect rowRect(0, PADDING + row * m_LineHeight, clientSize.GetWidth(), m_LineHeight);
 

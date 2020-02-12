@@ -123,7 +123,7 @@ void InternalTermShmemBuffer::SetCurCellData(uint32_t ch,
                                              bool wide_char,
                                              bool insert,
                                              const TermCellPtr & cell_template) {
-    auto cell = std::dynamic_pointer_cast<TermShmemCell>(cell_template);
+    TermShmemCell * cell = (TermShmemCell*)cell_template.get();
 
     SetCurCellData(ch, wide_char, insert,
                    cell->GetStorage());
@@ -310,7 +310,7 @@ void InternalTermShmemBuffer::ResetLinesWithLine(size_t begin_line,
 }
 
 void InternalTermShmemBuffer::DeleteLines(uint32_t begin, uint32_t count, const TermCellPtr & cell_template) {
-    auto cell = std::dynamic_pointer_cast<TermShmemCell>(cell_template);
+    TermShmemCell * cell = (TermShmemCell*)cell_template.get();
 
     DeleteLines(begin, count, cell->GetStorage());
 }
@@ -338,7 +338,7 @@ void InternalTermShmemBuffer::DeleteLines(uint32_t begin, uint32_t count, const 
 }
 
 void InternalTermShmemBuffer::InsertLines(uint32_t begin, uint32_t count, const TermCellPtr & cell_template) {
-    auto cell = std::dynamic_pointer_cast<TermShmemCell>(cell_template);
+    TermShmemCell * cell = (TermShmemCell*)cell_template.get();
 
     InsertLines(begin, count, cell->GetStorage());
 }
@@ -364,7 +364,7 @@ void InternalTermShmemBuffer::InsertLines(uint32_t begin, uint32_t count, const 
 }
 
 void InternalTermShmemBuffer::ScrollBuffer(int32_t scroll_offset, const TermCellPtr & cell_template) {
-    auto cell = std::dynamic_pointer_cast<TermShmemCell>(cell_template);
+    TermShmemCell * cell = (TermShmemCell*)cell_template.get();
 
     ScrollBuffer(scroll_offset, cell->GetStorage());
 }
@@ -401,7 +401,7 @@ bool InternalTermShmemBuffer::MoveCurRow(uint32_t offset,
                                          bool move_down,
                                          bool scroll_buffer,
                                          const TermCellPtr & cell_template) {
-    auto cell = std::dynamic_pointer_cast<TermShmemCell>(cell_template);
+    TermShmemCell * cell = (TermShmemCell*)cell_template.get();
 
     return MoveCurRow(offset, move_down, scroll_buffer, cell->GetStorage());
 }
