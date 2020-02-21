@@ -2,10 +2,14 @@
 #include <algorithm>
 
 ControlDataStatePtr ControlDataState::add_state(char c, ControlDataStatePtr next_state) {
+    auto & cur_state = this->next_states[(int)(c & 0xFF)];
 
-    auto result = this->next_states.insert(std::make_pair(c, next_state));
+    if (cur_state)
+        return cur_state;
 
-    return result.first->second;
+    cur_state = next_state;
+
+    return cur_state;
 }
 
 AnyStatePtr ControlDataState::add_any_state(AnyStatePtr _any_state) {
@@ -28,15 +32,13 @@ void ControlDataState::reset() {
 }
 
 ControlDataStatePtr ControlDataState::handle(ControlDataParserContextPtr context, char c) {
-    auto it = this->next_states.find(c);
+    auto & it = this->next_states[(int)(c & 0xFF)];
 
-    if (it != this->next_states.end()) {
-        auto next_state = it->second;
+    if (it) {
+        if (it->digit_state)
+            it->digit_state->reset();
 
-        if (next_state->digit_state)
-            next_state->digit_state->reset();
-
-        return next_state;
+        return it;
     }
 
     if (this->digit_state) {
