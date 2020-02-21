@@ -215,6 +215,15 @@ void * wxTextBlob::BeginTextRendering() {
         for(size_t i=0; i < buf.length(); i++) {
             wchar_t ch = buf[i];
 
+            if (ch == L' ') {
+                if (m_GlyphAdvanceX == 0) {
+                    pt.x = it->pt.x + extents[i];
+                } else {
+                    pt.x += m_GlyphAdvanceX;
+                }
+                continue;
+            }
+
             FT_Face ft_face = font->EnsureGlyph(ch);
 
             std::function<bool(FontSizeColourCodepoints::iterator)> find_font{
