@@ -104,7 +104,7 @@ bool ControlDataState::get_cap(const term_data_param_vector_t & params,
                                CapNameMapValue & cap_name_value) {
 #define CHECK_AND_RETURN(name) \
     { \
-        auto it = this->cap_name.find(""); \
+        auto it = this->cap_name.find(name); \
         if (it != this->cap_name.end()) { \
             cap_name_value = it->second; \
             return true; \
