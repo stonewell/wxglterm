@@ -8,6 +8,8 @@
 #include <locale>
 #include <codecvt>
 #include <sstream>
+#include <cassert>
+
 #include <string.h>
 
 #include "char_width.h"
@@ -100,15 +102,9 @@ void output_char(term_data_context_s & term_context, char data, bool insert) {
         if (converted == 0)
             return;
 
-        if (static_cast<size_t>(term_context.remain_buffer_index) > converted) {
-            memmove(term_context.remain_buffer,
-                    &term_context.remain_buffer[converted],
-                    term_context.remain_buffer_index - converted);
-            term_context.remain_buffer_index -= converted;
-        } else {
-            term_context.remain_buffer_index = 0;
-        }
+        assert((size_t)term_context.remain_buffer_index == converted);
 
+        term_context.remain_buffer_index = 0;
 
         if (term_context.charset_modes_translate[term_context.charset_mode]) {
             codepoint = term_context.charset_modes_translate[term_context.charset_mode](codepoint);

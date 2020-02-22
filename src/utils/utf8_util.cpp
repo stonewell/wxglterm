@@ -27,16 +27,12 @@ size_t utf8_to_wchar(char * in, size_t in_size, wchar_t & codepoint) {
     if (seq_len > in_size)
         return 0;
 
-    // assert(seq_len == in_size);
-    // assert(sizeof(wchar_t) > 2);
-
     size_t index = 0;
 
     while(index < seq_len) {
         unsigned char ch = static_cast<unsigned char>(in[index]);
 
         if (ch <= 0x7f) {
-            // assert(seq_len == 1);
             codepoint = ch;
         }
         else if (ch <= 0xbf)
