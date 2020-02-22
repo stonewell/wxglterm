@@ -5,6 +5,7 @@ SET(utils_src
     base64.h
     smart_object_pool.h
     buffer_roller.h buffer_roller.cpp
+    utf8_util.h utf8_util.cpp
     )
 
 IF (WIN32)

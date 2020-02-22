@@ -32,7 +32,8 @@ struct term_data_context_s {
     uint32_t saved_col;
     uint32_t saved_row;
 
-    std::vector<char> remain_buffer;
+    char remain_buffer[5];
+    int remain_buffer_index;
     std::unordered_map<uint32_t, bool> tab_stops;
 
     int charset_mode;
