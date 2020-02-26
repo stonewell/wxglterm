@@ -41,7 +41,7 @@ public:
         if (!cell_storage)
             return TermCellPtr{};
 
-        auto cell = CreateTermCellPtr();
+        auto cell = std::move(CreateTermCellPtr());
         cell->SetStorage(cell_storage);
 
         return cell;
@@ -54,7 +54,7 @@ public:
         if (!deleted_cell)
             return TermCellPtr{};
 
-        auto cell = CreateTermCellPtr();
+        auto cell = std::move(CreateTermCellPtr());
         cell->SetStorage(deleted_cell, true);
 
         return cell;

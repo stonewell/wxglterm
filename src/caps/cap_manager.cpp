@@ -8,9 +8,13 @@
 #include <locale>
 #include <codecvt>
 #include <sstream>
+#include <cassert>
+
+#include <string.h>
 
 #include "char_width.h"
 #include "string_utils.h"
+#include "utf8_util.h"
 
 static
 std::wstring_convert<std::codecvt_utf8<wchar_t
@@ -47,6 +51,8 @@ term_data_context_s::term_data_context_s():
     , force_column_count(80)
     , saved_col((uint32_t)-1)
     , saved_row((uint32_t)-1)
+    , remain_buffer {}
+    , remain_buffer_index {0}
     , charset_mode {0}
     , charset_modes_translate {nullptr, nullptr}
     , saved_charset_mode {0}
@@ -86,49 +92,38 @@ void output_char(term_data_context_s & term_context, char data, bool insert) {
     if (term_context.in_status_line) {
         (void)data;
     } else {
-        term_context.remain_buffer.push_back(data);
+        term_context.remain_buffer[term_context.remain_buffer_index++] = data;
 
-        std::wstring w_str;
-        size_t converted = 0;
-        try {
-            w_str = wcharconv.from_bytes(&term_context.remain_buffer[0],
-                                         &term_context.remain_buffer[term_context.remain_buffer.size() - 1] + 1);
-            converted = wcharconv.converted();
-        } catch(const std::range_error& e) {
-            (void)e;
-            converted = wcharconv.converted();
-            if (converted == 0)
-                return;
-            w_str = wcharconv.from_bytes(&term_context.remain_buffer[0],
-                                         &term_context.remain_buffer[converted]);
-        }
+        wchar_t codepoint = 0;
+        size_t converted = utf8_to_wchar(term_context.remain_buffer,
+                                         term_context.remain_buffer_index,
+                                         codepoint);
 
-        if (w_str.length() == 0)
+        if (converted == 0)
             return;
 
-        term_context.remain_buffer.erase(term_context.remain_buffer.begin(),
-                                         term_context.remain_buffer.begin() + converted);
+        assert((size_t)term_context.remain_buffer_index == converted);
 
-        for (auto it : w_str){
-            if (term_context.charset_modes_translate[term_context.charset_mode]) {
-                it = term_context.charset_modes_translate[term_context.charset_mode](it);
-            }
+        term_context.remain_buffer_index = 0;
 
-            auto width = char_width(it);
-
-            if (width == 0) {
-                continue;
-            }
-
-            if (!term_context.auto_wrap
-                && term_context.term_buffer->GetCol() >= term_context.term_buffer->GetCols())
-                term_context.term_buffer->SetCol(term_context.term_buffer->GetCols() - 1);
-
-            term_context.term_buffer->SetCurCellData(static_cast<uint32_t>(it),
-                                                     width > 1,
-                                                     insert,
-                                                     term_context.cell_template);
+        if (term_context.charset_modes_translate[term_context.charset_mode]) {
+            codepoint = term_context.charset_modes_translate[term_context.charset_mode](codepoint);
         }
+
+        auto width = char_width(codepoint);
+
+        if (width == 0) {
+            return;
+        }
+
+        if (!term_context.auto_wrap
+            && term_context.term_buffer->GetCol() >= term_context.term_buffer->GetCols())
+            term_context.term_buffer->SetCol(term_context.term_buffer->GetCols() - 1);
+
+        term_context.term_buffer->SetCurCellData(static_cast<uint32_t>(codepoint),
+                                                 width > 1,
+                                                 insert,
+                                                 term_context.cell_template);
     }
 }
 

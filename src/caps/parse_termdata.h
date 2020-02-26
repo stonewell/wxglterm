@@ -25,7 +25,6 @@ using DigitStatePtr = std::shared_ptr<DigitState>;
 using AnyStatePtr = std::shared_ptr<AnyState>;
 using CapNameMapValue = std::tuple<std::string, bool>;
 using CapNameMap = std::unordered_map<std::string, CapNameMapValue>;
-using CapStateMap = std::unordered_map<char, ControlDataStatePtr>;
 
 class ControlDataParserContext {
 public:
@@ -59,7 +58,7 @@ public:
     void init_ordered_cap_name_keys();
 public:
     CapNameMap cap_name;
-    CapStateMap next_states;
+    ControlDataStatePtr next_states[255];
     DigitStatePtr digit_state;
     AnyStatePtr any_state;
 
@@ -73,9 +72,12 @@ public:
             os << "[" <<p.first << ", " << std::get<0>(p.second) << "]" << std::endl;
         }
 
-        for(auto & p : dt.next_states) {
-            os << "[" << (int)p.first << "," << p.first << "]" << std::endl;
+        for(int i=0;i < 255;i++) {
+            if (dt.next_states[i]) {
+                os << "[" << i << "," << (char)i << "]" << std::endl;
+            }
         }
+
         return os;
     }
 };

@@ -118,7 +118,7 @@ private:
 
 TermShmemCellPtr CreateTermCellPtr()
 {
-    return g_TermCellPool.acquire();
+    return std::move(g_TermCellPool.acquire());
 }
 
 TermShmemCell * CreateRawTermCell() {
