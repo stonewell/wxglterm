@@ -146,9 +146,7 @@ void * wxTextBlob::BeginTextRendering() {
         it != it_end;
         it++) {
 
-        std::string desc(std::string(wxFontToFCDesc(it->pFont)));
-
-        auto font = g_FontManager->CreateFontFromDesc(desc);
+        auto font = g_FontManager->CreateFontFromDesc(std::string(wxFontToFCDesc(it->pFont)));
 
         if (it->back != wxNullColour) {
             bg_rect_vector.push_back({{it->pt, it->size}, it->back});
