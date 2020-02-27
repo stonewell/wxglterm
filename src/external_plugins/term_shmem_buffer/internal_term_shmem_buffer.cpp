@@ -42,8 +42,6 @@ void InternalTermShmemBuffer::Resize(uint32_t row, uint32_t col) {
 
     auto buf = m_Storage->GetAddress();
 
-    printf("buf=%p, line size:%lu, %lx\n", buf, m_LineSize, m_LineSize);
-
     for(uint32_t i=0;i<row;i++) {
         LineStorage * line = (LineStorage *)(buf + m_LineSize * i);
 
@@ -256,22 +254,12 @@ TermCellPtr InternalTermShmemBuffer::GetCell(uint32_t row, uint32_t col) {
 
 LineStorage * InternalTermShmemBuffer::__GetLine(uint32_t row) {
     LineStorage * line_storage = nullptr;
-    if (row < m_Rows) {
-        if (!HasScrollRegion()) {
-            line_storage = (LineStorage *)(m_BufferLineMapper->GetLine(row));
-        } else {
-            auto buf = m_Storage->GetAddress();
 
-            if (row < m_ScrollRegionBegin || row > m_ScrollRegionEnd) {
-                line_storage = (LineStorage *)(buf + row * m_LineSize);
-            } else {
-                line_storage = (LineStorage *)(m_BufferLineMapper->GetLine(row - m_ScrollRegionBegin));
-            }
-        }
-    }
+    line_storage = (LineStorage *)(m_BufferLineMapper->GetLine(row));
 
     if (!line_storage)
         printf("invalid row:%u, rows:%u\n", row, m_Rows);
+
     return line_storage;
 }
 
@@ -484,11 +472,5 @@ void InternalTermShmemBuffer::RemoveMode(uint32_t m) {
 void InternalTermShmemBuffer::__CreateBufferLineMapper() {
     auto buf = m_Storage->GetAddress();
 
-    if (HasScrollRegion()) {
-        m_BufferLineMapper = CreateBufferLineMapper(buf + m_ScrollRegionBegin * m_LineSize,
-                                            buf + (m_ScrollRegionEnd + 1) * m_LineSize,
-                                            m_LineSize);
-    } else {
-        m_BufferLineMapper = CreateBufferLineMapper(buf, buf + m_Rows * m_LineSize,  m_LineSize);
-    }
+    m_BufferLineMapper = CreateBufferLineMapper(buf, buf + m_Rows * m_LineSize,  m_LineSize);
 }
