@@ -4,7 +4,7 @@
 #include "term_shmem_cell.h"
 #include "term_shmem_storage.h"
 
-#include "buffer_roller.h"
+#include "buffer_line_mapper.h"
 #include <bitset>
 
 class TermShmemBuffer;
@@ -110,7 +110,7 @@ private:
     LineStorage * __GetLine(uint32_t row);
     CellStorage * __GetCell(uint32_t row, uint32_t col);
 
-    void __CreateBufferRoller();
+    void __CreateBufferLineMapper();
 
     TermShmemBuffer * m_TermBuffer;
     uint32_t m_Rows;
@@ -128,7 +128,7 @@ private:
 
     TermShmemStoragePtr m_Storage;
     size_t m_LineSize;
-    BufferRollerPtr m_BufferRoller;
+    BufferLineMapperPtr m_BufferLineMapper;
 };
 
 using InternalTermShmemBufferPtr = std::shared_ptr<InternalTermShmemBuffer>;
