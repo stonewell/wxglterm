@@ -32,7 +32,7 @@ private:
         return nullptr;
     }
 public:
-    using item_ptr_type = std::shared_ptr<T>;
+    using item_ptr_type = std::unique_ptr<T, ReturnToPool_Deleter>;
     using item_create_type = std::function<T *()>;
 
     SmartObjectPool(item_create_type func = null_item)
@@ -45,17 +45,17 @@ public:
 
     void add(T * ptr) {
         std::lock_guard<std::recursive_mutex> guard(m_UpdateLock);
-        item_ptr_type tmp(ptr,
-                          ReturnToPool_Deleter{weak_pool_ptr_type{this_ptr_}});
-        pool_.push(std::move(tmp));
+        pool_.push(std::unique_ptr<T, D>{ptr});
     }
 
     item_ptr_type acquire(bool create_new = true) {
         std::lock_guard<std::recursive_mutex> guard(m_UpdateLock);
-        if (pool_.empty() && !create_new)
+        bool empty = pool_.empty();
+
+        if (empty && !create_new)
             throw std::out_of_range("Cannot acquire object from an empty pool.");
 
-        if (pool_.empty() && create_new) {
+        if (empty && create_new) {
             T * t = item_create_func_();
 
             if (!t) {
@@ -65,7 +65,8 @@ public:
             add(t);
         }
 
-        auto tmp = pool_.top();
+        item_ptr_type tmp {pool_.top().release(),
+                    ReturnToPool_Deleter{weak_pool_ptr_type{this_ptr_}} };
         pool_.pop();
         return tmp;
     }
@@ -80,7 +81,7 @@ public:
 
 private:
     std::shared_ptr<pointer_type > this_ptr_;
-    std::stack<item_ptr_type> pool_;
+    std::stack<std::unique_ptr<T, D>> pool_;
     item_create_type item_create_func_;
     std::recursive_mutex m_UpdateLock;
 };

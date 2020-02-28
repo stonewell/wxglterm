@@ -26,7 +26,7 @@ InternalTermShmemBuffer::InternalTermShmemBuffer(TermShmemBuffer* term_buffer)
     , m_Mode {0}
     , m_Storage {CreateTermShmemStorage(1)}
     , m_LineSize {0}
-    , m_BufferLineMapper {0}
+    , m_BufferLineMapper {}
 {
 }
 
@@ -255,6 +255,9 @@ TermCellPtr InternalTermShmemBuffer::GetCell(uint32_t row, uint32_t col) {
 LineStorage * InternalTermShmemBuffer::__GetLine(uint32_t row) {
     LineStorage * line_storage = nullptr;
 
+    if (!m_BufferLineMapper)
+        return line_storage;
+
     line_storage = (LineStorage *)(m_BufferLineMapper->GetLine(row));
 
     if (!line_storage)
@@ -316,6 +319,9 @@ void InternalTermShmemBuffer::DeleteLines(uint32_t begin, uint32_t count, const 
     if (end <= begin)
         return;
 
+    if (!m_BufferLineMapper)
+        return;
+
     m_BufferLineMapper->RollUp(begin, end, count);
 
     auto clear_line_begin = end - count;
@@ -344,6 +350,9 @@ void InternalTermShmemBuffer::InsertLines(uint32_t begin, uint32_t count, const 
     if (end <= begin)
         return;
 
+    if (!m_BufferLineMapper)
+        return;
+
     m_BufferLineMapper->RollDown(begin, end, count);
 
     LineStorage * begin_line = __GetLine(begin);
@@ -360,6 +369,9 @@ void InternalTermShmemBuffer::ScrollBuffer(int32_t scroll_offset, const TermCell
 void InternalTermShmemBuffer::ScrollBuffer(int32_t scroll_offset, const CellStorage * cell_template) {
     uint32_t begin = 0;
     uint32_t end = 0;
+
+    if (!m_BufferLineMapper)
+        return;
 
     if (HasScrollRegion()) {
         begin = m_ScrollRegionBegin;
