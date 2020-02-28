@@ -81,6 +81,9 @@ void TermDataHandlerImpl::ProcessSingleCharNative(const char * ch) {
         return;
     }
 
+    bool state_checked = false;
+
+handle_state:
     auto next_state = m_State->handle(m_ParseContext, *ch);
     CapNameMapValue cap_tuple;
 
@@ -100,6 +103,23 @@ void TermDataHandlerImpl::ProcessSingleCharNative(const char * ch) {
                 m_ControlData.push_back(*ch);
             }
         } else {
+            if (*ch == 0x1B) {
+                assert(!state_checked);
+                state_checked = true;
+
+                std::cout << "unknown/not defined cap found:";
+                std::copy(m_ControlData.begin(),
+                          m_ControlData.end(),
+                          std::ostream_iterator<char>(std::cout, ""));
+                std::cout << std::endl;
+
+                m_State = m_Cap->control_data_start_state;
+                m_ParseContext->params.clear();
+                m_ControlData.clear();
+
+                goto handle_state;
+            }
+
             output_char(m_DataContext, *ch, false);
         }
 
