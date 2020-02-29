@@ -112,8 +112,15 @@ bool ControlDataState::get_cap(const term_data_param_vector_t & params,
     }
 
     if (params.size() == 0) {
-        CHECK_AND_RETURN("");
-        CHECK_AND_RETURN("***");
+        if (has_empty_cap_name_key) {
+            cap_name_value = empty_cap_name_key_value_pair;
+            return true;
+        }
+
+        if (has_three_star_cap_name_key) {
+            cap_name_value == three_star_cap_name_key_value_pair;
+            return true;
+        }
 
         return false;
     }
@@ -190,4 +197,33 @@ ControlDataStatePtr AnyState::handle(ControlDataParserContextPtr context, char c
     v.append(&c, 1);
 
     return shared_from_this();
+}
+
+void ControlDataState::update_cap_name(const std::string & cap_name_key,
+                                       const std::string & cap_str_value_name,
+                                       bool increase_param) {
+    auto pair = std::make_tuple(cap_str_value_name, increase_param);
+    auto result =
+            this->cap_name.insert(std::make_pair(cap_name_key,
+                                                 pair));
+    if (!result.second) {
+        if (std::get<0>(result.first->second) != cap_str_value_name ||
+            std::get<1>(result.first->second) != increase_param) {
+            std::stringstream sss;
+            sss << "same parameter for different cap name:["
+                << cap_name_key
+                << "],"
+                << cap_str_value_name;
+
+            throw sss.str();
+        }
+    }
+
+    if (cap_name_key == "") {
+        has_empty_cap_name_key = true;
+        empty_cap_name_key_value_pair = pair;
+    } else if (cap_name_key == "***") {
+        has_three_star_cap_name_key = true;
+        three_star_cap_name_key_value_pair = pair;
+    }
 }
