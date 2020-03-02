@@ -117,7 +117,11 @@ private:
 
 TermShmemLinePtr CreateTermLinePtr()
 {
+#if USE_SMART_OBJ_POOL
     return g_TermLinePool.acquire();
+#else
+    return std::make_shared<TermShmemLineImpl>();
+#endif
 }
 
 TermShmemLine * CreateRawTermLine() {
