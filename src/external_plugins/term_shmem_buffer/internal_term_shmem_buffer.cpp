@@ -27,6 +27,7 @@ InternalTermShmemBuffer::InternalTermShmemBuffer(TermShmemBuffer* term_buffer)
     , m_Storage {CreateTermShmemStorage(1)}
     , m_LineSize {0}
     , m_BufferLineMapper {}
+    , m_LinePtrs {}
 {
 }
 
@@ -35,6 +36,7 @@ void InternalTermShmemBuffer::Resize(uint32_t row, uint32_t col) {
         return;
     }
 
+    m_LinePtrs.resize(row);
     m_LineSize = LINE_STORAGE_SIZE + CELL_STORAGE_SIZE * col;
     size_t storage_size = m_LineSize * row;
 
@@ -230,23 +232,23 @@ TermLinePtr InternalTermShmemBuffer::GetLine(uint32_t row) {
     auto line_storage = __GetLine(row);
 
     if (line_storage) {
-        auto line = std::move(CreateTermLinePtr());
-        line->SetStorage(line_storage);
+        auto & line_ptr = m_LinePtrs.at(row);
 
-        return line;
+        if (!line_ptr)
+            line_ptr = std::move(CreateTermLinePtr());
+        line_ptr->SetStorage(line_storage);
+
+        return line_ptr;
     }
 
     return TermLinePtr{};
 }
 
 TermCellPtr InternalTermShmemBuffer::GetCell(uint32_t row, uint32_t col) {
-    auto cell_storage = __GetCell(row, col);
+    auto line = GetLine(row);
 
-    if (cell_storage) {
-        auto cell = std::move(CreateTermCellPtr());
-        cell->SetStorage(cell_storage);
-
-        return cell;
+    if (line) {
+        return line->GetCell(col);
     }
 
     return TermCellPtr{};

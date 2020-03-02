@@ -3,6 +3,8 @@
 #include "term_cell.h"
 #include <vector>
 
+#define USE_SMART_OBJ_POOL 0
+
 struct CellStorage {
     wchar_t c;
     uint32_t fore;

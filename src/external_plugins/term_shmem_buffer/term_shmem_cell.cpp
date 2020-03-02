@@ -118,7 +118,11 @@ private:
 
 TermShmemCellPtr CreateTermCellPtr()
 {
+#if USE_SMART_OBJ_POOL
     return std::move(g_TermCellPool.acquire());
+#else
+    return std::make_shared<TermShmemCellImpl>();
+#endif
 }
 
 TermShmemCell * CreateRawTermCell() {

@@ -19,6 +19,7 @@ public:
     TermShmemLineImpl() :
         PLUGIN_BASE_INIT_LIST("term_shmem_line", "terminal line using shared memory plugin", 0)
         , m_Storage {nullptr}
+        , m_CellPtrs {}
     {
     }
 
@@ -35,13 +36,27 @@ public:
         m_Storage->modified = true;
     }
 
+    TermShmemCellPtr __GetCell(uint32_t col) {
+        if (col >= m_CellPtrs.size()) {
+            m_CellPtrs.resize(col + 1);
+        }
+
+        auto & cell_ptr = m_CellPtrs.at(col);
+
+        if (!cell_ptr) {
+            cell_ptr = std::move(CreateTermCellPtr());
+        }
+
+        return cell_ptr;
+    }
+
     TermCellPtr GetCell(uint32_t col) override {
         auto cell_storage = ::GetCell(m_Storage, col);
 
         if (!cell_storage)
             return TermCellPtr{};
 
-        auto cell = std::move(CreateTermCellPtr());
+        auto cell = std::move(__GetCell(col));
         cell->SetStorage(cell_storage);
 
         return cell;
@@ -97,6 +112,7 @@ public:
     }
 private:
     LineStorage * m_Storage;
+    std::vector<TermShmemCellPtr> m_CellPtrs;
 };
 
 TermShmemLinePtr CreateTermLinePtr()

@@ -129,6 +129,7 @@ private:
     TermShmemStoragePtr m_Storage;
     size_t m_LineSize;
     BufferLineMapperPtr m_BufferLineMapper;
+    std::vector<TermShmemLinePtr> m_LinePtrs;
 };
 
 using InternalTermShmemBufferPtr = std::shared_ptr<InternalTermShmemBuffer>;
