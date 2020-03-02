@@ -39,9 +39,13 @@ using ControlDataParserContextPtr = std::shared_ptr<ControlDataParserContext>;
 
 class ControlDataState : public std::enable_shared_from_this<ControlDataState> {
 public:
-    ControlDataState() :
-        ordered_cap_name_keys_initialized {false}
+    ControlDataState()
+        : ordered_cap_name_keys_initialized {false}
         , ordered_cap_name_keys {}
+        , has_empty_cap_name_key {false}
+        , empty_cap_name_key_value_pair {}
+        , has_three_star_cap_name_key {false}
+        , three_star_cap_name_key_value_pair {}
     {
     }
     virtual ~ControlDataState() {}
@@ -57,7 +61,6 @@ public:
 
     void init_ordered_cap_name_keys();
 public:
-    CapNameMap cap_name;
     ControlDataStatePtr next_states[255];
     DigitStatePtr digit_state;
     AnyStatePtr any_state;
@@ -80,6 +83,17 @@ public:
 
         return os;
     }
+
+    void update_cap_name(const std::string & cap_name_key,
+                         const std::string & cap_str_value_name,
+                         bool increase_param);
+private:
+    CapNameMap cap_name;
+
+    bool has_empty_cap_name_key;
+    CapNameMapValue empty_cap_name_key_value_pair;
+    bool has_three_star_cap_name_key;
+    CapNameMapValue three_star_cap_name_key_value_pair;
 };
 
 class DigitState : public ControlDataState {

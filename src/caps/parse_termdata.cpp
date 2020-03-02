@@ -288,21 +288,9 @@ void build_parser_state_machine(CapStringValuePtr & cap_str_value,
 
     std::string cap_name_key = join(params, ",");
 
-    auto result =
-            cur_state->cap_name.insert(std::make_pair(cap_name_key,
-                                                      std::make_tuple(cap_str_value->name, increase_param)));
-    if (!result.second) {
-        if (std::get<0>(result.first->second) != cap_str_value->name ||
-            std::get<1>(result.first->second) != increase_param) {
-            std::stringstream sss;
-            sss << "same parameter for different cap name:["
-                << cap_name_key
-                << "],"
-                << cap_str_value->name;
-
-            throw sss.str();
-        }
-    }
+    cur_state->update_cap_name(cap_name_key,
+                               cap_str_value->name,
+                               increase_param);
 }
 
 void parse_str_cap(const std::string & field,
