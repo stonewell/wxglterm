@@ -24,10 +24,10 @@ void screen_alignment_test(term_data_context_s & term_context,
     auto cols = term_context.term_buffer->GetCols();
 
     for(uint32_t row = 0; row < rows; row++) {
-        auto line = std::move(term_context.term_buffer->GetLine(row));
+        auto line = term_context.term_buffer->GetLine(row);
 
         for(uint32_t col=0; col < cols; col++) {
-            auto cell = std::move(line->GetCell(col));
+            auto cell = line->GetCell(col);
 
             if (cell)
                 cell->SetChar('E');
@@ -86,13 +86,13 @@ void clr_eos(term_data_context_s & term_context,
     }
 
     for(auto row = begin; row < end; row++) {
-        auto line = std::move(term_context.term_buffer->GetLine(row));
+        auto line = term_context.term_buffer->GetLine(row);
 
         if (!line)
             continue;
 
         for(uint32_t col = 0; col < cols; col++) {
-            auto cell = std::move(line->GetCell(col));
+            auto cell = line->GetCell(col);
 
             if (cell) {
                 cell->Reset(term_context.cell_template);
@@ -104,7 +104,7 @@ void clr_eos(term_data_context_s & term_context,
 void clr_line(term_data_context_s & term_context,
               const term_data_param_list & params) {
     (void)params;
-    auto line = std::move(term_context.term_buffer->GetCurLine());
+    auto line = term_context.term_buffer->GetCurLine();
 
     if (!line)
         return;
@@ -112,7 +112,7 @@ void clr_line(term_data_context_s & term_context,
     uint32_t cols = term_context.term_buffer->GetCols();
 
     for(uint32_t col = 0; col < cols; col++) {
-        auto cell = std::move(line->GetCell(col));
+        auto cell = line->GetCell(col);
 
         if (cell) {
             cell->Reset(term_context.cell_template);
@@ -123,7 +123,7 @@ void clr_line(term_data_context_s & term_context,
 void clr_eol(term_data_context_s & term_context,
              const term_data_param_list & params) {
     (void)params;
-    auto line = std::move(term_context.term_buffer->GetCurLine());
+    auto line = term_context.term_buffer->GetCurLine();
 
     if (!line)
         return;
@@ -135,7 +135,7 @@ void clr_eol(term_data_context_s & term_context,
         begin--;
 
     for(uint32_t col = begin; col < cols; col++) {
-        auto cell = std::move(line->GetCell(col));
+        auto cell = line->GetCell(col);
 
         if (cell) {
             cell->Reset(term_context.cell_template);
@@ -146,7 +146,7 @@ void clr_eol(term_data_context_s & term_context,
 void clr_bol(term_data_context_s & term_context,
              const term_data_param_list & params) {
     (void)params;
-    auto line = std::move(term_context.term_buffer->GetCurLine());
+    auto line = term_context.term_buffer->GetCurLine();
 
     if (!line)
         return;
@@ -158,7 +158,7 @@ void clr_bol(term_data_context_s & term_context,
         end++;
 
     for(uint32_t col = 0; col <= end; col++) {
-        auto cell = std::move(line->GetCell(col));
+        auto cell = line->GetCell(col);
 
         if (cell) {
             cell->Reset(term_context.cell_template);
@@ -178,7 +178,7 @@ static
 void __do_delete_chars(term_data_context_s & term_context,
                        int count,
                        bool overwrite) {
-    auto line = std::move(term_context.term_buffer->GetCurLine());
+    auto line = term_context.term_buffer->GetCurLine();
 
     if (!line)
         return;

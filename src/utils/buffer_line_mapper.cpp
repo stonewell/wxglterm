@@ -75,7 +75,7 @@ void BufferLineMapperImpl::RollDown(uint32_t begin, uint32_t end, uint32_t count
     }
 
     auto it_r_end = m_LineMapper.rend() - begin;
-    auto it_r_begin = m_LineMapper.rend() - end + 1;
+    auto it_r_begin = m_LineMapper.rend() - end;
     auto it_r_middle = it_r_begin + count;
 
     std::rotate(it_r_begin, it_r_middle, it_r_end);

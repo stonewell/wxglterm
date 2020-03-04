@@ -42,11 +42,11 @@ public:
     TermCellPtr GetCell(uint32_t row, uint32_t col);
 
     TermLinePtr GetCurLine() {
-        return std::move(GetLine(GetRow()));
+        return GetLine(GetRow());
     }
 
     TermCellPtr GetCurCell() {
-        return std::move(GetCell(GetRow(), GetCol()));
+        return GetCell(GetRow(), GetCol());
     }
 
     uint32_t GetScrollRegionBegin() const {

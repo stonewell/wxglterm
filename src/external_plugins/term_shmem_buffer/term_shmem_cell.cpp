@@ -10,10 +10,12 @@
 
 #include "smart_object_pool.h"
 
+#if USE_SMART_OBJ_POOL
 static
 TermShmemCell * CreateRawTermCell();
 
 SmartObjectPool<TermShmemCell> g_TermCellPool{CreateRawTermCell};
+#endif
 
 class TermShmemCellImpl : public TermShmemCell {
 public:
@@ -125,9 +127,11 @@ TermShmemCellPtr CreateTermCellPtr()
 #endif
 }
 
+#if USE_SMART_OBJ_POOL
 TermShmemCell * CreateRawTermCell() {
     return new TermShmemCellImpl();
 }
+#endif
 
 void ResetCell(CellStorage * cell_storage, const TermCellPtr & cell) {
     cell_storage->c = cell->GetChar();

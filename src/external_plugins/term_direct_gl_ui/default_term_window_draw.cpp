@@ -84,13 +84,11 @@ void DefaultTermWindow::DoDraw() {
     if (!buffer)
         return;
 
-    //__ScopeLocker buffer_locker(buffer);
-
-    TermCellPtr cell = std::move(buffer->GetCurCell());
+    TermCellPtr cell = buffer->GetCurCell();
 
     if (cell) {
         if (cell->GetChar() == 0 && buffer->GetCol() > 0) {
-            cell = std::move(buffer->GetCell(buffer->GetRow(), buffer->GetCol() - 1));
+            cell = buffer->GetCell(buffer->GetRow(), buffer->GetCol() - 1);
         }
 
         if (cell) {
@@ -98,7 +96,7 @@ void DefaultTermWindow::DoDraw() {
         }
     }
     else {
-        TermLinePtr line = std::move(buffer->GetCurLine());
+        TermLinePtr line = buffer->GetCurLine();
 
         if (line)
             line->SetModified(true);
@@ -123,7 +121,7 @@ void DefaultTermWindow::DoDraw() {
     std::bitset<16> m(buffer->GetMode());
 
     for (auto row = 0u; row < rows; row++) {
-        auto line = std::move(buffer->GetLine(row));
+        auto line = buffer->GetLine(row);
 
         if ((!full_paint &&
              row == line->GetLastRenderLineIndex()
@@ -156,7 +154,7 @@ void DefaultTermWindow::DoDraw() {
         line->SetModified(false);
 
         for (auto col = 0u; col < cols; col++) {
-            auto cell = std::move(line->GetCell(col));
+            auto cell = line->GetCell(col);
 
             wchar_t ch = 0;
             uint32_t fore_color = TermCell::DefaultForeColorIndex;

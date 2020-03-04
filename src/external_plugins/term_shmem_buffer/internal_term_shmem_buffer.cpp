@@ -235,7 +235,7 @@ TermLinePtr InternalTermShmemBuffer::GetLine(uint32_t row) {
         auto & line_ptr = m_LinePtrs.at(row);
 
         if (!line_ptr)
-            line_ptr = std::move(CreateTermLinePtr());
+            line_ptr = CreateTermLinePtr();
         line_ptr->SetStorage(line_storage);
 
         return line_ptr;

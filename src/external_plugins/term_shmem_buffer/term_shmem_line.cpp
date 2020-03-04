@@ -8,11 +8,14 @@
 
 #include <cstring>
 #include <cassert>
+#include <mutex>
 
+#if USE_SMART_OBJ_POOL
 static
 TermShmemLine * CreateRawTermLine();
 
 SmartObjectPool<TermShmemLine> g_TermLinePool{CreateRawTermLine};
+#endif
 
 class TermShmemLineImpl : public TermShmemLine {
 public:
@@ -20,6 +23,7 @@ public:
         PLUGIN_BASE_INIT_LIST("term_shmem_line", "terminal line using shared memory plugin", 0)
         , m_Storage {nullptr}
         , m_CellPtrs {}
+        , m_UpdateLock {}
     {
     }
 
@@ -36,27 +40,13 @@ public:
         m_Storage->modified = true;
     }
 
-    TermShmemCellPtr __GetCell(uint32_t col) {
-        if (col >= m_CellPtrs.size()) {
-            m_CellPtrs.resize(col + 1);
-        }
-
-        auto & cell_ptr = m_CellPtrs.at(col);
-
-        if (!cell_ptr) {
-            cell_ptr = std::move(CreateTermCellPtr());
-        }
-
-        return cell_ptr;
-    }
-
     TermCellPtr GetCell(uint32_t col) override {
         auto cell_storage = ::GetCell(m_Storage, col);
 
         if (!cell_storage)
             return TermCellPtr{};
 
-        auto cell = std::move(__GetCell(col));
+        auto cell = m_CellPtrs.at(col);
         cell->SetStorage(cell_storage);
 
         return cell;
@@ -69,7 +59,7 @@ public:
         if (!deleted_cell)
             return TermCellPtr{};
 
-        auto cell = std::move(CreateTermCellPtr());
+        auto cell = CreateTermCellPtr();
         cell->SetStorage(deleted_cell, true);
 
         return cell;
@@ -109,11 +99,23 @@ public:
 
     void SetStorage(LineStorage * storage) override {
         m_Storage  = storage;
+
+        if (m_Storage->cols > m_CellPtrs.size()) {
+            std::lock_guard<std::recursive_mutex> guard(m_UpdateLock);
+
+            for(std::vector<TermShmemCellPtr>::size_type i = m_CellPtrs.size();
+                i < m_Storage->cols;
+                i++) {
+                m_CellPtrs.push_back(CreateTermCellPtr());
+            }
+        }
+
     }
 private:
     LineStorage * m_Storage;
     std::vector<TermShmemCellPtr> m_CellPtrs;
-};
+   std::recursive_mutex m_UpdateLock;
+ };
 
 TermShmemLinePtr CreateTermLinePtr()
 {
@@ -124,9 +126,11 @@ TermShmemLinePtr CreateTermLinePtr()
 #endif
 }
 
+#if USE_SMART_OBJ_POOL
 TermShmemLine * CreateRawTermLine() {
     return new TermShmemLineImpl();
 }
+#endif
 
 CellStorage * InsertCell(LineStorage * line, uint32_t col) {
     if (col >= line->cols)

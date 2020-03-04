@@ -194,7 +194,7 @@ void DrawPane::CalculateClipRegion(wxRegion & clipRegion, const TermBufferPtr & 
     auto rows = buffer->GetRows();
 
     for (auto row = 0u; row < rows; row++) {
-        auto line = std::move(buffer->GetLine(row));
+        auto line = buffer->GetLine(row);
 
         wxRect rowRect(0, PADDING + row * m_LineHeight, clientSize.GetWidth(), m_LineHeight);
         if (updateRegion.Contains(rowRect) != wxOutRegion)
@@ -254,7 +254,7 @@ void DrawPane::DoPaint(wxDC & dc, const TermBufferPtr & buffer, bool full_paint,
 #endif
 
     for (auto row = 0u; row < rows; row++) {
-        auto line = std::move(buffer->GetLine(row));
+        auto line = buffer->GetLine(row);
 
         last_x = PADDING;
 
@@ -292,7 +292,7 @@ void DrawPane::DoPaint(wxDC & dc, const TermBufferPtr & buffer, bool full_paint,
         line->SetModified(false);
 
         for (auto col = 0u; col < cols; col++) {
-            auto cell = std::move(line->GetCell(col));
+            auto cell = line->GetCell(col);
 
             wchar_t ch = 0;
             uint32_t fore_color = TermCell::DefaultForeColorIndex;
@@ -447,11 +447,11 @@ void DrawPane::PaintOnDemand()
 
         bool paintChanged = true;
 
-        TermCellPtr cell = std::move(m_Buffer->GetCurCell());
+        TermCellPtr cell = m_Buffer->GetCurCell();
 
         if (cell) {
             if (cell->GetChar() == 0 && m_Buffer->GetCol() > 0) {
-                cell = std::move(m_Buffer->GetCell(m_Buffer->GetRow(), m_Buffer->GetCol() - 1));
+                cell = m_Buffer->GetCell(m_Buffer->GetRow(), m_Buffer->GetCol() - 1);
             }
 
             if (cell) {
@@ -459,7 +459,7 @@ void DrawPane::PaintOnDemand()
             }
         }
         else {
-            TermLinePtr line = std::move(m_Buffer->GetCurLine());
+            TermLinePtr line = m_Buffer->GetCurLine();
 
             if (line)
                 line->SetModified(true);
