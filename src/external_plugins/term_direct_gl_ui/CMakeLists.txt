@@ -88,8 +88,8 @@ TARGET_LINK_LIBRARIES(term_direct_gl_ui PRIVATE
   glfw
   pybind11::embed
   ${OPENGL_LIBRARY}
-  ${FREETYPE_LIBRARIES}
   ${freetype-direct-gl_LIBRARIES}
+  ${FREETYPE_LIBRARY}
   ${FONTCONFIG_LIBRARY}
   ${GLEW_LIB}
   ${GLFW_HACK_FIX_LIB}

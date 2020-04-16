@@ -1,3 +1,5 @@
+Find_Package(Threads REQUIRED)
+
 SET(utils_src
     app_config_impl.cpp  load_module.cpp  string_utils.cpp
     app_config_impl.h  load_module.h  string_utils.h
@@ -40,4 +42,7 @@ TARGET_INCLUDE_DIRECTORIES(utils PRIVATE
 
 TARGET_LINK_LIBRARIES(utils PRIVATE
     pybind11::embed
+    )
+TARGET_LINK_LIBRARIES(utils PUBLIC
+    Threads::Threads
     )

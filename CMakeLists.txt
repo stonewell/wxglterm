@@ -51,35 +51,29 @@ ENDIF(APPLE)
 
 SET(CMAKE_MODULE_PATH ${CMAKE_MODULE_PATH} "${CMAKE_CURRENT_SOURCE_DIR}/cmake/Modules/")
 
-SET(CXX_STANDARD_REQUIRED OFF)
-SET(CXX_EXTENSION NO)
+SET(CMAKE_CXX_STANDARD 14)
+SET(CMAKE_CXX_STANDARD_REQUIRED ON)
+SET(CMAKE_CXX_EXTENSIONS OFF)
+SET(CMAKE_POSITION_INDEPENDENT_CODE ON)
+
+STRING(TIMESTAMP BUILD_OPTIONS "%Y%m%d%H%M%S" UTC)
 
 if ("${CMAKE_CXX_COMPILER_ID}" STREQUAL "GNU")
-  set(warnings "-fPIC -Wall -Wextra -Werror -Wno-cast-function-type -Wno-ignored-qualifiers -D_hypot=hypot")
-  set(no_undefined "-Wl,--no-undefined")
+  ADD_COMPILE_OPTIONS(-Wall -Wextra -Werror -Wno-cast-function-type -Wno-ignored-qualifiers)
+  ADD_LINK_OPTIONS(-Wl,--no-undefined)
+  ADD_COMPILE_DEFINITIONS(_hypot=hypot)
 elseif (("${CMAKE_CXX_COMPILER_ID}" STREQUAL "Clang") OR ("${CMAKE_CXX_COMPILER_ID}" STREQUAL "AppleClang"))
-  set(warnings "-fPIC -Wall -Wextra -Werror -Wno-inconsistent-missing-override")
-  set(no_undefined "-Wl,-undefined,error")
+  ADD_COMPILE_OPTIONS(-Wall -Wextra -Werror -Wno-inconsistent-missing-override)
+  ADD_LINK_OPTIONS(-Wl,-undefined,error)
 elseif ("${CMAKE_CXX_COMPILER_ID}" STREQUAL "MSVC")
-    set(warnings "/W4 /WX /EHsc /wd4250 /wd4245 /D_CRT_SECURE_NO_WARNINGS")
-    set(no_undefined "")
+  ADD_COMPILE_OPTIONS(/W4 /WX /EHsc /wd4250 /wd4245 /D_CRT_SECURE_NO_WARNINGS)
 endif()
 
 if (MINGW)
-  set(extra_flags "-Wa,-mbig-obj -D_UNICODE -DUNICODE")
-  set(extra_link_flags "-municode")
-else()
-  set(extra_flags "")
-endif()
-
-
-if (NOT CONFIGURED_ONCE)
-    set(CMAKE_C_FLAGS "${CMAKE_C_FLAGS} ${warnings} ${extra_flags}"
-        CACHE STRING "Flags used by the compiler during all build types." FORCE)
-    set(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} ${warnings} -std=c++14 ${extra_flags}"
-        CACHE STRING "Flags used by the compiler during all build types." FORCE)
-    set(CMAKE_LINK_FLAGS "${CMAKE_LINK_FLAGS} ${no_undefined} ${extra_link_flags}"
-        CACHE STRING "Flags used by the linker during all build types." FORCE)
+  ADD_COMPILE_DEFINITIONS(_UNICODE)
+  ADD_COMPILE_DEFINITIONS(UNICODE)
+  ADD_COMPILE_OPTIONS(-Wa,-mbig-obj)
+  ADD_LINK_OPTIONS(-municode)
 endif()
 
 FIND_PACKAGE(PythonInterp 3 REQUIRED)
