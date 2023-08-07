@@ -43,7 +43,7 @@ bool wxGLTermApp::Run(int /*argc*/, char ** /*argv*/)
                   << std::endl;
         PyErr_Print();
     }
-	catch(std::string & e_str)
+    catch(std::string & e_str)
     {
         std::cerr << "!!Error Initialize:"
                   << std::endl
@@ -191,7 +191,7 @@ bool wxGLTermApp::DoInit()
     auto term_color_theme = CreateTermColorTheme(term_context);
     auto input_handler = CreateInputHandler(term_context);
 
-   if (term_context
+    if (term_context
         && term_ui
         && term_network
         && term_data_handler
